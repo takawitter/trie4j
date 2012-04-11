@@ -1,0 +1,76 @@
+package org.trie4j;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.zip.GZIPInputStream;
+
+import org.trie4j.util.CharsetUtil;
+
+public class TestWikipediaCPS {
+	private static final int maxCount = 2000000;
+
+	public static void main(String[] args) throws Exception{
+		System.out.println("--- recursive patricia trie ---");
+//		Trie trie = new org.trie4j.patricia.simple.PatriciaTrie();
+		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
+		int c = 0;
+		BufferedReader r = new BufferedReader(new InputStreamReader(
+				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
+				, CharsetUtil.newUTF8Decoder()));
+		String word = null;
+
+		long sum = 0;
+		long lap = System.currentTimeMillis();
+		while((word = r.readLine()) != null){
+			long d = System.currentTimeMillis();
+			trie.insert(word);
+			sum += System.currentTimeMillis() - d;
+			if(c % 100000 == 0){
+				d = System.currentTimeMillis() - lap;
+				long free = Runtime.getRuntime().freeMemory();
+				System.out.println(
+						c + "," + free + "," + Runtime.getRuntime().maxMemory() + "," + d
+						);
+				lap = System.currentTimeMillis();
+			}
+			c++;
+			if(c == maxCount) break;
+		}
+		System.out.println(c + "entries in ja wikipedia titles.");
+		System.out.println("insert time: " + sum + " millis.");
+
+		System.out.println("-- insert done.");
+		System.out.println(Runtime.getRuntime().freeMemory() + " bytes free.");
+
+		doSearches(trie);
+
+		if(trie instanceof org.trie4j.patricia.multilayer.MultilayerPatriciaTrie){
+			long start = System.currentTimeMillis();
+			System.out.println("---- packing... ----");
+			((org.trie4j.patricia.multilayer.MultilayerPatriciaTrie)trie).pack();
+			((org.trie4j.patricia.multilayer.MultilayerPatriciaTrie)trie).morePack();
+			System.out.println("---- packing done in millis: " + (System.currentTimeMillis() - start));
+			doSearches(trie);
+		}
+	}
+
+	private static void doSearches(Trie trie){
+		long start = System.currentTimeMillis();
+		System.out.println("---- common prefix search ----");
+		System.out.println("-- for 東京国際フォーラム");
+		for(String s : trie.commonPrefixSearch("東京国際フォーラム")){
+			System.out.println(s);
+		}
+		System.out.println("-- for 大阪城ホール");
+		for(String s : trie.commonPrefixSearch("大阪城ホール")){
+			System.out.println(s);
+		}
+		System.out.println("---- predictive search ----");
+		System.out.println("-- for 大阪城");
+		for(String s : trie.predictiveSearch("大阪城")){
+			System.out.println(s);
+		}
+		System.out.println("-- total search millis: " + (System.currentTimeMillis() - start));
+	}
+}

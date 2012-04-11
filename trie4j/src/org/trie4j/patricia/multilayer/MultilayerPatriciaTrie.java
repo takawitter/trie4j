@@ -1,0 +1,179 @@
+package org.trie4j.patricia.multilayer;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.trie4j.Trie;
+import org.trie4j.TrieVisitor;
+import org.trie4j.patricia.multilayer.labeltrie.LabelTrie;
+import org.trie4j.patricia.multilayer.node.TerminalCharsNode;
+
+public class MultilayerPatriciaTrie implements Trie{
+	public Node getRoot(){
+		return root;
+	}
+
+	public LabelTrie getLabelTrie() {
+		return labelTrie;
+	}
+
+	public boolean contains(String word) {
+		return root.contains(word.toCharArray(), 0);
+	}
+//*
+	@Override
+	public Iterable<String> commonPrefixSearch(final String query) {
+		if(query.length() == 0) return new ArrayList<String>(0);
+		return new Iterable<String>(){
+			{
+				this.queryChars = query.toCharArray();
+			}
+			private char[] queryChars;
+			@Override
+			public Iterator<String> iterator() {
+				return new Iterator<String>() {
+					private int cur;
+					private StringBuilder currentChars = new StringBuilder();
+					private Node current = root;
+					private String next;
+					{
+						cur = 0;
+						findNext();
+					}
+					private void findNext(){
+						next = null;
+						while(next == null){
+							if(queryChars.length <= cur) return;
+							Node child = current.getChild(queryChars[cur]);
+							if(child == null) return;
+							int rest = queryChars.length - cur;
+							char[] letters = child.getLetters();
+							int len = letters.length;
+							if(rest < len) return;
+							for(int i = 1; i < len; i++){
+								int c = letters[i] - queryChars[cur + i];
+								if(c != 0) return;
+							}
+
+							String b = new String(queryChars, cur, len);
+							if(child.isTerminated()){
+								next = currentChars + b;
+							}
+							cur += len;
+							currentChars.append(b);
+							current = child;
+						}
+					}
+					@Override
+					public boolean hasNext() {
+						return next != null;
+					}
+					@Override
+					public String next() {
+						String ret = next;
+						if(ret == null){
+							throw new NoSuchElementException();
+						}
+						findNext();
+						return ret;
+					}
+					@Override
+					public void remove() {
+						throw new UnsupportedOperationException();
+					}
+				};
+			}
+		};
+	}
+/*/
+	@Override
+	public Iterable<String> commonPrefixSearch(String query) {
+		List<String> ret = new ArrayList<String>();
+		char[] queryChars = query.toCharArray();
+		int cur = 0;
+		Node node = root;
+		while(node != null){
+			char[] letters = node.getLetters();
+			if(letters.length > (queryChars.length - cur)) return ret;
+			for(int i = 0; i < letters.length; i++){
+				if(letters[i] != queryChars[cur + i]) return ret;
+			}
+			if(node.isTerminated()){
+				ret.add(new String(queryChars, 0 , cur + letters.length));
+			}
+			cur += letters.length;
+			if(queryChars.length == cur) return ret;
+			node = node.getChild(queryChars[cur]);
+		}
+		return ret;
+	}
+//*/
+	private static void enumLetters(org.trie4j.Node node, String prefix, List<String> letters){
+		org.trie4j.Node[] children = node.getChildren();
+		if(children == null) return;
+		for(org.trie4j.Node child : children){
+			String text = prefix + new String(child.getLetters());
+			if(child.isTerminated()) letters.add(text);
+			enumLetters(child, text, letters);
+		}
+	}
+
+	@Override
+	public Iterable<String> predictiveSearch(String prefix) {
+		char[] queryChars = prefix.toCharArray();
+		int cur = 0;
+		Node node = root;
+		while(node != null){
+			char[] letters = node.getLetters();
+			if(letters.length > (queryChars.length - cur)) return Collections.emptyList();
+			for(int i = 0; i < letters.length; i++){
+				if(letters[i] != queryChars[cur + i]){
+					return Collections.emptyList();
+				}
+			}
+			cur += letters.length;
+			if(queryChars.length == cur){
+				List<String> ret = new ArrayList<String>();
+				if(node.isTerminated()) ret.add(prefix);
+				enumLetters(node, prefix, ret);
+				return ret;
+			}
+			node = node.getChild(queryChars[cur]);
+		}
+		return Collections.emptyList();
+	}
+	
+	public void insert(String text){
+		char[] letters = text.toCharArray();
+		if(root == null){
+			root = new TerminalCharsNode(letters);
+			return;
+		}
+		Node newRoot = root.insertChild(letters, 0);
+		if(newRoot != null){
+			root = newRoot;
+		}
+	}
+
+	public void pack(){
+		if(labelTrie != null) return;
+		labelTrie = new LabelTrie();
+		root.pushLabel(labelTrie);
+	}
+
+	public void morePack(){
+		if(labelTrie != null){
+			labelTrie.pargeChildren();
+		}
+	}
+
+	public void visit(TrieVisitor visitor){
+		root.visit(visitor, 0);
+	}
+
+	private Node root;
+	private LabelTrie labelTrie;
+}
