@@ -162,6 +162,9 @@ public class MultilayerPatriciaTrie implements Trie{
 	}
 	
 	public void insert(String text){
+		if(labelTrie != null){
+			throw new IllegalStateException("insert after pack is not supported.");
+		}
 		char[] letters = text.toCharArray();
 		if(root == null){
 			root = new TerminalCharsNode(letters);
