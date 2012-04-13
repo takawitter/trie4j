@@ -66,15 +66,19 @@ public class PatriciaTrie implements Trie{
 		Node node = root;
 		while(node != null){
 			char[] letters = node.getLetters();
-			if(letters.length > (queryChars.length - cur)) return Collections.emptyList();
-			for(int i = 0; i < letters.length; i++){
+			int n = Math.min(letters.length, queryChars.length - cur);
+			for(int i = 0; i < n; i++){
 				if(letters[i] != queryChars[cur + i]){
 					return Collections.emptyList();
 				}
 			}
-			cur += letters.length;
+			cur += n;
 			if(queryChars.length == cur){
 				List<String> ret = new ArrayList<String>();
+				int rest = letters.length - n;
+				if(rest > 0){
+					prefix += new String(letters, n, rest);
+				}
 				if(node.isTerminated()) ret.add(prefix);
 				enumLetters(node, prefix, ret);
 				return ret;
