@@ -152,13 +152,8 @@ public class MultilayerPatriciaTrie implements Trie{
 			cur += n;
 			if(queryChars.length == cur){
 				List<String> ret = new ArrayList<String>();
-				int rest = letters.length - n;
-				if(rest > 0){
-					prefix += new String(letters, n, rest);
-				}
-				if(node.isTerminated()){
-					ret.add(prefix);
-				}
+				prefix += new String(letters, n, letters.length - n);
+				if(node.isTerminated()) ret.add(prefix);
 				enumLetters(node, prefix, ret);
 				return ret;
 			}

@@ -13,35 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.simple;
+package org.trie4j.patricia.simple.bytes;
 
 import java.util.Arrays;
 
-import org.trie4j.TrieVisitor;
-import org.trie4j.util.Pair;
-
-public class Node implements org.trie4j.Node{
+public class Node{
 	public Node() {
 	}
-	public Node(char[] letters, boolean terminated) {
+	public Node(byte[] letters, boolean terminated) {
 		this.letters = letters;
 		this.terminated = terminated;
 	}
-	public Node(char[] letters, Node[] children, boolean terminated) {
+	public Node(byte[] letters, Node[] children, boolean terminated) {
 		this.children = children;
 		this.letters = letters;
 		this.terminated = terminated;
 	}
-	public org.trie4j.Node[] getChildren() {
+	public Node[] getChildren() {
 		return children;
 	}
 	public void setChildren(Node[] children) {
 		this.children = children;
 	}
-	public char[] getLetters() {
+	public byte[] getLetters() {
 		return letters;
 	}
-	public void setLetters(char[] letters) {
+	public void setLetters(byte[] letters) {
 		this.letters = letters;
 	}
 	public boolean isTerminated() {
@@ -50,7 +47,7 @@ public class Node implements org.trie4j.Node{
 	public void setTerminated(boolean terminated) {
 		this.terminated = terminated;
 	}
-	public Node getChild(char c){
+	public Node getChild(byte c){
 		if(children != null){
 			int end = children.length;
 			if(end > 16){
@@ -79,7 +76,7 @@ public class Node implements org.trie4j.Node{
 		}
 		return null;
 	}
-	public void insertChild(char[] letters, int offset){
+	public void insertChild(byte[] letters, int offset){
 		if(this.letters == null){
 			this.letters = Arrays.copyOfRange(letters, offset, letters.length);
 			this.terminated = true;
@@ -156,9 +153,9 @@ public class Node implements org.trie4j.Node{
 			}
 			return;
 		}
-		char[] newLetter1 = Arrays.copyOfRange(this.letters, 0, i);
-		char[] newLetter2 = Arrays.copyOfRange(this.letters, i, this.letters.length);
-		char[] newLetter3 = Arrays.copyOfRange(letters, i + offset, letters.length);
+		byte[] newLetter1 = Arrays.copyOfRange(this.letters, 0, i);
+		byte[] newLetter2 = Arrays.copyOfRange(this.letters, i, this.letters.length);
+		byte[] newLetter3 = Arrays.copyOfRange(letters, i + offset, letters.length);
 		Node[] newChildren = new Node[2];
 		if(newLetter2[0] < newLetter3[0]){
 			newChildren[0] = new Node(newLetter2, this.children, true);
@@ -171,7 +168,7 @@ public class Node implements org.trie4j.Node{
 		this.children = newChildren;
 		this.terminated = false;
 	}
-	public boolean contains(char[] letters, int offset){
+	public boolean contains(byte[] letters, int offset){
 		int rest = letters.length - offset;
 		int tll = this.letters.length;
 		if(tll > rest) return false;
@@ -182,7 +179,7 @@ public class Node implements org.trie4j.Node{
 			return terminated;
 		}
 		offset += tll;
-		char c = letters[offset];
+		byte c = letters[offset];
 		Node n = getChild(c);
 		if(n != null){
 			return n.contains(letters, offset);
@@ -206,6 +203,6 @@ public class Node implements org.trie4j.Node{
 		this.children = newc;
 	}
 	private Node[] children;
-	private char[] letters;
+	private byte[] letters;
 	private boolean terminated;
 }
