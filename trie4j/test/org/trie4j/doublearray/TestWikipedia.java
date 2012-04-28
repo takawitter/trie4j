@@ -25,58 +25,41 @@ import org.trie4j.util.CharsetUtil;
 import org.trie4j.util.LapTimer;
 
 public class TestWikipedia {
-	private static final int maxCount = 2000000;
+	private static final int maxCount = 500000;
 
 	public static void main(String[] args) throws Exception{
-		System.out.println("--- recursive patricia trie ---");
-		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
-		int c = 0;
 		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
+//				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
 				, CharsetUtil.newUTF8Decoder()));
+		System.out.println("--- building patricia trie ---");
+		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
+		int c = 0;
 		String word = null;
-		System.gc();
-		Thread.sleep(1000);
-		System.out.println(Runtime.getRuntime().freeMemory() + " bytes free.");
-
-		long sum = 0;
 		LapTimer t1 = new LapTimer();
-		LapTimer t2 = new LapTimer();
 		while((word = r.readLine()) != null){
-			t2.lap();
 			trie.insert(word);
-			sum += t2.lap();
-			if(c % 10000 == 0){
-				long free = Runtime.getRuntime().freeMemory();
-				System.out.println(
-						c + "," + free + "," + Runtime.getRuntime().maxMemory() + "," + t1.lap()
-						);
-			}
 			c++;
 			if(c == maxCount) break;
 		}
+		System.out.println("done in " + t1.lap() + " millis.");
 		System.out.println(c + "entries in ja wikipedia titles.");
-		System.out.println("insert time: " + sum + " millis.");
-
-		System.out.println("-- insert done.");
-		System.gc();
-		Thread.sleep(1000);
-		System.out.println(Runtime.getRuntime().freeMemory() + " bytes free.");
 
 		System.out.println("-- building double array.");
 		t1.lap();
-		DoubleArray da = new DoubleArray(trie);
-		System.out.println("-- done in " + t1.lap() + " millis.");
-		da.dump();
+		Trie da = new TailCompactionDoubleArray(trie);
+		System.out.println("done in " + t1.lap() + " millis.");
+		((TailCompactionDoubleArray)da).dump();
 
 		verify(da);
 	}
 
-	private static void verify(DoubleArray da) throws Exception{
+	private static void verify(Trie da) throws Exception{
 		System.out.println("verifying double array...");
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
+//				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
 				, CharsetUtil.newUTF8Decoder()));
 		int c = 0;
 		int sum = 0;
@@ -88,19 +71,16 @@ public class TestWikipedia {
 			t.lap();
 			boolean found = da.contains(word);
 			sum += t.lap();
+			c++;
 			if(!found){
-				System.out.println("trie not contains [" + word + "]");
+				System.out.println("trie not contains " + c + " th word: [" + word + "]");
 				break;
 			}
-			if(c % 100000 == 0){
-				System.out.println(c + " elements done.");
-			}
-			c++;
 		}
 		System.out.println("done in " + t1.lap() + " millis.");
 		System.out.println("contains time: " + sum + " millis.");
 
-		final DoubleArray d = da;
+		final Trie d = da;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {

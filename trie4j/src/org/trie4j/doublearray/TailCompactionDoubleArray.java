@@ -24,18 +24,20 @@ import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
 
-public class DoubleArray implements Trie{
+public class TailCompactionDoubleArray implements Trie{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 
-	public DoubleArray(Trie trie){
+	public TailCompactionDoubleArray(Trie trie){
 		this(trie, 65536);
 	}
 
-	public DoubleArray(Trie trie, int arraySize){
+	public TailCompactionDoubleArray(Trie trie, int arraySize){
 		base = new int[arraySize];
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[arraySize];
 		Arrays.fill(check, -1);
+		tail = new int[arraySize];
+		Arrays.fill(tail, -1);
 		dic = new BitSet(65536);
 
 		int nodeIndex = 0;
@@ -87,6 +89,8 @@ public class DoubleArray implements Trie{
 	}
 
 	public void dump(){
+		System.out.println("--- dump Double Array ---");
+		System.out.println("array size: " + base.length);
 		System.out.print("      |");
 		for(int i = 0; i < 16; i++){
 			System.out.print(String.format("%3d|", i));
@@ -110,14 +114,34 @@ public class DoubleArray implements Trie{
 			}
 		}
 		System.out.println();
+		System.out.print("|tail |");
+		for(int i = 0; i < 16; i++){
+			if(tail[i] < 0){
+				System.out.print("N/A|");
+			} else{
+				System.out.print(String.format("%3d|", tail[i]));
+			}
+		}
+		System.out.println();
 		System.out.print("|term |");
 		for(int i = 0; i < 16; i++){
 			System.out.print(String.format("%3d|", dic.get(i) ? 1 : 0));
 		}
 		System.out.println();
+		int count = 0;
+		for(int i : tail){
+			if(i != -1) count++;
+		}
+		System.out.println("tail count: " + count);
+		System.out.println();
+		System.out.print("tailBuf: [" + tailBuf.toString().substring(0, Math.min(tailBuf.length(), 32)).replace("\0", "\\0") + "]");
+		System.out.println();
 		System.out.print("chars: ");
+		int c = 0;
 		for(Map.Entry<Character, Integer> e : chars.entrySet()){
 			System.out.print(String.format("%c:%d,", e.getKey(), e.getValue()));
+			c++;
+			if(c > 16) break;
 		}
 		System.out.println();
 	}
@@ -125,6 +149,21 @@ public class DoubleArray implements Trie{
 	private boolean contains(char[] chars, int charsIndex, int nodeIndex){
 		if(chars.length == charsIndex){
 			return dic.get(nodeIndex);
+		}
+		int tailIndex = tail[nodeIndex];
+		if(tailIndex != -1){
+			char c = tailBuf.charAt(tailIndex);
+			while(c != '\0'){
+				if(chars.length <= charsIndex) return false;
+				if(chars[charsIndex] != c) return false;
+				charsIndex++;
+				tailIndex++;
+				c = tailBuf.charAt(tailIndex);
+			}
+			if(chars.length == charsIndex){
+				if(c == '\0') return dic.get(nodeIndex);
+				else return false;
+			}
 		}
 		int cid = findCharId(chars[charsIndex]);
 		if(cid == -1) return false;
@@ -137,13 +176,10 @@ public class DoubleArray implements Trie{
 		// letters
 		char[] letters = node.getLetters();
 		if(letters != null){
-			for(int i = 1; i < letters.length; i++){
-				char c = letters[i];
-				int cid = getCharId(c);
-				int empty = findFirstEmptyCheck();
-				setCheck(empty, nodeIndex);
-				base[nodeIndex] = empty - cid;
-				nodeIndex = empty;
+			if(letters.length > 1){
+				tail[nodeIndex] = tailBuf.length();
+				tailBuf.append(letters, 1, letters.length - 1)
+					.append('\0');
 			}
 			if(node.isTerminated()){
 				dic.set(nodeIndex);
@@ -216,6 +252,10 @@ public class DoubleArray implements Trie{
 		System.arraycopy(check, 0, nc, 0, sz);
 		Arrays.fill(nc, sz, nsz, -1);
 		check = nc;
+		int[] nt = new int[nsz];
+		System.arraycopy(tail, 0, nt, 0, sz);
+		Arrays.fill(nt, sz, nsz, -1);
+		tail = nt;
 	}
 
 	private int findFirstEmptyCheck(){
@@ -269,7 +309,9 @@ public class DoubleArray implements Trie{
 
 	private int[] base;
 	private int[] check;
+	private int[] tail;
 	private int firstEmptyCheck;
 	private BitSet dic;
+	private StringBuilder tailBuf = new StringBuilder();
 	private Map<Character, Integer> chars = new HashMap<Character, Integer>();
 }
