@@ -48,9 +48,9 @@ public class TestWikipedia {
 
 		System.out.println("-- building double array.");
 		t1.lap();
-		Trie da = new DoubleArray(trie);
+		Trie da = new TailCompactionDoubleArray(trie);
 		System.out.println("done in " + t1.lap() + " millis.");
-		((DoubleArray)da).dump();
+		((TailCompactionDoubleArray)da).dump();
 
 		verify(da);
 		System.out.println("---- common prefix search ----");
@@ -58,16 +58,20 @@ public class TestWikipedia {
 		for(String s : da.commonPrefixSearch("東京国際フォーラム")){
 			System.out.println(s);
 		}
-		System.out.println(da.contains("東京国際フォーラム"));
 		System.out.println("-- for 大阪城ホール");
-		for(String s : trie.commonPrefixSearch("大阪城ホール")){
+		for(String s : da.commonPrefixSearch("大阪城ホール")){
 			System.out.println(s);
 		}
-		System.out.println("---- predictive search ----");
+//*		System.out.println("---- predictive search ----");
 		System.out.println("-- for 大阪城");
 		for(String s : trie.predictiveSearch("大阪城")){
 			System.out.println(s);
-		}
+/*			for(char ch : s.toCharArray()){
+				System.out.print(String.format("[%04x]", ch & 0xffff));
+			}
+			System.out.println();
+*/		}
+//*/
 	}
 
 	private static void verify(Trie da) throws Exception{

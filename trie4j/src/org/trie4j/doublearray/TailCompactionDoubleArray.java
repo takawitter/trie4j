@@ -15,14 +15,20 @@
  */
 package org.trie4j.doublearray;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.HashMap;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
+import org.trie4j.util.Pair;
 
 public class TailCompactionDoubleArray implements Trie{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
@@ -38,14 +44,14 @@ public class TailCompactionDoubleArray implements Trie{
 		Arrays.fill(check, -1);
 		tail = new int[arraySize];
 		Arrays.fill(tail, -1);
-		dic = new BitSet(65536);
+		term = new BitSet(65536);
 
 		int nodeIndex = 0;
 		base[0] = nodeIndex;
 		Node root = trie.getRoot();
 		if(root == null) return;
 		if(root.getLetters() != null){
-			if(root.getLetters().length == 0) dic.set(0);
+			if(root.getLetters().length == 0) term.set(0);
 			else{
 				int c = getCharId(root.getLetters()[0]);
 				check[c] = 0;
@@ -62,17 +68,134 @@ public class TailCompactionDoubleArray implements Trie{
 	}
 
 	public boolean contains(String text){
-		return contains(text.toCharArray(), 0, 0);
+		char[] chars = text.toCharArray();
+		int charsIndex = 0;
+		int nodeIndex = 0;
+		while(charsIndex < chars.length){
+			int tailIndex = tail[nodeIndex];
+			if(tailIndex != -1){
+				char c = tailBuf.charAt(tailIndex);
+				while(c != '\0'){
+					if(chars.length <= charsIndex) return false;
+					if(chars[charsIndex] != c) return false;
+					charsIndex++;
+					tailIndex++;
+					c = tailBuf.charAt(tailIndex);
+				}
+				if(chars.length == charsIndex){
+					if(c == '\0') return term.get(nodeIndex);
+					else return false;
+				}
+			}
+			int cid = findCharId(chars[charsIndex]);
+			if(cid == -1) return false;
+			int i = cid + base[nodeIndex];
+			if(i < 0 || check.length <= i || check[i] != nodeIndex) return false;
+			charsIndex++;
+			nodeIndex = i;
+		}
+		return term.get(nodeIndex);
 	}
 
 	@Override
 	public Iterable<String> commonPrefixSearch(String query) {
-		throw new UnsupportedOperationException();
+		List<String> ret = new ArrayList<String>();
+
+		char[] chars = query.toCharArray();
+		int ci = 0;
+		int ni = 0;
+		if(tail[0] != -1){
+			int ti = tail[0];
+			while(true){
+				char c = tailBuf.charAt(ti);
+				if(c == '\0'){
+					break;
+				}
+				ci++;
+				if(ci >= chars.length) return ret;
+				if(c != chars[ci]) return ret;
+				ti++;
+			}
+			if(term.get(0)) ret.add(new String(chars, 0, ci + 1));
+		}
+		for(; ci < chars.length; ci++){
+			int cid = findCharId(chars[ci]);
+			if(cid == -1) return ret;
+			int b = base[ni];
+			if(b == BASE_EMPTY) return ret;
+			int next = b + cid;
+			if(check.length <= next || check[next] != ni) return ret;
+			ni = next;
+			if(tail[ni] != -1){
+				int ti = tail[ni];
+				while(true){
+					char c = tailBuf.charAt(ti);
+					if(c == '\0'){
+						break;
+					}
+					ci++;
+					if(ci >= chars.length) return ret;
+					if(c != chars[ci]) return ret;
+					ti++;
+				}
+			}
+			if(term.get(ni)) ret.add(new String(chars, 0, ci + 1));
+		}
+		return ret;
 	}
 
 	@Override
 	public Iterable<String> predictiveSearch(String prefix) {
-		throw new UnsupportedOperationException();
+		List<String> ret = new ArrayList<String>();
+		StringBuilder current = new StringBuilder();
+		char[] chars = prefix.toCharArray();
+		int nodeIndex = 0;
+		for(int i = 0; i < chars.length; i++){
+			int ti = tail[nodeIndex];
+			if(ti != -1){
+				do{
+					char c = tailBuf.charAt(ti);
+					if(c == '\0') break;
+					if(c != chars[i]) return ret;
+					i++;
+					ti++;
+				} while(i < chars.length);
+				if(i >= chars.length) break;
+				current.append(tailBuf.substring(tail[nodeIndex], ti));
+			}
+			int cid = findCharId(chars[i]);
+			if(cid == -1) return ret;
+			int next = base[nodeIndex] + cid;
+			if(next < 0 || check.length <= next || check[next] != nodeIndex) return ret;
+			nodeIndex = next;
+			current.append(chars[i]);
+		}
+		Deque<Pair<Integer, char[]>> q = new LinkedList<Pair<Integer,char[]>>();
+		q.add(Pair.create(nodeIndex, current.toString().toCharArray()));
+		while(!q.isEmpty()){
+			Pair<Integer, char[]> p = q.pop();
+			int ni = p.getFirst();
+			StringBuilder buff = new StringBuilder().append(p.getSecond());
+			int ti = tail[ni];
+			if(ti != -1){
+				while(tailBuf.charAt(ti) != '\0'){
+					buff.append(tailBuf.charAt(ti++));
+				}
+			}
+			if(term.get(ni)) ret.add(buff.toString());
+			for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
+				int b = base[ni];
+				if(b == BASE_EMPTY) continue;
+				int next = b + e.getValue();
+				if(check.length <= next) continue;
+				if(check[next] == ni){
+					StringBuilder bu = new StringBuilder(buff);
+					bu.append(e.getKey());
+					q.push(Pair.create(next, bu.toString().toCharArray()));
+				}
+			}
+		}
+		return ret;
 	}
 
 	/**
@@ -91,6 +214,11 @@ public class TailCompactionDoubleArray implements Trie{
 	public void dump(){
 		System.out.println("--- dump Double Array ---");
 		System.out.println("array size: " + base.length);
+		int vc = 0;
+		for(int i = 0; i < base.length; i++){
+			if(base[i] != BASE_EMPTY || check[i] >= 0) vc++;
+		}
+		System.out.println("valid elements: " + vc);
 		System.out.print("      |");
 		for(int i = 0; i < 16; i++){
 			System.out.print(String.format("%3d|", i));
@@ -125,7 +253,7 @@ public class TailCompactionDoubleArray implements Trie{
 		System.out.println();
 		System.out.print("|term |");
 		for(int i = 0; i < 16; i++){
-			System.out.print(String.format("%3d|", dic.get(i) ? 1 : 0));
+			System.out.print(String.format("%3d|", term.get(i) ? 1 : 0));
 		}
 		System.out.println();
 		int count = 0;
@@ -134,18 +262,18 @@ public class TailCompactionDoubleArray implements Trie{
 		}
 		System.out.println("tail count: " + count);
 		System.out.println();
-		System.out.print("tailBuf: [" + tailBuf.toString().substring(0, Math.min(tailBuf.length(), 32)).replace("\0", "\\0") + "]");
-		System.out.println();
+		System.out.println("tailBuf: [" + tailBuf.toString().substring(0, Math.min(tailBuf.length(), 32)).replace("\0", "\\0") + "]");
+		System.out.println("tailBuf size: " + tailBuf.length());
 		{
 			System.out.print("chars: ");
 			int c = 0;
-			for(Map.Entry<Character, Integer> e : chars.entrySet()){
+			for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
 				System.out.print(String.format("%c:%d,", e.getKey(), e.getValue()));
 				c++;
 				if(c > 16) break;
 			}
 			System.out.println();
-			System.out.println("chars count: " + chars.size());
+			System.out.println("chars count: " + charCodes.size());
 		}
 		{
 			System.out.println("max and min index.");
@@ -166,32 +294,6 @@ public class TailCompactionDoubleArray implements Trie{
 		System.out.println();
 	}
 
-	private boolean contains(char[] chars, int charsIndex, int nodeIndex){
-		if(chars.length == charsIndex){
-			return dic.get(nodeIndex);
-		}
-		int tailIndex = tail[nodeIndex];
-		if(tailIndex != -1){
-			char c = tailBuf.charAt(tailIndex);
-			while(c != '\0'){
-				if(chars.length <= charsIndex) return false;
-				if(chars[charsIndex] != c) return false;
-				charsIndex++;
-				tailIndex++;
-				c = tailBuf.charAt(tailIndex);
-			}
-			if(chars.length == charsIndex){
-				if(c == '\0') return dic.get(nodeIndex);
-				else return false;
-			}
-		}
-		int cid = findCharId(chars[charsIndex]);
-		if(cid == -1) return false;
-		int i = cid + base[nodeIndex];
-		if(i < 0 || check.length <= i || check[i] != nodeIndex) return false;
-		return contains(chars, charsIndex + 1, i);
-	}
-
 	private void build(Node node, int nodeIndex){
 		// letters
 		char[] letters = node.getLetters();
@@ -202,7 +304,7 @@ public class TailCompactionDoubleArray implements Trie{
 					.append('\0');
 			}
 			if(node.isTerminated()){
-				dic.set(nodeIndex);
+				term.set(nodeIndex);
 			}
 		}
 
@@ -238,22 +340,49 @@ public class TailCompactionDoubleArray implements Trie{
 		for(int cid : heads){
 			setCheck(offset + cid, nodeIndex);
 		}
+/*
 		for(int i = 0; i < children.length; i++){
 			build(children[i], offset + heads[i]);
 		}
+/*/
+		Map<Integer, List<Pair<Node, Integer>>> nodes = new TreeMap<Integer, List<Pair<Node, Integer>>>(new Comparator<Integer>() {
+			@Override
+			public int compare(Integer arg0, Integer arg1) {
+				return arg1 - arg0;
+			}
+		});
+		for(int i = 0; i < children.length; i++){
+			Node[] c = children[i].getChildren();
+			int n = 0;
+			if(c != null){
+				n = c.length;
+			}
+			List<Pair<Node, Integer>> p = nodes.get(n);
+			if(p == null){
+				p = new ArrayList<Pair<Node, Integer>>();
+				nodes.put(n, p);
+			}
+			p.add(Pair.create(children[i], heads[i]));
+		}
+		for(Map.Entry<Integer, List<Pair<Node, Integer>>> e : nodes.entrySet()){
+			for(Pair<Node, Integer> e2 : e.getValue()){
+				build(e2.getFirst(), e2.getSecond() + offset);
+			}
+		}
+//*/
 	}
 
 	private int getCharId(char c){
-		Integer cid = chars.get(c);
+		Integer cid = charCodes.get(c);
 		if(cid == null){
-			cid = chars.size() + 1;
-			chars.put(c, cid);
+			cid = charCodes.size() + 1;
+			charCodes.put(c, cid);
 		}
 		return cid;
 	}
 
 	private int findCharId(char c){
-		Integer cid = chars.get(c);
+		Integer cid = charCodes.get(c);
 		if(cid == null){
 			return -1;
 		}
@@ -331,7 +460,12 @@ public class TailCompactionDoubleArray implements Trie{
 	private int[] check;
 	private int[] tail;
 	private int firstEmptyCheck;
-	private BitSet dic;
+	private BitSet term;
 	private StringBuilder tailBuf = new StringBuilder();
-	private Map<Character, Integer> chars = new HashMap<Character, Integer>();
+	private Map<Character, Integer> charCodes = new TreeMap<Character, Integer>(new Comparator<Character>(){
+		@Override
+		public int compare(Character arg0, Character arg1) {
+			return arg1 - arg0;
+		}
+	});
 }

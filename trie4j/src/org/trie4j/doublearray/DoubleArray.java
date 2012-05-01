@@ -18,11 +18,13 @@ package org.trie4j.doublearray;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.trie4j.Node;
 import org.trie4j.Trie;
@@ -41,14 +43,14 @@ public class DoubleArray implements Trie{
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[arraySize];
 		Arrays.fill(check, -1);
-		dic = new BitSet(65536);
+		term = new BitSet(65536);
 
 		int nodeIndex = 0;
 		base[0] = nodeIndex;
 		Node root = trie.getRoot();
 		if(root == null) return;
 		if(root.getLetters() != null){
-			if(root.getLetters().length == 0) dic.set(0);
+			if(root.getLetters().length == 0) term.set(0);
 			else{
 				int c = getCharId(root.getLetters()[0]);
 				check[c] = 0;
@@ -74,7 +76,7 @@ public class DoubleArray implements Trie{
 			if(next < 0 || check.length <= next || check[next] != nodeIndex) return false;
 			nodeIndex = next;
 		}
-		return dic.get(nodeIndex);
+		return term.get(nodeIndex);
 	}
 
 	@Override
@@ -82,7 +84,6 @@ public class DoubleArray implements Trie{
 		List<String> ret = new ArrayList<String>();
 		char[] chars = query.toCharArray();
 		int nodeIndex = 0;
-		if(dic.get(0)) ret.add("");
 		for(int i = 0; i < chars.length; i++){
 			int cid = findCharId(chars[i]);
 			if(cid == -1) return ret;
@@ -91,7 +92,7 @@ public class DoubleArray implements Trie{
 			int next = b + cid;
 			if(check.length <= next || check[next] != nodeIndex) return ret;
 			nodeIndex = next;
-			if(dic.get(nodeIndex)) ret.add(new String(chars, 0, i + 1));
+			if(term.get(nodeIndex)) ret.add(new String(chars, 0, i + 1));
 		}
 		return ret;
 	}
@@ -108,10 +109,9 @@ public class DoubleArray implements Trie{
 			if(next < 0 || check.length <= next || check[next] != nodeIndex) return ret;
 			nodeIndex = next;
 		}
-		if(dic.get(nodeIndex)){
+		if(term.get(nodeIndex)){
 			ret.add(prefix);
 		}
-		// 子要素を探して再帰的に検索。
 		Deque<Pair<Integer, char[]>> q = new LinkedList<Pair<Integer,char[]>>();
 		q.add(Pair.create(nodeIndex, chars));
 		while(!q.isEmpty()){
@@ -124,7 +124,7 @@ public class DoubleArray implements Trie{
 				int next = b + e.getValue();
 				if(check.length <= next) continue;
 				if(check[next] == ni){
-					if(dic.get(ni)){
+					if(term.get(ni)){
 						ret.add(new StringBuilder().append(c).append(e.getKey()).toString());
 					}
 					q.push(Pair.create(next, c.clone()));
@@ -173,7 +173,7 @@ public class DoubleArray implements Trie{
 		System.out.println();
 		System.out.print("|term |");
 		for(int i = 0; i < 16; i++){
-			System.out.print(String.format("%3d|", dic.get(i) ? 1 : 0));
+			System.out.print(String.format("%3d|", term.get(i) ? 1 : 0));
 		}
 		System.out.println();
 		System.out.print("chars: ");
@@ -196,7 +196,7 @@ public class DoubleArray implements Trie{
 				nodeIndex = empty;
 			}
 			if(node.isTerminated()){
-				dic.set(nodeIndex);
+				term.set(nodeIndex);
 			}
 		}
 
@@ -232,9 +232,36 @@ public class DoubleArray implements Trie{
 		for(int cid : heads){
 			setCheck(offset + cid, nodeIndex);
 		}
+/*
 		for(int i = 0; i < children.length; i++){
 			build(children[i], offset + heads[i]);
 		}
+/*/
+		Map<Integer, List<Pair<Node, Integer>>> nodes = new TreeMap<Integer, List<Pair<Node, Integer>>>(new Comparator<Integer>() {
+			@Override
+			public int compare(Integer arg0, Integer arg1) {
+				return arg1 - arg0;
+			}
+		});
+		for(int i = 0; i < children.length; i++){
+			Node[] c = children[i].getChildren();
+			int n = 0;
+			if(c != null){
+				n = c.length;
+			}
+			List<Pair<Node, Integer>> p = nodes.get(n);
+			if(p == null){
+				p = new ArrayList<Pair<Node, Integer>>();
+				nodes.put(n, p);
+			}
+			p.add(Pair.create(children[i], heads[i]));
+		}
+		for(Map.Entry<Integer, List<Pair<Node, Integer>>> e : nodes.entrySet()){
+			for(Pair<Node, Integer> e2 : e.getValue()){
+				build(e2.getFirst(), e2.getSecond() + offset);
+			}
+		}
+//*/
 	}
 
 	private int getCharId(char c){
@@ -320,6 +347,6 @@ public class DoubleArray implements Trie{
 	private int[] base;
 	private int[] check;
 	private int firstEmptyCheck;
-	private BitSet dic;
+	private BitSet term;
 	private Map<Character, Integer> charCodes = new HashMap<Character, Integer>();
 }
