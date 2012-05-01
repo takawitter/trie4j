@@ -83,7 +83,7 @@ public class TestWikipediaCPS {
 		}
 		System.out.println("---- predictive search ----");
 		System.out.println("-- for 大阪城");
-		for(String s : trie.predictiveSearch("大阪城公")){
+		for(String s : trie.predictiveSearch("大阪城")){
 			System.out.println(s);
 		}
 		System.out.println("---- predictive search ----");

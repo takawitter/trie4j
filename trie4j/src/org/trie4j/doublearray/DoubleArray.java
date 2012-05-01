@@ -15,14 +15,19 @@
  */
 package org.trie4j.doublearray;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
+import org.trie4j.util.Pair;
 
 public class DoubleArray implements Trie{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
@@ -60,17 +65,73 @@ public class DoubleArray implements Trie{
 	}
 
 	public boolean contains(String text){
-		return contains(text.toCharArray(), 0, 0);
+		char[] chars = text.toCharArray();
+		int nodeIndex = 0;
+		for(int i = 0; i < chars.length; i++){
+			int cid = findCharId(chars[i]);
+			if(cid == -1) return false;
+			int next = base[nodeIndex] + cid;
+			if(next < 0 || check.length <= next || check[next] != nodeIndex) return false;
+			nodeIndex = next;
+		}
+		return dic.get(nodeIndex);
 	}
 
 	@Override
 	public Iterable<String> commonPrefixSearch(String query) {
-		throw new UnsupportedOperationException();
+		List<String> ret = new ArrayList<String>();
+		char[] chars = query.toCharArray();
+		int nodeIndex = 0;
+		if(dic.get(0)) ret.add("");
+		for(int i = 0; i < chars.length; i++){
+			int cid = findCharId(chars[i]);
+			if(cid == -1) return ret;
+			int b = base[nodeIndex];
+			if(b == BASE_EMPTY) return ret;
+			int next = b + cid;
+			if(check.length <= next || check[next] != nodeIndex) return ret;
+			nodeIndex = next;
+			if(dic.get(nodeIndex)) ret.add(new String(chars, 0, i + 1));
+		}
+		return ret;
 	}
 
 	@Override
 	public Iterable<String> predictiveSearch(String prefix) {
-		throw new UnsupportedOperationException();
+		List<String> ret = new ArrayList<String>();
+		char[] chars = prefix.toCharArray();
+		int nodeIndex = 0;
+		for(int i = 0; i < chars.length; i++){
+			int cid = findCharId(chars[i]);
+			if(cid == -1) return ret;
+			int next = base[nodeIndex] + cid;
+			if(next < 0 || check.length <= next || check[next] != nodeIndex) return ret;
+			nodeIndex = next;
+		}
+		if(dic.get(nodeIndex)){
+			ret.add(prefix);
+		}
+		// 子要素を探して再帰的に検索。
+		Deque<Pair<Integer, char[]>> q = new LinkedList<Pair<Integer,char[]>>();
+		q.add(Pair.create(nodeIndex, chars));
+		while(!q.isEmpty()){
+			Pair<Integer, char[]> p = q.pop();
+			int ni = p.getFirst();
+			char[] c = p.getSecond();
+			for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
+				int b = base[ni];
+				if(b == BASE_EMPTY) continue;
+				int next = b + e.getValue();
+				if(check.length <= next) continue;
+				if(check[next] == ni){
+					if(dic.get(ni)){
+						ret.add(new StringBuilder().append(c).append(e.getKey()).toString());
+					}
+					q.push(Pair.create(next, c.clone()));
+				}
+			}
+		}
+		return ret;
 	}
 
 	/**
@@ -116,21 +177,10 @@ public class DoubleArray implements Trie{
 		}
 		System.out.println();
 		System.out.print("chars: ");
-		for(Map.Entry<Character, Integer> e : chars.entrySet()){
+		for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
 			System.out.print(String.format("%c:%d,", e.getKey(), e.getValue()));
 		}
 		System.out.println();
-	}
-
-	private boolean contains(char[] chars, int charsIndex, int nodeIndex){
-		if(chars.length == charsIndex){
-			return dic.get(nodeIndex);
-		}
-		int cid = findCharId(chars[charsIndex]);
-		if(cid == -1) return false;
-		int i = cid + base[nodeIndex];
-		if(i < 0 || check.length <= i || check[i] != nodeIndex) return false;
-		return contains(chars, charsIndex + 1, i);
 	}
 
 	private void build(Node node, int nodeIndex){
@@ -188,16 +238,16 @@ public class DoubleArray implements Trie{
 	}
 
 	private int getCharId(char c){
-		Integer cid = chars.get(c);
+		Integer cid = charCodes.get(c);
 		if(cid == null){
-			cid = chars.size() + 1;
-			chars.put(c, cid);
+			cid = charCodes.size() + 1;
+			charCodes.put(c, cid);
 		}
 		return cid;
 	}
 
 	private int findCharId(char c){
-		Integer cid = chars.get(c);
+		Integer cid = charCodes.get(c);
 		if(cid == null){
 			return -1;
 		}
@@ -271,5 +321,5 @@ public class DoubleArray implements Trie{
 	private int[] check;
 	private int firstEmptyCheck;
 	private BitSet dic;
-	private Map<Character, Integer> chars = new HashMap<Character, Integer>();
+	private Map<Character, Integer> charCodes = new HashMap<Character, Integer>();
 }

@@ -25,7 +25,7 @@ import org.trie4j.util.CharsetUtil;
 import org.trie4j.util.LapTimer;
 
 public class TestWikipedia {
-	private static final int maxCount = 500000;
+	private static final int maxCount = 2000000;
 
 	public static void main(String[] args) throws Exception{
 		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
@@ -48,11 +48,26 @@ public class TestWikipedia {
 
 		System.out.println("-- building double array.");
 		t1.lap();
-		Trie da = new TailCompactionDoubleArray(trie);
+		Trie da = new DoubleArray(trie);
 		System.out.println("done in " + t1.lap() + " millis.");
-		((TailCompactionDoubleArray)da).dump();
+		((DoubleArray)da).dump();
 
 		verify(da);
+		System.out.println("---- common prefix search ----");
+		System.out.println("-- for 東京国際フォーラム");
+		for(String s : da.commonPrefixSearch("東京国際フォーラム")){
+			System.out.println(s);
+		}
+		System.out.println(da.contains("東京国際フォーラム"));
+		System.out.println("-- for 大阪城ホール");
+		for(String s : trie.commonPrefixSearch("大阪城ホール")){
+			System.out.println(s);
+		}
+		System.out.println("---- predictive search ----");
+		System.out.println("-- for 大阪城");
+		for(String s : trie.predictiveSearch("大阪城")){
+			System.out.println(s);
+		}
 	}
 
 	private static void verify(Trie da) throws Exception{
@@ -73,23 +88,11 @@ public class TestWikipedia {
 			sum += t.lap();
 			c++;
 			if(!found){
-				System.out.println("trie not contains " + c + " th word: [" + word + "]");
+				System.out.println("verification failed.  trie not contains " + c + " th word: [" + word + "]");
 				break;
 			}
 		}
-		System.out.println("done in " + t1.lap() + " millis.");
+		System.out.println("done " + c + "words in " + t1.lap() + " millis.");
 		System.out.println("contains time: " + sum + " millis.");
-
-		final Trie d = da;
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(100000);
-					d.contains("hello");
-				} catch (InterruptedException e) {
-				}
-			}
-		}).start();
 	}
 }

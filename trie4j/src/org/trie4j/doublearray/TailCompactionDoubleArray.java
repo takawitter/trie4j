@@ -136,12 +136,32 @@ public class TailCompactionDoubleArray implements Trie{
 		System.out.println();
 		System.out.print("tailBuf: [" + tailBuf.toString().substring(0, Math.min(tailBuf.length(), 32)).replace("\0", "\\0") + "]");
 		System.out.println();
-		System.out.print("chars: ");
-		int c = 0;
-		for(Map.Entry<Character, Integer> e : chars.entrySet()){
-			System.out.print(String.format("%c:%d,", e.getKey(), e.getValue()));
-			c++;
-			if(c > 16) break;
+		{
+			System.out.print("chars: ");
+			int c = 0;
+			for(Map.Entry<Character, Integer> e : chars.entrySet()){
+				System.out.print(String.format("%c:%d,", e.getKey(), e.getValue()));
+				c++;
+				if(c > 16) break;
+			}
+			System.out.println();
+			System.out.println("chars count: " + chars.size());
+		}
+		{
+			System.out.println("max and min index.");
+			int min = Integer.MAX_VALUE;
+			int max = Integer.MIN_VALUE;
+			int maxDelta = Integer.MIN_VALUE;
+			for(int i = 0; i < base.length; i++){
+				int b = base[i];
+				if(b == BASE_EMPTY) continue;
+				min = Math.min(min, b);
+				max = Math.max(max, b);
+				maxDelta = Math.max(maxDelta, Math.abs(i - b));
+			}
+			System.out.println("maxDelta: " + maxDelta);
+			System.out.println("max: " + max);
+			System.out.println("min: " + min);
 		}
 		System.out.println();
 	}
