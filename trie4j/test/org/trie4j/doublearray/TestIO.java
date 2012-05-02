@@ -19,8 +19,9 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 import org.junit.Test;
 import org.trie4j.Trie;
@@ -29,7 +30,7 @@ import org.trie4j.util.LapTimer;
 
 public class TestIO {
 	private static final int maxCount = 2000000;
-
+	
 	@Test
 	public void testSave() throws Exception{
 		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
@@ -56,7 +57,7 @@ public class TestIO {
 		trie = null;
 		System.out.println("done in " + t1.lap() + " millis.");
 
-		OutputStream os = new FileOutputStream("da.dat");
+		DeflaterOutputStream os = new DeflaterOutputStream(new FileOutputStream("da.dat"));
 		try{
 			System.out.println("-- saving double array.");
 			t1.lap();
@@ -64,6 +65,8 @@ public class TestIO {
 			System.out.println("done in " + t1.lap() + " millis.");
 			da.dump();
 		} finally{
+			os.finish();
+			os.flush();
 			os.close();
 		}
 	}
@@ -73,9 +76,9 @@ public class TestIO {
 		TailCompactionDoubleArray da = new TailCompactionDoubleArray();
 		LapTimer t = new LapTimer();
 		System.out.println("-- loading double array.");
-		da.load(new FileInputStream("da.dat"));
-		da.dump();
+		da.load(new InflaterInputStream(new FileInputStream("da.dat")));
 		System.out.println("done in " + t.lap() + " millis.");
+		da.dump();
 		verify(da);
 		System.out.println("---- common prefix search ----");
 		System.out.println("-- for 東京国際フォーラム");
