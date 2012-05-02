@@ -15,6 +15,15 @@
  */
 package org.trie4j.doublearray;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -145,6 +154,58 @@ public class DoubleArray implements Trie{
 	@Override
 	public void visit(TrieVisitor visitor) {
 		throw new UnsupportedOperationException();
+	}
+
+	public void save(OutputStream os) throws IOException{
+		BufferedOutputStream bos = new BufferedOutputStream(os);
+		DataOutputStream dos = new DataOutputStream(bos);
+		dos.writeInt(base.length);
+		for(int v : base){
+			dos.writeInt(v);
+		}
+		for(int v : check){
+			dos.writeInt(v);
+		}
+		dos.flush();
+		ObjectOutputStream oos = new ObjectOutputStream(bos);
+		oos.writeObject(term);
+		oos.flush();
+		dos.writeInt(firstEmptyCheck);
+		dos.writeInt(charCodes.size());
+		for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
+			dos.writeChar(e.getKey());
+			dos.writeInt(e.getValue());
+		}
+		dos.flush();
+		
+		bos.flush();
+	}
+
+	public void load(InputStream is) throws IOException{
+		BufferedInputStream bis = new BufferedInputStream(is);
+		DataInputStream dis = new DataInputStream(bis);
+		int len = dis.readInt();
+		base = new int[len];
+		for(int i = 0; i < len; i++){
+			base[i] = dis.readInt();
+		}
+		check = new int[len];
+		for(int i = 0; i < len; i++){
+			check[i] = dis.readInt();
+		}
+		ObjectInputStream ois = new ObjectInputStream(bis);
+		try{
+			term = (BitSet)ois.readObject();
+		} catch(ClassNotFoundException e){
+			throw new IOException(e);
+		}
+		firstEmptyCheck = dis.readInt();
+		int n = dis.readInt();
+		for(int i = 0; i < n; i++){
+			char c = dis.readChar();
+			int v = dis.readInt();
+			charCodes.put(c, v);
+		}
 	}
 
 	public void dump(){

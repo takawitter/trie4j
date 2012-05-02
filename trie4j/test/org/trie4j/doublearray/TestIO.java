@@ -17,17 +17,21 @@ package org.trie4j.doublearray;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 
+import org.junit.Test;
 import org.trie4j.Trie;
 import org.trie4j.util.CharsetUtil;
 import org.trie4j.util.LapTimer;
 
-public class TestWikipedia {
+public class TestIO {
 	private static final int maxCount = 2000000;
 
-	public static void main(String[] args) throws Exception{
+	@Test
+	public void testSave() throws Exception{
 		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
@@ -45,15 +49,33 @@ public class TestWikipedia {
 		}
 		System.out.println("done in " + t1.lap() + " millis.");
 		System.out.println(c + "entries in ja wikipedia titles.");
-		r = null;
 
 		System.out.println("-- building double array.");
 		t1.lap();
-		Trie da = new TailCompactionDoubleArray(trie);
+		TailCompactionDoubleArray da = new TailCompactionDoubleArray(trie);
 		trie = null;
 		System.out.println("done in " + t1.lap() + " millis.");
-		((TailCompactionDoubleArray)da).dump();
 
+		OutputStream os = new FileOutputStream("da.dat");
+		try{
+			System.out.println("-- saving double array.");
+			t1.lap();
+			da.save(os);
+			System.out.println("done in " + t1.lap() + " millis.");
+			da.dump();
+		} finally{
+			os.close();
+		}
+	}
+
+	@Test
+	public void testLoad() throws Exception{
+		TailCompactionDoubleArray da = new TailCompactionDoubleArray();
+		LapTimer t = new LapTimer();
+		System.out.println("-- loading double array.");
+		da.load(new FileInputStream("da.dat"));
+		da.dump();
+		System.out.println("done in " + t.lap() + " millis.");
 		verify(da);
 		System.out.println("---- common prefix search ----");
 		System.out.println("-- for 東京国際フォーラム");
@@ -64,16 +86,11 @@ public class TestWikipedia {
 		for(String s : da.commonPrefixSearch("大阪城ホール")){
 			System.out.println(s);
 		}
-//*		System.out.println("---- predictive search ----");
+		System.out.println("---- predictive search ----");
 		System.out.println("-- for 大阪城");
 		for(String s : da.predictiveSearch("大阪城")){
 			System.out.println(s);
-/*			for(char ch : s.toCharArray()){
-				System.out.print(String.format("[%04x]", ch & 0xffff));
-			}
-			System.out.println();
-*/		}
-//*/
+		}
 		Thread.sleep(10000);
 		da.contains("hello");
 	}
