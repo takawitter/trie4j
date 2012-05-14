@@ -18,7 +18,6 @@ package org.trie4j.patricia.simple;
 import java.util.Arrays;
 
 import org.trie4j.TrieVisitor;
-import org.trie4j.util.Pair;
 
 public class Node implements org.trie4j.Node{
 	public Node() {
@@ -79,8 +78,87 @@ public class Node implements org.trie4j.Node{
 		}
 		return null;
 	}
-	public void insertChild(char[] letters, int offset){
-		if(this.letters == null){
+	public Node insertChild(char[] letters, int offset){
+		int i = 0;
+		int lettersRest = letters.length - offset;
+		int thisLettersLength = this.letters.length;
+		int n = Math.min(lettersRest, thisLettersLength);
+		int c = 0;
+		while(i < n && (c = letters[i + offset] - this.letters[i]) == 0) i++;
+		if(i == n){
+			if(lettersRest == thisLettersLength){
+				terminated = true;
+				return null;
+			}
+			if(lettersRest < thisLettersLength){
+				char[] newLetters = Arrays.copyOfRange(this.letters, 0, i);
+				char[] newChildLetters = Arrays.copyOfRange(this.letters, lettersRest, thisLettersLength);
+				this.letters = newChildLetters;
+				return new Node(newLetters, new Node[]{this}, true);
+			}
+			if(children != null){
+				int index = 0;
+				int end = getChildren().length;
+				if(end > 16){
+					int start = 0;
+					while(start < end){
+						index = (start + end) / 2;
+						Node child = children[index];
+						c = letters[i + offset] - child.getLetters()[0];
+						if(c == 0){
+							Node newChild = child.insertChild(letters, i + offset);
+							if(newChild != null){
+								children[index] = newChild;
+							}
+							return null;
+						}
+						if(c < 0){
+							end = index;
+						} else if(start == index){
+							index = end;
+							break;
+						} else{
+							start = index;
+						}
+					}
+				} else{
+					for(; index < end; index++){
+						Node child = children[index];
+						c = letters[i + offset] - child.getLetters()[0];
+						if(c < 0) break;
+						if(c == 0){
+							Node newChild = child.insertChild(letters, i + offset);
+							if(newChild != null){
+								children[index] = newChild;
+							}
+							return null;
+						}
+					}
+				}
+				return addChild(index, new Node(Arrays.copyOfRange(letters, i + offset, letters.length), true));
+			} else{
+				this.children = new Node[]{
+								new Node(Arrays.copyOfRange(letters, i + offset, letters.length), true)};
+				return null;
+			}
+		}
+
+		char[] newLetter1 = Arrays.copyOfRange(this.letters, 0, i);
+		char[] newLetter2 = Arrays.copyOfRange(this.letters, i, this.letters.length);
+		char[] newLetter3 = Arrays.copyOfRange(letters, i + offset, letters.length);
+		Node[] newChildren = new Node[2];
+		if(newLetter2[0] < newLetter3[0]){
+			newChildren[0] = this;
+			newChildren[1] = new Node(newLetter3, true);
+		} else{
+			newChildren[0] = new Node(newLetter3, true);
+			newChildren[1] = this;
+		}
+		this.letters = newLetter2;
+		return new Node(newLetter1, newChildren, false);
+	}
+/*
+	if(this.letters == null){
 			this.letters = Arrays.copyOfRange(letters, offset, letters.length);
 			this.terminated = true;
 			return;
@@ -171,6 +249,7 @@ public class Node implements org.trie4j.Node{
 		this.children = newChildren;
 		this.terminated = false;
 	}
+*/
 	public boolean contains(char[] letters, int offset){
 		int rest = letters.length - offset;
 		int tll = this.letters.length;
@@ -198,12 +277,13 @@ public class Node implements org.trie4j.Node{
 			}
 		}
 	}
-	private void addChild(int index, Node n){
+	private Node addChild(int index, Node n){
 		Node[] newc = new Node[children.length + 1];
 		System.arraycopy(children,  0, newc, 0, index);
 		newc[index] = n;
 		System.arraycopy(children,  index, newc, index + 1, children.length - index);
 		this.children = newc;
+		return this;
 	}
 	private Node[] children;
 	private char[] letters;

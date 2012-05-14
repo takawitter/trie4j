@@ -193,6 +193,10 @@ public class MultilayerPatriciaTrie implements Trie{
 		root.visit(visitor, 0);
 	}
 
+	@Override
+	public void dump() {
+	}
+
 	private Node root;
 	private LabelTrie labelTrie;
 }

@@ -25,7 +25,7 @@ import org.trie4j.util.CharsetUtil;
 import org.trie4j.util.LapTimer;
 
 public class TestWikipedia {
-	private static final int maxCount = 2000000;
+	private static final int maxCount = 20000000;
 
 	public static void main(String[] args) throws Exception{
 		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
@@ -52,7 +52,7 @@ public class TestWikipedia {
 		Trie da = new TailCompactionDoubleArray(trie);
 		trie = null;
 		System.out.println("done in " + t1.lap() + " millis.");
-		((TailCompactionDoubleArray)da).dump();
+		da.dump();
 
 		verify(da);
 		System.out.println("---- common prefix search ----");

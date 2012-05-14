@@ -36,7 +36,8 @@ public class TestWikipedia {
 		int c = 0;
 		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
+//				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
+				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
 				, CharsetUtil.newUTF8Decoder()));
 		String word = null;
 		System.gc();
@@ -143,7 +144,8 @@ public class TestWikipedia {
 
 		System.out.println("verifying trie...");
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
+//				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
+				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
 				, CharsetUtil.newUTF8Decoder()));
 		long lap = System.currentTimeMillis();
 		int c = 0;

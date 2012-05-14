@@ -94,7 +94,10 @@ public class PatriciaTrie implements Trie{
 			root = new Node(letters, true);
 			return;
 		}
-		root.insertChild(letters, 0);
+		Node newRoot = root.insertChild(letters, 0);
+		if(newRoot != null){
+			root = newRoot;
+		}
 	}
 	public void visit(TrieVisitor visitor){
 		root.visit(visitor, 0);
@@ -102,6 +105,10 @@ public class PatriciaTrie implements Trie{
 
 	public Node getRoot(){
 		return root;
+	}
+
+	@Override
+	public void dump() {
 	}
 
 	private Node root;

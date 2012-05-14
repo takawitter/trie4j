@@ -22,4 +22,5 @@ public interface Trie {
 	Iterable<String> predictiveSearch(String prefix);
 	void insert(String word);
 	void visit(TrieVisitor visitor);
+	void dump();
 }

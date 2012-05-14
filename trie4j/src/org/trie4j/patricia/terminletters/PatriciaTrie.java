@@ -140,5 +140,9 @@ public class PatriciaTrie implements Trie{
 		return root;
 	}
 
+	@Override
+	public void dump() {
+	}
+
 	private Node root;
 }

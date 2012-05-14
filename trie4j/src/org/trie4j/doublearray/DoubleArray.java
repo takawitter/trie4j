@@ -30,6 +30,7 @@ import java.util.BitSet;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -242,6 +243,28 @@ public class DoubleArray implements Trie{
 			System.out.print(String.format("%c:%d,", e.getKey(), e.getValue()));
 		}
 		System.out.println();
+	}
+
+	static class WorkNode{
+		private char[] letters;
+		private int childNodeIndex;
+	}
+
+	private void build(Iterator<String> it){
+		String prev = null;
+		while(it.hasNext()){
+			String word = it.next();
+			if(prev == null){
+				prev = word;
+				continue;
+			}
+			int n = Math.min(prev.length(), word.length());
+			int i = 0;
+			for(;i < n; i++){
+				if(prev.charAt(i) != word.charAt(i)) break;
+			}
+			if(i == n) continue;
+		}
 	}
 
 	private void build(Node node, int nodeIndex){
