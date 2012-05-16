@@ -127,17 +127,18 @@ public class DoubleArray implements Trie{
 		while(!q.isEmpty()){
 			Pair<Integer, char[]> p = q.pop();
 			int ni = p.getFirst();
+			int b = base[ni];
+			if(b == BASE_EMPTY) continue;
 			char[] c = p.getSecond();
 			for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
-				int b = base[ni];
-				if(b == BASE_EMPTY) continue;
 				int next = b + e.getValue();
 				if(check.length <= next) continue;
 				if(check[next] == ni){
-					if(term.get(ni)){
-						ret.add(new StringBuilder().append(c).append(e.getKey()).toString());
+					String n = new StringBuilder().append(c).append(e.getKey()).toString();
+					if(term.get(next)){
+						ret.add(n);
 					}
-					q.push(Pair.create(next, c.clone()));
+					q.push(Pair.create(next, n.toCharArray()));
 				}
 			}
 		}
@@ -210,6 +211,7 @@ public class DoubleArray implements Trie{
 	}
 
 	public void dump(){
+		System.out.println("array size: " + base.length);
 		System.out.print("      |");
 		for(int i = 0; i < 16; i++){
 			System.out.print(String.format("%3d|", i));
@@ -316,7 +318,7 @@ public class DoubleArray implements Trie{
 		for(int cid : heads){
 			setCheck(offset + cid, nodeIndex);
 		}
-/*
+//*
 		for(int i = 0; i < children.length; i++){
 			build(children[i], offset + heads[i]);
 		}
