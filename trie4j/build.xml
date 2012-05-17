@@ -1,0 +1,10 @@
+<project name="trie4j" default="dist">
+	<target name="init">
+		<mkdir dir="build" />
+	</target>
+	
+	<target name="dist" depends="init">
+		<javac destdir="build" srcdir="src" includeantruntime="false" />
+		<jar destfile="tri4j-SNAPSHOT.jar" basedir="build" includes="**/*" />
+	</target>
+</project>
