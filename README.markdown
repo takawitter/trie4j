@@ -1,4 +1,7 @@
 # Trie4J - various trie implementation for Java.
+
+[![Build Status](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/badge/icon)](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/)
+
 ---
 Currently Trie4J has following implementation:
 * patricia trie
@@ -25,7 +28,3 @@ Trie4Jは、Javaで各種トライを実装したライブラリです。現在�
 
 **このプロジェクトはまだ実験的なものなので、将来APIが変わる可能性があります。**
 安定したAPIが必要な場合は連絡下さい。API再設計を優先して作業します。
-
----
-
-[![Build Status](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/badge/icon)](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/)
