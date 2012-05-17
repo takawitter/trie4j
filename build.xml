@@ -1,0 +1,5 @@
+<project name="trie4j-all" default="dist">
+	<target name="dist">
+		<ant antfile="build.xml" dir="trie4j" />
+	</target>
+</project>
