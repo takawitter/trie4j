@@ -23,6 +23,9 @@ Trie4Jは、Javaで各種トライを実装したライブラリです。現在�
  * TAIL圧縮ダブルアレイ(多層トライの要領でTAIL配列を圧縮) - [org.trie4j.doublearray.TailCompactionDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/TailCompcationDoubleArray.java)
  * 最適化TAIL圧縮ダブルアレイ(未使用領域の開放やcheck配列をshortにした) - [org.trie4j.doublearray.OptimizedTailCompactionDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/DoubleArray.java)
 
-**このプロジェクトはまだ実験的なものなので、将来APIが変わる可能性があります。** 安定したAPIが必要な場合は連絡下さい。API再設計を優先して作業します。
+**このプロジェクトはまだ実験的なものなので、将来APIが変わる可能性があります。**
+安定したAPIが必要な場合は連絡下さい。API再設計を優先して作業します。
+
 ---
+
 [![Build Status](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/badge/icon)](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/)
