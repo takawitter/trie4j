@@ -1,6 +1,7 @@
 # Trie4J - various trie implementation for Java.
 
 [![Build Status](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/badge/icon)](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/)
+[trie4j-SNAPSHOT.jar](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/ws/trie4j/tri4j-SNAPSHOT.jar)
 
 ---
 Currently Trie4J has following implementation:
