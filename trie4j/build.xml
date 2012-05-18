@@ -19,6 +19,7 @@
 			</classpath>
 			<test name="org.trie4j.AllTests" />
 			<formatter type="xml"/>
+			<formatter type="plain"/>
 		</junit>
 	</target>
 	
