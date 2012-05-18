@@ -2,9 +2,26 @@
 	<target name="init">
 		<mkdir dir="build" />
 	</target>
-	
-	<target name="dist" depends="init">
+
+	<target name="compile" depends="init">
 		<javac destdir="build" srcdir="src" includeantruntime="false" />
+		<javac destdir="build" srcdir="test" includeantruntime="false">
+			<classpath path="lib/junit-4.10.jar" />
+		</javac>
+	</target>
+
+	<target name="test" depends="compile">
+		<junit>
+			<classpath>
+				<pathelement path="lib/junit-4.10.jar" />
+				<pathelement path="build" />
+			</classpath>
+			<test name="org.trie4j.AllTests" />
+			<formatter type="xml"/>
+		</junit>
+	</target>
+	
+	<target name="dist" depends="test">
 		<jar destfile="tri4j-SNAPSHOT.jar" basedir="build" includes="**/*" />
 	</target>
 </project>
