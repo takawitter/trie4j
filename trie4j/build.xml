@@ -1,6 +1,7 @@
 <project name="trie4j" default="dist">
 	<target name="init">
 		<mkdir dir="build" />
+		<mkdir dir="dist" />
 	</target>
 
 	<target name="compile" depends="init">
@@ -11,7 +12,7 @@
 	</target>
 
 	<target name="test" depends="compile">
-		<junit>
+		<junit printsummary="withOutAndErr" haltonfailure="yes" logfailedtests="true" showoutput="yes">
 			<classpath>
 				<pathelement path="lib/junit-4.10.jar" />
 				<pathelement path="build" />
@@ -22,6 +23,6 @@
 	</target>
 	
 	<target name="dist" depends="test">
-		<jar destfile="tri4j-SNAPSHOT.jar" basedir="build" includes="**/*" />
+		<jar destfile="dist/tri4j-SNAPSHOT.jar" basedir="build" includes="**/*" />
 	</target>
 </project>
