@@ -85,51 +85,6 @@ public class TailCompactionDoubleArrayTest {
 		Assert.assertTrue(da.contains("page_title"));
 	}
 
-	@Test
-	public void test_tailtrie_1() throws Exception{
-		TailCompactionDoubleArray da = new TailCompactionDoubleArray();
-		TailCompactionDoubleArray.TailTrie tt = da.new TailTrie();
-		tt.insert("hello".toCharArray());
-		tt.insert("mello".toCharArray());
-		TailCompactionDoubleArray.TailTrieNode root = tt.getRoot();
-		Assert.assertNotNull(root);
-		Assert.assertNotNull(root.getChildren());
-		Assert.assertArrayEquals("ello".toCharArray(), root.getLetters(da.getTails()));
-		Assert.assertArrayEquals("h".toCharArray(), root.getChildren()[0].getLetters(da.getTails()));
-		Assert.assertArrayEquals("m".toCharArray(), root.getChildren()[1].getLetters(da.getTails()));
-	}
-
-	@Test
-	public void test_tailtrie_2() throws Exception{
-		TailCompactionDoubleArray da = new TailCompactionDoubleArray();
-		TailCompactionDoubleArray.TailTrie tt = da.new TailTrie();
-		tt.insert("world".toCharArray());
-		tt.insert("helloworld".toCharArray());
-		TailCompactionDoubleArray.TailTrieNode root = tt.getRoot();
-		Assert.assertNotNull(root);
-		Assert.assertNotNull(root.getChildren());
-		Assert.assertArrayEquals("world".toCharArray(), root.getLetters(da.getTails()));
-		Assert.assertArrayEquals("hello".toCharArray(), root.getChildren()[0].getLetters(da.getTails()));
-	}
-
-	@Test
-	public void test_tailtrie_3() throws Exception{
-		TailCompactionDoubleArray da = new TailCompactionDoubleArray();
-		TailCompactionDoubleArray.TailTrie tt = da.new TailTrie();
-		tt.insert("world".toCharArray());
-		tt.insert("hellorld".toCharArray());
-		tt.insert("bold".toCharArray());
-		TailCompactionDoubleArray.TailTrieNode root = tt.getRoot();
-		Assert.assertNotNull(root);
-		Assert.assertNotNull(root.getChildren());
-		Assert.assertArrayEquals("ld".toCharArray(), root.getLetters(da.getTails()));
-		Assert.assertArrayEquals("bo".toCharArray(), root.getChildren()[0].getLetters(da.getTails()));
-		Assert.assertArrayEquals("or".toCharArray(), root.getChildren()[1].getLetters(da.getTails()));
-		Assert.assertArrayEquals("hell".toCharArray(), root.getChildren()[1].getChildren()[0].getLetters(da.getTails()));
-		Assert.assertArrayEquals("w".toCharArray(), root.getChildren()[1].getChildren()[1].getLetters(da.getTails()));
-		Assert.assertEquals("world\0hell\1\1\0bo\1\3\0", da.getTails().toString());
-	}
-
 	private Trie newDA(Trie trie){
 		return new TailCompactionDoubleArray(trie);
 	}

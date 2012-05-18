@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.doublearray;
+package org.trie4j.tail;
 
-import org.trie4j.Trie;
-import org.trie4j.tail.SuffixTrieTailBuilder;
-import org.trie4j.tail.TailBuilder;
-
-public class TailCompactionDoubleArray extends AbstractTailDoubleArray{
-	public TailCompactionDoubleArray(){
-	}
-	
-	public TailCompactionDoubleArray(Trie trie){
-		super(trie, 65536);
+public class SimpleTailBuilder implements TailBuilder{
+	public CharSequence getTails() {
+		return tails;
 	}
 
-	public TailCompactionDoubleArray(Trie trie, int arraySize){
-		super(trie, arraySize);
+	@Override
+	public int insert(char[] letters) {
+		return insert(letters, 0, letters.length);
 	}
 
-	protected TailBuilder createTailBuilder() {
-		return new SuffixTrieTailBuilder();
+	@Override
+	public int insert(char[] letters, int offset, int len){
+		int ret = tails.length();
+		tails.append(letters, offset, len).append('\0');
+		return ret;
 	}
+
+	private StringBuilder tails = new StringBuilder();
 }

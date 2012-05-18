@@ -64,16 +64,12 @@ public class TestWikipedia {
 		for(String s : da.commonPrefixSearch("大阪城ホール")){
 			System.out.println(s);
 		}
-//*		System.out.println("---- predictive search ----");
+		System.out.println("---- predictive search ----");
 		System.out.println("-- for 大阪城");
 		for(String s : da.predictiveSearch("大阪城")){
 			System.out.println(s);
-/*			for(char ch : s.toCharArray()){
-				System.out.print(String.format("[%04x]", ch & 0xffff));
-			}
-			System.out.println();
-*/		}
-//*/
+		}
+
 		Thread.sleep(10000);
 		da.contains("hello");
 	}
