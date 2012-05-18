@@ -17,7 +17,6 @@ public class TailCompactionDoubleArrayTest {
 		Trie trie = new PatriciaTrie();
 		trie.insert("hello");
 		Trie da = newDA(trie);
-		((TailCompactionDoubleArray)da).dump();
 		Assert.assertTrue(da.contains("hello"));
 		Assert.assertFalse(da.contains("hi"));
 	}
@@ -81,7 +80,6 @@ public class TailCompactionDoubleArrayTest {
 		for(String s : da.predictiveSearch("p")){
 			System.out.println(s);
 		}
-		da.dump();
 		Assert.assertTrue(da.contains("page_title"));
 	}
 
@@ -94,7 +92,6 @@ public class TailCompactionDoubleArrayTest {
 		t.insert("hello");
 //		t.insert("hi");
 		DoubleArray da = new DoubleArray(t);
-		da.dump();
 		System.out.println("hello: " + da.contains("hello"));
 		System.out.println("hi: " + da.contains("hi"));
 		System.out.println("world: " + da.contains("world"));

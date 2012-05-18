@@ -18,7 +18,6 @@ public class DoubleArrayTest {
 		Trie trie = new PatriciaTrie();
 		trie.insert("hello");
 		DoubleArray da = new DoubleArray(trie);
-		da.dump();
 		Assert.assertTrue(da.contains("hello"));
 		Assert.assertFalse(da.contains("hi"));
 	}
@@ -62,7 +61,6 @@ public class DoubleArrayTest {
 		t.insert("hello");
 //		t.insert("hi");
 		DoubleArray da = new DoubleArray(t);
-		da.dump();
 		System.out.println("hello: " + da.contains("hello"));
 		System.out.println("hi: " + da.contains("hi"));
 		System.out.println("world: " + da.contains("world"));
