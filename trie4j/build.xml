@@ -12,7 +12,8 @@
 	</target>
 
 	<target name="test" depends="compile">
-		<junit printsummary="withOutAndErr" haltonfailure="yes" logfailedtests="true">
+		<junit printsummary="withOutAndErr" haltonfailure="yes" logfailedtests="true"
+			dir="..">
 			<classpath>
 				<pathelement path="lib/junit-4.10.jar" />
 				<pathelement path="build" />
