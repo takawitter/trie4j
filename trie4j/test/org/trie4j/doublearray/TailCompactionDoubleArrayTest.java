@@ -77,9 +77,6 @@ public class TailCompactionDoubleArrayTest {
 		trie.insert("!!!");
 		trie.insert("!_-attention-");
 		Trie da = newDA(trie);
-		for(String s : da.predictiveSearch("p")){
-			System.out.println(s);
-		}
 		Assert.assertTrue(da.contains("page_title"));
 	}
 
