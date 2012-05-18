@@ -119,7 +119,6 @@ public abstract class AbstractTailDoubleArray implements Trie{
 
 		char[] chars = query.toCharArray();
 		int ci = 0;
-		int ni = 0;
 		if(tail[0] != -1){
 			CharIterator it = new CharIterator(tails, tail[0]);
 			while(it.hasNext()){
@@ -129,6 +128,7 @@ public abstract class AbstractTailDoubleArray implements Trie{
 			}
 			if(term.get(0)) ret.add(new String(chars, 0, ci + 1));
 		}
+		int ni = 0;
 		for(; ci < chars.length; ci++){
 			int cid = findCharId(chars[ci]);
 			if(cid == -1) return ret;
@@ -285,7 +285,7 @@ public abstract class AbstractTailDoubleArray implements Trie{
 	}
 
 	public void dump(){
-		System.out.println("--- dump Double Array ---");
+		System.out.println("--- dump " + getClass().getSimpleName() + " ---");
 		System.out.println("array size: " + base.length);
 		System.out.println("last index of valid element: " + last);
 		int vc = 0;
