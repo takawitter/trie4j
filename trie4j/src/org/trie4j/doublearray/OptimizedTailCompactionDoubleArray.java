@@ -37,241 +37,14 @@ import java.util.TreeMap;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
+import org.trie4j.tail.TailCharIterator;
+import org.trie4j.tail.SuffixTrieTailBuilder;
+import org.trie4j.tail.TailBuilder;
 import org.trie4j.util.Pair;
 
 public class OptimizedTailCompactionDoubleArray implements Trie{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 
-	class TailTrie{
-		public TailTrieNode getRoot(){
-			return root;
-		}
-		public int insert(char[] letters){
-			if(root == null){
-				tails.append(letters).append('\0');
-				root = new TailTrieNode(0, letters.length - 1);
-				return 0;
-			}
-			TailTrieNode responsibleNode = root.insertChild(0,  letters, letters.length - 1);
-			if(root.parent != null){
-				root = root.parent;
-			}
-			return responsibleNode.first;
-		}
-		private TailTrieNode root;
-	}
-
-	class TailTrieNode{
-		public final char[] emptyChars = {};
-
-		public TailTrieNode(int first, int last) {
-			this.first = first;
-			this.last = last;
-		}
-		public TailTrieNode(int first, int last, TailTrieNode parent) {
-			this.first = first;
-			this.last = last;
-			this.parent = parent;
-		}
-
-		public TailTrieNode(int first, int last, TailTrieNode parent, TailTrieNode[] children) {
-			this.first = first;
-			this.last = last;
-			this.parent = parent;
-			this.children = children;
-		}
-
-		public char[] getLetters(StringBuilder tails) {
-			return tails.substring(first, last + 1).toCharArray();
-		}
-
-		public void setLetters(int first, int last) {
-			this.first = first;
-			this.last = last;
-		}
-
-		public TailTrieNode getParent() {
-			return parent;
-		}
-
-		public void setParent(TailTrieNode parent) {
-			this.parent = parent;
-		}
-
-		/**
-		 * this.offset this.length
-		 * @param childIndex
-		 * @param letters
-		 * @param offset
-		 * @return
-		 */
-		public TailTrieNode insertChild(int childIndex, char[] letters, int offset){
-			int matchedCount = 0;
-			int lettersRest = offset + 1;
-			int thisLettersLength = this.last - this.first + 1;
-			int n = Math.min(lettersRest, thisLettersLength);
-			int c = 0;
-			while(matchedCount < n && (c = letters[offset - matchedCount] - tails.charAt(this.last - matchedCount)) == 0) matchedCount++;
-			if(matchedCount == n){
-				if(matchedCount != 0 && lettersRest == thisLettersLength){
-					return this;
-				}
-				if(lettersRest < thisLettersLength){
-					TailTrieNode parent = new TailTrieNode(
-							this.last - matchedCount + 1, this.last
-							, this.parent
-							, new TailTrieNode[]{this});
-					if(this.parent != null){
-						this.parent.getChildren()[childIndex] = parent;
-					}
-					this.last -= matchedCount;
-					this.parent = parent;
-					return parent;
-				}
-				if(children != null){
-					int index = 0;
-					int end = getChildren().length;
-					if(end > 16){
-						int start = 0;
-						while(start < end){
-							index = (start + end) / 2;
-							TailTrieNode child = children[index];
-							c = letters[offset - matchedCount] - tails.charAt(child.last);
-							if(c == 0){
-								return child.insertChild(index, letters, offset - matchedCount);
-							}
-							if(c < 0){
-								end = index;
-							} else if(start == index){
-								index = end;
-								break;
-							} else{
-								start = index;
-							}
-						}
-					} else{
-						for(index = 0; index < end; index++){
-							TailTrieNode child = getChildren()[index];
-							c = letters[offset - matchedCount] - tails.charAt(child.last);
-							if(c < 0) break;
-							if(c == 0){
-								return child.insertChild(index, letters, offset - matchedCount);
-							}
-						}
-					}
-					return addChild(index, letters, offset, matchedCount);
-				} else{
-					return addChild(0, letters, offset, matchedCount);
-				}
-			}
-
-			TailTrieNode[] newParentsChildren = new TailTrieNode[2];
-			TailTrieNode newParent = new TailTrieNode(
-					this.last - matchedCount + 1, this.last, this.parent, newParentsChildren
-					);
-			int newChildFirst = tails.length();
-			tails.append(letters, 0, lettersRest - matchedCount);
-			int newChildLast = tails.length() - 1;
-			if(matchedCount == 0){
-				tails.append('\0');
-//*
-			} else if(matchedCount < 3){
-				// make the copy of matched characters because those are too short to share.
-				tails.append(letters, lettersRest - matchedCount, matchedCount);
-				int cont = this.last + 1;
-				if(tails.charAt(cont) == '\0'){
-					tails.append('\0');
-				} else if(tails.charAt(cont) == '\1'){
-					tails.append('\1')
-						.append(tails.charAt(cont + 1))
-						.append(tails.charAt(cont + 2));
-				} else{
-					tails.append('\1')
-						.append((char)(cont & 0xffff))
-						.append((char)((cont & 0xffff0000) >> 16));
-				}
-//*/
-			} else{
-				int cont = this.last - matchedCount + 1;
-				tails.append('\1')
-					.append((char)(cont & 0xffff))
-					.append((char)((cont & 0xffff0000) >> 16));
-			}
-			TailTrieNode newChild = new TailTrieNode(
-					newChildFirst, newChildLast, newParent, null
-					);
-			if(tails.charAt(this.last - matchedCount) < letters[lettersRest - matchedCount - 1]){
-				newParentsChildren[0] = this;
-				newParentsChildren[1] = newChild;
-			} else{
-				newParentsChildren[0] = newChild;
-				newParentsChildren[1] = this;
-			}
-			this.last = this.last - matchedCount;
-			if(this.parent != null){
-				this.parent.getChildren()[childIndex] = newParent;
-			}
-			this.parent = newParent;
-			return newChild;
-		}
-
-		public TailTrieNode[] getChildren() {
-			return children;
-		}
-
-		public void setChildren(TailTrieNode[] children) {
-			this.children = children;
-		}
-
-		private TailTrieNode addChild(int index, char[] letters, int offset, int matchedCount){
-			int newFirst = tails.length();
-			tails.append(letters, 0, offset - matchedCount + 1);
-			int newLast = tails.length() - 1;
-			if(matchedCount == 0){
-				tails.append('\0');
-//*
-			} else if(matchedCount < 3){
-				// make the copy of matched characters because those are too short to share.
-				tails.append(letters, offset - matchedCount + 1, matchedCount);
-				int cont = this.last + 1;
-				if(tails.charAt(cont) == '\0'){
-					tails.append('\0');
-				} else if(tails.charAt(cont) == '\1'){
-					tails.append('\1')
-						.append(tails.charAt(cont + 1))
-						.append(tails.charAt(cont + 2));
-				} else{
-					tails.append('\1')
-						.append((char)(cont & 0xffff))
-						.append((char)((cont & 0xffff0000) >> 16));
-				}
-//*/
-			} else{
-				int cont = this.last - matchedCount + 1;
-				tails.append('\1')
-					.append((char)(cont & 0xffff))
-					.append((char)((cont & 0xffff0000) >> 16));
-			}
-			TailTrieNode child = new TailTrieNode(newFirst, newLast, this, null);
-			if(children != null){
-				TailTrieNode[] newc = new TailTrieNode[children.length + 1];
-				System.arraycopy(children,  0, newc, 0, index);
-				newc[index] = child;
-				System.arraycopy(children,  index, newc, index + 1, children.length - index);
-				children = newc;
-			} else{
-				children = new TailTrieNode[]{child};
-			}
-			return child;
-		}
-
-		private int first;
-		private int last;
-		private TailTrieNode parent;
-		private TailTrieNode[] children;
-	}
-	
-	
 	public OptimizedTailCompactionDoubleArray(){
 	}
 	
@@ -317,19 +90,16 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 			}
 		});
 		*/
-		tailTrie = new TailTrie();
-		build(root, nodeIndex);
-		tailTrie = null;
+		TailBuilder tb = new SuffixTrieTailBuilder();
+		build(root, nodeIndex, tb);
+		tails = tb.getTails();
+		tb = null;
 		trimToSize();
 	}
 
 	@Override
 	public Node getRoot() {
 		throw new UnsupportedOperationException();
-	}
-	
-	public StringBuilder getTails(){
-		return tails;
 	}
 
 	public boolean contains(String text){
@@ -339,20 +109,14 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		while(charsIndex < chars.length){
 			int tailIndex = tail[nodeIndex];
 			if(tailIndex != -1){
-				char c = tails.charAt(tailIndex);
-				while(c != '\0'){
-					if(c == '\1'){
-						tailIndex = getNextIndex(tailIndex + 1);
-						c = tails.charAt(tailIndex);
-					}
+				TailCharIterator it = new TailCharIterator(tails, tailIndex);
+				while(it.hasNext()){
 					if(chars.length <= charsIndex) return false;
-					if(chars[charsIndex] != c) return false;
+					if(chars[charsIndex] != it.next()) return false;
 					charsIndex++;
-					tailIndex++;
-					c = tails.charAt(tailIndex);
 				}
 				if(chars.length == charsIndex){
-					if(c == '\0') return term.get(nodeIndex);
+					if(!it.hasNext()) return term.get(nodeIndex);
 					else return false;
 				}
 			}
@@ -374,20 +138,11 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		int ci = 0;
 		int ni = 0;
 		if(tail[0] != -1){
-			int ti = tail[0];
-			while(true){
-				char c = tails.charAt(ti);
-				if(c == '\0'){
-					break;
-				}
-				if(c == '\1'){
-					ti = getNextIndex(++ti);
-					c = tails.charAt(ti);
-				}
+			TailCharIterator it = new TailCharIterator(tails, tail[0]);
+			while(it.hasNext()){
 				ci++;
 				if(ci >= chars.length) return ret;
-				if(c != chars[ci]) return ret;
-				ti++;
+				if(it.next() != chars[ci]) return ret;
 			}
 			if(term.get(0)) ret.add(new String(chars, 0, ci + 1));
 		}
@@ -400,18 +155,11 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 			if(check.length <= next || check[next] != cid) return ret;
 			ni = next;
 			if(tail[ni] != -1){
-				int ti = tail[ni];
-				char c = tails.charAt(ti);
-				while(c != '\0'){
-					if(c == '\1'){
-						ti = getNextIndex(ti + 1);
-						c = tails.charAt(ti);
-					}
+				TailCharIterator it = new TailCharIterator(tails, tail[ni]);
+				while(it.hasNext()){
 					ci++;
 					if(ci >= chars.length) return ret;
-					if(c != chars[ci]) return ret;
-					ti++;
-					c = tails.charAt(ti);
+					if(it.next() != chars[ci]) return ret;
 				}
 			}
 			if(term.get(ni)) ret.add(new String(chars, 0, ci + 1));
@@ -428,19 +176,14 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		for(int i = 0; i < chars.length; i++){
 			int ti = tail[nodeIndex];
 			if(ti != -1){
+				TailCharIterator it = new TailCharIterator(tails,  ti);
 				do{
-					char c = tails.charAt(ti);
-					if(c == '\0') break;
-					if(c == '\1'){
-						ti = getNextIndex(ti + 1);
-						c = tails.charAt(ti);
-					}
-					if(c != chars[i]) return ret;
+					if(!it.hasNext()) break;
+					if(it.next() != chars[i]) return ret;
 					i++;
-					ti++;
 				} while(i < chars.length);
 				if(i >= chars.length) break;
-				current.append(tails.substring(tail[nodeIndex], ti));
+				current.append(tails.subSequence(tail[nodeIndex], it.getCurrentIndex()));
 			}
 			int cid = findCharId(chars[i]);
 			if(cid == -1) return ret;
@@ -457,15 +200,9 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 			StringBuilder buff = new StringBuilder().append(p.getSecond());
 			int ti = tail[ni];
 			if(ti != -1){
-				char c = tails.charAt(ti);
-				while(c != '\0'){
-					if(c == '\1'){
-						ti = getNextIndex(ti + 1);
-						c = tails.charAt(ti);
-					}
-					buff.append(c);
-					ti++;
-					c = tails.charAt(ti);
+				TailCharIterator it = new TailCharIterator(tails, ti);
+				while(it.hasNext()){
+					buff.append(it.next());
 				}
 			}
 			if(term.get(ni)) ret.add(buff.toString());
@@ -551,10 +288,11 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		}
 		firstEmptyCheck = dis.readInt();
 		int n = dis.readInt();
-		tails = new StringBuilder(n);
+		StringBuilder b = new StringBuilder(n);
 		for(int i = 0; i < n; i++){
-			tails.append(dis.readChar());
+			b.append(dis.readChar());
 		}
+		tails = b;
 		n = dis.readInt();
 		for(int i = 0; i < n; i++){
 			char c = dis.readChar();
@@ -616,7 +354,7 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		System.out.println("tail count: " + count);
 		System.out.println();
 		System.out.print("tails: [");
-		char[] tailChars = tails.substring(0, Math.min(tails.length(), 64)).toCharArray();
+		char[] tailChars = tails.subSequence(0, Math.min(tails.length(), 64)).toString().toCharArray();
 		for(int i = 0; i < tailChars.length; i++){
 			char c = tailChars[i];
 			if(c == '\0'){
@@ -673,12 +411,12 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		System.out.println();
 	}
 
-	private void build(Node node, int nodeIndex){
+	private void build(Node node, int nodeIndex, TailBuilder tb){
 		// letters
 		char[] letters = node.getLetters();
 		if(letters != null){
 			if(letters.length > 1){
-				int tailIndex = tailTrie.insert(Arrays.copyOfRange(letters, 1, letters.length));
+				int tailIndex = tb.insert(letters, 1, letters.length - 1);
 				tail[nodeIndex] = tailIndex;
 			}
 			if(node.isTerminated()){
@@ -750,7 +488,7 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		}
 		for(Map.Entry<Integer, List<Pair<Node, Integer>>> e : nodes.entrySet()){
 			for(Pair<Node, Integer> e2 : e.getValue()){
-				build(e2.getFirst(), e2.getSecond() + offset);
+				build(e2.getFirst(), e2.getSecond() + offset, tb);
 			}
 		}
 //*/
@@ -852,12 +590,6 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		last = Math.max(last, index);
 	}
 
-	private int getNextIndex(int tailIndex){
-		int i = tails.charAt(tailIndex);
-		i += tails.charAt(tailIndex + 1) << 16;
-		return i;
-	}
-
 	private void trimToSize(){
 		int sz = last + 1;
 		int[] nb = new int[sz];
@@ -869,7 +601,9 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		int[] nt = new int[sz];
 		System.arraycopy(tail, 0, nt, 0, sz);
 		tail = nt;
-		tails.trimToSize();
+		if(tails instanceof StringBuilder){
+			((StringBuilder)tails).trimToSize();
+		}
 	}
 
 	private int[] base;
@@ -878,8 +612,7 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 	private int firstEmptyCheck;
 	private int last;
 	private BitSet term;
-	private TailTrie tailTrie;
-	private StringBuilder tails = new StringBuilder();
+	private CharSequence tails;
 	private Map<Character, Integer> charCodes = new TreeMap<Character, Integer>(new Comparator<Character>(){
 		@Override
 		public int compare(Character arg0, Character arg1) {

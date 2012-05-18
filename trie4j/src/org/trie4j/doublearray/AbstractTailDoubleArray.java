@@ -37,7 +37,7 @@ import java.util.TreeMap;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
-import org.trie4j.tail.CharIterator;
+import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.SimpleTailBuilder;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.util.Pair;
@@ -92,7 +92,7 @@ public abstract class AbstractTailDoubleArray implements Trie{
 		while(charsIndex < chars.length){
 			int tailIndex = tail[nodeIndex];
 			if(tailIndex != -1){
-				CharIterator it = new CharIterator(tails, tailIndex);
+				TailCharIterator it = new TailCharIterator(tails, tailIndex);
 				while(it.hasNext()){
 					if(chars.length <= charsIndex) return false;
 					if(chars[charsIndex] != it.next()) return false;
@@ -120,7 +120,7 @@ public abstract class AbstractTailDoubleArray implements Trie{
 		char[] chars = query.toCharArray();
 		int ci = 0;
 		if(tail[0] != -1){
-			CharIterator it = new CharIterator(tails, tail[0]);
+			TailCharIterator it = new TailCharIterator(tails, tail[0]);
 			while(it.hasNext()){
 				ci++;
 				if(ci >= chars.length) return ret;
@@ -138,7 +138,7 @@ public abstract class AbstractTailDoubleArray implements Trie{
 			if(check.length <= next || check[next] != ni) return ret;
 			ni = next;
 			if(tail[ni] != -1){
-				CharIterator it = new CharIterator(tails, tail[ni]);
+				TailCharIterator it = new TailCharIterator(tails, tail[ni]);
 				while(it.hasNext()){
 					ci++;
 					if(ci >= chars.length) return ret;
@@ -159,7 +159,7 @@ public abstract class AbstractTailDoubleArray implements Trie{
 		for(int i = 0; i < chars.length; i++){
 			int ti = tail[nodeIndex];
 			if(ti != -1){
-				CharIterator it = new CharIterator(tails,  ti);
+				TailCharIterator it = new TailCharIterator(tails,  ti);
 				do{
 					if(!it.hasNext()) break;
 					if(it.next() != chars[i]) return ret;
@@ -183,7 +183,7 @@ public abstract class AbstractTailDoubleArray implements Trie{
 			StringBuilder buff = new StringBuilder().append(p.getSecond());
 			int ti = tail[ni];
 			if(ti != -1){
-				CharIterator it = new CharIterator(tails, ti);
+				TailCharIterator it = new TailCharIterator(tails, ti);
 				while(it.hasNext()){
 					buff.append(it.next());
 				}
