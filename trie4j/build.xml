@@ -11,7 +11,19 @@
 		</javac>
 	</target>
 
-	<target name="dist" depends="compile">
+	<target name="test" depends="compile">
+		<junit printsummary="withOutAndErr" haltonfailure="yes" logfailedtests="true">
+			<classpath>
+				<pathelement path="lib/junit-4.10.jar" />
+				<pathelement path="build" />
+			</classpath>
+			<test name="org.trie4j.AllTests" />
+			<formatter type="xml"/>
+			<formatter type="plain"/>
+		</junit>
+	</target>
+
+	<target name="dist" depends="test">
 		<jar destfile="dist/trie4j-SNAPSHOT.jar" basedir="build" includes="**/*" />
 	</target>
 </project>
