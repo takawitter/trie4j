@@ -1,21 +1,5 @@
 <project name="trie4j-all" default="dist">
-	<target name="compile">
-		<ant antfile="build.xml" dir="trie4j" target="compile" />
-	</target>
-
-	<target name="test" depends="compile">
-		<junit printsummary="withOutAndErr" haltonfailure="yes" logfailedtests="true">
-			<classpath>
-				<pathelement path="trie4j/lib/junit-4.10.jar" />
-				<pathelement path="trie4j/build" />
-			</classpath>
-			<test name="org.trie4j.AllTests" />
-			<formatter type="xml"/>
-			<formatter type="plain"/>
-		</junit>
-	</target>
-
-	<target name="dist" depends="test">
+	<target name="dist">
 		<ant antfile="build.xml" dir="trie4j" />
 	</target>
 </project>
