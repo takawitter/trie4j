@@ -1,3 +1,18 @@
+/*
+ * Copyright 2012 Takao Nakaguchi
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.trie4j.util;
 
 public class BitVector {
@@ -43,14 +58,15 @@ public class BitVector {
 		}
 	}
 
-	// select(count, bit)はbitがcount回出てくる位置を返す。つまりrank()の逆関数。
 	public int select(int count, boolean b){
 		if(b){
 			for(int i = 0; i < vector.length; i++){
+				if(i * 8 >= size) return -1;
 				int c = BITCOUNTS[vector[i] & 0xff];
 				if(count <= c){
 					int v = vector[i] & 0xff;
 					for(int j = 0; j < 8; j++){
+						if(i * 8 + j >= size) return -1;
 						if((v & 0x80) != 0){
 							count--;
 							if(count == 0){
@@ -64,10 +80,12 @@ public class BitVector {
 			}
 		} else{
 			for(int i = 0; i < vector.length; i++){
+				if(i * 8 >= size) return -1;
 				int c = 8 - BITCOUNTS[vector[i] & 0xff];
 				if(count <= c){
 					int v = vector[i] & 0xff;
 					for(int j = 0; j < 8; j++){
+						if(i * 8 + j >= size) return -1;
 						if((v & 0x80) == 0){
 							count--;
 							if(count == 0){
