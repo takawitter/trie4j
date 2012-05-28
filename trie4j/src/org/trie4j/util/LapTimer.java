@@ -27,11 +27,12 @@ public class LapTimer {
 		return ret;
 	}
 	
-	public long lapWithMsg(String format){
+	public long lap(String format, Object... args){
 		long c = System.currentTimeMillis();
 		long ret = c - prev;
 		prev = c;
-		System.out.println(String.format(format, ret));
+		System.out.print(String.format("[%s]: ", ret));
+		System.out.println(String.format(format, args));
 		return ret;
 	}
 	
