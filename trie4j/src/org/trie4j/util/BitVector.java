@@ -37,7 +37,7 @@ public class BitVector {
 	public void append(boolean bit){
 		int i = size / 8;
 		if(i >= vector.length){
-			byte[] n = new byte[(int)(vector.length * 1.2)];
+			byte[] n = new byte[(int)(vector.length * 1.2) + 1];
 			System.arraycopy(vector, 0, n, 0, vector.length);
 			n[vector.length] = 0;
 			vector = n;
