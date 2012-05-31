@@ -16,5 +16,10 @@
 package org.trie4j.tail;
 
 public class TailUtil {
-	
+	public static void appendChars(CharSequence tails, int index, StringBuilder builder){
+		TailCharIterator it = new TailCharIterator(tails, index);
+		while(it.hasNext()){
+			builder.append(it.next());
+		}
+	}
 }

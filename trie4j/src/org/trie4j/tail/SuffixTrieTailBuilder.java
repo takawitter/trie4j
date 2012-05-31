@@ -152,6 +152,10 @@ public class SuffixTrieTailBuilder implements TailBuilder{
 					} else{
 						for(index = 0; index < end; index++){
 							Node child = getChildren()[index];
+							int idx = offset - matchedCount;
+							if(idx < 0){
+								throw new RuntimeException("???");
+							}
 							c = letters[offset - matchedCount] - tails.charAt(child.last);
 							if(c < 0) break;
 							if(c == 0){

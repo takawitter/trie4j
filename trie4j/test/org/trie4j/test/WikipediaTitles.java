@@ -27,27 +27,17 @@ public class WikipediaTitles implements Iterable<String>{
 				} catch(IOException e){
 					exception = new NoSuchElementException();
 					exception.initCause(e);
-					try{
-						reader.close();
-					} catch(IOException e2){
-					}
 				}
 			}
 			@Override
 			public boolean hasNext() {
-				if(next != null){
-					return true;
-				}
+				if(next != null) return true;
 				if(exception != null) return false;
 				try{
 					fetch();
 				} catch(IOException e){
 					exception = new NoSuchElementException();
 					exception.initCause(e);
-					try{
-						reader.close();
-					} catch(IOException e2){
-					}
 					return false;
 				}
 				return next != null;
@@ -72,11 +62,21 @@ public class WikipediaTitles implements Iterable<String>{
 				throw new UnsupportedOperationException();
 			}
 			private void fetch() throws IOException{
-				while((next = reader.readLine()) != null){
-					next = next.trim();
-					if(next.length() > 0) break;
+				if(reader == null) return;
+				try{
+					while((next = reader.readLine()) != null){
+						next = next.trim();
+						if(next.length() > 0) break;
+					}
+				} catch(IOException e){
+					reader.close();
+					reader = null;
+					throw e;
 				}
-				if(next == null) reader.close();
+				if(next == null){
+					reader.close();
+					reader = null;
+				}
 			}
 		};
 	}

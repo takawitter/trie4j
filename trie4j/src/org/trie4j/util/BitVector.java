@@ -51,67 +51,78 @@ public class BitVector {
 		size++;
 	}
 
-	public int rank(int pos, boolean b){
-		if(b){
-			int ret = 0;
-			int n = pos / 8;
-			for(int i = 0; i < n; i++){
-				ret += BITCOUNTS[vector[i] & 0xff];
-			}
-			ret += BITCOUNTS[vector[n] & MASKS[pos % 8]];
-			return ret;
-		} else{
-			int ret = 0;
-			int n = pos / 8;
-			for(int i = 0; i < n; i++){
-				ret += 8 - BITCOUNTS[vector[i] & 0xff];
-			}
-			ret += ((pos % 8) + 1) - BITCOUNTS[vector[n] & MASKS[pos % 8]];
-			return ret;
+	public int rank1(int pos){
+		int ret = 0;
+		int n = pos / 8;
+		for(int i = 0; i < n; i++){
+			ret += BITCOUNTS[vector[i] & 0xff];
 		}
+		ret += BITCOUNTS[vector[n] & MASKS[pos % 8]];
+		return ret;
+	}
+
+	public int rank0(int pos){
+		int ret = 0;
+		int n = pos / 8;
+		for(int i = 0; i < n; i++){
+			ret += 8 - BITCOUNTS[vector[i] & 0xff];
+		}
+		ret += ((pos % 8) + 1) - BITCOUNTS[vector[n] & MASKS[pos % 8]];
+		return ret;
+	}
+
+	public int rank(int pos, boolean b){
+		if(b) return rank1(pos);
+		else return rank0(pos);
+	}
+	
+	public int select0(int count){
+		for(int i = 0; i < vector.length; i++){
+			if(i * 8 >= size) return -1;
+			int c = 8 - BITCOUNTS[vector[i] & 0xff];
+			if(count <= c){
+				int v = vector[i] & 0xff;
+				for(int j = 0; j < 8; j++){
+					if(i * 8 + j >= size) return -1;
+					if((v & 0x80) == 0){
+						count--;
+						if(count == 0){
+							return i * 8 + j;
+						}
+					}
+					v <<= 1;
+				}
+			}
+			count -= c;
+		}
+		return -1;
+	}
+
+	public int select1(int count){
+		for(int i = 0; i < vector.length; i++){
+			if(i * 8 >= size) return -1;
+			int c = BITCOUNTS[vector[i] & 0xff];
+			if(count <= c){
+				int v = vector[i] & 0xff;
+				for(int j = 0; j < 8; j++){
+					if(i * 8 + j >= size) return -1;
+					if((v & 0x80) != 0){
+						count--;
+						if(count == 0){
+							return i * 8 + j;
+						}
+					}
+					v <<= 1;
+				}
+			}
+			count -= c;
+		}
+		return -1;
 	}
 
 	public int select(int count, boolean b){
-		if(b){
-			for(int i = 0; i < vector.length; i++){
-				if(i * 8 >= size) return -1;
-				int c = BITCOUNTS[vector[i] & 0xff];
-				if(count <= c){
-					int v = vector[i] & 0xff;
-					for(int j = 0; j < 8; j++){
-						if(i * 8 + j >= size) return -1;
-						if((v & 0x80) != 0){
-							count--;
-							if(count == 0){
-								return i * 8 + j;
-							}
-						}
-						v <<= 1;
-					}
-				}
-				count -= c;
-			}
-		} else{
-			for(int i = 0; i < vector.length; i++){
-				if(i * 8 >= size) return -1;
-				int c = 8 - BITCOUNTS[vector[i] & 0xff];
-				if(count <= c){
-					int v = vector[i] & 0xff;
-					for(int j = 0; j < 8; j++){
-						if(i * 8 + j >= size) return -1;
-						if((v & 0x80) == 0){
-							count--;
-							if(count == 0){
-								return i * 8 + j;
-							}
-						}
-						v <<= 1;
-					}
-				}
-				count -= c;
-			}
-		}
-		return -1;
+		if(b) return select1(count);
+		else return select0(count);
 	}
 
 	private static final int WIDTH = 32;
