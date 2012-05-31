@@ -1,29 +1,56 @@
 <project name="trie4j" default="dist">
+	<taskdef classpath="lib/cobertura.jar" resource="tasks.properties">
+		<classpath path="lib/asm-3.0.jar" />
+		<classpath path="lib/asm-tree-3.0.jar" />
+		<classpath path="lib/jakarta-oro-2.0.8.jar" />
+		<classpath path="lib/log4j-1.2.9.jar" />
+	</taskdef>
+
+	<target name="clean">
+		<delete dir="build" />
+		<delete dir="coverage" />
+	</target>
+
 	<target name="init">
 		<mkdir dir="build" />
+		<mkdir dir="build/classes" />
+		<mkdir dir="build/test-classes" />
+		<mkdir dir="build/instrument-classes" />
+		<mkdir dir="coverage" />
 		<mkdir dir="dist" />
 	</target>
 
 	<target name="compile" depends="init">
-		<javac destdir="build" srcdir="src" includeantruntime="false" />
-		<javac destdir="build" srcdir="test" includeantruntime="false">
+		<javac destdir="build/classes" srcdir="src" includeantruntime="false" debug="true" />
+		<javac destdir="build/test-classes" srcdir="test" includeantruntime="false" debug="true" >
+			<classpath path="build/classes" />
 			<classpath path="lib/junit-4.10.jar" />
 		</javac>
 	</target>
 
-	<target name="test" depends="compile">
-		<junit printsummary="withOutAndErr" haltonfailure="yes" logfailedtests="true">
+	<target name="instrument" depends="compile">
+		<cobertura-instrument todir="build/instrumented-classes">
+		    <fileset dir="build/classes" includes="**/*.classes" />
+		    <fileset dir="build/test-classes" includes="**/*.classes" />
+		</cobertura-instrument>
+	</target>
+	
+	<target name="test" depends="instrument">
+		<junit printsummary="withOutAndErr" haltonfailure="yes" logfailedtests="true" fork="true">
 			<classpath>
-				<pathelement path="lib/junit-4.10.jar" />
-				<pathelement path="build" />
+				<fileset dir="lib" includes="*.jar" />
+				<pathelement path="build/instrumented-classes" />
+				<pathelement path="build/test-classes" />
+				<pathelement path="build/classes" />
 			</classpath>
 			<test name="org.trie4j.AllTests" />
 			<formatter type="xml"/>
-			<formatter type="plain"/>
 		</junit>
+	    <cobertura-report srcdir="src" destdir="." format="xml" />
+	    <cobertura-report srcdir="src" destdir="coverage" />
 	</target>
 
 	<target name="dist" depends="test">
-		<jar destfile="dist/trie4j-SNAPSHOT.jar" basedir="build" includes="**/*" />
+		<jar destfile="dist/trie4j-SNAPSHOT.jar" basedir="build/classes" includes="**/*" />
 	</target>
 </project>
