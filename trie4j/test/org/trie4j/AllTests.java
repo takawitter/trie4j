@@ -22,7 +22,6 @@ import org.trie4j.doublearray.TailCompactionDoubleArrayTest;
 import org.trie4j.doublearray.TailDoubleArrayTest;
 import org.trie4j.louds.LOUDSTrieTest;
 import org.trie4j.tail.SuffixTrieTailBuilderTest;
-import org.trie4j.test.WikipediaTitlesTest;
 import org.trie4j.util.BitVectorTest;
 
 @RunWith(Suite.class)
@@ -31,7 +30,7 @@ import org.trie4j.util.BitVectorTest;
 	, TailDoubleArrayTest.class
 	, SuffixTrieTailBuilderTest.class
 	, BitVectorTest.class
-	, WikipediaTitlesTest.class
+//	, WikipediaTitlesTest.class
 	, LOUDSTrieTest.class
 })
 public class AllTests {
