@@ -12,7 +12,9 @@ Currently Trie4J has following implementation:
  * Simple Double Array (no size optimization) - [org.trie4j.doublearray.DoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/DoubleArray.java)
  * Double Array with Tail (store char sequence in one string(tails)) - [org.trie4j.doublearray.TailDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/TailDoubleArray.java)
  * Double Array with compacted Tail (shrink tail by inverse suffix patricia trie) - [org.trie4j.doublearray.TailCompactionDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/TailCompactionDoubleArray.java)
- * Double Array with compacted Tail and some optimization - [org.trie4j.doublearray.OptimizedTailCompactionDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/OptimizedTailCompcationDoubleArray.java)
+ * Double Array with compacted Tail and some optimization - [org.trie4j.doublearray.OptimizedTailCompactionDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/OptimizedTailCompactionDoubleArray.java)
+* LOUDS(Level-order unary degree structure) Trie
+ * Simple LOUDS Trie (currently support only "contains" method) - [org.trie4j.louds.LOUDSTrie](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/louds/LOUDSTrie.java)
 
 **This project is the state of experimental, so the API might be changed without notice.** Please contact me if you need API stability, then I will try to re-design stable API and implement it :)
 
@@ -26,6 +28,8 @@ Trie4Jは、Javaで各種トライを実装したライブラリです。現在�
  * TAIL付きダブルアレイ(子が一つだけのノードが連続する場合に文字列としてTAIL配列に格納) - [org.trie4j.doublearray.TailDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/TailDoubleArray.java)
  * TAIL圧縮ダブルアレイ(多層トライの要領でTAIL配列を圧縮) - [org.trie4j.doublearray.TailCompactionDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/TailCompactionDoubleArray.java)
  * 最適化TAIL圧縮ダブルアレイ(未使用領域の開放やcheck配列をshortにした) - [org.trie4j.doublearray.OptimizedTailCompactionDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/OptimizedTailCompactionDoubleArray.java)
+* LOUDS(Level-order unary degree structure) Trie
+ * シンプルなLOUDSトライ(今のところcontainsメソッドのみサポート) - [org.trie4j.louds.LOUDSTrie](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/louds/LOUDSTrie.java)
 
 **このプロジェクトはまだ実験的なものなので、将来APIが変わる可能性があります。**
 安定したAPIが必要な場合は連絡下さい。API再設計を優先して作業します。
