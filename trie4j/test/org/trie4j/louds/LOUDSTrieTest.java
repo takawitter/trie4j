@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.louds.LOUDSTrie.LOUDSNode;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.test.WikipediaTitles;
@@ -17,11 +18,22 @@ public class LOUDSTrieTest {
 		trie.insert("さようなら");
 		trie.insert("おはよう");
 		trie.insert("おおきなかぶ");
+		trie.insert("おおやまざき");
 		LOUDSTrie lt = new LOUDSTrie(trie);
 		Assert.assertTrue(lt.contains("こんにちは"));
 		Assert.assertTrue(lt.contains("さようなら"));
 		Assert.assertTrue(lt.contains("おはよう"));
+		Assert.assertTrue(lt.contains("おおきなかぶ"));
+		Assert.assertTrue(lt.contains("おおやまざき"));
 		Assert.assertFalse(lt.contains("おやすみなさい"));
+
+		StringBuilder b = new StringBuilder();
+		Node[] children = lt.getRoot().getChildren();
+		for(Node n : children){
+			char[] letters = n.getLetters();
+			b.append(letters[0]);
+		}
+		Assert.assertEquals("おこさ", b.toString());
 	}
 
 	private static final int maxCount = 2000000;
@@ -59,12 +71,23 @@ public class LOUDSTrieTest {
 				break;
 			}
 			c++;
-			if(c % 1000 == 0) t.lap("%d elements done.", c);
+			if(c % 100000 == 0) t.lap("%d elements done.", c);
 			if(c == maxCount) break;
 		}
 		t.lap("verification done.");
 		
 		Thread.sleep(10000);
+		lt.contains("hello");
+	}
+
+	private static void printHeads(Node node){
+		Node[] children = node.getChildren();
+		for(Node n : children){
+			char[] letters = n.getLetters();
+			if(letters.length == 0) continue;
+			System.out.print(letters[0]);
+		}
+		System.out.println();
 	}
 
 	private static void print(Node node){
@@ -73,20 +96,17 @@ public class LOUDSTrieTest {
 		b.append(node.getLetters());
 		while((children = node.getChildren()) != null){
 			if(children.length > 0){
+//				if(node instanceof LOUDSNode){
+//					System.out.print(((LOUDSNode) node).getId());
+//					System.out.print(" ");
+//				}
 				b.append(children[0].getLetters());
 				node = children[0];
 			} else{
 				break;
 			}
 		}
+		if(node instanceof LOUDSNode) System.out.println();
 		System.out.println(b);
-	}
-
-	private static void printHeads(Node node){
-		Node[] children = node.getChildren();
-		for(Node n : children){
-			System.out.print(n.getLetters()[0]);
-		}
-		System.out.println();
 	}
 }

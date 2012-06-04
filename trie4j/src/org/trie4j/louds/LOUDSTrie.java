@@ -42,7 +42,7 @@ public class LOUDSTrie {
 		labels[0] = 0xffff;
 		tail[0] = -1;
 		count++;
-		
+
 		TailBuilder tb = new SuffixTrieTailBuilder();
 		queue.add(orig.getRoot());
 		while(!queue.isEmpty()){
@@ -90,7 +90,7 @@ public class LOUDSTrie {
 		int nodeId = 1;
 		while(true){
 			int start = bv.select0(nodeId) + 1;
-			int end = bv.select0(nodeId + 1);
+			int end = bv.next0(start);
 			int baseNodeId = bv.rank1(start) - start;
 			while(start != end){
 				int i = (start + end) / 2;
@@ -124,19 +124,22 @@ public class LOUDSTrie {
 			if(start == end) return false;
 		}
 	}
-	
+
 	public class LOUDSNode implements Node{
-		public LOUDSNode(int index) {
-			this.index = index;
+		public LOUDSNode(int nodeId) {
+			this.nodeId = nodeId;
+		}
+		public int getId(){
+			return nodeId;
 		}
 		@Override
 		public char[] getLetters() {
 			StringBuilder b = new StringBuilder();
-			char h = labels[index];
+			char h = labels[nodeId];
 			if(h != 0xffff){
 				b.append(h);
 			}
-			int ti = tail[index];
+			int ti = tail[nodeId];
 			if(ti != -1){
 				TailUtil.appendChars(tails, ti, b);
 			}
@@ -144,16 +147,16 @@ public class LOUDSTrie {
 		}
 		@Override
 		public boolean isTerminated() {
-			return term.get(index);
+			return term.get(nodeId);
 		}
 		@Override
 		public Node[] getChildren() {
 			int start = 0;
-			if(index > 0){
-				start = bv.select(index, false) + 1;
+			if(nodeId > 0){
+				start = bv.select0(nodeId) + 1;
 			}
-			int end = bv.select(index + 1, false);
-			int ci = bv.rank(start, true);
+			int end = bv.next0(start);
+			int ci = bv.rank1(start);
 			int n = end - start;
 			Node[] children = new Node[n];
 			for(int i = 0; i < n; i++){
@@ -162,7 +165,7 @@ public class LOUDSTrie {
 			return children;
 		}
 		
-		private int index;
+		private int nodeId;
 	}
 
 	private void extend(){
