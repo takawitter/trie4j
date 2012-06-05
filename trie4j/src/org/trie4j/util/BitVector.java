@@ -73,7 +73,9 @@ public class BitVector {
 		int r = size % 8;
 		vector[i] &= ~BITS[r];
 		size0++;
-		if(size0 == 2){
+		if(size0 == 1){
+			node1pos = size;
+		} else if(size0 == 2){
 			node2pos = size;
 		}
 		if(size0 % CACHE_WIDTH == 0){
@@ -125,7 +127,7 @@ public class BitVector {
 	}
 
 	public int select0(int offset, int count){
-		if(count == 1) return 1;
+		if(count == 1) return node1pos;
 		if(count == 2) return node2pos;
 //*
 		int start = indexCache[count / CACHE_WIDTH] / CACHE_WIDTH;
@@ -276,7 +278,8 @@ public class BitVector {
 
 	private static final int CACHE_WIDTH = 64;
 	private byte[] vector;
-	private int node2pos;
+	private int node1pos = -1;
+	private int node2pos = -1;
 	private int size;
 	private int size0;
 	private int[] countCache;
