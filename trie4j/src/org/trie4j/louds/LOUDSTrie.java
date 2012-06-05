@@ -88,8 +88,9 @@ public class LOUDSTrie {
 		char[] chars = word.toCharArray();
 		int charsIndex = 0;
 		int nodeId = 1;
+		int start = 0;
 		while(true){
-			int start = bv.select0(nodeId) + 1;
+			start = bv.select0(start, nodeId) + 1;
 			int end = bv.next0(start);
 			int baseNodeId = bv.rank1(start) - start;
 			while(start != end){

@@ -138,12 +138,6 @@ public class BitVectorTest {
 	}
 
 	@Test
-	public void test_next0_6() throws Exception{
-		BitVector bv = new BitVector(new byte[]{-69, 0}, 13);
-		Assert.assertEquals(8, bv.next0(6));
-	}
-
-	@Test
 	public void test_hugedata_rank1() throws Exception{
 		int size = 1000000;
 		BitVector bv = new BitVector(size);

@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.louds.LOUDSTrie.LOUDSNode;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.test.WikipediaTitles;
@@ -71,11 +70,10 @@ public class LOUDSTrieTest {
 				break;
 			}
 			c++;
-			if(c % 100000 == 0) t.lap("%d elements done.", c);
 			if(c == maxCount) break;
 		}
 		t.lap("verification done.");
-		
+
 		Thread.sleep(10000);
 		lt.contains("hello");
 	}
@@ -96,17 +94,12 @@ public class LOUDSTrieTest {
 		b.append(node.getLetters());
 		while((children = node.getChildren()) != null){
 			if(children.length > 0){
-//				if(node instanceof LOUDSNode){
-//					System.out.print(((LOUDSNode) node).getId());
-//					System.out.print(" ");
-//				}
 				b.append(children[0].getLetters());
 				node = children[0];
 			} else{
 				break;
 			}
 		}
-		if(node instanceof LOUDSNode) System.out.println();
 		System.out.println(b);
 	}
 }
