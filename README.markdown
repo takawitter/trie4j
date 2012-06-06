@@ -13,7 +13,7 @@ Currently Trie4J has following implementation:
  * Double Array with Tail (store char sequence in one string(tails)) - [org.trie4j.doublearray.TailDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/TailDoubleArray.java)
  * Double Array with compacted Tail (shrink tail by inverse suffix patricia trie) - [org.trie4j.doublearray.TailCompactionDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/TailCompactionDoubleArray.java)
  * Double Array with compacted Tail and some optimization - [org.trie4j.doublearray.OptimizedTailCompactionDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/OptimizedTailCompactionDoubleArray.java)
-* LOUDS(Level-order unary degree structure) Trie
+* LOUDS(Level-Order Unary Degree Sequence) Trie
  * Simple LOUDS Trie (currently support only "contains" method) - [org.trie4j.louds.LOUDSTrie](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/louds/LOUDSTrie.java)
 
 **This project is the state of experimental, so the API might be changed without notice.** Please contact me if you need API stability, then I will try to re-design stable API and implement it :)
