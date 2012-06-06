@@ -4,6 +4,30 @@
  **latest [trie4j-SNAPSHOT.jar](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/lastSuccessfulBuild/artifact/trie4j/dist/trie4j-SNAPSHOT.jar)**
 
 ---
+Sample codes:
+
+	import org.trie4j.doublearray.DoubleArray;
+	import org.trie4j.louds.LOUDSTrie;
+	import org.trie4j.patricia.simple.PatriciaTrie;
+
+	public class Sample {
+		public static void main(String[] args) throws Exception{
+			PatriciaTrie pat = new PatriciaTrie();
+			pat.insert("Hello");
+			pat.insert("World");
+			pat.insert("Wonderful!");
+			pat.contains("Hello"); // -> true
+			pat.predictiveSearch("Wo"); // -> {"Wonderful", "World"} as Iterable<String>
+			
+			DoubleArray da = new DoubleArray(pat); // construct DoubleArray from existing Trie
+			da.contains("World"); // -> true
+			
+			LOUDSTrie lt = new LOUDSTrie(pat); // construct LOUDS succinct Trie
+			lt.contains("Wonderful"); // -> true
+		}
+	}
+
+---
 Currently Trie4J has following implementation:
 * patricia trie
  * Simple Patricia Trie(no size optimization)  - [org.trie4j.patricia.simple.PatriciaTrie](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/patricia/simple/PatriciaTrie.java)
@@ -33,27 +57,4 @@ Trie4Jは、Javaで各種トライを実装したライブラリです。現在�
 
 **このプロジェクトはまだ実験的なものなので、将来APIが変わる可能性があります。**
 
----
-Sample codes:
-
-	import org.trie4j.doublearray.DoubleArray;
-	import org.trie4j.louds.LOUDSTrie;
-	import org.trie4j.patricia.simple.PatriciaTrie;
-
-	public class AllTries {
-		public static void main(String[] args) throws Exception{
-			PatriciaTrie pat = new PatriciaTrie();
-			pat.insert("Hello");
-			pat.insert("World");
-			pat.insert("Wonderful!");
-			pat.contains("Hello"); // -> true
-			pat.predictiveSearch("Wo"); // -> {"Wonderful", "World"} as Iterable<String>
-			
-			DoubleArray da = new DoubleArray(pat); // construct DoubleArray from existing Trie
-			da.contains("World"); // -> true
-			
-			LOUDSTrie lt = new LOUDSTrie(pat); // construct LOUDS succinct Trie
-			lt.contains("Wonderful"); // -> true
-		}
-	}
 
