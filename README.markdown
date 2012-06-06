@@ -35,6 +35,7 @@ Trie4Jは、Javaで各種トライを実装したライブラリです。現在�
 
 ---
 Sample codes:
+
 	import org.trie4j.doublearray.DoubleArray;
 	import org.trie4j.louds.LOUDSTrie;
 	import org.trie4j.patricia.simple.PatriciaTrie;
