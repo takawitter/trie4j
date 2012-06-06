@@ -16,7 +16,7 @@ Currently Trie4J has following implementation:
 * LOUDS(Level-Order Unary Degree Sequence) Trie
  * Simple LOUDS Trie (currently support only "contains" method) - [org.trie4j.louds.LOUDSTrie](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/louds/LOUDSTrie.java)
 
-**This project is the state of experimental, so the API might be changed without notice.** Please contact me if you need API stability, then I will try to re-design stable API and implement it :)
+**This project is the state of experimental, so the API might be changed without notice.**
 
 ---
 Trie4Jは、Javaで各種トライを実装したライブラリです。現在以下のクラスがあります。
@@ -32,4 +32,27 @@ Trie4Jは、Javaで各種トライを実装したライブラリです。現在�
  * シンプルなLOUDSトライ(今のところcontainsメソッドのみサポート) - [org.trie4j.louds.LOUDSTrie](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/louds/LOUDSTrie.java)
 
 **このプロジェクトはまだ実験的なものなので、将来APIが変わる可能性があります。**
-安定したAPIが必要な場合は連絡下さい。API再設計を優先して作業します。
+
+---
+Sample codes:
+	import org.trie4j.doublearray.DoubleArray;
+	import org.trie4j.louds.LOUDSTrie;
+	import org.trie4j.patricia.simple.PatriciaTrie;
+
+	public class AllTries {
+		public static void main(String[] args) throws Exception{
+			PatriciaTrie pat = new PatriciaTrie();
+			pat.insert("Hello");
+			pat.insert("World");
+			pat.insert("Wonderful!");
+			pat.contains("Hello"); // -> true
+			pat.predictiveSearch("Wo"); // -> {"Wonderful", "World"} as Iterable<String>
+			
+			DoubleArray da = new DoubleArray(pat); // construct DoubleArray from existing Trie
+			da.contains("World"); // -> true
+			
+			LOUDSTrie lt = new LOUDSTrie(pat); // construct LOUDS succinct Trie
+			lt.contains("Wonderful"); // -> true
+		}
+	}
+
