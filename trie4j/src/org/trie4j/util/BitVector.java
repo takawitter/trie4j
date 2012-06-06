@@ -123,12 +123,10 @@ public class BitVector {
 	}
 
 	public int select0(int count){
-		return select0(0, count);
-	}
-
-	public int select0(int offset, int count){
-		if(count == 1) return node1pos;
-		if(count == 2) return node2pos;
+		if(count <= 2){
+			if(count == 1) return node1pos;
+			else return node2pos;
+		}
 //*
 		int start = indexCache[count / CACHE_WIDTH] / CACHE_WIDTH;
 		int end = countCache.length;
@@ -229,8 +227,9 @@ public class BitVector {
 	}
 
 	public int next0(int pos){
-		if(1 < pos && pos <= node2pos){
-			return node2pos;
+		if(pos <= node2pos){
+			if(pos <= node1pos) return node1pos;
+			else return node2pos;
 		}
 		int i = pos / 8;
 		{
