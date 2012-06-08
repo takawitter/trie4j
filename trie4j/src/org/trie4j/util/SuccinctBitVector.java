@@ -16,15 +16,17 @@
 package org.trie4j.util;
 
 
-public class BitVector {
-	public BitVector(){
+public class SuccinctBitVector {
+	public SuccinctBitVector(){
 		this(16);
 	}
 
-	public BitVector(int initialCapacity){
-		 vector = new byte[initialCapacity / 8 + 1];
-		 countCache = new int[initialCapacity / CACHE_WIDTH + 1];
-		 indexCache = new int[initialCapacity / CACHE_WIDTH + 1];
+	public SuccinctBitVector(int initialCapacity){
+		vector = new byte[initialCapacity / 8 + 1];
+		int blockSize = CACHE_WIDTH;
+		int size = initialCapacity / blockSize + (((initialCapacity % blockSize) != 0) ? 1 : 0);
+		countCache0 = new int[size];
+		indexCache0 = new int[size + 1];
 	}
 
 	public int size(){
@@ -36,14 +38,16 @@ public class BitVector {
 		byte[] nv = new byte[vectorSize];
 		System.arraycopy(vector, 0, nv, 0, Math.min(vector.length, vectorSize));
 		vector = nv;
-		int countCacheSize = vectorSize / (CACHE_WIDTH / 8) + 1;
-		int[] ncc = new int[countCacheSize];
-		System.arraycopy(countCache, 0, ncc, 0, Math.min(countCache.length, countCacheSize));
-		countCache = ncc;
-		int indexCacheSize = vectorSize / (CACHE_WIDTH / 8) + 1;
+		int blockSize = CACHE_WIDTH / 8;
+		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
+		int countCacheSize0 = size;
+		int[] ncc0 = new int[countCacheSize0];
+		System.arraycopy(countCache0, 0, ncc0, 0, Math.min(countCache0.length, countCacheSize0));
+		countCache0 = ncc0;
+		int indexCacheSize = size + 1;
 		int[] nic = new int[indexCacheSize];
-		System.arraycopy(indexCache, 0, nic, 0, Math.min(indexCache.length, indexCacheSize));
-		indexCache = nic;
+		System.arraycopy(indexCache0, 0, nic, 0, Math.min(indexCache0.length, indexCacheSize));
+		indexCache0 = nic;
 	}
 
 	public void append1(){
@@ -53,11 +57,10 @@ public class BitVector {
 			extend();
 		}
 		if(size % CACHE_WIDTH == 0 && ci > 0){
-			countCache[ci] = countCache[ci - 1];
+			countCache0[ci] = countCache0[ci - 1];
 		}
 		int r = size % 8;
 		vector[i] |= BITS[r];
-		countCache[ci]++;
 		size++;
 	}
 
@@ -68,7 +71,7 @@ public class BitVector {
 			extend();
 		}
 		if(size % CACHE_WIDTH == 0 && ci > 0){
-			countCache[ci] = countCache[ci - 1];
+			countCache0[ci] = countCache0[ci - 1];
 		}
 		int r = size % 8;
 		vector[i] &= ~BITS[r];
@@ -79,8 +82,9 @@ public class BitVector {
 			node2pos = size;
 		}
 		if(size0 % CACHE_WIDTH == 0){
-			indexCache[size0 / CACHE_WIDTH] = size;
+			indexCache0[size0 / CACHE_WIDTH] = size;
 		}
+		countCache0[ci]++;
 		size++;
 	}
 
@@ -93,7 +97,7 @@ public class BitVector {
 		int ret = 0;
 		int cn = pos / CACHE_WIDTH;
 		if(cn > 0){
-			ret = countCache[cn - 1];
+			ret = cn * CACHE_WIDTH - countCache0[cn - 1];
 		}
 		int n = pos / 8;
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
@@ -107,13 +111,13 @@ public class BitVector {
 		int ret = 0;
 		int cn = pos / CACHE_WIDTH;
 		if(cn > 0){
-			ret = cn * CACHE_WIDTH - countCache[cn - 1];
+			ret = countCache0[cn - 1];
 		}
 		int n = pos / 8;
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
-			ret += 8 - BITCOUNTS[vector[i] & 0xff];
+			ret += BITCOUNTS0[vector[i] & 0xff];
 		}
-		ret += ((pos % 8) + 1) - BITCOUNTS[vector[n] & MASKS[pos % 8]];
+		ret += BITCOUNTS0[vector[n] & MASKS[pos % 8]] - 7 + (pos % 8);
 		return ret;
 	}
 
@@ -128,11 +132,11 @@ public class BitVector {
 			else return node2pos;
 		}
 //*
-		int start = indexCache[count / CACHE_WIDTH] / CACHE_WIDTH;
-		int end = countCache.length;
+		int start = indexCache0[count / CACHE_WIDTH] / CACHE_WIDTH;
+		int end = countCache0.length;
 		int ici = count / CACHE_WIDTH + 1;
-		if(indexCache.length > ici){
-			end = (indexCache[ici]) / CACHE_WIDTH + 1;
+		if(indexCache0.length > ici){
+			end = (indexCache0[ici]) / CACHE_WIDTH + 1;
 		}
 /*/
 		int start = Math.max(offset / CACHE_WIDTH - 1, 0);
@@ -142,10 +146,10 @@ public class BitVector {
 		int d = 0;
 		while(start != end){
 			m = (start + end) / 2;
-			d = count - (CACHE_WIDTH * (m + 1) - countCache[m]);
-			if(m == (countCache.length - 1)){
-				d += CACHE_WIDTH - (size % CACHE_WIDTH);
-			}
+			d = count - countCache0[m];
+//			if(m == (countCache0.length - 1)){
+//				d += CACHE_WIDTH - (size % CACHE_WIDTH);
+//			}
 			if(d < 0){
 				end = m;
 				continue;
@@ -160,7 +164,7 @@ public class BitVector {
 			count = d;
 			for(int i = (m + 1) * CACHE_WIDTH / 8; i < vector.length; i++){
 				if(i * 8 >= size) return -1;
-				int c = 8 - BITCOUNTS[vector[i] & 0xff];
+				int c = BITCOUNTS0[vector[i] & 0xff];
 				if(count <= c){
 					int v = vector[i] & 0xff;
 					for(int j = 0; j < 8; j++){
@@ -245,7 +249,7 @@ public class BitVector {
 		}
 		for(i++; i < vector.length; i++){
 			if(i * 8 >= size) return -1;
-			int c = 8 - BITCOUNTS[vector[i] & 0xff];
+			int c = BITCOUNTS0[vector[i] & 0xff];
 			if(1 <= c){
 				int v = vector[i] & 0xff;
 				for(int j = 0; j < 8; j++){
@@ -265,14 +269,14 @@ public class BitVector {
 		byte[] nv = new byte[vectorSize];
 		System.arraycopy(vector, 0, nv, 0, vector.length);
 		vector = nv;
-		int cacheSize = vectorSize / (CACHE_WIDTH / 8) + 1;
-		int[] nc = new int[cacheSize];
-		System.arraycopy(countCache, 0, nc, 0, countCache.length);
-		countCache = nc;
-		int indexCacheSize = vectorSize / (CACHE_WIDTH / 8) + 1;
-		int[] nic = new int[indexCacheSize];
-		System.arraycopy(indexCache, 0, nic, 0, indexCache.length);
-		indexCache = nic;
+		int blockSize = CACHE_WIDTH / 8;
+		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
+		int[] nc0 = new int[size];
+		System.arraycopy(countCache0, 0, nc0, 0, countCache0.length);
+		countCache0 = nc0;
+		int[] nic = new int[size];
+		System.arraycopy(indexCache0, 0, nic, 0, indexCache0.length);
+		indexCache0 = nic;
 	}
 
 	private static final int CACHE_WIDTH = 64;
@@ -281,8 +285,8 @@ public class BitVector {
 	private int node2pos = -1;
 	private int size;
 	private int size0;
-	private int[] countCache;
-	private int[] indexCache;
+	private int[] countCache0;
+	private int[] indexCache0;
 
 	private static final int[] MASKS = {
 		0x80, 0xc0, 0xe0, 0xf0
@@ -309,5 +313,23 @@ public class BitVector {
 		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
 		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
 		4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
-		};
+	};
+	private static final byte[] BITCOUNTS0 = {
+		8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4, 
+		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
+		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
+		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
+		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
+		4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0, 
+	};
 }

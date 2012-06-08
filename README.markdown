@@ -17,13 +17,13 @@ Sample codes:
 			pat.insert("World");
 			pat.insert("Wonderful!");
 			pat.contains("Hello"); // -> true
-			pat.predictiveSearch("Wo"); // -> {"Wonderful", "World"} as Iterable<String>
+			pat.predictiveSearch("Wo"); // -> {"Wonderful!", "World"} as Iterable<String>
 			
 			DoubleArray da = new DoubleArray(pat); // construct DoubleArray from existing Trie
 			da.contains("World"); // -> true
 			
 			LOUDSTrie lt = new LOUDSTrie(pat); // construct LOUDS succinct Trie
-			lt.contains("Wonderful"); // -> true
+			lt.contains("Wonderful!"); // -> true
 		}
 	}
 

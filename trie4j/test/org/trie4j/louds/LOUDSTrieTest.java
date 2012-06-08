@@ -73,6 +73,22 @@ public class LOUDSTrieTest {
 			if(c == maxCount) break;
 		}
 		t.lap("verification done.");
+		System.out.println("select0 time: " + lt.getSelect0Time());
+		System.out.println("next0 time: " + lt.getNext0Time());
+		System.out.println("rank1 time: " + lt.getRank1Time());
+
+		System.out.println("---- common prefix search ----");
+		for(String w : lt.commonPrefixSearch("東京国際フォーラム")){
+			System.out.println(w);
+		}
+		for(String s : lt.commonPrefixSearch("大阪城ホール")){
+			System.out.println(s);
+		}
+		System.out.println("---- predictive search ----");
+		System.out.println("-- for 大阪城");
+		for(String s : trie.predictiveSearch("大阪城")){
+			System.out.println(s);
+		}
 
 		Thread.sleep(10000);
 		lt.contains("hello");

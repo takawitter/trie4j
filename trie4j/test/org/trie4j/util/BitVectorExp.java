@@ -25,7 +25,7 @@ public class BitVectorExp {
 			if(c == maxCount) break;
 		}
 		t.lap("trie building done. $d words.", c);
-		final BitVector bv = new BitVector(5000000);
+		final SuccinctBitVector bv = new SuccinctBitVector(5000000);
 		final AtomicInteger nodeCount = new AtomicInteger();
 		trie.visit(new TrieVisitor() {
 			@Override

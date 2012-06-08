@@ -15,22 +15,25 @@
  */
 package org.trie4j.louds;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.TrieVisitor;
 import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.TailUtil;
-import org.trie4j.util.BitVector;
+import org.trie4j.util.SuccinctBitVector;
 
-public class LOUDSTrie {
+public class LOUDSTrie implements Trie {
 	public LOUDSTrie(Trie orig){
 		//orig.size();
 		int sz = 2000;
-		bv = new BitVector(sz);
+		bv = new SuccinctBitVector(sz);
 		labels = new char[sz];
 		tail = new int[sz];
 		term = new BitSet(sz);
@@ -89,10 +92,15 @@ public class LOUDSTrie {
 		int charsIndex = 0;
 		int nodeId = 1;
 		int start = 0;
+//		LapTimer lt = new LapTimer();
 		while(true){
+//			lt.lap();
 			start = bv.select0(nodeId) + 1;
+//			select0Time += lt.lap();
 			int end = bv.next0(start);
+//			next0Time += lt.lap();
 			int baseNodeId = bv.rank1(start) - start;
+//			rank1Time += lt.lap();
 			while(start != end){
 				int i = (start + end) / 2;
 				int index = baseNodeId + i;
@@ -124,6 +132,121 @@ public class LOUDSTrie {
 			}
 			if(start == end) return false;
 		}
+	}
+
+	@Override
+	public Iterable<String> commonPrefixSearch(String query) {
+		List<String> ret = new ArrayList<String>();
+		char[] chars = query.toCharArray();
+		int charsIndex = 0;
+		int nodeId = 1;
+		int start = 0;
+//		LapTimer lt = new LapTimer();
+		while(true){
+//			lt.lap();
+			start = bv.select0(nodeId) + 1;
+//			select0Time += lt.lap();
+			int end = bv.next0(start);
+//			next0Time += lt.lap();
+			int baseNodeId = bv.rank1(start) - start;
+//			rank1Time += lt.lap();
+			while(start != end){
+				int i = (start + end) / 2;
+				int index = baseNodeId + i;
+				int d = chars[charsIndex] - labels[index];
+				if(d < 0){
+					end = i;
+				} else if(d > 0){
+					if(start == i) return ret;
+					else start = i;
+				} else{
+					charsIndex++;
+					int ti = tail[index];
+					boolean tm = term.get(index);
+					if(charsIndex == chars.length){
+						return ret;
+					}
+					if(ti != -1){
+						TailCharIterator tci = new TailCharIterator(tails, ti);
+						while(tci.hasNext()){
+							if(charsIndex == chars.length) return ret;
+							if(tci.next() != chars[charsIndex]) return ret;
+							charsIndex++;
+						}
+					}
+					if(tm) ret.add(new String(chars, 0, charsIndex));
+					nodeId = baseNodeId + i;
+					break;
+				}
+			}
+			if(start == end) return ret;
+		}
+	}
+	
+	@Override
+	public Iterable<String> predictiveSearch(String prefix) {
+		throw new UnsupportedOperationException();
+/*		List<String> ret = new ArrayList<String>();
+		char[] chars = prefix.toCharArray();
+		int charsIndex = 0;
+		int nodeId = 1;
+		int start = 0;
+//		LapTimer lt = new LapTimer();
+		while(true){
+//			lt.lap();
+			start = bv.select0(nodeId) + 1;
+//			select0Time += lt.lap();
+			int end = bv.next0(start);
+//			next0Time += lt.lap();
+			int baseNodeId = bv.rank1(start) - start;
+//			rank1Time += lt.lap();
+			while(start != end){
+				int i = (start + end) / 2;
+				int index = baseNodeId + i;
+				int d = chars[charsIndex] - labels[index];
+				if(d < 0){
+					end = i;
+				} else if(d > 0){
+					if(start == i) return ret;
+					else start = i;
+				} else{
+					charsIndex++;
+					if(charsIndex == chars.length){
+						return ret;
+					}
+					int ti = tail[index];
+					boolean tm = term.get(index);
+					if(ti != -1){
+						TailCharIterator tci = new TailCharIterator(tails, ti);
+						while(tci.hasNext()){
+							if(charsIndex == chars.length) return ret;
+							if(tci.next() != chars[charsIndex]) return ret;
+							charsIndex++;
+						}
+					}
+					if(tm) ret.add(new String(chars, 0, charsIndex));
+					nodeId = baseNodeId + i;
+					break;
+				}
+			}
+			if(start == end) return ret;
+		}
+*/
+	}
+	
+	@Override
+	public void insert(String word) {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void visit(TrieVisitor visitor) {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void dump() {
+		throw new UnsupportedOperationException();
 	}
 
 	public class LOUDSNode implements Node{
@@ -191,10 +314,24 @@ public class LOUDSTrie {
 		bv.trimToSize();
 	}
 
-	private BitVector bv;
+	public long getSelect0Time() {
+		return select0Time;
+	}
+	public long getNext0Time() {
+		return next0Time;
+	}
+	public long getRank1Time() {
+		return rank1Time;
+	}
+	
+	private SuccinctBitVector bv;
 	private char[] labels;
 	private int[] tail;
 	private CharSequence tails;
 	private BitSet term;
 	private int size;
+
+	private long select0Time;
+	private long next0Time;
+	private long rank1Time;
 }
