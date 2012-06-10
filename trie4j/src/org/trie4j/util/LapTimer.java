@@ -17,21 +17,21 @@ package org.trie4j.util;
 
 public class LapTimer {
 	public LapTimer(){
-		prev = System.currentTimeMillis();
+		prev = System.nanoTime();
 	}
 
 	public long lap(){
-		long c = System.currentTimeMillis();
+		long c = System.nanoTime();
 		long ret = c - prev;
 		prev = c;
-		return ret;
+		return ret / 1000000;
 	}
 	
 	public long lap(String format, Object... args){
-		long c = System.currentTimeMillis();
+		long c = System.nanoTime();
 		long ret = c - prev;
 		prev = c;
-		System.out.print(String.format("[%s]: ", ret));
+		System.out.print(String.format("[%s]: ", ret / 1000000));
 		System.out.println(String.format(format, args));
 		return ret;
 	}
