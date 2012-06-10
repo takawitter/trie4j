@@ -15,6 +15,13 @@
  */
 package org.trie4j.louds;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Deque;
@@ -32,6 +39,9 @@ import org.trie4j.util.Pair;
 import org.trie4j.util.SuccinctBitVector;
 
 public class LOUDSTrie implements Trie {
+	public LOUDSTrie(){
+	}
+
 	public LOUDSTrie(Trie orig){
 		//orig.size();
 		int sz = 2000;
@@ -329,16 +339,6 @@ public class LOUDSTrie implements Trie {
 		private int nodeId;
 	}
 
-	private void extend(){
-		int nsz = (int)(labels.length * 1.2);
-		char[] nl = new char[nsz];
-		System.arraycopy(labels, 0, nl, 0, labels.length);
-		labels = nl;
-		int[] nt = new int[nsz];
-		System.arraycopy(tail, 0, nt, 0, tail.length);
-		tail = nt;
-	}
-
 	public void trimToSize(){
 		if(labels.length > size){
 			char[] nl = new char[size];
@@ -350,6 +350,61 @@ public class LOUDSTrie implements Trie {
 		}
 		bv.trimToSize();
 	}
+
+	public void save(OutputStream os) throws IOException{
+		DataOutputStream dos = new DataOutputStream(os);
+		ObjectOutputStream oos = new ObjectOutputStream(os);
+		dos.writeInt(size);
+		trimToSize();
+		for(char c : labels){
+			dos.writeChar(c);
+		}
+		for(int i : tail){
+			dos.writeInt(i);
+		}
+		dos.writeInt(tails.length());
+		for(int i = 0; i < tails.length(); i++){
+			dos.writeChar(tails.charAt(i));
+		}
+		dos.flush();
+		oos.writeObject(term);
+		oos.flush();
+		bv.save(os);
+	}
+
+	public void load(InputStream is) throws ClassNotFoundException, IOException{
+		DataInputStream dis = new DataInputStream(is);
+		ObjectInputStream ois = new ObjectInputStream(is);
+		size = dis.readInt();
+		labels = new char[size];
+		for(int i = 0; i < size; i++){
+			labels[i] = dis.readChar();
+		}
+		tail = new int[size];
+		for(int i = 0; i < size; i++){
+			tail[i] = dis.readInt();
+		}
+		int ts = dis.readInt();
+		StringBuilder b = new StringBuilder(ts);
+		for(int i = 0; i < ts; i++){
+			b.append(dis.readChar());
+		}
+		tails = b;
+		term = (BitSet)ois.readObject();
+		bv = new SuccinctBitVector();
+		bv.load(is);
+	}
+
+	private void extend(){
+		int nsz = (int)(labels.length * 1.2);
+		char[] nl = new char[nsz];
+		System.arraycopy(labels, 0, nl, 0, labels.length);
+		labels = nl;
+		int[] nt = new int[nsz];
+		System.arraycopy(tail, 0, nt, 0, tail.length);
+		tail = nt;
+	}
+
 /*
 	public long getSelect0Time() {
 		return select0Time;
@@ -360,7 +415,7 @@ public class LOUDSTrie implements Trie {
 	public long getRank1Time() {
 		return rank1Time;
 	}
-*/	
+*/
 	private SuccinctBitVector bv;
 	private char[] labels;
 	private int[] tail;

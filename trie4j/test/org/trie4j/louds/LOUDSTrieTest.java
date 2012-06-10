@@ -1,5 +1,8 @@
 package org.trie4j.louds;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.Node;
@@ -12,18 +15,37 @@ import org.trie4j.util.LapTimer;
 public class LOUDSTrieTest {
 	@Test
 	public void test() throws Exception{
+		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
-		trie.insert("こんにちは");
-		trie.insert("さようなら");
-		trie.insert("おはよう");
-		trie.insert("おおきなかぶ");
-		trie.insert("おおやまざき");
+		for(String w : words) trie.insert(w);
 		LOUDSTrie lt = new LOUDSTrie(trie);
-		Assert.assertTrue(lt.contains("こんにちは"));
-		Assert.assertTrue(lt.contains("さようなら"));
-		Assert.assertTrue(lt.contains("おはよう"));
-		Assert.assertTrue(lt.contains("おおきなかぶ"));
-		Assert.assertTrue(lt.contains("おおやまざき"));
+		for(String w : words){
+			Assert.assertTrue(lt.contains(w));
+		}
+		Assert.assertFalse(lt.contains("おやすみなさい"));
+
+		StringBuilder b = new StringBuilder();
+		Node[] children = lt.getRoot().getChildren();
+		for(Node n : children){
+			char[] letters = n.getLetters();
+			b.append(letters[0]);
+		}
+		Assert.assertEquals("おこさ", b.toString());
+	}
+
+	@Test
+	public void test_save_load() throws Exception{
+		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
+		Trie trie = new PatriciaTrie();
+		for(String w : words) trie.insert(w);
+		LOUDSTrie lt = new LOUDSTrie(trie);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		lt.save(baos);
+		lt = new LOUDSTrie();
+		lt.load(new ByteArrayInputStream(baos.toByteArray()));
+		for(String w : words){
+			Assert.assertTrue(lt.contains(w));
+		}
 		Assert.assertFalse(lt.contains("おやすみなさい"));
 
 		StringBuilder b = new StringBuilder();

@@ -15,8 +15,16 @@
  */
 package org.trie4j.util;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 
-public class SuccinctBitVector {
+public class SuccinctBitVector implements Serializable{
 	public SuccinctBitVector(){
 		this(16);
 	}
@@ -264,6 +272,70 @@ public class SuccinctBitVector {
 		return -1;
 	}
 
+	public void save(OutputStream os) throws IOException{
+		DataOutputStream dos = new DataOutputStream(os);
+		dos.writeInt(size);
+		dos.writeInt(size0);
+		dos.writeInt(node1pos);
+		dos.writeInt(node2pos);
+		trimToSize();
+		dos.write(vector);
+		for(int e : countCache0){
+			dos.writeInt(e);
+		}
+		for(int e : indexCache0){
+			dos.writeInt(e);
+		}
+	}
+
+	public void load(InputStream is) throws IOException{
+		DataInputStream dis = new DataInputStream(is);
+		size = dis.readInt();
+		size0 = dis.readInt();
+		node1pos = dis.readInt();
+		node2pos = dis.readInt();
+		int vectorSize = size / 8 + 1;
+		vector = new byte[vectorSize];
+		dis.read(vector, 0, vectorSize);
+		int blockSize = CACHE_WIDTH / 8;
+		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
+		countCache0 = new int[size];
+		for(int i = 0; i < size; i++){
+			countCache0[i] = dis.readInt();
+		}
+		indexCache0 = new int[size + 1];
+		for(int i = 0; i < size + 1; i++){
+			indexCache0[i] = dis.readInt();
+		}
+	}
+
+	private void writeObject(ObjectOutputStream s)
+	throws IOException {
+		trimToSize();
+		ObjectOutputStream.PutField fields = s.putFields();
+		fields.put("size", size);
+		fields.put("size0", size0);
+		fields.put("node1pos", node1pos);
+		fields.put("node2pos", node2pos);
+		trimToSize();
+		fields.put("vector", vector);
+		fields.put("countCache0", countCache0);
+		fields.put("indexCache0", indexCache0);
+		s.writeFields();
+    }
+
+	private void readObject(ObjectInputStream s)
+	throws IOException, ClassNotFoundException {
+		ObjectInputStream.GetField fields = s.readFields();
+		size = fields.get("size", 0);
+		size0 = fields.get("size0", 0);
+		node1pos = fields.get("node1pos", -1);
+		node2pos = fields.get("node2pos", -1);
+		vector = (byte[])fields.get("vector", null);
+		countCache0 = (int[])fields.get("countCache0", null);
+		indexCache0 = (int[])fields.get("indexCache0", null);
+    }
+
 	private void extend(){
 		int vectorSize = (int)(vector.length * 1.2) + 1;
 		byte[] nv = new byte[vectorSize];
@@ -274,8 +346,8 @@ public class SuccinctBitVector {
 		int[] nc0 = new int[size];
 		System.arraycopy(countCache0, 0, nc0, 0, countCache0.length);
 		countCache0 = nc0;
-		int[] nic = new int[size];
-		System.arraycopy(indexCache0, 0, nic, 0, indexCache0.length - 1);
+		int[] nic = new int[size + 1];
+		System.arraycopy(indexCache0, 0, nic, 0, indexCache0.length);
 		indexCache0 = nic;
 	}
 
@@ -332,4 +404,6 @@ public class SuccinctBitVector {
 		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
 		4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0, 
 	};
+
+	private static final long serialVersionUID = -7658605229245494623L;
 }

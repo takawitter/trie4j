@@ -15,6 +15,11 @@
  */
 package org.trie4j.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -158,6 +163,43 @@ public class SuccinctBitVectorTest {
 		}
 		for(int i = 0; i < 100000; i++){
 			Assert.assertEquals(size - 1, bv.select0(size));
+		}
+	}
+
+	@Test
+	public void test_write_read() throws Exception{
+		SuccinctBitVector bv = new SuccinctBitVector();
+		for(int i = 0; i < 1000; i++){
+			bv.append0();
+			bv.append1();
+			bv.append1();
+		}
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		new ObjectOutputStream(baos).writeObject(bv);
+		SuccinctBitVector bv2 = (SuccinctBitVector)new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())).readObject();
+		for(int i = 0; i < 1000; i++){
+			Assert.assertEquals(i + 1, bv2.rank0(i * 3));
+			Assert.assertEquals(i * 2 + 1, bv2.rank1(i * 3 + 1));
+			Assert.assertEquals(i * 2 + 2, bv2.rank1(i * 3 + 2));
+		}
+	}
+
+	@Test
+	public void test_save_load() throws Exception{
+		SuccinctBitVector bv = new SuccinctBitVector();
+		for(int i = 0; i < 1000; i++){
+			bv.append0();
+			bv.append1();
+			bv.append1();
+		}
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		bv.save(baos);
+		SuccinctBitVector bv2 = new SuccinctBitVector();
+		bv2.load(new ByteArrayInputStream(baos.toByteArray()));
+		for(int i = 0; i < 1000; i++){
+			Assert.assertEquals(i + 1, bv2.rank0(i * 3));
+			Assert.assertEquals(i * 2 + 1, bv2.rank1(i * 3 + 1));
+			Assert.assertEquals(i * 2 + 2, bv2.rank1(i * 3 + 2));
 		}
 	}
 }
