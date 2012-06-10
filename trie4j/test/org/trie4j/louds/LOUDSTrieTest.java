@@ -86,7 +86,7 @@ public class LOUDSTrieTest {
 		}
 		System.out.println("---- predictive search ----");
 		System.out.println("-- for 大阪城");
-		for(String s : trie.predictiveSearch("大阪城")){
+		for(String s : lt.predictiveSearch("大阪城")){
 			System.out.println(s);
 		}
 

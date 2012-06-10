@@ -17,6 +17,7 @@ package org.trie4j.louds;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.TailUtil;
+import org.trie4j.util.Pair;
 import org.trie4j.util.SuccinctBitVector;
 
 public class LOUDSTrie implements Trie {
@@ -185,12 +187,15 @@ public class LOUDSTrie implements Trie {
 	
 	@Override
 	public Iterable<String> predictiveSearch(String prefix) {
-		throw new UnsupportedOperationException();
-/*		List<String> ret = new ArrayList<String>();
+		List<String> ret = new ArrayList<String>();
 		char[] chars = prefix.toCharArray();
 		int charsIndex = 0;
 		int nodeId = 1;
 		int start = 0;
+		
+		int rootNodeId = -1;
+		String pfx = null;
+
 //		LapTimer lt = new LapTimer();
 		while(true){
 //			lt.lap();
@@ -204,6 +209,7 @@ public class LOUDSTrie implements Trie {
 				int i = (start + end) / 2;
 				int index = baseNodeId + i;
 				int d = chars[charsIndex] - labels[index];
+				int prevCharsIndex = charsIndex;
 				if(d < 0){
 					end = i;
 				} else if(d > 0){
@@ -212,26 +218,57 @@ public class LOUDSTrie implements Trie {
 				} else{
 					charsIndex++;
 					if(charsIndex == chars.length){
-						return ret;
+						rootNodeId = baseNodeId + i;
+						pfx = new String(chars, 0, prevCharsIndex);
+						break;
 					}
 					int ti = tail[index];
-					boolean tm = term.get(index);
 					if(ti != -1){
 						TailCharIterator tci = new TailCharIterator(tails, ti);
 						while(tci.hasNext()){
-							if(charsIndex == chars.length) return ret;
+							if(charsIndex == chars.length){
+								rootNodeId = baseNodeId + i;
+								pfx = new String(chars, 0, prevCharsIndex);
+								break;
+							}
 							if(tci.next() != chars[charsIndex]) return ret;
 							charsIndex++;
 						}
 					}
-					if(tm) ret.add(new String(chars, 0, charsIndex));
 					nodeId = baseNodeId + i;
 					break;
 				}
 			}
+			if(pfx != null) break;
 			if(start == end) return ret;
 		}
-*/
+		if(pfx == null) return ret;
+
+		Deque<Pair<Integer, String>> queue = new LinkedList<Pair<Integer,String>>();
+		queue.offerLast(Pair.create(rootNodeId, pfx));
+		while(queue.size() > 0){
+			Pair<Integer, String> element = queue.pollFirst();
+			int nid = element.getFirst();
+
+			StringBuilder b = new StringBuilder(element.getSecond());
+			b.append(labels[nid]);
+			int ti = tail[nid];
+			if(ti != -1){
+				TailCharIterator it = new TailCharIterator(tails, tail[nid]);
+				while(it.hasNext()){
+					b.append(it.next());
+				}
+			}
+			String letter = b.toString();
+			if(term.get(nid)) ret.add(letter);
+			int s = bv.select0(nid) + 1;
+			int e = bv.next0(s);
+			int lastNodeId = bv.rank1(s) + e - s - 1;
+			for(int i = (e - 1); i >= s; i--){
+				queue.offerFirst(Pair.create(lastNodeId--, letter));
+			}
+		}
+		return ret;
 	}
 	
 	@Override
