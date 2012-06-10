@@ -22,14 +22,14 @@ import org.trie4j.doublearray.TailCompactionDoubleArrayTest;
 import org.trie4j.doublearray.TailDoubleArrayTest;
 import org.trie4j.louds.LOUDSTrieTest;
 import org.trie4j.tail.SuffixTrieTailBuilderTest;
-import org.trie4j.util.BitVectorTest;
+import org.trie4j.util.SuccinctBitVectorTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	DoubleArrayTest.class, TailCompactionDoubleArrayTest.class
 	, TailDoubleArrayTest.class
 	, SuffixTrieTailBuilderTest.class
-	, BitVectorTest.class
+	, SuccinctBitVectorTest.class
 //	, WikipediaTitlesTest.class
 	, LOUDSTrieTest.class
 })

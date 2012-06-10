@@ -325,7 +325,7 @@ public class LOUDSTrie implements Trie {
 			}
 			return children;
 		}
-		
+
 		private int nodeId;
 	}
 
@@ -350,7 +350,7 @@ public class LOUDSTrie implements Trie {
 		}
 		bv.trimToSize();
 	}
-
+/*
 	public long getSelect0Time() {
 		return select0Time;
 	}
@@ -360,15 +360,16 @@ public class LOUDSTrie implements Trie {
 	public long getRank1Time() {
 		return rank1Time;
 	}
-	
+*/	
 	private SuccinctBitVector bv;
 	private char[] labels;
 	private int[] tail;
 	private CharSequence tails;
 	private BitSet term;
 	private int size;
-
+/*
 	private long select0Time;
 	private long next0Time;
 	private long rank1Time;
+*/
 }
