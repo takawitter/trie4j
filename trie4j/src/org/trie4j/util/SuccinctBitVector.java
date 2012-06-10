@@ -134,22 +134,82 @@ public class SuccinctBitVector implements Serializable{
 		else return rank0(pos);
 	}
 
-	public int select0(int count){
+	public int select0_(int count){
 		if(count <= 2){
 			if(count == 1) return node1pos;
 			else return node2pos;
 		}
+		int block = count / CACHE_WIDTH;
+		int i = indexCache0[block] / 8;
+		if(i > 0){
+			count -= countCache0[(i - 1) / CACHE_WIDTH * 8];
+		}
+		if(count > 0){
+			for(; i < vector.length; i++){
+				if(i * 8 >= size) return -1;
+				int c = BITCOUNTS0[vector[i] & 0xff];
+				if(count <= c){
+					int v = vector[i] & 0xff;
+					for(int j = 0; j < 8; j++){
+						if(i * 8 + j >= size) return -1;
+						if((v & 0x80) == 0){
+							count--;
+							if(count == 0){
+								return i * 8 + j;
+							}
+						}
+						v <<= 1;
+					}
+				}
+				count -= c;
+			}
+		} else{
+			count--;
+			i = Math.min(((i + 1) * CACHE_WIDTH) - 1, size - 1);
+			int v = vector[i / 8] & 0xff;
+			v >>= 8 - (i % 8) - 1;
+			while(i >= 0){
+				if((v & 0x01) == 0){
+					count++;
+					if(count == 0){
+						return i;
+					}
+				}
+				if(i % 8 == 0){
+					v = vector[(i - 1) / 8] & 0xff;
+				} else{
+					v >>= 1;
+				}
+				i--;
+			}		}
+		return -1;
+	}
+
+	public int select0(int count){
+		if(count <= 2){
+			if(count == 1) return node1pos;
+			else if(count == 2) return node2pos;
+			else return -1;
+		}
+		if(count > size) return -1;
 //*
 		int start = indexCache0[count / CACHE_WIDTH] / CACHE_WIDTH;
-		int end = countCache0.length;
+		int end = 0;
 		int ici = count / CACHE_WIDTH + 1;
 		if(indexCache0.length > ici){
-			end = (indexCache0[ici]) / CACHE_WIDTH + 1;
+			int c = (indexCache0[ici]) / CACHE_WIDTH + 1;
+			if(c != 1) end = c;
+		}
+		if(end == 0){
+			int vectorSize = size / 8 + 1;
+			int blockSize = CACHE_WIDTH / 8;
+			end = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 		}
 /*/
 		int start = Math.max(offset / CACHE_WIDTH - 1, 0);
 		int end = countCache.length;
 //*/
+
 		int m = 0;
 		int d = 0;
 		while(start != end){
@@ -170,13 +230,17 @@ public class SuccinctBitVector implements Serializable{
 		}
 		if(d > 0){
 			count = d;
-			for(int i = (m + 1) * CACHE_WIDTH / 8; i < vector.length; i++){
-				if(i * 8 >= size) return -1;
+			int n = Math.min(vector.length, (size / 8) + 1);
+			for(int i = (m + 1) * CACHE_WIDTH / 8; i < n; i++){
 				int c = BITCOUNTS0[vector[i] & 0xff];
 				if(count <= c){
 					int v = vector[i] & 0xff;
-					for(int j = 0; j < 8; j++){
-						if(i * 8 + j >= size) return -1;
+					int jn = 8;
+					if((i + 1) * 8 >= size){
+						jn = size % 8;
+						if(jn == 0) jn = 8;
+					}
+					for(int j = 0; j < jn; j++){
 						if((v & 0x80) == 0){
 							count--;
 							if(count == 0){

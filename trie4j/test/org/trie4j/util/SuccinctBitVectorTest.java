@@ -62,6 +62,27 @@ public class SuccinctBitVectorTest {
 		Assert.assertEquals(299, bv.select0(100));
 		Assert.assertEquals(1076, bv.select0(359));
 		Assert.assertEquals(3899, bv.select0(1300));
+		Assert.assertEquals(-1, bv.select0(2001));
+	}
+
+	@Test
+	public void test_select0_3() throws Exception{
+		SuccinctBitVector bv = new SuccinctBitVector(1);
+		for(int i = 0; i < 64; i++){
+			bv.append0();
+		}
+		bv.append1();
+		Assert.assertEquals(-1, bv.select0(65));
+		bv.append1();
+		bv.append1();
+		bv.append1();
+		bv.append1();
+		bv.append1();
+		bv.append1();
+		Assert.assertEquals(-1, bv.select0(65));
+		bv.append0();
+		Assert.assertEquals(71, bv.select0(65));
+		Assert.assertEquals(-1, bv.select0(2001));
 	}
 
 	@Test
@@ -159,10 +180,10 @@ public class SuccinctBitVectorTest {
 		int size = 1000000;
 		SuccinctBitVector bv = new SuccinctBitVector(size);
 		for(int i = 0; i < size; i++){
-			bv.append(false);
+			bv.append0();
 		}
-		for(int i = 0; i < 100000; i++){
-			Assert.assertEquals(size - 1, bv.select0(size));
+		for(int i = 1; i <= 100000; i++){
+			Assert.assertEquals(i - 1, bv.select0(i));
 		}
 	}
 
