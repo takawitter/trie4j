@@ -275,7 +275,7 @@ public class SuccinctBitVector {
 		System.arraycopy(countCache0, 0, nc0, 0, countCache0.length);
 		countCache0 = nc0;
 		int[] nic = new int[size];
-		System.arraycopy(indexCache0, 0, nic, 0, indexCache0.length);
+		System.arraycopy(indexCache0, 0, nic, 0, indexCache0.length - 1);
 		indexCache0 = nic;
 	}
 
