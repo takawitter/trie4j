@@ -46,10 +46,14 @@ Currently Trie4J has following implementation:
 
 ---
 2012年2月、1冊の本が発売されました。
-[![日本語入力を支える技術](http://ws.assoc-amazon.jp/widgets/q?_encoding=UTF8&Format=_SL110_&ASIN=4774149934&MarketPlace=JP&ID=AsinImage&WS=1&tag=takaoblogspot-22&ServiceVersion=20070822)](http://www.amazon.co.jp/gp/product/4774149934/ref=as_li_ss_il?ie=UTF8&tag=takaoblogspot-22&linkCode=as2&camp=247&creative=7399&creativeASIN=4774149934)
+
+"日本語入力を支える技術" 変わり続けるコンピュータと言葉の世界 (WEB+DB PRESS plus) 徳永 拓之 (著) 
+
+ [![日本語入力を支える技術](http://ws.assoc-amazon.jp/widgets/q?_encoding=UTF8&Format=_SL110_&ASIN=4774149934&MarketPlace=JP&ID=AsinImage&WS=1&tag=takaoblogspot-22&ServiceVersion=20070822)](http://www.amazon.co.jp/gp/product/4774149934/ref=as_li_ss_il?ie=UTF8&tag=takaoblogspot-22&linkCode=as2&camp=247&creative=7399&creativeASIN=4774149934)
 
 多くのエンジニアがこの本に触発され、各種アルゴリズムの理解を深めたり、いちから勉強を始めたり、
 また中にはこれを機に様々なライブラリを実装し公開する人も出てきました。
+
 Trie4Jもそういったライブラリの一つで、各種トライ構造にターゲットを絞り、本書やその分野のブログなどを参考に実装されています。
 現在以下のクラスがあります。
 
@@ -61,7 +65,7 @@ Trie4Jもそういったライブラリの一つで、各種トライ構造に�
  * TAIL付きダブルアレイ(子が一つだけのノードが連続する場合に文字列としてTAIL配列に格納) - [org.trie4j.doublearray.TailDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/TailDoubleArray.java)
  * TAIL圧縮ダブルアレイ(多層トライの要領でTAIL配列を圧縮) - [org.trie4j.doublearray.TailCompactionDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/TailCompactionDoubleArray.java)
  * 最適化TAIL圧縮ダブルアレイ(未使用領域の開放やcheck配列をshortにした) - [org.trie4j.doublearray.OptimizedTailCompactionDoubleArray](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/OptimizedTailCompactionDoubleArray.java)
-* LOUDS(Level-order unary degree structure) Trie
+* LOUDS(Level-order unary degree structure) 簡潔 Trie
  * シンプルなLOUDSトライ - [org.trie4j.louds.LOUDSTrie](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/louds/LOUDSTrie.java)
 
 **このプロジェクトはまだ実験的なものなので、将来APIが変わる可能性があります。**
