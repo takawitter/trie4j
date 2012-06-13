@@ -98,6 +98,10 @@ public class LOUDSTrie implements Trie {
 	public Node getRoot(){
 		return new LOUDSNode(1);
 	}
+	
+	public SuccinctBitVector getBv() {
+		return bv;
+	}
 
 	public boolean contains(String word){
 		char[] chars = word.toCharArray();
@@ -125,9 +129,8 @@ public class LOUDSTrie implements Trie {
 				} else{
 					charsIndex++;
 					int ti = tail[index];
-					boolean tm = term.get(index);
 					if(charsIndex == chars.length){
-						return (ti == -1) && tm;
+						return (ti == -1) && term.get(index);
 					}
 					if(ti != -1){
 						TailCharIterator tci = new TailCharIterator(tails, ti);
@@ -136,7 +139,7 @@ public class LOUDSTrie implements Trie {
 							if(tci.next() != chars[charsIndex]) return false;
 							charsIndex++;
 						}
-						if(charsIndex == chars.length) return tm;
+						if(charsIndex == chars.length) return term.get(index);
 					}
 					nodeId = baseNodeId + i;
 					break;
@@ -405,6 +408,12 @@ public class LOUDSTrie implements Trie {
 		tail = nt;
 	}
 
+	private SuccinctBitVector bv;
+	private char[] labels;
+	private int[] tail;
+	private CharSequence tails;
+	private BitSet term;
+	private int size;
 /*
 	public long getSelect0Time() {
 		return select0Time;
@@ -415,16 +424,8 @@ public class LOUDSTrie implements Trie {
 	public long getRank1Time() {
 		return rank1Time;
 	}
-*/
-	private SuccinctBitVector bv;
-	private char[] labels;
-	private int[] tail;
-	private CharSequence tails;
-	private BitSet term;
-	private int size;
-/*
 	private long select0Time;
 	private long next0Time;
 	private long rank1Time;
-*/
+//*/
 }

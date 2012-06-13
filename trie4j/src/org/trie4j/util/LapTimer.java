@@ -24,7 +24,7 @@ public class LapTimer {
 		long c = System.nanoTime();
 		long ret = c - prev;
 		prev = c;
-		return ret / 1000000;
+		return ret;// / 1000000;
 	}
 	
 	public long lap(String format, Object... args){

@@ -83,6 +83,7 @@ public class LOUDSTrieTest {
 		lt.trimToSize();
 		t.lap("verifying the LOUDS trie.");
 		c = 0;
+//		for(int i = 0; i < 10; i++){
 		for(String word : new WikipediaTitles(
 				"jawiki-20120220-all-titles-in-ns0.gz"
 				//"enwiki-20120403-all-titles-in-ns0.gz"
@@ -94,12 +95,13 @@ public class LOUDSTrieTest {
 			c++;
 			if(c == maxCount) break;
 		}
+//		}
 		t.lap("verification done.");
 /*
-		System.out.println("select0 time: " + lt.getSelect0Time());
-		System.out.println("next0 time: " + lt.getNext0Time());
-		System.out.println("rank1 time: " + lt.getRank1Time());
-*/
+		System.out.println("select0 time: " + lt.getSelect0Time() / 1000000);
+		System.out.println("next0 time: " + lt.getNext0Time() / 1000000);
+		System.out.println("rank1 time: " + lt.getRank1Time() / 1000000);
+/*
 		System.out.println("---- common prefix search ----");
 		for(String w : lt.commonPrefixSearch("東京国際フォーラム")){
 			System.out.println(w);
@@ -115,6 +117,7 @@ public class LOUDSTrieTest {
 
 		Thread.sleep(10000);
 		lt.contains("hello");
+*/
 	}
 
 	private static void printHeads(Node node){
