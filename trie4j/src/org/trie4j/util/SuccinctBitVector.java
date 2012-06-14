@@ -237,12 +237,8 @@ public class SuccinctBitVector implements Serializable{
 		if(d > 0){
 			count = d;
 		} else{
-			while(m >= 0 && count <= countCache0[m]){
-				m--;
-			}
-			if(m >= 0){
-				count -= countCache0[m];
-			}
+			while(m >= 0 && count <= countCache0[m]) m--;
+			if(m >= 0) count -= countCache0[m];
 		}
 
 		int n = size / 8 + 1;
@@ -250,8 +246,7 @@ public class SuccinctBitVector implements Serializable{
 			int bits = vector[i] & 0xff;
 			int c = BITCOUNTS0[bits];
 			if(count <= c){
-				byte[] poss = BITPOS0[bits];
-				return i * 8 + poss[count - 1];
+				return i * 8 + BITPOS0[bits][count - 1];
 			}
 			count -= c;
 		}
@@ -294,21 +289,14 @@ public class SuccinctBitVector implements Serializable{
 		int i = pos / 8;
 		int s = pos % 8;
 		if(s != 0){
-			int v = vector[i] & 0xff;
-			v <<= s;
-			for(int j = s; j < 8; j++){
-				if(i * 8 + j >= size) return -1;
-				if((v & 0x80) == 0){
-					return i * 8 + j;
-				}
-				v <<= 1;
+			for(byte b : BITPOS0[vector[i] & 0xff]){
+				if(s <= b) return i * 8 + b;
 			}
 			i++;
 		}
 		int n = size / 8 + 1;
 		for(; i < n; i++){
-			int bits = vector[i] & 0xff;
-			byte[] poss = BITPOS0[bits];
+			byte[] poss = BITPOS0[vector[i] & 0xff];
 			if(poss.length > 0){
 				return poss[0] + i * 8;
 			}
