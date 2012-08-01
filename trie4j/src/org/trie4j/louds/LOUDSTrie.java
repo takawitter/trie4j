@@ -66,7 +66,7 @@ public class LOUDSTrie implements Trie {
 			if(index >= labels.length){
 				extend();
 			}
-			if(node.isTerminated()){
+			if(node.isTerminate()){
 				term.set(index);
 			}
 			Node[] children = node.getChildren();
@@ -92,7 +92,6 @@ public class LOUDSTrie implements Trie {
 		}
 		size = count;
 		tails = tb.getTails();
-		trimToSize();
 	}
 
 	public Node getRoot(){
@@ -320,8 +319,28 @@ public class LOUDSTrie implements Trie {
 			return b.toString().toCharArray();
 		}
 		@Override
-		public boolean isTerminated() {
+		public boolean isTerminate() {
 			return term.get(nodeId);
+		}
+		@Override
+		public Node getChild(char c) {
+			int start = bv.select0(nodeId) + 1;
+			int end = bv.next0(start);
+			int baseNodeId = bv.rank1(start) - start;
+			while(start != end){
+				int i = (start + end) / 2;
+				int index = baseNodeId + i;
+				int d = c - labels[index];
+				if(d < 0){
+					end = i;
+				} else if(d > 0){
+					if(start == i) return null;
+					else start = i;
+				} else{
+					return new LOUDSNode(index);
+				}
+			}
+			return null;
 		}
 		@Override
 		public Node[] getChildren() {

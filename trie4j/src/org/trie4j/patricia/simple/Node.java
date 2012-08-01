@@ -43,7 +43,7 @@ public class Node implements org.trie4j.Node{
 	public void setLetters(char[] letters) {
 		this.letters = letters;
 	}
-	public boolean isTerminated() {
+	public boolean isTerminate() {
 		return terminated;
 	}
 	public void setTerminated(boolean terminated) {
@@ -157,99 +157,7 @@ public class Node implements org.trie4j.Node{
 		this.letters = newLetter2;
 		return new Node(newLetter1, newChildren, false);
 	}
-/*
-	if(this.letters == null){
-			this.letters = Arrays.copyOfRange(letters, offset, letters.length);
-			this.terminated = true;
-			return;
-		}
-//hello$
-//h -> insert to children (a)
-//h$ -> insert to children (b)
-//hat -> h, at, ello$ (c)
-//hat$ -> h, at$, ello$ (d)
-//hello -> hello$ (e)
-//hello$ -> hello$ (f)
-//helloworld$ -> hello$, helloworld$ (g)
-//helloworld (h)
-		int i = 0;
-		int lettersRest = letters.length - offset;
-		int thisLettersLength = this.letters.length;
-		int n = Math.min(lettersRest, thisLettersLength);
-		int c = 0;
-		while(i < n && (c = letters[i + offset] - this.letters[i]) == 0) i++;
-		if(i == n){
-			if(lettersRest == thisLettersLength){
-				this.terminated = true;
-				return;
-			}
-			if(lettersRest < thisLettersLength){
-				Node child = new Node(
-						Arrays.copyOfRange(this.letters, lettersRest, this.letters.length)
-						, this.children, this.terminated);
-				this.letters = Arrays.copyOfRange(this.letters, 0, i);
-				this.children = new Node[]{child};
-				this.terminated = true;
-				return;
-			}
-			if(children != null){
-				int index = 0;
-				int end = children.length;
-				if(end > 16){
-					int start = 0;
-					while(start < end){
-						index = (start + end) / 2;
-						Node child = children[index];
-						c = letters[i + offset] - child.letters[0];
-						if(c == 0){
-							child.insertChild(letters, i + offset);
-							return;
-						}
-						if(c < 0){
-							end = index;
-						} else if(start == index){
-							index = end;
-							break;
-						} else{
-							start = index;
-						}
-					}
-				} else{
-					for(; index < end; index++){
-						Node child = children[index];
-						c = letters[i + offset] - child.letters[0];
-						if(c < 0) break;
-						if(c == 0){
-							child.insertChild(letters, i + offset);
-							return;
-						}
-					}
-				}
-				addChild(index, new Node(Arrays.copyOfRange(letters, i + offset, letters.length), true));
-			} else{
-				this.children = new Node[]{
-						new Node(Arrays.copyOfRange(letters, i + offset, letters.length), true)
-						};
-				this.terminated = true;
-			}
-			return;
-		}
-		char[] newLetter1 = Arrays.copyOfRange(this.letters, 0, i);
-		char[] newLetter2 = Arrays.copyOfRange(this.letters, i, this.letters.length);
-		char[] newLetter3 = Arrays.copyOfRange(letters, i + offset, letters.length);
-		Node[] newChildren = new Node[2];
-		if(newLetter2[0] < newLetter3[0]){
-			newChildren[0] = new Node(newLetter2, this.children, true);
-			newChildren[1] = new Node(newLetter3, true);
-		} else{
-			newChildren[0] = new Node(newLetter3, true);
-			newChildren[1] = new Node(newLetter2, this.children, true);
-		}
-		this.letters = newLetter1;
-		this.children = newChildren;
-		this.terminated = false;
-	}
-*/
+
 	public boolean contains(char[] letters, int offset){
 		int rest = letters.length - offset;
 		int tll = this.letters.length;

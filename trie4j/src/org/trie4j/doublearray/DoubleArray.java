@@ -245,6 +245,10 @@ public class DoubleArray implements Trie{
 		System.out.println();
 	}
 
+	@Override
+	public void trimToSize() {
+	}
+
 	static class WorkNode{
 		private char[] letters;
 		private int childNodeIndex;
@@ -279,7 +283,7 @@ public class DoubleArray implements Trie{
 				base[nodeIndex] = empty - cid;
 				nodeIndex = empty;
 			}
-			if(node.isTerminated()){
+			if(node.isTerminate()){
 				term.set(nodeIndex);
 			}
 		}

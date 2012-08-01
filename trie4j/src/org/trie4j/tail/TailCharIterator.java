@@ -6,11 +6,16 @@ public class TailCharIterator{
 	public TailCharIterator(CharSequence chars, int index){
 		this.chars = chars;
 		this.index = index;
-		this.next = chars.charAt(index);
+		if(index != -1){
+			this.next = chars.charAt(index);
+		} else{
+			this.next = '\0';
+		}
 		this.fetched = true;
+		this.current = this.next;
 	}
 
-	public int getCurrentIndex(){
+	public int getNextIndex(){
 		return index;
 	}
 
@@ -28,6 +33,10 @@ public class TailCharIterator{
 		return next;
 	}
 
+	public char current(){
+		return current;
+	}
+
 	private void fetchNext(){
 		index++;
 		char c = chars.charAt(index);
@@ -36,13 +45,15 @@ public class TailCharIterator{
 			i += chars.charAt(index + 2) << 16;
 			index = i;
 			c = chars.charAt(index);
-		} 
+		}
+		current = next;
 		next = c;
 		fetched = true;
 	}
 
 	private CharSequence chars;
 	private int index;
-	private char next;
+	private char next = '\0';
+	private char current = '\0';
 	private boolean fetched;
 }

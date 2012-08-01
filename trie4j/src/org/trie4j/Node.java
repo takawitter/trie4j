@@ -17,6 +17,7 @@ package org.trie4j;
 
 public interface Node {
 	char[] getLetters();
+	boolean isTerminate();
+	Node getChild(char c);
 	Node[] getChildren();
-	boolean isTerminated();
 }

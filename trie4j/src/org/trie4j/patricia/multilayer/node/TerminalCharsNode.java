@@ -24,7 +24,7 @@ public class TerminalCharsNode extends CharsNode{
 	}
 
 	@Override
-	public boolean isTerminated() {
+	public boolean isTerminate() {
 		return true;
 	}
 

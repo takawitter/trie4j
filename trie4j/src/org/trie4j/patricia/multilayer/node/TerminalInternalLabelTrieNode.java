@@ -24,7 +24,7 @@ public class TerminalInternalLabelTrieNode extends InternalLabelTrieNode {
 	}
 
 	@Override
-	public boolean isTerminated() {
+	public boolean isTerminate() {
 		return true;
 	}
 }

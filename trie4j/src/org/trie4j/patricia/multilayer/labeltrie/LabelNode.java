@@ -39,7 +39,7 @@ public class LabelNode implements Node{
 		this.letters = letters;
 	}
 	@Override
-	public boolean isTerminated() {
+	public boolean isTerminate() {
 		return false;
 	}
 	public LabelNode getParent() {

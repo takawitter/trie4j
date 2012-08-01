@@ -67,7 +67,7 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		if(root == null) return;
 		if(root.getLetters() != null){
 			if(root.getLetters().length == 0){
-				if(root.isTerminated()) term.set(0);
+				if(root.isTerminate()) term.set(0);
 			} else{
 				int c = getCharId(root.getLetters()[0]);
 				check[c] = (short)c;
@@ -94,7 +94,6 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		build(root, nodeIndex, tb);
 		tails = tb.getTails();
 		tb = null;
-		trimToSize();
 	}
 
 	@Override
@@ -183,7 +182,7 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 					i++;
 				} while(i < chars.length);
 				if(i >= chars.length) break;
-				current.append(tails.subSequence(tail[nodeIndex], it.getCurrentIndex()));
+				current.append(tails.subSequence(tail[nodeIndex], it.getNextIndex()));
 			}
 			int cid = findCharId(chars[i]);
 			if(cid == -1) return ret;
@@ -411,6 +410,22 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		System.out.println();
 	}
 
+	public void trimToSize(){
+		int sz = last + 1;
+		int[] nb = new int[sz];
+		System.arraycopy(base, 0, nb, 0, sz);
+		base = nb;
+		short[] nc = new short[sz];
+		System.arraycopy(check, 0, nc, 0, sz);
+		check = nc;
+		int[] nt = new int[sz];
+		System.arraycopy(tail, 0, nt, 0, sz);
+		tail = nt;
+		if(tails instanceof StringBuilder){
+			((StringBuilder)tails).trimToSize();
+		}
+	}
+
 	private void build(Node node, int nodeIndex, TailBuilder tb){
 		// letters
 		char[] letters = node.getLetters();
@@ -419,7 +434,7 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 				int tailIndex = tb.insert(letters, 1, letters.length - 1);
 				tail[nodeIndex] = tailIndex;
 			}
-			if(node.isTerminated()){
+			if(node.isTerminate()){
 				term.set(nodeIndex);
 			}
 		}
@@ -588,22 +603,6 @@ public class OptimizedTailCompactionDoubleArray implements Trie{
 		}
 		check[index] = value;
 		last = Math.max(last, index);
-	}
-
-	private void trimToSize(){
-		int sz = last + 1;
-		int[] nb = new int[sz];
-		System.arraycopy(base, 0, nb, 0, sz);
-		base = nb;
-		short[] nc = new short[sz];
-		System.arraycopy(check, 0, nc, 0, sz);
-		check = nc;
-		int[] nt = new int[sz];
-		System.arraycopy(tail, 0, nt, 0, sz);
-		tail = nt;
-		if(tails instanceof StringBuilder){
-			((StringBuilder)tails).trimToSize();
-		}
 	}
 
 	private int[] base;

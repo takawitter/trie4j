@@ -33,7 +33,7 @@ public class CharsNode extends Node{
 	public void setLetters(char[] letters) {
 		this.letters = letters;
 	}
-	public boolean isTerminated() {
+	public boolean isTerminate() {
 		return false;
 	}
 
@@ -80,7 +80,7 @@ public class CharsNode extends Node{
 		Node[] children = getChildren();
 		if(i == n){
 			if(lettersRest == thisLettersLength){
-				if(isTerminated()) return null;
+				if(isTerminate()) return null;
 				if(children != null){
 					if(children.length == 1){
 						return new TerminalSingleChildInternalCharsNode(this.letters, children[0]);
@@ -219,7 +219,7 @@ public class CharsNode extends Node{
 				if(this.letters[i] != letters[i + offset]) return false;
 			}
 			if(tll == rest){
-				return isTerminated();
+				return isTerminate();
 			}
 			offset += tll;
 		}

@@ -40,7 +40,7 @@ public class PatriciaTrie implements Trie{
 			for(int i = 0; i < letters.length; i++){
 				if(letters[i] != queryChars[cur + i]) return ret;
 			}
-			if(node.isTerminated()){
+			if(node.isTerminate()){
 				ret.add(new String(queryChars, 0 , cur + letters.length));
 			}
 			cur += letters.length;
@@ -55,7 +55,7 @@ public class PatriciaTrie implements Trie{
 		if(children == null) return;
 		for(org.trie4j.Node child : children){
 			String text = prefix + new String(child.getLetters());
-			if(child.isTerminated()) letters.add(text);
+			if(child.isTerminate()) letters.add(text);
 			enumLetters(child, text, letters);
 		}
 	}
@@ -79,7 +79,7 @@ public class PatriciaTrie implements Trie{
 				if(rest > 0){
 					prefix += new String(letters, n, rest);
 				}
-				if(node.isTerminated()) ret.add(prefix);
+				if(node.isTerminate()) ret.add(prefix);
 				enumLetters(node, prefix, ret);
 				return ret;
 			}
@@ -99,6 +99,7 @@ public class PatriciaTrie implements Trie{
 			root = newRoot;
 		}
 	}
+
 	public void visit(TrieVisitor visitor){
 		root.visit(visitor, 0);
 	}
@@ -109,6 +110,10 @@ public class PatriciaTrie implements Trie{
 
 	@Override
 	public void dump() {
+	}
+
+	@Override
+	public void trimToSize() {
 	}
 
 	private Node root;

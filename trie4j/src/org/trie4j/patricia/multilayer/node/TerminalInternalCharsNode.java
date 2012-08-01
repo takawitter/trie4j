@@ -24,7 +24,7 @@ public class TerminalInternalCharsNode extends InternalCharsNode {
 	}
 
 	@Override
-	public boolean isTerminated() {
+	public boolean isTerminate() {
 		return true;
 	}
 

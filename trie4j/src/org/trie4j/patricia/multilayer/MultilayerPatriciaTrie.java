@@ -74,7 +74,7 @@ public class MultilayerPatriciaTrie implements Trie{
 							}
 
 							String b = new String(queryChars, cur, len);
-							if(child.isTerminated()){
+							if(child.isTerminate()){
 								next = currentChars + b;
 							}
 							cur += len;
@@ -131,7 +131,7 @@ public class MultilayerPatriciaTrie implements Trie{
 		if(children == null) return;
 		for(org.trie4j.Node child : children){
 			String text = prefix + new String(child.getLetters());
-			if(child.isTerminated()) letters.add(text);
+			if(child.isTerminate()) letters.add(text);
 			enumLetters(child, text, letters);
 		}
 	}
@@ -153,7 +153,7 @@ public class MultilayerPatriciaTrie implements Trie{
 			if(queryChars.length == cur){
 				List<String> ret = new ArrayList<String>();
 				prefix += new String(letters, n, letters.length - n);
-				if(node.isTerminated()) ret.add(prefix);
+				if(node.isTerminate()) ret.add(prefix);
 				enumLetters(node, prefix, ret);
 				return ret;
 			}
@@ -195,6 +195,10 @@ public class MultilayerPatriciaTrie implements Trie{
 
 	@Override
 	public void dump() {
+	}
+
+	@Override
+	public void trimToSize() {
 	}
 
 	private Node root;

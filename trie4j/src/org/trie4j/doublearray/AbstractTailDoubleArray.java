@@ -67,7 +67,7 @@ public abstract class AbstractTailDoubleArray implements Trie{
 		if(root == null) return;
 		if(root.getLetters() != null){
 			if(root.getLetters().length == 0){
-				if(root.isTerminated()) term.set(0);
+				if(root.isTerminate()) term.set(0);
 			} else{
 				int c = getCharId(root.getLetters()[0]);
 				check[c] = 0;
@@ -166,7 +166,7 @@ public abstract class AbstractTailDoubleArray implements Trie{
 					i++;
 				} while(i < chars.length);
 				if(i >= chars.length) break;
-				current.append(tails.subSequence(tail[nodeIndex], it.getCurrentIndex()));
+				current.append(tails.subSequence(tail[nodeIndex], it.getNextIndex()));
 			}
 			int cid = findCharId(chars[i]);
 			if(cid == -1) return ret;
@@ -422,7 +422,7 @@ public abstract class AbstractTailDoubleArray implements Trie{
 			if(letters.length > 1){
 				tail[nodeIndex] = tailb.insert(letters, 1, letters.length - 1);
 			}
-			if(node.isTerminated()){
+			if(node.isTerminate()){
 				term.set(nodeIndex);
 			}
 		}

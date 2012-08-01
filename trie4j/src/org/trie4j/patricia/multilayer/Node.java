@@ -22,7 +22,7 @@ public abstract class Node implements org.trie4j.Node {
 	public abstract boolean contains(char[] letters, int offset);
 
 	@Override
-	public abstract boolean isTerminated();
+	public abstract boolean isTerminate();
 
 	@Override
 	public abstract char[] getLetters();

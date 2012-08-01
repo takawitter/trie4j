@@ -23,4 +23,5 @@ public interface Trie {
 	void insert(String word);
 	void visit(TrieVisitor visitor);
 	void dump();
+	void trimToSize();
 }

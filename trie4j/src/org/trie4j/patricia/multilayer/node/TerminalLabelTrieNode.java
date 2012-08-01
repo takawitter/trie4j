@@ -23,7 +23,7 @@ public class TerminalLabelTrieNode extends LabelTrieNode{
 	}
 
 	@Override
-	public boolean isTerminated() {
+	public boolean isTerminate() {
 		return true;
 	}
 }

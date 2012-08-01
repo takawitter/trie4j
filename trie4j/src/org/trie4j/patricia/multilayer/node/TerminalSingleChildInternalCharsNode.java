@@ -24,7 +24,7 @@ public class TerminalSingleChildInternalCharsNode extends SingleChildInternalCha
 	}
 
 	@Override
-	public boolean isTerminated() {
+	public boolean isTerminate() {
 		return true;
 	}
 

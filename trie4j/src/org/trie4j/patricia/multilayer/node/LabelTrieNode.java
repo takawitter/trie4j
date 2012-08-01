@@ -35,7 +35,7 @@ public class LabelTrieNode extends Node{
 		this.lettersNode = lettersNode;
 	}
 
-	public boolean isTerminated() {
+	public boolean isTerminate() {
 		return false;
 	}
 
@@ -81,7 +81,7 @@ public class LabelTrieNode extends Node{
 			if(!matchCompleted) return false;
 			offset += matchCount;
 			if(letters.length == offset){
-				return isTerminated();
+				return isTerminate();
 			}
 		}
 
