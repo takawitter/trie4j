@@ -61,7 +61,7 @@ public class Node implements org.trie4j.Node{
 		if(len - rest < 0) return Pair.create(true, -n);
 		return Pair.create(true, n);
 	}
-	public boolean isTerminated() {
+	public boolean isTerminate() {
 		return children == null || (letters != null && letters.length > 0 && letters[letters.length - 1] == 0xffff);
 	}
 	public Node getChild(char c){

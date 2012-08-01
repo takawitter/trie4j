@@ -63,7 +63,7 @@ public class PatriciaTrie implements Trie{
 							d *= -1;
 
 							String b = new String(queryChars, cur, d);
-							if(n.isTerminated()){
+							if(n.isTerminate()){
 								next = currentChars + b;
 							}
 							cur += d;
@@ -142,6 +142,9 @@ public class PatriciaTrie implements Trie{
 
 	@Override
 	public void dump() {
+	}
+
+	public void trimToSize() {
 	}
 
 	private Node root;
