@@ -15,12 +15,18 @@
  */
 package org.trie4j;
 
+import java.util.Arrays;
+
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
+import org.trie4j.patricia.tail.NodeAdapter;
+import org.trie4j.patricia.tail.TailPatriciaTrie;
 
 public class Test {
 	public static void main(String[] args) throws Exception{
-		System.out.println("--- patricia trie ---");
-		go(new MultilayerPatriciaTrie());
+		System.out.println("--- tail patricia trie ---");
+		go(new TailPatriciaTrie());
+//		System.out.println("--- multilayer patricia trie ---");
+//		go(new MultilayerPatriciaTrie());
 //		System.out.println("--- hash trie ---");
 //		go(new HashSetTrie());
 	}
@@ -46,9 +52,17 @@ public class Test {
 					if(letters == null || letters.length == 0){
 						System.out.print("<empty>");
 					} else{
-						System.out.print(letters);
+						if(node instanceof NodeAdapter){
+							NodeAdapter na = (NodeAdapter)node;
+							System.out.print("[" + na.getFirstLetter() + "]");
+							if(letters.length > 0){
+								System.out.print(Arrays.copyOfRange(letters, 1, letters.length));
+							}
+						} else{
+							System.out.print(letters);
+						}
 					}
-					if(node.isTerminated()){
+					if(node.isTerminate()){
 						System.out.println("*");
 					} else{
 						System.out.println("");
@@ -90,7 +104,7 @@ public class Test {
 					} else{
 						System.out.print(letters);
 					}
-					if(node.isTerminated()){
+					if(node.isTerminate()){
 						System.out.println("*");
 					} else{
 						System.out.println("");

@@ -25,20 +25,22 @@ import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 import org.trie4j.patricia.multilayer.labeltrie.LabelNode;
 import org.trie4j.patricia.multilayer.node.InternalCharsNode;
 import org.trie4j.patricia.multilayer.node.LabelTrieNode;
+import org.trie4j.patricia.tail.TailPatriciaTrie;
 import org.trie4j.util.CharsetUtil;
 
 public class TestWikipedia {
-	private static final int maxCount = 2000000;
+	private static final int maxCount = 14;//2000000;
 
 	public static void main(String[] args) throws Exception{
 		System.out.println("--- recursive patricia trie ---");
 //		Trie trie = new org.trie4j.patricia.simple.PatriciaTrie();
-		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
+//		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
+		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie();
 		int c = 0;
 		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-//				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
-				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
+				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
+//				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
 				, CharsetUtil.newUTF8Decoder()));
 		String word = null;
 		System.gc();
@@ -68,6 +70,9 @@ public class TestWikipedia {
 		System.out.println("insert time: " + sum + " millis.");
 
 		System.out.println("-- insert done.");
+//		if(trie instanceof TailPatriciaTrie){
+//			((TailPatriciaTrie) trie).pack();
+//		}
 		System.gc();
 		Thread.sleep(1000);
 		System.out.println(Runtime.getRuntime().freeMemory() + " bytes free.");
@@ -128,7 +133,7 @@ public class TestWikipedia {
 						System.out.print("<empty>");
 					}
 				}
-				if(node.isTerminated()){
+				if(node.isTerminate()){
 					System.out.print("*");
 				}
 				System.out.println();
@@ -138,11 +143,16 @@ public class TestWikipedia {
 
 	private static void investigate(Trie trie, int charCount)
 	throws Exception{
+		System.out.println("-- dump root children.");
+		for(Node n : trie.getRoot().getChildren()){
+			System.out.print(n.getLetters()[0]);
+		}
+		System.out.println();
 		System.out.println("-- count elements.");
 		final AtomicInteger count = new AtomicInteger();
 		trie.visit(new TrieVisitor() {
 			public void accept(Node node, int nest) {
-				if(node.isTerminated()) count.incrementAndGet();
+				if(node.isTerminate()) count.incrementAndGet();
 			}
 		});
 		System.out.println(count.intValue() + " elements.");
@@ -155,7 +165,7 @@ public class TestWikipedia {
 		final AtomicInteger chars = new AtomicInteger();
 		trie.visit(new TrieVisitor() {
 				public void accept(Node node, int nest) {
-					if(node.isTerminated()){
+					if(node.isTerminate()){
 						l.incrementAndGet();
 					} else{
 						n.incrementAndGet();
@@ -184,8 +194,8 @@ public class TestWikipedia {
 
 		System.out.println("verifying trie...");
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-//				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
-				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
+				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
+//				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
 				, CharsetUtil.newUTF8Decoder()));
 		long lap = System.currentTimeMillis();
 		int c = 0;
@@ -194,7 +204,7 @@ public class TestWikipedia {
 		while((word = r.readLine()) != null){
 			if(c == maxCount) break;
 			long d = System.currentTimeMillis();
-			boolean found = trie.contains(word);
+			boolean found = Algorithms.contains(trie.getRoot(), word);//trie.contains(word);
 			sum += System.currentTimeMillis() - d;
 			if(!found){
 				System.out.println("trie not contains [" + word + "]");
@@ -208,7 +218,7 @@ public class TestWikipedia {
 		System.out.println("done in " + (System.currentTimeMillis() - lap) + " millis.");
 		System.out.println("contains time: " + sum + " millis.");
 		
-		System.out.println(trie.getRoot().getChildren().length + "children in root");
+//		System.out.println(trie.getRoot().getChildren().length + "children in root");
 
 		if(trie instanceof MultilayerPatriciaTrie){
 			((MultilayerPatriciaTrie)trie).morePack();
