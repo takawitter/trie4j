@@ -74,8 +74,12 @@ public class Node {
 	public Node insertChild(char[] letters, int offset, CharSequence tails, TailBuilder tailBuilder){
 		TailCharIterator it = new TailCharIterator(tails, tailIndex);
 		int count = 0;
+		boolean matchComplete = true;
 		while(it.hasNext() && offset < letters.length){
-			if(letters[offset] != it.next()) break;
+			if(letters[offset] != it.next()){
+				matchComplete = false;
+				break;
+			}
 			offset++;
 			count++;
 		}
@@ -84,7 +88,10 @@ public class Node {
 				// n: abcde
 				// l: abc
 				char c = it.next();
-				int idx = (it.hasNext()) ? it.getNextIndex() : -1;
+				int idx = it.getNextIndex();
+				if(!it.hasNext()){
+					idx = -1;
+				}
 				Node newChild = new Node(c, idx, this.terminate, this.children);
 				this.tailIndex = (offset < letters.length ) ? tailBuilder.insert(Arrays.copyOfRange(letters, offset - count, offset)) : -1;
 				this.terminate = true;
@@ -97,12 +104,15 @@ public class Node {
 				return this;
 			}
 		} else{
-			if(it.current() != '\0'){
+			if(!matchComplete){
 				// n: abcwz
 				// l: abcde
 				int firstOffset = offset - count;
 				char n1Fc = it.current();
-				int n1Idx = (it.hasNext()) ? it.getNextIndex() : -1;
+				int n1Idx = it.getNextIndex();
+				if(!it.hasNext()){
+					n1Idx = -1;
+				}
 				Node n1 = new Node(n1Fc, n1Idx, terminate, children);
 				char n2Fc = letters[offset++];
 				int n2Idx = (offset < letters.length) ?
@@ -133,9 +143,10 @@ public class Node {
 				} else{
 					// find node
 					Pair<Node, Integer> ret = findNode(fc);
-					if(ret.getFirst() != null){
-						Node child = ret.getFirst().insertChild(letters, offset, tails, tailBuilder);
-						children[ret.getSecond()] = child;
+					Node child = ret.getFirst();
+					if(child != null){
+						Node newChild = child.insertChild(letters, offset, tails, tailBuilder);
+						children[ret.getSecond()] = newChild;
 					} else{
 						int idx = (offset < letters.length) ?
 							tailBuilder.insert(letters, offset, letters.length - offset) :

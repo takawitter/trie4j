@@ -32,6 +32,11 @@ public class TailPatriciaTrie implements Trie{
 		tails = tailBuilder.getTails();
 	}
 
+	public TailPatriciaTrie(TailBuilder builder){
+		this.tailBuilder = builder;
+		this.tails = builder.getTails();
+	}
+
 	@Override
 	public org.trie4j.Node getRoot() {
 		return new NodeAdapter(root, tails);
@@ -110,29 +115,6 @@ public class TailPatriciaTrie implements Trie{
 			}
 		};
 	}
-/*/
-	@Override
-	public Iterable<String> commonPrefixSearch(String query) {
-		List<String> ret = new ArrayList<String>();
-		char[] queryChars = query.toCharArray();
-		int cur = 0;
-		Node node = root;
-		while(node != null){
-			char[] letters = node.getLetters();
-			if(letters.length > (queryChars.length - cur)) return ret;
-			for(int i = 0; i < letters.length; i++){
-				if(letters[i] != queryChars[cur + i]) return ret;
-			}
-			if(node.isTerminated()){
-				ret.add(new String(queryChars, 0 , cur + letters.length));
-			}
-			cur += letters.length;
-			if(queryChars.length == cur) return ret;
-			node = node.getChild(queryChars[cur]);
-		}
-		return ret;
-	}
-//*/
 
 	private void enumLetters(Node node, String prefix, List<String> letters){
 		Node[] children = node.getChildren();
@@ -195,6 +177,10 @@ public class TailPatriciaTrie implements Trie{
 	public void pack(){
 		trimToSize();
 		tailBuilder = null;
+	}
+
+	public TailBuilder getTailBuilder(){
+		return tailBuilder;
 	}
 
 	private Node root = new Node((char)0xffff, -1, false, null);
