@@ -34,12 +34,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
 import org.trie4j.util.Pair;
 
-public class DoubleArray implements Trie{
+public class DoubleArray extends AbstractTrie implements Trie{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 
 	public DoubleArray(Trie trie){

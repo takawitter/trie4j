@@ -28,6 +28,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
@@ -38,7 +39,7 @@ import org.trie4j.tail.TailUtil;
 import org.trie4j.util.Pair;
 import org.trie4j.util.SuccinctBitVector;
 
-public class LOUDSTrie implements Trie {
+public class LOUDSTrie extends AbstractTrie implements Trie {
 	public LOUDSTrie(){
 	}
 

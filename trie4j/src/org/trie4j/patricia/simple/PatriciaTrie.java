@@ -19,10 +19,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.trie4j.AbstractTrie;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
 
-public class PatriciaTrie implements Trie{
+public class PatriciaTrie extends AbstractTrie implements Trie{
 	@Override
 	public boolean contains(String word) {
 		return root.contains(word.toCharArray(), 0);

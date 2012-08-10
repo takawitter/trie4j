@@ -19,12 +19,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.trie4j.AbstractTrie;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
 import org.trie4j.util.Pair;
 
 @Deprecated
-public class PatriciaTrie implements Trie{
+public class PatriciaTrie extends AbstractTrie implements Trie{
 	@Override
 	public boolean contains(String word) {
 		return root.contains(word.toCharArray(), 0);

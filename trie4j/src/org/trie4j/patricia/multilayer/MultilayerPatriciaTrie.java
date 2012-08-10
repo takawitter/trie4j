@@ -21,12 +21,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.trie4j.AbstractTrie;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
 import org.trie4j.patricia.multilayer.labeltrie.LabelTrie;
 import org.trie4j.patricia.multilayer.node.TerminalCharsNode;
 
-public class MultilayerPatriciaTrie implements Trie{
+public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
 	public Node getRoot(){
 		return root;
 	}

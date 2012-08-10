@@ -21,12 +21,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.trie4j.AbstractTrie;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
 import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
+import org.trie4j.tail.TailCharIterator;
 
-public class TailPatriciaTrie implements Trie{
+public class TailPatriciaTrie extends AbstractTrie implements Trie{
 	public TailPatriciaTrie() {
 		tailBuilder = new SuffixTrieTailBuilder();
 		tails = tailBuilder.getTails();
@@ -50,7 +52,44 @@ public class TailPatriciaTrie implements Trie{
 			return root.contains(letters, 0, tails);
 		}
 	}
-//*
+
+	@Override
+	public int findCommonPrefix(char[] chars, int begin, int end) {
+		TailCharIterator letters = null;
+		for(int i = begin; i < end; i++){
+			int cur = i;
+			Node node = root;
+			while(true){
+				int ti = node.getTailIndex();
+				if(ti != -1){
+					if(letters == null){
+						letters = new TailCharIterator(tails, ti);
+					} else{
+						letters.setIndex(ti);
+					}
+					boolean matched = true;
+					while(letters.hasNext()){
+						if(cur == end){
+							matched = false;
+							break;
+						}
+						if(letters.next() != chars[cur++]){
+							matched = false;
+							break;
+						}
+					}
+					if(!matched) break;
+				}
+				if(node.isTerminate()) return i;
+				if(cur == end) break;
+				char nl = chars[cur++];
+				node = node.getChild(nl);
+				if(node == null) break;
+			}
+		}
+		return -1;
+	}
+	
 	@Override
 	public Iterable<String> commonPrefixSearch(final String query) {
 		if(query.length() == 0) return new ArrayList<String>(0);

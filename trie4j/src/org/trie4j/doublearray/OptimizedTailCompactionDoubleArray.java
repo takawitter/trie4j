@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieVisitor;
@@ -42,7 +43,7 @@ import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.util.Pair;
 
-public class OptimizedTailCompactionDoubleArray implements Trie{
+public class OptimizedTailCompactionDoubleArray extends AbstractTrie implements Trie{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 
 	public OptimizedTailCompactionDoubleArray(){

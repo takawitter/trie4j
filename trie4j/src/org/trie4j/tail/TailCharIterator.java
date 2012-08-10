@@ -11,6 +11,16 @@ public class TailCharIterator{
 		}
 	}
 
+	public void setIndex(int index){
+		this.index = index;
+		this.current = '\0';
+		if(this.index != -1){
+			this.next = this.chars.charAt(index);
+		} else{
+			this.next = '\0';
+		}
+	}
+
 	public int getNextIndex(){
 		return index;
 	}

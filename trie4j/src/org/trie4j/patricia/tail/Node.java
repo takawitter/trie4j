@@ -60,11 +60,19 @@ public class Node {
 		return firstChar;
 	}
 
+	public int getTailIndex(){
+		return tailIndex;
+	}
+
+	public TailCharIterator getSecondLetters(CharSequence tails){
+		return new TailCharIterator(tails, tailIndex);
+	}
+
 	public Node getChild(char c) {
 		if(children == null){
 			return null;
 		}
-		return findNode(c).getFirst();
+		return findNodeOnly(c);
 	}
 
 	public Node[] getChildren() {
@@ -223,6 +231,38 @@ public class Node {
 			}
 		}
 		return Pair.create(null, end);
+	}
+
+	private Node findNodeOnly(char firstChar){
+		int end = children.length;
+		if(end > 16){
+			int start = 0;
+			while(start < end){
+				int i = (start + end) / 2;
+				Node child = children[i];
+				int d = firstChar - child.getFirstLetter();
+				if(d == 0){
+					return child;
+				} else if(d < 0){
+					end = i;
+				} else if(start == i){
+					return null;
+				} else{
+					start = i;
+				}
+			}
+		} else{
+			for(int i = 0; i < end; i++){
+				Node child = children[i];
+				int c = firstChar - child.getFirstLetter();
+				if(c < 0){
+					return null;
+				} else if(c == 0){
+					return child;
+				}
+			}
+		}
+		return null;
 	}
 
 	private char firstChar;
