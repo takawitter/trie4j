@@ -285,6 +285,8 @@ public class SuccinctBitVector implements Serializable{
 			if(pos <= node1pos) return node1pos;
 			else if(pos <= node2pos) return node2pos;
 			else return node3pos;
+		} else if((pos + 1) == size){
+			return size;
 		}
 		int i = pos / 8;
 		int s = pos % 8;

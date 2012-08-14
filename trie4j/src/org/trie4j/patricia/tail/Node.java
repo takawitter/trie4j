@@ -101,7 +101,7 @@ public class Node {
 					idx = -1;
 				}
 				Node newChild = new Node(c, idx, this.terminate, this.children);
-				this.tailIndex = (offset < letters.length ) ? tailBuilder.insert(Arrays.copyOfRange(letters, offset - count, offset)) : -1;
+				this.tailIndex = (count > 0) ? tailBuilder.insert(Arrays.copyOfRange(letters, offset - count, offset)) : -1;
 				this.terminate = true;
 				this.children = new Node[]{newChild};
 				return this;

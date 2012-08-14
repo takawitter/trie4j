@@ -18,9 +18,17 @@ package org.trie4j.doublearray;
 import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.Trie;
+import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
 
-public class TailCompactionDoubleArrayTest {
+public class TailCompactionDoubleArrayTest extends TrieTestSet{
+	@Override
+	protected Trie trieWithWords(String... words) {
+		PatriciaTrie trie = new PatriciaTrie();
+		for(String w : words) trie.insert(w);
+		return new TailCompactionDoubleArray(trie);
+	}
+
 	@Test
 	public void test() throws Exception{
 		Trie da = newDA(new PatriciaTrie());

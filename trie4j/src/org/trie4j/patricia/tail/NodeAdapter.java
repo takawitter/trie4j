@@ -13,7 +13,9 @@ public class NodeAdapter implements org.trie4j.Node{
 	}
 	@Override
 	public org.trie4j.Node[] getChildren() {
-		org.trie4j.Node[] ret = new org.trie4j.Node[node.getChildren().length];
+		Node[] children = node.getChildren();
+		if(children == null) return null;
+		org.trie4j.Node[] ret = new org.trie4j.Node[children.length];
 		for(int i = 0; i < ret.length; i++){
 			ret[i] = new NodeAdapter(node.getChildren()[i], tails);
 		}

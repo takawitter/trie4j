@@ -7,12 +7,20 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.test.WikipediaTitles;
 import org.trie4j.util.LapTimer;
 
-public class LOUDSTrieTest {
+public class LOUDSTrieTest extends TrieTestSet{
+	@Override
+	protected Trie trieWithWords(String... words) {
+		Trie trie = new PatriciaTrie();
+		for(String w : words) trie.insert(w);
+		return new LOUDSTrie(trie);
+	}
+
 	@Test
 	public void test() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};

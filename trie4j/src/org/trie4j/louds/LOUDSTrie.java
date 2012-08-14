@@ -60,7 +60,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		count++;
 
 		TailBuilder tb = new SuffixTrieTailBuilder();
-		queue.add(orig.getRoot());
+		if(orig.getRoot() != null) queue.add(orig.getRoot());
 		while(!queue.isEmpty()){
 			Node node = queue.pollFirst();
 			int index = count++;
@@ -175,19 +175,18 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 					if(start == i) return ret;
 					else start = i;
 				} else{
-					charsIndex++;
 					int ti = tail[index];
 					boolean tm = term.get(index);
-					if(charsIndex == chars.length){
-						return ret;
-					}
 					if(ti != -1){
 						TailCharIterator tci = new TailCharIterator(tails, ti);
 						while(tci.hasNext()){
+							charsIndex++;
 							if(charsIndex == chars.length) return ret;
 							if(tci.next() != chars[charsIndex]) return ret;
-							charsIndex++;
 						}
+					} else{
+						charsIndex++;
+						if(charsIndex == chars.length) return ret;
 					}
 					if(tm) ret.add(new String(chars, 0, charsIndex));
 					nodeId = baseNodeId + i;
@@ -294,11 +293,6 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		throw new UnsupportedOperationException();
 	}
 	
-	@Override
-	public void dump() {
-		throw new UnsupportedOperationException();
-	}
-
 	public class LOUDSNode implements Node{
 		public LOUDSNode(int nodeId) {
 			this.nodeId = nodeId;

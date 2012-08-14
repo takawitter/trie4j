@@ -109,13 +109,5 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 		return root;
 	}
 
-	@Override
-	public void dump() {
-	}
-
-	@Override
-	public void trimToSize() {
-	}
-
 	private Node root;
 }

@@ -20,8 +20,16 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.Trie;
+import org.trie4j.TrieTestSet;
 
-public class TailDoubleArrayTest {
+public class TailDoubleArrayTest extends TrieTestSet{
+	@Override
+	protected Trie trieWithWords(String... words) {
+		PatriciaTrie trie = new PatriciaTrie();
+		for(String w : words) trie.insert(w);
+		return new TailDoubleArray(trie);
+	}
+
 	@Test
 	public void test() throws Exception{
 		Trie da = newDA(new PatriciaTrie());

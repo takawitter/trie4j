@@ -205,10 +205,6 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 	}
 
 	@Override
-	public void dump() {
-	}
-
-	@Override
 	public void trimToSize() {
 		((StringBuilder)tails).trimToSize();
 	}

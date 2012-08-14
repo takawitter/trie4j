@@ -21,17 +21,24 @@ import org.trie4j.doublearray.DoubleArrayTest;
 import org.trie4j.doublearray.TailCompactionDoubleArrayTest;
 import org.trie4j.doublearray.TailDoubleArrayTest;
 import org.trie4j.louds.LOUDSTrieTest;
+import org.trie4j.patricia.simple.PatriciaTrieTest;
+import org.trie4j.patricia.tail.TailPatriciaTrieWithSimpleTailBuilderTest;
+import org.trie4j.patricia.tail.TailPatriciaTrieWithSuffixTrieTailBuilderTest;
 import org.trie4j.tail.SuffixTrieTailBuilderTest;
 import org.trie4j.util.SuccinctBitVectorTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	DoubleArrayTest.class, TailCompactionDoubleArrayTest.class
-	, TailDoubleArrayTest.class
-	, SuffixTrieTailBuilderTest.class
-	, SuccinctBitVectorTest.class
-//	, WikipediaTitlesTest.class
-	, LOUDSTrieTest.class
+	SuffixTrieTailBuilderTest.class,
+	SuccinctBitVectorTest.class,
+	PatriciaTrieTest.class,
+	TailPatriciaTrieWithSimpleTailBuilderTest.class,
+	TailPatriciaTrieWithSuffixTrieTailBuilderTest.class,
+	DoubleArrayTest.class,
+	TailCompactionDoubleArrayTest.class,
+	TailDoubleArrayTest.class,
+	LOUDSTrieTest.class,
+	//WikipediaTitlesTest.class,
 })
 public class AllTests {
 }
