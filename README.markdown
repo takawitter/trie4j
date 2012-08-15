@@ -9,6 +9,7 @@ Sample codes:
 	import org.trie4j.doublearray.DoubleArray;
 	import org.trie4j.louds.LOUDSTrie;
 	import org.trie4j.patricia.simple.PatriciaTrie;
+	import org.trie4j.tail.ConcatTailBuilder;
 
 	public class Sample {
 		public static void main(String[] args) throws Exception{
@@ -23,7 +24,7 @@ Sample codes:
 			DoubleArray da = new DoubleArray(pat); // construct DoubleArray from existing Trie
 			da.contains("World"); // -> true
 			
-			LOUDSTrie lt = new LOUDSTrie(pat); // construct LOUDS succinct Trie
+			LOUDSTrie lt = new LOUDSTrie(pat, 1024, new ConcatTailBuilder()); // construct LOUDS succinct Trie with ConcatTailBuilder
 			lt.contains("Wonderful!"); // -> true
 			lt.commonPrefixSearch("Wonderful!"); // -> {"Wonder", "Wonderful!"} as Iterable<String>
 		}
@@ -68,5 +69,5 @@ Trie4Jもそういったライブラリの一つで、各種トライ構造に�
 * LOUDS(Level-order unary degree structure) 簡潔 Trie
  * シンプルなLOUDSトライ(TAIL配列付き) - [org.trie4j.louds.LOUDSTrie](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/louds/LOUDSTrie.java)
 
-**Tail配列の実装は、単に文字列を連結するもの(ConcatTailBuilder)と末尾トライを使ってサイズを圧縮したもの(SuffixTrieTailBuilder)の2つから選べます。**
+**Tail配列の実装は、単に文字列を連結するもの(ConcatTailBuilder)と末尾トライを使ってサイズを圧縮したもの(SuffixTrieTailBuilder, デフォルト)の2つから選べます。**
 
