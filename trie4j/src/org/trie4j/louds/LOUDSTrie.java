@@ -107,17 +107,18 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		char[] chars = word.toCharArray();
 		int charsIndex = 0;
 		int nodeId = 1;
-		int start = 0;
 //		LapTimer lt = new LapTimer();
+		TailCharIterator tci = new TailCharIterator(tails, -1);
 		while(true){
 //			lt.lap();
-			start = bv.select0(nodeId) + 1;
+			int start = bv.select0(nodeId) + 1;
 //			select0Time += lt.lap();
 			int end = bv.next0(start);
+			if(end == -1) end = start + 1;
 //			next0Time += lt.lap();
 			int baseNodeId = bv.rank1(start) - start;
 //			rank1Time += lt.lap();
-			while(start != end){
+			do{
 				int i = (start + end) / 2;
 				int index = baseNodeId + i;
 				int d = chars[charsIndex] - labels[index];
@@ -133,7 +134,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 						return (ti == -1) && term.get(index);
 					}
 					if(ti != -1){
-						TailCharIterator tci = new TailCharIterator(tails, ti);
+						tci.setIndex(ti);
 						while(tci.hasNext()){
 							if(charsIndex == chars.length) return false;
 							if(tci.next() != chars[charsIndex]) return false;
@@ -144,7 +145,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 					nodeId = baseNodeId + i;
 					break;
 				}
-			}
+			} while(start != end);
 			if(start == end) return false;
 		}
 	}
