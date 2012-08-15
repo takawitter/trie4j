@@ -15,42 +15,32 @@
  */
 package org.trie4j;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.zip.GZIPInputStream;
 
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
-import org.trie4j.patricia.multilayer.labeltrie.LabelNode;
 import org.trie4j.patricia.multilayer.node.InternalCharsNode;
 import org.trie4j.patricia.multilayer.node.LabelTrieNode;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
-import org.trie4j.util.CharsetUtil;
+import org.trie4j.tail.ConcatTailBuilder;
+import org.trie4j.test.WikipediaTitles;
 
 public class TestWikipedia {
-	private static final int maxCount = 14;//2000000;
+	private static final int maxCount = 2000000;
+	// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
+	private static final String wikipediaFile = "jawiki-20120220-all-titles-in-ns0.gz";
+//	private static final String wikipediaFile = "enwiki-20120403-all-titles-in-ns0.gz";
 
 	public static void main(String[] args) throws Exception{
 		System.out.println("--- recursive patricia trie ---");
 //		Trie trie = new org.trie4j.patricia.simple.PatriciaTrie();
 //		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
-		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie();
+		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie(
+				new ConcatTailBuilder());
 		int c = 0;
-		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
-		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
-//				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
-				, CharsetUtil.newUTF8Decoder()));
-		String word = null;
-		System.gc();
-		Thread.sleep(1000);
-		System.out.println(Runtime.getRuntime().freeMemory() + " bytes free.");
-
 		long sum = 0;
 		long lap = System.currentTimeMillis();
 		int charCount = 0;
-		while((word = r.readLine()) != null){
+		for(String word : new WikipediaTitles(wikipediaFile)){
 			long d = System.currentTimeMillis();
 			trie.insert(word);
 			sum += System.currentTimeMillis() - d;
@@ -78,14 +68,15 @@ public class TestWikipedia {
 		System.out.println(Runtime.getRuntime().freeMemory() + " bytes free.");
 
 		final AtomicInteger cnt = new AtomicInteger();
-		trie.visit(new TrieVisitor() {
+		trie.traverse(new NodeVisitor() {
 			@Override
-			public void accept(Node node, int nest) {
+			public boolean visit(Node node, int nest) {
 				if(node instanceof InternalCharsNode){
 					if(((InternalCharsNode)node).getChildren().length == 1){
 						cnt.incrementAndGet();
 					}
 				}
+				return true;
 			}
 		});
 		System.out.println(cnt + " nodes have 1 child.");
@@ -107,40 +98,6 @@ public class TestWikipedia {
 //*/
 	}
 
-	private static void dump(Trie trie){
-		System.out.println("--dump--");
-		trie.visit(new TrieVisitor() {
-			@Override
-			public void accept(Node node, int nest) {
-				for(int i = 0; i < nest; i++){
-					System.out.print(" ");
-				}
-				char[] letters = node.getLetters();
-				if(letters != null && letters.length > 0){
-					System.out.print(letters);
-				} else if(node instanceof LabelTrieNode){
-					LabelNode ln = ((LabelTrieNode)node).getLettersNode();
-					if(ln != null){
-						do{
-							System.out.print("#");
-							char[] l = ln.getLetters();
-							for(int i = 0; i < l.length; i++){
-								System.out.print(l[l.length - i - 1]);
-							}
-							ln = ln.getParent();
-						} while(ln != null);
-					} else{
-						System.out.print("<empty>");
-					}
-				}
-				if(node.isTerminate()){
-					System.out.print("*");
-				}
-				System.out.println();
-			}
-		});
-	}
-
 	private static void investigate(Trie trie, int charCount)
 	throws Exception{
 		System.out.println("-- dump root children.");
@@ -150,9 +107,10 @@ public class TestWikipedia {
 		System.out.println();
 		System.out.println("-- count elements.");
 		final AtomicInteger count = new AtomicInteger();
-		trie.visit(new TrieVisitor() {
-			public void accept(Node node, int nest) {
+		trie.traverse(new NodeVisitor() {
+			public boolean visit(Node node, int nest) {
 				if(node.isTerminate()) count.incrementAndGet();
+				return true;
 			}
 		});
 		System.out.println(count.intValue() + " elements.");
@@ -163,8 +121,8 @@ public class TestWikipedia {
 		final AtomicInteger l = new AtomicInteger();
 		final AtomicInteger ln = new AtomicInteger();
 		final AtomicInteger chars = new AtomicInteger();
-		trie.visit(new TrieVisitor() {
-				public void accept(Node node, int nest) {
+		trie.traverse(new NodeVisitor() {
+				public boolean visit(Node node, int nest) {
 					if(node.isTerminate()){
 						l.incrementAndGet();
 					} else{
@@ -173,15 +131,17 @@ public class TestWikipedia {
 					if(!(node instanceof LabelTrieNode)){
 						chars.addAndGet(node.getLetters().length);
 					}
+					return true;
 				}
 			});
 		if(trie instanceof MultilayerPatriciaTrie){
 			MultilayerPatriciaTrie mt = (MultilayerPatriciaTrie)trie;
 			if(mt.getLabelTrie() != null){
-				mt.getLabelTrie().visit(new TrieVisitor() {
-					public void accept(Node node, int nest) {
+				mt.getLabelTrie().visit(new NodeVisitor() {
+					public boolean visit(Node node, int nest) {
 						ln.incrementAndGet();
 						chars.addAndGet(node.getLetters().length);
+						return true;
 					}
 				});
 			}
@@ -193,15 +153,10 @@ public class TestWikipedia {
 		System.out.println("total char count in trie: " + chars.intValue());
 
 		System.out.println("verifying trie...");
-		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
-//				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
-				, CharsetUtil.newUTF8Decoder()));
 		long lap = System.currentTimeMillis();
 		int c = 0;
 		int sum = 0;
-		String word = null;
-		while((word = r.readLine()) != null){
+		for(String word : new WikipediaTitles(wikipediaFile)){
 			if(c == maxCount) break;
 			long d = System.currentTimeMillis();
 			boolean found = Algorithms.contains(trie.getRoot(), word);//trie.contains(word);
@@ -219,7 +174,10 @@ public class TestWikipedia {
 		System.out.println("contains time: " + sum + " millis.");
 		
 //		System.out.println(trie.getRoot().getChildren().length + "children in root");
-
+		if(trie instanceof TailPatriciaTrie){
+//			((TailPatriciaTrie) trie).pack();
+			System.out.println("tail length: " + ((TailPatriciaTrie) trie).getTailBuilder().getTails().length());
+		}
 		if(trie instanceof MultilayerPatriciaTrie){
 			((MultilayerPatriciaTrie)trie).morePack();
 		}
