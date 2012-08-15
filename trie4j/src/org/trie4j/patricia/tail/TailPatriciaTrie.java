@@ -48,8 +48,21 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 		char[] letters = word.toCharArray();
 		if(letters.length == 0){
 			return root.isTerminate();
-		} else{
-			return root.contains(letters, 0, tails);
+		}
+		int offset = 0;
+		Node node = root;
+		TailCharIterator it = new TailCharIterator(tails, -1);
+		while(true){
+			node = node.getChild(letters[offset++]);
+			if(node== null) return false;
+			it.setIndex(node.getTailIndex());
+			while(it.hasNext()){
+				if(offset >= letters.length) return false;
+				char c1 = it.next();
+				char c2 = letters[offset++];
+				if(c1 != c2) return false;
+			}
+			if(offset >= letters.length) return node.isTerminate();
 		}
 	}
 

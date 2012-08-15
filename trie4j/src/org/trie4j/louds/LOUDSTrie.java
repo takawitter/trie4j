@@ -43,22 +43,20 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	public LOUDSTrie(Trie orig){
-		//orig.size();
-		int sz = 2000;
-		bv = new SuccinctBitVector(sz);
-		labels = new char[sz];
-		tail = new int[sz];
-		term = new BitSet(sz);
+		this(orig, 65536);
+	}
+
+	public LOUDSTrie(Trie orig, int bitSize){
+		this(orig, bitSize, new SuffixTrieTailBuilder());
+	}
+
+	public LOUDSTrie(Trie orig, int bitSize, TailBuilder tb){
+		bv = new SuccinctBitVector(bitSize);
+		labels = new char[bitSize / 2];
+		tail = new int[bitSize / 2];
+		term = new BitSet(bitSize / 2);
 		LinkedList<Node> queue = new LinkedList<Node>();
 		int count = 0;
-/*
-		bv.append(true);
-		bv.append(false);
-		labels[0] = 0xffff;
-		tail[0] = -1;
-		count++;
-*/
-		TailBuilder tb = new SuffixTrieTailBuilder();
 		if(orig.getRoot() != null) queue.add(orig.getRoot());
 		while(!queue.isEmpty()){
 			Node node = queue.pollFirst();
@@ -72,11 +70,11 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 			Node[] children = node.getChildren();
 			if(children != null){
 				for(Node c : children){
-					bv.append(true);
+					bv.append1();
 					queue.offerLast(c);
 				}
 			}
-			bv.append(false);
+			bv.append0();
 			char[] letters = node.getLetters();
 			if(letters.length == 0){
 				labels[index] = 0xffff;
@@ -127,35 +125,63 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 //			next0Time += lt.lap();
 			int baseNodeId = bv.rank1(start) - start;
 //			rank1Time += lt.lap();
-			do{
-				int i = (start + end) / 2;
-				int index = baseNodeId + i;
-				int d = chars[charsIndex] - labels[index];
-				if(d < 0){
-					end = i;
-				} else if(d > 0){
-					if(start == i) return false;
-					else start = i;
-				} else{
-					charsIndex++;
-					int ti = tail[index];
-					if(charsIndex == chars.length){
-						return (ti == -1) && term.get(index);
-					}
-					if(ti != -1){
-						tci.setIndex(ti);
-						while(tci.hasNext()){
-							if(charsIndex == chars.length) return false;
-							if(tci.next() != chars[charsIndex]) return false;
-							charsIndex++;
+			if((end - start) <= 16){
+				int i = start;
+				int index = baseNodeId + start;
+				for(; i < end; i++){
+					int d = chars[charsIndex] - labels[index];
+					if(d == 0){
+						charsIndex++;
+						int ti = tail[index];
+						if(charsIndex == chars.length){
+							return (ti == -1) && term.get(index);
 						}
-						if(charsIndex == chars.length) return term.get(index);
+						if(ti != -1){
+							tci.setIndex(ti);
+							while(tci.hasNext()){
+								if(charsIndex == chars.length) return false;
+								if(tci.next() != chars[charsIndex]) return false;
+								charsIndex++;
+							}
+							if(charsIndex == chars.length) return term.get(index);
+						}
+						nodeId = baseNodeId + i;
+						break;
 					}
-					nodeId = baseNodeId + i;
-					break;
+					index++;
 				}
-			} while(start != end);
-			if(start == end) return false;
+				if(i == end) return false;
+			} else{
+				do{
+					int i = (start + end) / 2;
+					int index = baseNodeId + i;
+					int d = chars[charsIndex] - labels[index];
+					if(d < 0){
+						end = i;
+					} else if(d > 0){
+						if(start == i) return false;
+						else start = i;
+					} else{
+						charsIndex++;
+						int ti = tail[index];
+						if(charsIndex == chars.length){
+							return (ti == -1) && term.get(index);
+						}
+						if(ti != -1){
+							tci.setIndex(ti);
+							while(tci.hasNext()){
+								if(charsIndex == chars.length) return false;
+								if(tci.next() != chars[charsIndex]) return false;
+								charsIndex++;
+							}
+							if(charsIndex == chars.length) return term.get(index);
+						}
+						nodeId = baseNodeId + i;
+						break;
+					}
+				} while(start != end);
+				if(start == end) return false;
+			}
 		}
 	}
 

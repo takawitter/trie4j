@@ -25,6 +25,14 @@ public class Pair<T, U> {
 		this.second = second;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append("first: ").append(first)
+			.append(", second: ").append(second);
+		return b.toString();
+	}
+
 	public T getFirst() {
 		return first;
 	}

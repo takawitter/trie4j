@@ -20,13 +20,14 @@ import org.junit.Test;
 import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
+import org.trie4j.tail.SuffixTrieTailBuilder;
 
-public class TailCompactionDoubleArrayTest extends TrieTestSet{
+public class TailDoubleArrayWithSuffixTrieTailBuilderTest extends TrieTestSet{
 	@Override
 	protected Trie trieWithWords(String... words) {
 		PatriciaTrie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		return new TailCompactionDoubleArray(trie);
+		return new TailDoubleArray(trie, 65536, new SuffixTrieTailBuilder());
 	}
 
 	@Test
@@ -104,7 +105,7 @@ public class TailCompactionDoubleArrayTest extends TrieTestSet{
 	}
 
 	private Trie newDA(Trie trie){
-		return new TailCompactionDoubleArray(trie);
+		return new TailDoubleArray(trie, 65536, new SuffixTrieTailBuilder());
 	}
 
 	public static void main(String[] args) throws Exception{

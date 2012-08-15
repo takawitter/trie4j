@@ -186,21 +186,6 @@ public class Node {
 		return this;
 	}
 
-	public boolean contains(char[] letters, int offset, CharSequence tails){
-		TailCharIterator it = new TailCharIterator(tails, tailIndex);
-		while(it.hasNext()){
-			if(offset >= letters.length) return false;
-			char c1 = it.next();
-			char c2 = letters[offset++];
-			if(c1 != c2) return false;
-		}
-		if(offset >= letters.length) return terminate;
-		char fc = letters[offset++];
-		Node child = getChild(fc);
-		if(child == null) return false;
-		return child.contains(letters, offset, tails);
-	}
-
 	private Pair<Node, Integer> findNode(char firstChar){
 		int end = children.length;
 		if(end > 16){

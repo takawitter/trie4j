@@ -32,7 +32,7 @@ public class SuccinctBitVector implements Serializable{
 	public SuccinctBitVector(int initialCapacity){
 		vector = new byte[initialCapacity / 8 + 1];
 		int blockSize = CACHE_WIDTH;
-		int size = initialCapacity / blockSize + (((initialCapacity % blockSize) != 0) ? 1 : 0);
+		int size = initialCapacity / blockSize + 1;
 		countCache0 = new int[size];
 		indexCache0 = new int[size + 1];
 	}
@@ -201,13 +201,13 @@ public class SuccinctBitVector implements Serializable{
 	}
 
 	public int select0(int count){
+		if(count > size) return -1;
 		if(count <= 3){
 			if(count == 1) return node1pos;
 			else if(count == 2) return node2pos;
 			else if(count == 3) return node3pos;
 			else return -1;
 		}
-		if(count > size) return -1;
 //*
 		int idx = count / CACHE_WIDTH;
 		int start = indexCache0[idx];
@@ -320,6 +320,7 @@ public class SuccinctBitVector implements Serializable{
 		dos.writeInt(size0);
 		dos.writeInt(node1pos);
 		dos.writeInt(node2pos);
+		dos.writeInt(node3pos);
 		trimToSize();
 		dos.write(vector);
 		for(int e : countCache0){
@@ -336,6 +337,7 @@ public class SuccinctBitVector implements Serializable{
 		size0 = dis.readInt();
 		node1pos = dis.readInt();
 		node2pos = dis.readInt();
+		node3pos = dis.readInt();
 		int vectorSize = size / 8 + 1;
 		vector = new byte[vectorSize];
 		dis.read(vector, 0, vectorSize);

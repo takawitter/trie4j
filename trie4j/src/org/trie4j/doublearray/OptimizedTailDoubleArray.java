@@ -42,17 +42,21 @@ import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 
-public class OptimizedTailCompactionDoubleArray extends AbstractTrie implements Trie{
+public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 
-	public OptimizedTailCompactionDoubleArray(){
+	public OptimizedTailDoubleArray(){
 	}
 	
-	public OptimizedTailCompactionDoubleArray(Trie trie){
+	public OptimizedTailDoubleArray(Trie trie){
 		this(trie, 65536);
 	}
 
-	public OptimizedTailCompactionDoubleArray(Trie trie, int arraySize){
+	public OptimizedTailDoubleArray(Trie trie, int arraySize){
+		this(trie, arraySize, new SuffixTrieTailBuilder());
+	}
+
+	public OptimizedTailDoubleArray(Trie trie, int arraySize, TailBuilder tb){
 		base = new int[arraySize];
 		Arrays.fill(base, BASE_EMPTY);
 		check = new short[arraySize];
@@ -75,25 +79,8 @@ public class OptimizedTailCompactionDoubleArray extends AbstractTrie implements 
 				firstEmptyCheck = 1;
 			}
 		}
-		/*
-		trie.visit(new TrieVisitor() {
-			@Override
-			public void accept(Node node, int nest) {
-				if(nest >= 6) return;
-				Node[] children = node.getChildren();
-				if(children == null) return;
-				if(children.length > 10){
-					for(Node c : children){
-						getCharId(c.getLetters()[0]);
-					}
-				}
-			}
-		});
-		*/
-		TailBuilder tb = new SuffixTrieTailBuilder();
 		build(root, nodeIndex, tb);
 		tails = tb.getTails();
-		tb = null;
 	}
 
 	@Override
@@ -105,10 +92,11 @@ public class OptimizedTailCompactionDoubleArray extends AbstractTrie implements 
 		char[] chars = text.toCharArray();
 		int charsIndex = 0;
 		int nodeIndex = 0;
+		TailCharIterator it = new TailCharIterator(tails, -1);
 		while(charsIndex < chars.length){
 			int tailIndex = tail[nodeIndex];
 			if(tailIndex != -1){
-				TailCharIterator it = new TailCharIterator(tails, tailIndex);
+				it.setIndex(tailIndex);
 				while(it.hasNext()){
 					if(chars.length <= charsIndex) return false;
 					if(chars[charsIndex] != it.next()) return false;

@@ -9,13 +9,13 @@ import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
-import org.trie4j.tail.SimpleTailBuilder;
+import org.trie4j.tail.ConcatTailBuilder;
 import org.trie4j.test.WikipediaTitles;
 
-public class TailPatriciaTrieWithSimpleTailBuilderTest extends TrieTestSet {
+public class TailPatriciaTrieWithConcatTailBuilderTest extends TrieTestSet {
 	@Override
 	protected Trie trieWithWords(String... words) {
-		Trie trie = new TailPatriciaTrie(new SimpleTailBuilder());
+		Trie trie = new TailPatriciaTrie(new ConcatTailBuilder());
 		for(String w : words) trie.insert(w);
 		return trie;
 	}

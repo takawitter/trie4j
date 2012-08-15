@@ -18,11 +18,12 @@ package org.trie4j;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.trie4j.doublearray.DoubleArrayTest;
-import org.trie4j.doublearray.TailCompactionDoubleArrayTest;
-import org.trie4j.doublearray.TailDoubleArrayTest;
-import org.trie4j.louds.LOUDSTrieTest;
+import org.trie4j.doublearray.TailDoubleArrayWithSuffixTrieTailBuilderTest;
+import org.trie4j.doublearray.TailDoubleArrayWithConcatTailBuilderTest;
+import org.trie4j.louds.LOUDSTrieWithConcatTailBuilderTest;
+import org.trie4j.louds.LOUDSTrieWithSuffixTrieTailBuilderTest;
 import org.trie4j.patricia.simple.PatriciaTrieTest;
-import org.trie4j.patricia.tail.TailPatriciaTrieWithSimpleTailBuilderTest;
+import org.trie4j.patricia.tail.TailPatriciaTrieWithConcatTailBuilderTest;
 import org.trie4j.patricia.tail.TailPatriciaTrieWithSuffixTrieTailBuilderTest;
 import org.trie4j.tail.SuffixTrieTailBuilderTest;
 import org.trie4j.util.SuccinctBitVectorTest;
@@ -32,12 +33,13 @@ import org.trie4j.util.SuccinctBitVectorTest;
 	SuffixTrieTailBuilderTest.class,
 	SuccinctBitVectorTest.class,
 	PatriciaTrieTest.class,
-	TailPatriciaTrieWithSimpleTailBuilderTest.class,
+	TailPatriciaTrieWithConcatTailBuilderTest.class,
 	TailPatriciaTrieWithSuffixTrieTailBuilderTest.class,
 	DoubleArrayTest.class,
-	TailCompactionDoubleArrayTest.class,
-	TailDoubleArrayTest.class,
-	LOUDSTrieTest.class,
+	TailDoubleArrayWithConcatTailBuilderTest.class,
+	TailDoubleArrayWithSuffixTrieTailBuilderTest.class,
+	LOUDSTrieWithConcatTailBuilderTest.class,
+	LOUDSTrieWithSuffixTrieTailBuilderTest.class,
 	//WikipediaTitlesTest.class,
 })
 public class AllTests {

@@ -19,9 +19,9 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.util.zip.DeflaterOutputStream;
+import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.junit.Test;
 import org.trie4j.Trie;
@@ -35,8 +35,8 @@ public class TestIO {
 	public void testSave() throws Exception{
 		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
-//				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
+				new GZIPInputStream(new FileInputStream("data/jawiki-20120220-all-titles-in-ns0.gz"))
+//				new GZIPInputStream(new FileInputStream("data/enwiki-20120403-all-titles-in-ns0.gz"))
 				, CharsetUtil.newUTF8Decoder()));
 		System.out.println("--- building patricia trie ---");
 		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
@@ -53,11 +53,11 @@ public class TestIO {
 
 		System.out.println("-- building double array.");
 		t1.lap();
-		TailCompactionDoubleArray da = new TailCompactionDoubleArray(trie);
+		TailDoubleArray da = new TailDoubleArray(trie);
 		trie = null;
 		System.out.println("done in " + t1.lap() + " millis.");
 
-		DeflaterOutputStream os = new DeflaterOutputStream(new FileOutputStream("da.dat"));
+		OutputStream os = new GZIPOutputStream(new FileOutputStream("da.dat"));
 		try{
 			System.out.println("-- saving double array.");
 			t1.lap();
@@ -65,18 +65,16 @@ public class TestIO {
 			System.out.println("done in " + t1.lap() + " millis.");
 			da.dump();
 		} finally{
-			os.finish();
-			os.flush();
 			os.close();
 		}
 	}
 
 	@Test
 	public void testLoad() throws Exception{
-		TailCompactionDoubleArray da = new TailCompactionDoubleArray();
+		TailDoubleArray da = new TailDoubleArray();
 		LapTimer t = new LapTimer();
 		System.out.println("-- loading double array.");
-		da.load(new InflaterInputStream(new FileInputStream("da.dat")));
+		da.load(new GZIPInputStream(new FileInputStream("da.dat")));
 		System.out.println("done in " + t.lap() + " millis.");
 		da.dump();
 		verify(da);
@@ -101,7 +99,7 @@ public class TestIO {
 	private static void verify(Trie da) throws Exception{
 		System.out.println("verifying double array...");
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
+				new GZIPInputStream(new FileInputStream("data/jawiki-20120220-all-titles-in-ns0.gz"))
 //				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
 				, CharsetUtil.newUTF8Decoder()));
 		int c = 0;

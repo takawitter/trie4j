@@ -49,7 +49,7 @@ public class TestWikipedia {
 
 		System.out.println("-- building double array.");
 		t1.lap();
-		Trie da = new TailCompactionDoubleArray(trie);
+		Trie da = new TailDoubleArray(trie);
 		trie = null;
 		System.out.println("done in " + t1.lap() + " millis.");
 		da.dump();

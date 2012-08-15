@@ -9,6 +9,6 @@ public class OptimizedTailCompactionDoubleArrayTest extends TrieTestSet{
 	protected Trie trieWithWords(String... words) {
 		PatriciaTrie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		return new OptimizedTailCompactionDoubleArray(trie);
+		return new OptimizedTailDoubleArray(trie);
 	}
 }
