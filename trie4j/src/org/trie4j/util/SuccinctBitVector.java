@@ -37,6 +37,15 @@ public class SuccinctBitVector implements Serializable{
 		indexCache0 = new int[size + 1];
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		for(int i = 0; i < size; i++){
+			b.append((vector[(i / 8)] & (0x80 >> (i % 8))) != 0 ? "1" : "0");
+		}
+		return b.toString();
+	}
+
 	public int size(){
 		return this.size;
 	}
@@ -281,6 +290,7 @@ public class SuccinctBitVector implements Serializable{
 	}
 
 	public int next0(int pos){
+		if(pos >= size) return -1;
 		if(pos <= node3pos){
 			if(pos <= node1pos) return node1pos;
 			else if(pos <= node2pos) return node2pos;

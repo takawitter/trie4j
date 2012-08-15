@@ -37,10 +37,9 @@ import java.util.TreeMap;
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.TrieVisitor;
-import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
+import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 
 public class OptimizedTailCompactionDoubleArray extends AbstractTrie implements Trie{
@@ -226,11 +225,6 @@ public class OptimizedTailCompactionDoubleArray extends AbstractTrie implements 
 	 */
 	@Override
 	public void insert(String word) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void visit(TrieVisitor visitor) {
 		throw new UnsupportedOperationException();
 	}
 

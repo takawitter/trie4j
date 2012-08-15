@@ -17,7 +17,7 @@ package org.trie4j.patricia.multilayer.node;
 
 import java.util.Arrays;
 
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 import org.trie4j.patricia.multilayer.Node;
 import org.trie4j.patricia.multilayer.labeltrie.LabelNode;
 import org.trie4j.patricia.multilayer.labeltrie.LabelTrie;
@@ -181,8 +181,8 @@ public class CharsNode extends Node{
 	}
 
 	@Override
-	public void visit(TrieVisitor visitor, int nest) {
-		visitor.accept(this, nest);
+	public void visit(NodeVisitor visitor, int nest) {
+		visitor.visit(this, nest);
 	}
 
 	protected Node newInternalCharsNode(char[] letters, Node[] children){

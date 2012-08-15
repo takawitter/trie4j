@@ -39,8 +39,8 @@ public abstract class TrieTestSet {
 
 	@Test
 	public void testContains_6() throws Exception{
-		Trie trie = trieWithWords("hello", "hell");
-		Assert.assertTrue(trie.contains("hello"));
+		Trie t = trieWithWords("hello", "hell");
+		Assert.assertTrue(t.contains("hello"));
 	}
 
 	@Test

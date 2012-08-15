@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
 
 import org.trie4j.AbstractTrie;
 import org.trie4j.Trie;
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
@@ -200,7 +200,7 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 		}
 	}
 
-	public void visit(TrieVisitor visitor){
+	public void visit(NodeVisitor visitor){
 		root.visit(visitor, 0, tails);
 	}
 

@@ -17,7 +17,7 @@ package org.trie4j.patricia.simple;
 
 import java.util.Arrays;
 
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 
 public class Node implements org.trie4j.Node{
 	public Node() {
@@ -176,8 +176,8 @@ public class Node implements org.trie4j.Node{
 		}
 		return false;
 	}
-	public void visit(TrieVisitor visitor, int nest){
-		visitor.accept(this, nest);
+	public void visit(NodeVisitor visitor, int nest){
+		if(!visitor.visit(this, nest)) return;
 		nest++;
 		if(children != null){
 			for(Node n : children){

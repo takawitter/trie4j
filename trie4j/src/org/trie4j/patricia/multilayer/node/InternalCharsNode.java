@@ -15,7 +15,7 @@
  */
 package org.trie4j.patricia.multilayer.node;
 
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 import org.trie4j.patricia.multilayer.Node;
 
 public class InternalCharsNode extends CharsNode {
@@ -75,7 +75,7 @@ public class InternalCharsNode extends CharsNode {
 		return this;
 	}
 
-	public void visit(TrieVisitor visitor, int nest){
+	public void visit(NodeVisitor visitor, int nest){
 		super.visit(visitor, nest);
 		nest++;
 		for(Node n : children){

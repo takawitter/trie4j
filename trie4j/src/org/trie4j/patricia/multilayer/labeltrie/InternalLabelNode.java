@@ -15,7 +15,7 @@
  */
 package org.trie4j.patricia.multilayer.labeltrie;
 
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 import org.trie4j.patricia.multilayer.node.LabelTrieNode;
 
 public class InternalLabelNode extends LabelNode{
@@ -82,7 +82,7 @@ public class InternalLabelNode extends LabelNode{
 		this.children = newc;
 	}
 
-	public void visit(TrieVisitor visitor, int nest){
+	public void visit(NodeVisitor visitor, int nest){
 		super.visit(visitor, nest);
 		if(children != null){
 			nest++;

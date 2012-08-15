@@ -15,7 +15,7 @@
  */
 package org.trie4j.patricia.multilayer;
 
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 import org.trie4j.patricia.multilayer.labeltrie.LabelTrie;
 
 public abstract class Node implements org.trie4j.Node {
@@ -37,7 +37,7 @@ public abstract class Node implements org.trie4j.Node {
 	public abstract Node insertChild(char[] letters, int offset);
 	public abstract Node addChild(int index, Node n);
 
-	public abstract void visit(TrieVisitor visitor, int nest);
+	public abstract void visit(NodeVisitor visitor, int nest);
 
 	public abstract Node pushLabel(LabelTrie trie);
 }

@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.trie4j.AbstractTrie;
 import org.trie4j.Trie;
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 
 public class PatriciaTrie extends AbstractTrie implements Trie{
 	@Override
@@ -91,17 +91,13 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 
 	public void insert(String text){
 		char[] letters = text.toCharArray();
-		if(root == null){
-			root = new Node(letters, true);
-			return;
-		}
 		Node newRoot = root.insertChild(letters, 0);
 		if(newRoot != null){
 			root = newRoot;
 		}
 	}
 
-	public void visit(TrieVisitor visitor){
+	public void visit(NodeVisitor visitor){
 		root.visit(visitor, 0);
 	}
 
@@ -109,5 +105,5 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 		return root;
 	}
 
-	private Node root;
+	private Node root = new Node(new char[]{}, false);
 }

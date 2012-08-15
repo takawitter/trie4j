@@ -31,7 +31,6 @@ import java.util.List;
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.TrieVisitor;
 import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
@@ -52,13 +51,13 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		term = new BitSet(sz);
 		LinkedList<Node> queue = new LinkedList<Node>();
 		int count = 0;
-
+/*
 		bv.append(true);
 		bv.append(false);
 		labels[0] = 0xffff;
 		tail[0] = -1;
 		count++;
-
+*/
 		TailBuilder tb = new SuffixTrieTailBuilder();
 		if(orig.getRoot() != null) queue.add(orig.getRoot());
 		while(!queue.isEmpty()){
@@ -95,18 +94,28 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		tails = tb.getTails();
 	}
 
-	public Node getRoot(){
-		return new LOUDSNode(1);
-	}
-	
 	public SuccinctBitVector getBv() {
 		return bv;
 	}
 
+	public Node getRoot(){
+		return new LOUDSNode(0);
+	}
+
+	@Override
+	public void dump() {
+		super.dump();
+		System.out.println("bitvec: " + bv.toString());
+		System.out.print("labels: ");
+		for(char c : labels) System.out.print(c);
+		System.out.println();
+	}
+
+	@Override
 	public boolean contains(String word){
 		char[] chars = word.toCharArray();
 		int charsIndex = 0;
-		int nodeId = 1;
+		int nodeId = 0;
 //		LapTimer lt = new LapTimer();
 		TailCharIterator tci = new TailCharIterator(tails, -1);
 		while(true){
@@ -114,7 +123,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 			int start = bv.select0(nodeId) + 1;
 //			select0Time += lt.lap();
 			int end = bv.next0(start);
-			if(end == -1) end = start + 1;
+			if(end == -1) return false;
 //			next0Time += lt.lap();
 			int baseNodeId = bv.rank1(start) - start;
 //			rank1Time += lt.lap();
@@ -288,12 +297,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	public void insert(String word) {
 		throw new UnsupportedOperationException();
 	}
-	
-	@Override
-	public void visit(TrieVisitor visitor) {
-		throw new UnsupportedOperationException();
-	}
-	
+
 	public class LOUDSNode implements Node{
 		public LOUDSNode(int nodeId) {
 			this.nodeId = nodeId;

@@ -5,7 +5,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 import org.trie4j.patricia.multilayer.labeltrie.LabelNode;
 import org.trie4j.patricia.multilayer.node.LabelTrieNode;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
@@ -66,9 +66,9 @@ public class TailPatriciaTrieWikipediaTest {
 
 	private static void dump(Trie trie){
 		System.out.println("--dump--");
-		trie.visit(new TrieVisitor() {
+		trie.traverse(new NodeVisitor() {
 			@Override
-			public void accept(Node node, int nest) {
+			public boolean visit(Node node, int nest) {
 				for(int i = 0; i < nest; i++){
 					System.out.print(" ");
 				}
@@ -94,6 +94,7 @@ public class TailPatriciaTrieWikipediaTest {
 					System.out.print("*");
 				}
 				System.out.println();
+				return true;
 			}
 		});
 	}

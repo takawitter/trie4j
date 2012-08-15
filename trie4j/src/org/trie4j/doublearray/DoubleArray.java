@@ -37,7 +37,6 @@ import java.util.Map;
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.TrieVisitor;
 import org.trie4j.util.Pair;
 
 public class DoubleArray extends AbstractTrie implements Trie{
@@ -149,11 +148,6 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	 */
 	@Override
 	public void insert(String word) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void visit(TrieVisitor visitor) {
 		throw new UnsupportedOperationException();
 	}
 

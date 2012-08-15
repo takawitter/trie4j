@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 import org.trie4j.test.WikipediaTitles;
 
@@ -27,9 +27,9 @@ public class BitVectorExp {
 		t.lap("trie building done. $d words.", c);
 		final SuccinctBitVector bv = new SuccinctBitVector(5000000);
 		final AtomicInteger nodeCount = new AtomicInteger();
-		trie.visit(new TrieVisitor() {
+		trie.traverse(new NodeVisitor() {
 			@Override
-			public void accept(Node node, int nest) {
+			public boolean visit(Node node, int nest) {
 				Node[] children = node.getChildren();
 				if(children != null){
 					int n = node.getChildren().length;
@@ -39,6 +39,7 @@ public class BitVectorExp {
 				}
 				bv.append(false);
 				nodeCount.incrementAndGet();
+				return true;
 			}
 		});
 		trie = null;

@@ -28,7 +28,7 @@ public class LOUDSTrieTest extends TrieTestSet{
 		for(String w : words) trie.insert(w);
 		LOUDSTrie lt = new LOUDSTrie(trie);
 		for(String w : words){
-			Assert.assertTrue(lt.contains(w));
+			Assert.assertTrue(w, lt.contains(w));
 		}
 		Assert.assertFalse(lt.contains("おやすみなさい"));
 

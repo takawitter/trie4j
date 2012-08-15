@@ -42,9 +42,9 @@ public class Test {
 			System.out.println("insert \"" + w + "\"");
 			trie.insert(w);
 			System.out.println("--dump--");
-			trie.visit(new TrieVisitor() {
+			trie.traverse(new NodeVisitor() {
 				@Override
-				public void accept(Node node, int nest) {
+				public boolean visit(Node node, int nest) {
 					for(int i = 0; i < nest; i++){
 						System.out.print(" ");
 					}
@@ -67,6 +67,7 @@ public class Test {
 					} else{
 						System.out.println("");
 					}
+					return true;
 				}
 			});
 		}
@@ -92,9 +93,9 @@ public class Test {
 			((MultilayerPatriciaTrie)trie).pack();
 			((MultilayerPatriciaTrie)trie).morePack();
 			System.out.println("--dump--");
-			trie.visit(new TrieVisitor() {
+			trie.traverse(new NodeVisitor() {
 				@Override
-				public void accept(Node node, int nest) {
+				public boolean visit(Node node, int nest) {
 					for(int i = 0; i < nest; i++){
 						System.out.print(" ");
 					}
@@ -109,6 +110,7 @@ public class Test {
 					} else{
 						System.out.println("");
 					}
+					return true;
 				}
 			});
 			System.out.println("--test contains--");

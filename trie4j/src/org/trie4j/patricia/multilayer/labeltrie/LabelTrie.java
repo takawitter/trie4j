@@ -15,7 +15,7 @@
  */
 package org.trie4j.patricia.multilayer.labeltrie;
 
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 import org.trie4j.patricia.multilayer.node.LabelTrieNode;
 
 public class LabelTrie{
@@ -52,7 +52,7 @@ public class LabelTrie{
 		root.pargeChildren();
 	}
 
-	public void visit(TrieVisitor visitor){
+	public void visit(NodeVisitor visitor){
 		root.visit(visitor, 0);
 	}
 

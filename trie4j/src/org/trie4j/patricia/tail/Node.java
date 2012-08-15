@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
@@ -167,8 +167,8 @@ public class Node {
 		}
 	}
 
-	public void visit(TrieVisitor visitor, int nest, CharSequence tails) {
-		visitor.accept(new NodeAdapter(this, tails), nest);
+	public void visit(NodeVisitor visitor, int nest, CharSequence tails) {
+		visitor.visit(new NodeAdapter(this, tails), nest);
 		if(children != null){
 			nest++;
 			for(Node n : children){
