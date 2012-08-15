@@ -17,7 +17,7 @@ package org.trie4j.patricia.terminletters;
 
 import java.util.Arrays;
 
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 import org.trie4j.util.CharsUtil;
 import org.trie4j.util.Pair;
 
@@ -218,8 +218,8 @@ public class Node implements org.trie4j.Node{
 		}
 		return false;
 	}
-	public void visit(TrieVisitor visitor, int nest){
-		visitor.accept(this, nest);
+	public void visit(NodeVisitor visitor, int nest){
+		visitor.visit(this, nest);
 		nest++;
 		if(children != null){
 			for(Node n : children){

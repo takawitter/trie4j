@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 
 import org.trie4j.AbstractTrie;
 import org.trie4j.Trie;
-import org.trie4j.TrieVisitor;
+import org.trie4j.NodeVisitor;
 import org.trie4j.util.Pair;
 
 @Deprecated
@@ -133,7 +133,7 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 		}
 		root.insertChild(letters, 0);
 	}
-	public void visit(TrieVisitor visitor){
+	public void visit(NodeVisitor visitor){
 		root.visit(visitor, 0);
 	}
 
