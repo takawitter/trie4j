@@ -27,12 +27,14 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
@@ -315,7 +317,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		for(int cid : heads){
 			setCheck(offset + cid, nodeIndex);
 		}
-//*
+/*
 		for(int i = 0; i < children.length; i++){
 			build(children[i], offset + heads[i]);
 		}

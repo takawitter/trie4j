@@ -32,7 +32,9 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
@@ -64,6 +66,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		tail = new int[arraySize];
 		Arrays.fill(tail, -1);
 		term = new BitSet(65536);
+		Arrays.fill(charToCode, (char)0);
 
 		int nodeIndex = 0;
 		base[0] = nodeIndex;
@@ -193,14 +196,14 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 				}
 			}
 			if(term.get(ni)) ret.add(buff.toString());
-			for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
+			for(Character v : this.chars){
 				int b = base[ni];
 				if(b == BASE_EMPTY) continue;
-				int next = b + e.getValue();
+				int next = b + charToCode[v];
 				if(check.length <= next) continue;
 				if(check[next] == ni){
 					StringBuilder bu = new StringBuilder(buff);
-					bu.append(e.getKey());
+					bu.append(v);
 					q.push(Pair.create(next, bu.toString().toCharArray()));
 				}
 			}
@@ -236,10 +239,10 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		dos.writeInt(firstEmptyCheck);
 		dos.writeInt(tails.length());
 		dos.writeChars(tails.toString());
-		dos.writeInt(charCodes.size());
-		for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
-			dos.writeChar(e.getKey());
-			dos.writeInt(e.getValue());
+		dos.writeInt(chars.size());
+		for(char c : chars){
+			dos.writeChar(c);
+			dos.writeChar(charToCode[c]);
 		}
 		dos.flush();
 		
@@ -278,8 +281,9 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		n = dis.readInt();
 		for(int i = 0; i < n; i++){
 			char c = dis.readChar();
-			int v = dis.readInt();
-			charCodes.put(c, v);
+			char v = dis.readChar();
+			chars.add(c);
+			charToCode[c] = v;
 		}
 	}
 
@@ -360,13 +364,13 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		{
 			System.out.print("chars: ");
 			int c = 0;
-			for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
-				System.out.print(String.format("%c:%d,", e.getKey(), e.getValue()));
+			for(char e : chars){
+				System.out.print(String.format("%c:%d,", e, (int)charToCode[e]));
 				c++;
 				if(c > 16) break;
 			}
 			System.out.println();
-			System.out.println("chars count: " + charCodes.size());
+			System.out.println("chars count: " + chars.size());
 		}
 		{
 			System.out.println("calculating max and min base.");
@@ -492,20 +496,18 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	}
 
 	private int getCharId(char c){
-		Integer cid = charCodes.get(c);
-		if(cid == null){
-			cid = charCodes.size() + 1;
-			charCodes.put(c, cid);
-		}
-		return cid;
+		char v = charToCode[c];
+		if(v != 0) return v;
+		v = (char)(chars.size() + 1);
+		chars.add(c);
+		charToCode[c] = v;
+		return v;
 	}
 
 	private int findCharId(char c){
-		Integer cid = charCodes.get(c);
-		if(cid == null){
-			return -1;
-		}
-		return cid;
+		char v = charToCode[c];
+		if(v != 0) return v;
+		return -1;
 	}
 
 	private void extend(int i){
@@ -583,10 +585,6 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	private int last;
 	private BitSet term;
 	private CharSequence tails;
-	private Map<Character, Integer> charCodes = new TreeMap<Character, Integer>(new Comparator<Character>(){
-		@Override
-		public int compare(Character arg0, Character arg1) {
-			return arg1 - arg0;
-		}
-	});
+	private Set<Character> chars = new TreeSet<Character>();
+	private char[] charToCode = new char[Character.MAX_VALUE];
 }
