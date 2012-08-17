@@ -175,25 +175,23 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		int nodeId = 0; // root
 		TailCharIterator tci = new TailCharIterator(tails, -1);
 		String pfx = null;
+		int charsIndexBack = 0;
 		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
+			charsIndexBack = charsIndex;
 			int child = getChildNode(nodeId, chars[charsIndex]);
 			if(child == -1) return ret;
 			int ti = tail[child];
 			if(ti != -1){
 				tci.setIndex(ti);
-				int charsIndexBack = charsIndex;
 				while(tci.hasNext()){
 					charsIndex++;
-					if(charsIndex >= charsLen){
-						pfx = new String(chars, 0, charsIndexBack);
-						break;
-					}
+					if(charsIndex >= charsLen) break;
 					if(chars[charsIndex] != tci.next()) return ret;
 				}
 			}
 			nodeId = child;
 		}
-		if(pfx == null) pfx = query;
+		pfx = new String(chars, 0, charsIndexBack);
 
 		Deque<Pair<Integer, String>> queue = new LinkedList<Pair<Integer,String>>();
 		queue.offerLast(Pair.create(nodeId, pfx));
