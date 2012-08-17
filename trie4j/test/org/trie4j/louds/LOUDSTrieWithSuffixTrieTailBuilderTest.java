@@ -10,7 +10,6 @@ import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.ConcatTailBuilder;
 import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.test.WikipediaTitles;
 import org.trie4j.util.LapTimer;
