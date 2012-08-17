@@ -165,17 +165,19 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		StringBuilder current = new StringBuilder();
 		char[] chars = prefix.toCharArray();
 		int nodeIndex = 0;
+		TailCharIterator it = new TailCharIterator(tails,  -1);
 		for(int i = 0; i < chars.length; i++){
 			int ti = tail[nodeIndex];
 			if(ti != -1){
-				TailCharIterator it = new TailCharIterator(tails,  ti);
+				int first = i;
+				it.setIndex(ti);
 				do{
 					if(!it.hasNext()) break;
 					if(it.next() != chars[i]) return ret;
 					i++;
 				} while(i < chars.length);
 				if(i >= chars.length) break;
-				current.append(tails.subSequence(tail[nodeIndex], it.getNextIndex()));
+				current.append(chars, first, i - first);
 			}
 			int cid = findCharId(chars[i]);
 			if(cid == -1) return ret;
@@ -192,7 +194,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 			StringBuilder buff = new StringBuilder().append(p.getSecond());
 			int ti = tail[ni];
 			if(ti != -1){
-				TailCharIterator it = new TailCharIterator(tails, ti);
+				it.setIndex(ti);
 				while(it.hasNext()){
 					buff.append(it.next());
 				}
