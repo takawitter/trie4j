@@ -27,15 +27,14 @@ import org.trie4j.test.WikipediaTitles;
 public class TestWikipedia {
 	private static final int maxCount = 2000000;
 	// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
-	private static final String wikipediaFile = "jawiki-20120220-all-titles-in-ns0.gz";
-//	private static final String wikipediaFile = "enwiki-20120403-all-titles-in-ns0.gz";
+	private static final String wikipediaFile = "data/jawiki-20120220-all-titles-in-ns0.gz";
+//	private static final String wikipediaFile = "data/enwiki-20120403-all-titles-in-ns0.gz";
 
 	public static void main(String[] args) throws Exception{
 		System.out.println("--- recursive patricia trie ---");
 //		Trie trie = new org.trie4j.patricia.simple.PatriciaTrie();
 //		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
-		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie(
-				new ConcatTailBuilder());
+		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie(new ConcatTailBuilder());
 		int c = 0;
 		long sum = 0;
 		long lap = System.currentTimeMillis();
