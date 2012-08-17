@@ -136,6 +136,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 			if(term.get(0)) ret.add(new String(chars, 0, ci + 1));
 		}
 		int ni = 0;
+		TailCharIterator it = new TailCharIterator(tails, -1);
 		for(; ci < chars.length; ci++){
 			int cid = findCharId(chars[ci]);
 			if(cid == -1) return ret;
@@ -144,8 +145,9 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 			int next = b + cid;
 			if(check.length <= next || check[next] != ni) return ret;
 			ni = next;
-			if(tail[ni] != -1){
-				TailCharIterator it = new TailCharIterator(tails, tail[ni]);
+			int ti = tail[ni];
+			if(ti != -1){
+				it.setIndex(ti);
 				while(it.hasNext()){
 					ci++;
 					if(ci >= chars.length) return ret;
