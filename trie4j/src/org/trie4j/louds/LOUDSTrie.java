@@ -117,76 +117,58 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	@Override
 	public boolean contains(String word){
 		char[] chars = word.toCharArray();
-		int charsIndex = 0;
-		int nodeId = 0;
-//		LapTimer lt = new LapTimer();
+		int charsLen = chars.length;
+		int nodeId = 0; // root
 		TailCharIterator tci = new TailCharIterator(tails, -1);
-		while(true){
-//			lt.lap();
-			int start = bv.select0(nodeId) + 1;
-//			select0Time += lt.lap();
-			int end = bv.next0(start);
-			if(end == -1) return false;
-//			next0Time += lt.lap();
-			int baseNodeId = bv.rank1(start) - start;
-//			rank1Time += lt.lap();
-			if((end - start) <= 16){
-				int i = start;
-				int index = baseNodeId + start;
-				for(; i < end; i++){
-					int d = chars[charsIndex] - labels[index];
-					if(d == 0){
-						charsIndex++;
-						int ti = tail[index];
-						if(charsIndex == chars.length){
-							return (ti == -1) && term.get(index);
-						}
-						if(ti != -1){
-							tci.setIndex(ti);
-							while(tci.hasNext()){
-								if(charsIndex == chars.length) return false;
-								if(tci.next() != chars[charsIndex]) return false;
-								charsIndex++;
-							}
-							if(charsIndex == chars.length) return term.get(index);
-						}
-						nodeId = baseNodeId + i;
-						break;
-					}
-					index++;
+		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
+			int child = getChildNodePos(nodeId, chars[charsIndex]);
+			if(child == -1) return false;
+			int ti = tail[child];
+			if(ti != -1){
+				tci.setIndex(ti);
+				while(tci.hasNext()){
+					charsIndex++;
+					if(charsLen <= charsIndex) return false;
+					if(chars[charsIndex] != tci.next()) return false;
 				}
-				if(i == end) return false;
-			} else{
-				do{
-					int i = (start + end) / 2;
-					int index = baseNodeId + i;
-					int d = chars[charsIndex] - labels[index];
-					if(d < 0){
-						end = i;
-					} else if(d > 0){
-						if(start == i) return false;
-						else start = i;
-					} else{
-						charsIndex++;
-						int ti = tail[index];
-						if(charsIndex == chars.length){
-							return (ti == -1) && term.get(index);
-						}
-						if(ti != -1){
-							tci.setIndex(ti);
-							while(tci.hasNext()){
-								if(charsIndex == chars.length) return false;
-								if(tci.next() != chars[charsIndex]) return false;
-								charsIndex++;
-							}
-							if(charsIndex == chars.length) return term.get(index);
-						}
-						nodeId = baseNodeId + i;
-						break;
-					}
-				} while(start != end);
-				if(start == end) return false;
 			}
+			if(charsLen == (charsIndex + 1)){
+				return term.get(child);
+			}
+			nodeId = child;
+		}
+		return false;
+	}
+
+	private int getChildNodePos(int nodeId, char c){
+		int start = bv.select0(nodeId) + 1;
+		int end = bv.next0(start);
+		if(end == -1) return -1;
+		int pos2Id = bv.rank1(start) - start;
+		if((end - start) <= 16){
+			for(int i = start; i < end; i++){
+				int index = i + pos2Id;
+				int d = c - labels[index];
+				if(d == 0){
+					return index;
+				}
+			}
+			return -1;
+		} else{
+			do{
+				int i = (start + end) / 2;
+				int index = i + pos2Id;
+				int d = c - labels[index];
+				if(d < 0){
+					end = i;
+				} else if(d > 0){
+					if(start == i) return -1;
+					else start = i;
+				} else{
+					return index;
+				}
+			} while(start != end);
+			return -1;
 		}
 	}
 
@@ -197,16 +179,11 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		int charsIndex = 0;
 		int nodeId = 0;
 		int start = 0;
-//		LapTimer lt = new LapTimer();
 		TailCharIterator tci = new TailCharIterator(tails, -1);
 		while(true){
-//			lt.lap();
 			start = bv.select0(nodeId) + 1;
-//			select0Time += lt.lap();
 			int end = bv.next0(start);
-//			next0Time += lt.lap();
 			int baseNodeId = bv.rank1(start) - start;
-//			rank1Time += lt.lap();
 			while(start != end){
 				int i = (start + end) / 2;
 				int index = baseNodeId + i;
@@ -249,15 +226,10 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		int rootNodeId = -1;
 		String pfx = null;
 
-//		LapTimer lt = new LapTimer();
 		while(true){
-//			lt.lap();
 			start = bv.select0(nodeId) + 1;
-//			select0Time += lt.lap();
 			int end = bv.next0(start);
-//			next0Time += lt.lap();
 			int baseNodeId = bv.rank1(start) - start;
-//			rank1Time += lt.lap();
 			while(start != end){
 				int i = (start + end) / 2;
 				int index = baseNodeId + i;
@@ -355,23 +327,9 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		}
 		@Override
 		public Node getChild(char c) {
-			int start = bv.select0(nodeId) + 1;
-			int end = bv.next0(start);
-			int baseNodeId = bv.rank1(start) - start;
-			while(start != end){
-				int i = (start + end) / 2;
-				int index = baseNodeId + i;
-				int d = c - labels[index];
-				if(d < 0){
-					end = i;
-				} else if(d > 0){
-					if(start == i) return null;
-					else start = i;
-				} else{
-					return new LOUDSNode(index);
-				}
-			}
-			return null;
+			int nid = getChildNodePos(nodeId, c);
+			if(nid == -1) return null;
+			else return new LOUDSNode(nid);
 		}
 		@Override
 		public Node[] getChildren() {
@@ -464,18 +422,4 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	private CharSequence tails;
 	private BitSet term;
 	private int size;
-/*
-	public long getSelect0Time() {
-		return select0Time;
-	}
-	public long getNext0Time() {
-		return next0Time;
-	}
-	public long getRank1Time() {
-		return rank1Time;
-	}
-	private long select0Time;
-	private long next0Time;
-	private long rank1Time;
-//*/
 }
