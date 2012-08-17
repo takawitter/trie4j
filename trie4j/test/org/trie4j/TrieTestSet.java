@@ -86,7 +86,7 @@ public abstract class TrieTestSet {
 	@Test
 	public void testPS_2() throws Exception{
 		Trie t = trieWithWords("hello", "helloworld", "hell", "helloworld2");
-		Iterator<String> it = t.commonPrefixSearch("he").iterator();
+		Iterator<String> it = t.predictiveSearch("he").iterator();
 		Assert.assertEquals("hell", it.next());
 		Assert.assertEquals("hello", it.next());
 		Assert.assertEquals("helloworld", it.next());
@@ -97,7 +97,7 @@ public abstract class TrieTestSet {
 	@Test
 	public void testPS_3() throws Exception{
 		Trie t = trieWithWords("hello", "helloworld", "hi", "howsgoing", "hell", "helloworld2", "world");
-		Iterator<String> it = t.commonPrefixSearch("hellow").iterator();
+		Iterator<String> it = t.predictiveSearch("hellow").iterator();
 		Assert.assertEquals("helloworld", it.next());
 		Assert.assertEquals("helloworld2", it.next());
 		Assert.assertFalse(it.hasNext());
