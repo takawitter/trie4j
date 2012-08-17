@@ -25,6 +25,7 @@ import org.trie4j.AbstractTrie;
 import org.trie4j.Trie;
 import org.trie4j.NodeVisitor;
 import org.trie4j.patricia.multilayer.labeltrie.LabelTrie;
+import org.trie4j.patricia.multilayer.node.CharsNode;
 import org.trie4j.patricia.multilayer.node.TerminalCharsNode;
 
 public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
@@ -57,11 +58,11 @@ public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
 					private String next;
 					{
 						cur = 0;
-						findNext();
+						if(root != null) findNext();
 					}
 					private void findNext(){
 						next = null;
-						while(next == null){
+						do{
 							if(queryChars.length <= cur) return;
 							Node child = current.getChild(queryChars[cur]);
 							if(child == null) return;
@@ -81,7 +82,7 @@ public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
 							cur += len;
 							currentChars.append(b);
 							current = child;
-						}
+						} while(next == null);
 					}
 					@Override
 					public boolean hasNext() {
@@ -117,7 +118,7 @@ public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
 			for(int i = 0; i < letters.length; i++){
 				if(letters[i] != queryChars[cur + i]) return ret;
 			}
-			if(node.isTerminated()){
+			if(node.isTerminate()){
 				ret.add(new String(queryChars, 0 , cur + letters.length));
 			}
 			cur += letters.length;
@@ -202,6 +203,6 @@ public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
 	public void trimToSize() {
 	}
 
-	private Node root;
+	private Node root = new CharsNode(new char[]{}) ;
 	private LabelTrie labelTrie;
 }
