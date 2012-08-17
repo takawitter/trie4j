@@ -168,61 +168,35 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	@Override
-	public Iterable<String> predictiveSearch(String prefix) {
+	public Iterable<String> predictiveSearch(String query) {
 		List<String> ret = new ArrayList<String>();
-		char[] chars = prefix.toCharArray();
-		int charsIndex = 0;
-		int nodeId = 1;
-		int start = 0;
-		
-		int rootNodeId = -1;
+		char[] chars = query.toCharArray();
+		int charsLen = chars.length;
+		int nodeId = 0; // root
+		TailCharIterator tci = new TailCharIterator(tails, -1);
 		String pfx = null;
-
-		while(true){
-			start = bv.select0(nodeId) + 1;
-			int end = bv.next0(start);
-			int baseNodeId = bv.rank1(start) - start;
-			while(start != end){
-				int i = (start + end) / 2;
-				int index = baseNodeId + i;
-				int d = chars[charsIndex] - labels[index];
-				int prevCharsIndex = charsIndex;
-				if(d < 0){
-					end = i;
-				} else if(d > 0){
-					if(start == i) return ret;
-					else start = i;
-				} else{
+		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
+			int child = getChildNode(nodeId, chars[charsIndex]);
+			if(child == -1) return ret;
+			int ti = tail[child];
+			if(ti != -1){
+				tci.setIndex(ti);
+				int charsIndexBack = charsIndex;
+				while(tci.hasNext()){
 					charsIndex++;
-					if(charsIndex == chars.length){
-						rootNodeId = baseNodeId + i;
-						pfx = new String(chars, 0, prevCharsIndex);
+					if(charsIndex >= charsLen){
+						pfx = new String(chars, 0, charsIndexBack);
 						break;
 					}
-					int ti = tail[index];
-					if(ti != -1){
-						TailCharIterator tci = new TailCharIterator(tails, ti);
-						while(tci.hasNext()){
-							if(charsIndex == chars.length){
-								rootNodeId = baseNodeId + i;
-								pfx = new String(chars, 0, prevCharsIndex);
-								break;
-							}
-							if(tci.next() != chars[charsIndex]) return ret;
-							charsIndex++;
-						}
-					}
-					nodeId = baseNodeId + i;
-					break;
+					if(chars[charsIndex] != tci.next()) return ret;
 				}
 			}
-			if(pfx != null) break;
-			if(start == end) return ret;
+			nodeId = child;
 		}
-		if(pfx == null) return ret;
+		if(pfx == null) pfx = query;
 
 		Deque<Pair<Integer, String>> queue = new LinkedList<Pair<Integer,String>>();
-		queue.offerLast(Pair.create(rootNodeId, pfx));
+		queue.offerLast(Pair.create(nodeId, pfx));
 		while(queue.size() > 0){
 			Pair<Integer, String> element = queue.pollFirst();
 			int nid = element.getFirst();
@@ -231,10 +205,8 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 			b.append(labels[nid]);
 			int ti = tail[nid];
 			if(ti != -1){
-				TailCharIterator it = new TailCharIterator(tails, tail[nid]);
-				while(it.hasNext()){
-					b.append(it.next());
-				}
+				tci.setIndex(ti);
+				while(tci.hasNext()) b.append(tci.next());
 			}
 			String letter = b.toString();
 			if(term.get(nid)) ret.add(letter);
@@ -247,7 +219,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		}
 		return ret;
 	}
-	
+
 	@Override
 	public void insert(String word) {
 		throw new UnsupportedOperationException();
