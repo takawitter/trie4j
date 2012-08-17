@@ -121,7 +121,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		int nodeId = 0; // root
 		TailCharIterator tci = new TailCharIterator(tails, -1);
 		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
-			int child = getChildNodePos(nodeId, chars[charsIndex]);
+			int child = getChildNode(nodeId, chars[charsIndex]);
 			if(child == -1) return false;
 			int ti = tail[child];
 			if(ti != -1){
@@ -140,81 +140,33 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		return false;
 	}
 
-	private int getChildNodePos(int nodeId, char c){
-		int start = bv.select0(nodeId) + 1;
-		int end = bv.next0(start);
-		if(end == -1) return -1;
-		int pos2Id = bv.rank1(start) - start;
-		if((end - start) <= 16){
-			for(int i = start; i < end; i++){
-				int index = i + pos2Id;
-				int d = c - labels[index];
-				if(d == 0){
-					return index;
-				}
-			}
-			return -1;
-		} else{
-			do{
-				int i = (start + end) / 2;
-				int index = i + pos2Id;
-				int d = c - labels[index];
-				if(d < 0){
-					end = i;
-				} else if(d > 0){
-					if(start == i) return -1;
-					else start = i;
-				} else{
-					return index;
-				}
-			} while(start != end);
-			return -1;
-		}
-	}
-
 	@Override
 	public Iterable<String> commonPrefixSearch(String query) {
 		List<String> ret = new ArrayList<String>();
 		char[] chars = query.toCharArray();
-		int charsIndex = 0;
-		int nodeId = 0;
-		int start = 0;
+		int charsLen = chars.length;
+		int nodeId = 0; // root
 		TailCharIterator tci = new TailCharIterator(tails, -1);
-		while(true){
-			start = bv.select0(nodeId) + 1;
-			int end = bv.next0(start);
-			int baseNodeId = bv.rank1(start) - start;
-			while(start != end){
-				int i = (start + end) / 2;
-				int index = baseNodeId + i;
-				int d = chars[charsIndex] - labels[index];
-				if(d < 0){
-					end = i;
-				} else if(d > 0){
-					if(start == i) return ret;
-					else start = i;
-				} else{
+		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
+			int child = getChildNode(nodeId, chars[charsIndex]);
+			if(child == -1) return ret;
+			int ti = tail[child];
+			if(ti != -1){
+				tci.setIndex(ti);
+				while(tci.hasNext()){
 					charsIndex++;
-					if(charsIndex == chars.length) return ret;
-					int ti = tail[index];
-					if(ti != -1){
-						tci.setIndex(ti);
-						while(tci.hasNext()){
-							if(charsIndex == chars.length) return ret;
-							if(tci.next() != chars[charsIndex]) return ret;
-							charsIndex++;
-						}
-					}
-					if(term.get(index)) ret.add(new String(chars, 0, charsIndex));
-					if(charsIndex == chars.length) return ret;
-					nodeId = baseNodeId + i;
-					break;
+					if(charsLen <= charsIndex) return ret;
+					if(chars[charsIndex] != tci.next()) return ret;
 				}
 			}
-			if(start == end) return ret;
+			if(term.get(child)){
+				ret.add(new String(chars, 0, charsIndex + 1));
+			}
+			nodeId = child;
 		}
+		return ret;
 	}
-	
+
 	@Override
 	public Iterable<String> predictiveSearch(String prefix) {
 		List<String> ret = new ArrayList<String>();
@@ -327,7 +279,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		}
 		@Override
 		public Node getChild(char c) {
-			int nid = getChildNodePos(nodeId, c);
+			int nid = getChildNode(nodeId, c);
 			if(nid == -1) return null;
 			else return new LOUDSNode(nid);
 		}
@@ -404,6 +356,38 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		term = (BitSet)ois.readObject();
 		bv = new SuccinctBitVector();
 		bv.load(is);
+	}
+
+	private int getChildNode(int nodeId, char c){
+		int start = bv.select0(nodeId) + 1;
+		int end = bv.next0(start);
+		if(end == -1) return -1;
+		int pos2Id = bv.rank1(start) - start;
+		if((end - start) <= 16){
+			for(int i = start; i < end; i++){
+				int index = i + pos2Id;
+				int d = c - labels[index];
+				if(d == 0){
+					return index;
+				}
+			}
+			return -1;
+		} else{
+			do{
+				int i = (start + end) / 2;
+				int index = i + pos2Id;
+				int d = c - labels[index];
+				if(d < 0){
+					end = i;
+				} else if(d > 0){
+					if(start == i) return -1;
+					else start = i;
+				} else{
+					return index;
+				}
+			} while(start != end);
+			return -1;
+		}
 	}
 
 	private void extend(){
