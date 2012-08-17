@@ -13,12 +13,15 @@ public class Algorithms {
 		traverseDepth(visitor, root, 0);
 	}
 
-	private static void traverseDepth(NodeVisitor visitor, Node node, int nest){
-		if(!visitor.visit(node, nest)) return;
+	private static boolean traverseDepth(NodeVisitor visitor, Node node, int nest){
+		if(!visitor.visit(node, nest)) return false;
 		Node[] children = node.getChildren();
-		if(children == null) return;
+		if(children == null) return true;
 		nest++;
-		for(Node c : children) traverseDepth(visitor, c, nest);
+		for(Node c : children){
+			if(!traverseDepth(visitor, c, nest)) return false;
+		}
+		return true;
 	}
 
 	public static void dump(Node root){
