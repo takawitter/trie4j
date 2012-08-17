@@ -96,6 +96,16 @@ public abstract class TrieTestSet {
 
 	@Test
 	public void testPS_3() throws Exception{
+		Trie t = trieWithWords("hello", "helloworld", "hell", "helloworld2");
+		Iterator<String> it = t.predictiveSearch("hello").iterator();
+		Assert.assertEquals("hello", it.next());
+		Assert.assertEquals("helloworld", it.next());
+		Assert.assertEquals("helloworld2", it.next());
+		Assert.assertFalse(it.hasNext());
+	}
+
+	@Test
+	public void testPS_4() throws Exception{
 		Trie t = trieWithWords("hello", "helloworld", "hi", "howsgoing", "hell", "helloworld2", "world");
 		Iterator<String> it = t.predictiveSearch("hellow").iterator();
 		Assert.assertEquals("helloworld", it.next());
