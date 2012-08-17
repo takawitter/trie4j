@@ -217,19 +217,19 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 					if(start == i) return ret;
 					else start = i;
 				} else{
-					int ti = tail[index];
-					boolean tm = term.get(index);
 					charsIndex++;
+					if(charsIndex == chars.length) return ret;
+					int ti = tail[index];
 					if(ti != -1){
 						tci.setIndex(ti);
 						while(tci.hasNext()){
 							if(charsIndex == chars.length) return ret;
-							if(tci.next() != chars[charsIndex++]) return ret;
+							if(tci.next() != chars[charsIndex]) return ret;
+							charsIndex++;
 						}
-					} else{
-						if(charsIndex == chars.length) return ret;
 					}
-					if(tm) ret.add(new String(chars, 0, charsIndex));
+					if(term.get(index)) ret.add(new String(chars, 0, charsIndex));
+					if(charsIndex == chars.length) return ret;
 					nodeId = baseNodeId + i;
 					break;
 				}
