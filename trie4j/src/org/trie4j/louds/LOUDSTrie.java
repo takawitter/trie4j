@@ -103,9 +103,14 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	@Override
 	public void dump() {
 		super.dump();
-		System.out.println("bitvec: " + bv.toString());
+		String bvs = bv.toString();
+		System.out.println("bitvec: " + ((bvs.length() > 100) ? bvs.substring(0, 100) : bvs));
 		System.out.print("labels: ");
-		for(char c : labels) System.out.print(c);
+		int count = 0;
+		for(char c : labels){
+			System.out.print(c);
+			if(count++ == 99) break;
+		}
 		System.out.println();
 	}
 
@@ -190,9 +195,10 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		List<String> ret = new ArrayList<String>();
 		char[] chars = query.toCharArray();
 		int charsIndex = 0;
-		int nodeId = 1;
+		int nodeId = 0;
 		int start = 0;
 //		LapTimer lt = new LapTimer();
+		TailCharIterator tci = new TailCharIterator(tails, -1);
 		while(true){
 //			lt.lap();
 			start = bv.select0(nodeId) + 1;
@@ -213,15 +219,14 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 				} else{
 					int ti = tail[index];
 					boolean tm = term.get(index);
+					charsIndex++;
 					if(ti != -1){
-						TailCharIterator tci = new TailCharIterator(tails, ti);
+						tci.setIndex(ti);
 						while(tci.hasNext()){
-							charsIndex++;
 							if(charsIndex == chars.length) return ret;
-							if(tci.next() != chars[charsIndex]) return ret;
+							if(tci.next() != chars[charsIndex++]) return ret;
 						}
 					} else{
-						charsIndex++;
 						if(charsIndex == chars.length) return ret;
 					}
 					if(tm) ret.add(new String(chars, 0, charsIndex));
