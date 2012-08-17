@@ -94,18 +94,19 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	public boolean contains(String text){
 		char[] chars = text.toCharArray();
 		int charsIndex = 0;
+		int charsLen = chars.length;
 		int nodeIndex = 0;
 		TailCharIterator it = new TailCharIterator(tails, -1);
-		while(charsIndex < chars.length){
+		while(charsIndex < charsLen){
 			int tailIndex = tail[nodeIndex];
 			if(tailIndex != -1){
 				it.setIndex(tailIndex);
 				while(it.hasNext()){
-					if(chars.length <= charsIndex) return false;
+					if(charsIndex >= charsLen) return false;
 					if(chars[charsIndex] != it.next()) return false;
 					charsIndex++;
 				}
-				if(chars.length == charsIndex){
+				if(charsIndex == charsLen){
 					if(!it.hasNext()) return term.get(nodeIndex);
 					else return false;
 				}
