@@ -95,15 +95,15 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		char[] chars = text.toCharArray();
 		int charsIndex = 0;
 		int charsLen = chars.length;
+		int checkLen = check.length;
 		int nodeIndex = 0;
 		TailCharIterator it = new TailCharIterator(tails, -1);
-		int checkLen = check.length;
 		while(charsIndex < charsLen){
 			int tailIndex = tail[nodeIndex];
 			if(tailIndex != -1){
 				it.setIndex(tailIndex);
 				while(it.hasNext()){
-					if(charsIndex >= charsLen) return false;
+					if(charsIndex == charsLen) return false;
 					if(chars[charsIndex] != it.next()) return false;
 					charsIndex++;
 				}
@@ -114,7 +114,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 			}
 			int cid = findCharId(chars[charsIndex]);
 			if(cid == -1) return false;
-			int i = cid + base[nodeIndex];
+			int i = base[nodeIndex] + cid;
 			if(i < 0 || checkLen <= i || check[i] != nodeIndex) return false;
 			charsIndex++;
 			nodeIndex = i;
