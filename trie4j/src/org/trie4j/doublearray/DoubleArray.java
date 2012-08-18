@@ -29,12 +29,13 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
@@ -77,30 +78,35 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	}
 
 	public boolean contains(String text){
-		char[] chars = text.toCharArray();
-		int nodeIndex = 0;
-		for(int i = 0; i < chars.length; i++){
-			int cid = findCharId(chars[i]);
-			if(cid == -1) return false;
-			int next = base[nodeIndex] + cid;
-			if(next < 0 || check.length <= next || check[next] != nodeIndex) return false;
-			nodeIndex = next;
+		try{
+			int nodeIndex = 0;
+			for(char c : text.toCharArray()){
+				int cid = findCharId(c);
+				if(cid == -1) return false;
+				int next = base[nodeIndex] + cid;
+				if(check[next] != nodeIndex) return false;
+				nodeIndex = next;
+			}
+			return term.get(nodeIndex);
+		} catch(ArrayIndexOutOfBoundsException e){
+			return false;
 		}
-		return term.get(nodeIndex);
 	}
 
 	@Override
 	public Iterable<String> commonPrefixSearch(String query) {
 		List<String> ret = new ArrayList<String>();
 		char[] chars = query.toCharArray();
+		int charsLen = chars.length;
+		int checkLen = check.length;
 		int nodeIndex = 0;
-		for(int i = 0; i < chars.length; i++){
+		for(int i = 0; i < charsLen; i++){
 			int cid = findCharId(chars[i]);
 			if(cid == -1) return ret;
 			int b = base[nodeIndex];
 			if(b == BASE_EMPTY) return ret;
 			int next = b + cid;
-			if(check.length <= next || check[next] != nodeIndex) return ret;
+			if(next >= checkLen || check[next] != nodeIndex) return ret;
 			nodeIndex = next;
 			if(term.get(nodeIndex)) ret.add(new String(chars, 0, i + 1));
 		}
@@ -111,34 +117,36 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	public Iterable<String> predictiveSearch(String prefix) {
 		List<String> ret = new ArrayList<String>();
 		char[] chars = prefix.toCharArray();
+		int charsLen = chars.length;
+		int checkLen = check.length;
 		int nodeIndex = 0;
-		for(int i = 0; i < chars.length; i++){
+		for(int i = 0; i < charsLen; i++){
 			int cid = findCharId(chars[i]);
 			if(cid == -1) return ret;
 			int next = base[nodeIndex] + cid;
-			if(next < 0 || check.length <= next || check[next] != nodeIndex) return ret;
+			if(next < 0 || next >= checkLen || check[next] != nodeIndex) return ret;
 			nodeIndex = next;
 		}
 		if(term.get(nodeIndex)){
 			ret.add(prefix);
 		}
-		Deque<Pair<Integer, char[]>> q = new LinkedList<Pair<Integer,char[]>>();
-		q.add(Pair.create(nodeIndex, chars));
+		Deque<Pair<Integer, String>> q = new LinkedList<Pair<Integer, String>>();
+		q.add(Pair.create(nodeIndex, prefix));
 		while(!q.isEmpty()){
-			Pair<Integer, char[]> p = q.pop();
+			Pair<Integer, String> p = q.pop();
 			int ni = p.getFirst();
 			int b = base[ni];
 			if(b == BASE_EMPTY) continue;
-			char[] c = p.getSecond();
-			for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
-				int next = b + e.getValue();
-				if(check.length <= next) continue;
+			String c = p.getSecond();
+			for(char v : this.chars){
+				int next = b + charToCode[v];
+				if(next >= checkLen) continue;
 				if(check[next] == ni){
-					String n = new StringBuilder().append(c).append(e.getKey()).toString();
+					String n = new StringBuilder(c).append(v).toString();
 					if(term.get(next)){
 						ret.add(n);
 					}
-					q.push(Pair.create(next, n.toCharArray()));
+					q.push(Pair.create(next, n));
 				}
 			}
 		}
@@ -168,13 +176,12 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		oos.writeObject(term);
 		oos.flush();
 		dos.writeInt(firstEmptyCheck);
-		dos.writeInt(charCodes.size());
-		for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
-			dos.writeChar(e.getKey());
-			dos.writeInt(e.getValue());
+		dos.writeInt(chars.size());
+		for(char c : chars){
+			dos.writeChar(c);
+			dos.writeChar(charToCode[c]);
 		}
 		dos.flush();
-		
 		bos.flush();
 	}
 
@@ -200,8 +207,9 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		int n = dis.readInt();
 		for(int i = 0; i < n; i++){
 			char c = dis.readChar();
-			int v = dis.readInt();
-			charCodes.put(c, v);
+			char v = dis.readChar();
+			chars.add(c);
+			charToCode[c] = v;
 		}
 	}
 
@@ -236,9 +244,14 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		}
 		System.out.println();
 		System.out.print("chars: ");
-		for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
-			System.out.print(String.format("%c:%d,", e.getKey(), e.getValue()));
+		int c = 0;
+		for(char e : chars){
+			System.out.print(String.format("%c:%d,", e, (int)charToCode[e]));
+			c++;
+			if(c > 16) break;
 		}
+		System.out.println();
+		System.out.println("chars count: " + chars.size());
 		System.out.println();
 	}
 
@@ -350,20 +363,18 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	}
 
 	private int getCharId(char c){
-		Integer cid = charCodes.get(c);
-		if(cid == null){
-			cid = charCodes.size() + 1;
-			charCodes.put(c, cid);
-		}
-		return cid;
+		char v = charToCode[c];
+		if(v != 0) return v;
+		v = (char)(chars.size() + 1);
+		chars.add(c);
+		charToCode[c] = v;
+		return v;
 	}
 
 	private int findCharId(char c){
-		Integer cid = charCodes.get(c);
-		if(cid == null){
-			return -1;
-		}
-		return cid;
+		char v = charToCode[c];
+		if(v != 0) return v;
+		return -1;
 	}
 
 	private void extend(int i){
@@ -433,5 +444,6 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	private int[] check;
 	private int firstEmptyCheck;
 	private BitSet term;
-	private Map<Character, Integer> charCodes = new HashMap<Character, Integer>();
+	private Set<Character> chars = new TreeSet<Character>();
+	private char[] charToCode = new char[Character.MAX_VALUE];
 }
