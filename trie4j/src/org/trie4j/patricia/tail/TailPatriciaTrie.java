@@ -45,24 +45,21 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 	}
 
 	public boolean contains(String word) {
-		char[] letters = word.toCharArray();
-		if(letters.length == 0){
-			return root.isTerminate();
-		}
+		int charsLen = word.length();
 		int offset = 0;
 		Node node = root;
 		TailCharIterator it = new TailCharIterator(tails, -1);
 		while(true){
-			node = node.getChild(letters[offset++]);
+			node = node.getChild(word.charAt(offset++));
 			if(node== null) return false;
 			it.setIndex(node.getTailIndex());
 			while(it.hasNext()){
-				if(offset >= letters.length) return false;
+				if(offset >= charsLen) return false;
 				char c1 = it.next();
-				char c2 = letters[offset++];
+				char c2 = word.charAt(offset++);
 				if(c1 != c2) return false;
 			}
-			if(offset >= letters.length) return node.isTerminate();
+			if(offset >= charsLen) return node.isTerminate();
 		}
 	}
 

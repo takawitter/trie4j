@@ -26,7 +26,24 @@ import org.trie4j.NodeVisitor;
 public class PatriciaTrie extends AbstractTrie implements Trie{
 	@Override
 	public boolean contains(String word) {
-		return root.contains(word.toCharArray(), 0);
+		int charsLen = word.length();
+		Node node = root;
+		for(int i = 0; i < charsLen; i++){
+			Node child = node.getChild(word.charAt(i));
+			if(child == null) return false;
+			char[] letters = child.getLetters();
+			int lettersLen = letters.length;
+			for(int j = 1; j < lettersLen; j++){
+				i++;
+				if(i == charsLen) return false;
+				if(word.charAt(i) != letters[j]) return false;
+			}
+			if((i + 1) == charsLen){
+				return child.isTerminate();
+			}
+			node = child;
+		}
+		return false;
 	}
 
 	@Override

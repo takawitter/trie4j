@@ -158,24 +158,6 @@ public class Node implements org.trie4j.Node{
 		return new Node(newLetter1, newChildren, false);
 	}
 
-	public boolean contains(char[] letters, int offset){
-		int rest = letters.length - offset;
-		int tll = this.letters.length;
-		if(tll > rest) return false;
-		for(int i = 0; i < tll; i++){
-			if(this.letters[i] != letters[i + offset]) return false;
-		}
-		if(tll == rest){
-			return terminated;
-		}
-		offset += tll;
-		char c = letters[offset];
-		Node n = getChild(c);
-		if(n != null){
-			return n.contains(letters, offset);
-		}
-		return false;
-	}
 	public void visit(NodeVisitor visitor, int nest){
 		if(!visitor.visit(this, nest)) return;
 		nest++;

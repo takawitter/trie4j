@@ -80,7 +80,9 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	public boolean contains(String text){
 		try{
 			int nodeIndex = 0;
-			for(char c : text.toCharArray()){
+			int n = text.length();
+			for(int i = 0; i < n; i++){
+				char c = text.charAt(i);
 				int cid = findCharId(c);
 				if(cid == -1) return false;
 				int next = base[nodeIndex] + cid;
