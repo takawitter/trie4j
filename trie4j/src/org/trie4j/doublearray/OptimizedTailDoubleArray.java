@@ -110,7 +110,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 			int cid = findCharId(chars[charsIndex]);
 			if(cid == -1) return false;
 			int i = cid + base[nodeIndex];
-			if(i < 0 || check.length <= i || check[i] != cid) return false;
+			if(i < 0 || check.length <= i || (i + check[i]) != nodeIndex) return false;
 			charsIndex++;
 			nodeIndex = i;
 		}
@@ -133,16 +133,17 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 			}
 			if(term.get(0)) ret.add(new String(chars, 0, ci + 1));
 		}
+		TailCharIterator it = new TailCharIterator(tails, -1);
 		for(; ci < chars.length; ci++){
 			int cid = findCharId(chars[ci]);
 			if(cid == -1) return ret;
 			int b = base[ni];
 			if(b == BASE_EMPTY) return ret;
 			int next = b + cid;
-			if(check.length <= next || check[next] != cid) return ret;
+			if(check.length <= next || (next + check[next]) != ni) return ret;
 			ni = next;
 			if(tail[ni] != -1){
-				TailCharIterator it = new TailCharIterator(tails, tail[ni]);
+				it.setIndex(tail[ni]);
 				while(it.hasNext()){
 					ci++;
 					if(ci >= chars.length) return ret;
@@ -160,9 +161,63 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 		StringBuilder current = new StringBuilder();
 		char[] chars = prefix.toCharArray();
 		int nodeIndex = 0;
+		TailCharIterator it = new TailCharIterator(tails,  -1);
 		for(int i = 0; i < chars.length; i++){
 			int ti = tail[nodeIndex];
 			if(ti != -1){
+				int first = i;
+				it.setIndex(ti);
+				do{
+					if(!it.hasNext()) break;
+					if(it.next() != chars[i]) return ret;
+					i++;
+				} while(i < chars.length);
+				if(i >= chars.length) break;
+				current.append(chars, first, i - first);
+			}
+			int cid = findCharId(chars[i]);
+			if(cid == -1) return ret;
+			int next = base[nodeIndex] + cid;
+			if(next < 0 || check.length <= next || (next + check[next]) != nodeIndex) return ret;
+			nodeIndex = next;
+			current.append(chars[i]);
+		}
+		Deque<Pair<Integer, char[]>> q = new LinkedList<Pair<Integer,char[]>>();
+		q.add(Pair.create(nodeIndex, current.toString().toCharArray()));
+		while(!q.isEmpty()){
+			Pair<Integer, char[]> p = q.pop();
+			int ni = p.getFirst();
+			StringBuilder buff = new StringBuilder().append(p.getSecond());
+			int ti = tail[ni];
+			if(ti != -1){
+				it.setIndex(ti);
+				while(it.hasNext()){
+					buff.append(it.next());
+				}
+			}
+			if(term.get(ni)) ret.add(buff.toString());
+			for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
+				int b = base[ni];
+				if(b == BASE_EMPTY) continue;
+				int next = b + e.getValue();
+				if(check.length <= next) continue;
+				if(next + check[next] == ni){
+					StringBuilder bu = new StringBuilder(buff);
+					bu.append(e.getKey());
+					q.push(Pair.create(next, bu.toString().toCharArray()));
+				}
+			}
+		}
+		return ret;
+/*/
+		List<String> ret = new ArrayList<String>();
+		StringBuilder current = new StringBuilder();
+		char[] chars = prefix.toCharArray();
+		int nodeIndex = 0;
+		for(int i = 0; i < chars.length; i++){
+			int ti = tail[nodeIndex];
+			if(ti != -1){
+				int first = i;
 				TailCharIterator it = new TailCharIterator(tails,  ti);
 				do{
 					if(!it.hasNext()) break;
@@ -170,7 +225,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 					i++;
 				} while(i < chars.length);
 				if(i >= chars.length) break;
-				current.append(tails.subSequence(tail[nodeIndex], it.getNextIndex()));
+				current.append(chars, i, i - first);
 			}
 			int cid = findCharId(chars[i]);
 			if(cid == -1) return ret;
@@ -206,7 +261,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 			}
 		}
 		return ret;
-	}
+//*/	}
 
 	/**
 	 * Double Array currently not support dynamic construction.
@@ -284,7 +339,6 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 	}
 
 	public void dump(){
-		System.out.println("--- dump Double Array ---");
 		System.out.println("array size: " + base.length);
 		System.out.println("last index of valid element: " + last);
 		int vc = 0;
@@ -457,7 +511,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 			if(cid > Short.MAX_VALUE){
 				throw new RuntimeException("check value overflow");
 			}
-			setCheck(offset + cid, (short)cid);
+			setCheck(offset + cid, (short)(nodeIndex - (offset + cid)));
 		}
 /*
 		for(int i = 0; i < children.length; i++){
