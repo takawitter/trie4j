@@ -76,7 +76,6 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 				int c = getCharId(root.getLetters()[0]);
 				check[c] = (short)c;
 				nodeIndex = c;
-				firstEmptyCheck = 1;
 			}
 		}
 		build(root, nodeIndex, tb);
@@ -139,6 +138,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 			if(cid == -1) return ret;
 			int b = base[ni];
 			if(b == BASE_EMPTY) return ret;
+			if(b == (BASE_EMPTY - 1)) return ret;
 			int next = b + cid;
 			if(check.length <= next || (next + check[next]) != ni) return ret;
 			ni = next;
@@ -199,6 +199,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 			for(Map.Entry<Character, Integer> e : charCodes.entrySet()){
 				int b = base[ni];
 				if(b == BASE_EMPTY) continue;
+				if(b == (BASE_EMPTY - 1)) continue;
 				int next = b + e.getValue();
 				if(check.length <= next) continue;
 				if(next + check[next] == ni){
@@ -288,7 +289,6 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 		ObjectOutputStream oos = new ObjectOutputStream(bos);
 		oos.writeObject(term);
 		oos.flush();
-		dos.writeInt(firstEmptyCheck);
 		dos.writeInt(tails.length());
 		dos.writeChars(tails.toString());
 		dos.writeInt(charCodes.size());
@@ -323,7 +323,6 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 		} catch(ClassNotFoundException e){
 			throw new IOException(e);
 		}
-		firstEmptyCheck = dis.readInt();
 		int n = dis.readInt();
 		StringBuilder b = new StringBuilder(n);
 		for(int i = 0; i < n; i++){
@@ -362,11 +361,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 		System.out.println();
 		System.out.print("|check|");
 		for(int i = 0; i < 16; i++){
-			if(check[i] < 0){
-				System.out.print("N/A|");
-			} else{
-				System.out.print(String.format("%3d|", check[i]));
-			}
+			System.out.print(String.format("%3d|", check[i]));
 		}
 		System.out.println();
 		System.out.print("|tail |");
@@ -487,7 +482,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 			maxHead = Math.max(maxHead, heads[i]);
 			minHead = Math.min(minHead, heads[i]);
 		}
-		int empty = findFirstEmptyCheck();
+		int empty = findFirstEmptyCheck(nodeIndex);
 		int offset = empty - minHead;
 		while(true){
 			if(check.length <= (offset + maxHead)){
@@ -503,7 +498,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 			}
 			if(found) break;
 
-			empty = findNextEmptyCheck(empty);
+			empty = findNextEmptyCheck(nodeIndex, empty);
 			offset = empty - minHead;
 		}
 		base[nodeIndex] = offset;
@@ -584,16 +579,15 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 		tail = nt;
 	}
 
-	private int findFirstEmptyCheck(){
-		int i = firstEmptyCheck;
+	private int findFirstEmptyCheck(int baseNodeIndex){
+		int i = Math.max(baseNodeIndex - Short.MAX_VALUE, 0);
 		while(check[i] >= 0 || base[i] != BASE_EMPTY){
 			i++;
 		}
-		firstEmptyCheck = i;
 		return i;
 	}
 
-	private int findNextEmptyCheck(int i){
+	private int findNextEmptyCheck(int baseNodeIndex, int i){
 /*
 		for(i++; i < check.length; i++){
 			if(check[i] < 0) return i;
@@ -615,8 +609,8 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 			return i;
 		}
 		for(i++; i < check.length; i++){
-			if(check[i] < 0){
-				int v = prev - i;
+			if(check[i] < 0 && base[i] == BASE_EMPTY){
+				int v = baseNodeIndex - i;
 				if(v < Short.MIN_VALUE){
 					throw new RuntimeException("check value overflow");
 				}
@@ -635,17 +629,14 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 	}
 
 	private void setCheck(int index, short value){
-		if(firstEmptyCheck == index){
-			firstEmptyCheck = findNextEmptyCheck(firstEmptyCheck);
-		}
 		check[index] = value;
 		last = Math.max(last, index);
+		if(base[index] == BASE_EMPTY) base[index]--;
 	}
 
 	private int[] base;
 	private short[] check;
 	private int[] tail;
-	private int firstEmptyCheck;
 	private int last;
 	private BitSet term;
 	private CharSequence tails;
