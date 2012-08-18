@@ -97,6 +97,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		int charsLen = chars.length;
 		int nodeIndex = 0;
 		TailCharIterator it = new TailCharIterator(tails, -1);
+		int checkLen = check.length;
 		while(charsIndex < charsLen){
 			int tailIndex = tail[nodeIndex];
 			if(tailIndex != -1){
@@ -114,7 +115,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 			int cid = findCharId(chars[charsIndex]);
 			if(cid == -1) return false;
 			int i = cid + base[nodeIndex];
-			if(i < 0 || check.length <= i || check[i] != nodeIndex) return false;
+			if(i < 0 || checkLen <= i || check[i] != nodeIndex) return false;
 			charsIndex++;
 			nodeIndex = i;
 		}
@@ -165,6 +166,8 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		List<String> ret = new ArrayList<String>();
 		StringBuilder current = new StringBuilder();
 		char[] chars = prefix.toCharArray();
+		int charsLen = chars.length;
+		int checkLen = check.length;
 		int nodeIndex = 0;
 		TailCharIterator it = new TailCharIterator(tails,  -1);
 		for(int i = 0; i < chars.length; i++){
@@ -176,14 +179,14 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 					if(!it.hasNext()) break;
 					if(it.next() != chars[i]) return ret;
 					i++;
-				} while(i < chars.length);
-				if(i >= chars.length) break;
+				} while(i < charsLen);
+				if(i >= charsLen) break;
 				current.append(chars, first, i - first);
 			}
 			int cid = findCharId(chars[i]);
 			if(cid == -1) return ret;
 			int next = base[nodeIndex] + cid;
-			if(next < 0 || check.length <= next || check[next] != nodeIndex) return ret;
+			if(next < 0 || checkLen <= next || check[next] != nodeIndex) return ret;
 			nodeIndex = next;
 			current.append(chars[i]);
 		}
@@ -201,11 +204,11 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 				}
 			}
 			if(term.get(ni)) ret.add(buff.toString());
-			for(Character v : this.chars){
-				int b = base[ni];
-				if(b == BASE_EMPTY) continue;
+			int b = base[ni];
+			if(b == BASE_EMPTY) continue;
+			for(char v : this.chars){
 				int next = b + charToCode[v];
-				if(check.length <= next) continue;
+				if(next >= checkLen) continue;
 				if(check[next] == ni){
 					StringBuilder bu = new StringBuilder(buff);
 					bu.append(v);
