@@ -30,8 +30,8 @@ import org.trie4j.tail.TailCharIterator;
 
 public class TailPatriciaTrie extends AbstractTrie implements Trie{
 	public TailPatriciaTrie() {
-		tailBuilder = new SuffixTrieTailBuilder();
-		tails = tailBuilder.getTails();
+		this.tailBuilder = new SuffixTrieTailBuilder();
+		this.tails = tailBuilder.getTails();
 	}
 
 	public TailPatriciaTrie(TailBuilder builder){
@@ -50,7 +50,7 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 		int n = word.length();
 		for(int i = 0; i < n; i++){
 			node = node.getChild(word.charAt(i));
-			if(node== null) return false;
+			if(node == null) return false;
 			it.setIndex(node.getTailIndex());
 			while(it.hasNext()){
 				i++;
@@ -216,7 +216,7 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 		return tailBuilder;
 	}
 
-	private Node root = new Node((char)0xffff, -1, false, null);
+	private Node root = new Node();
 	private TailBuilder tailBuilder;
 	private CharSequence tails;
 }

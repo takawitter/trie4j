@@ -25,6 +25,14 @@ import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 
 public class Node {
+	public Node() {
+		this((char)0xffff, -1, false);
+	}
+
+	public Node(char firstChar, int tailIndex, boolean terminate) {
+		this(firstChar, tailIndex, terminate, new Node[]{});
+	}
+
 	public Node(char firstChar, int tailIndex, boolean terminate, Node[] children) {
 		this.firstChar = firstChar;
 		this.tailIndex = tailIndex;
@@ -126,7 +134,7 @@ public class Node {
 				int n2Idx = (offset < letters.length) ?
 						tailBuilder.insert(Arrays.copyOfRange(letters, offset, letters.length)) :
 						-1;
-				Node n2 = new Node(n2Fc, n2Idx, true, null);
+				Node n2 = new Node(n2Fc, n2Idx, true);
 				if(count > 0){
 					this.tailIndex = tailBuilder.insert(letters, firstOffset, count);
 				} else{
@@ -147,7 +155,7 @@ public class Node {
 					int idx = (offset < letters.length) ?
 							tailBuilder.insert(Arrays.copyOfRange(letters, offset, letters.length)) :
 							-1;
-					this.children = new Node[]{new Node(fc, idx, true, null)};
+					this.children = new Node[]{new Node(fc, idx, true)};
 				} else{
 					// find node
 					Pair<Node, Integer> ret = findNode(fc);
@@ -159,7 +167,7 @@ public class Node {
 						int idx = (offset < letters.length) ?
 							tailBuilder.insert(letters, offset, letters.length - offset) :
 							-1;
-						addChild(ret.getSecond(), new Node(fc, idx, true, null));
+						addChild(ret.getSecond(), new Node(fc, idx, true));
 					}
 				}
 				return this;

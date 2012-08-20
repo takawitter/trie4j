@@ -56,20 +56,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		Arrays.fill(check, -1);
 		term = new BitSet(65536);
 
-		int nodeIndex = 0;
-		base[0] = nodeIndex;
-		Node root = trie.getRoot();
-		if(root == null) return;
-		if(root.getLetters() != null){
-			if(root.getLetters().length == 0) term.set(0);
-			else{
-				int c = getCharId(root.getLetters()[0]);
-				check[c] = 0;
-				nodeIndex = c;
-				firstEmptyCheck = 1;
-			}
-		}
-		build(root, nodeIndex);
+		build(trie.getRoot(), 0);
 	}
 
 	@Override
@@ -307,48 +294,32 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	private void build(Node node, int nodeIndex){
 		// letters
 		char[] letters = node.getLetters();
-		if(letters != null){
-			for(int i = 1; i < letters.length; i++){
-				char c = letters[i];
-				int cid = getCharId(c);
-				int empty = findFirstEmptyCheck();
-				setCheck(empty, nodeIndex);
-				base[nodeIndex] = empty - cid;
-				nodeIndex = empty;
-			}
-			if(node.isTerminate()){
-				term.set(nodeIndex);
-			}
+		int lettersLen = letters.length;
+		for(int i = 1; i < lettersLen; i++){
+			int cid = getCharId(letters[i]);
+			int empty = findFirstEmptyCheck();
+			setCheck(empty, nodeIndex);
+			base[nodeIndex] = empty - cid;
+			nodeIndex = empty;
+		}
+		if(node.isTerminate()){
+			term.set(nodeIndex);
 		}
 
 		// children
 		Node[] children = node.getChildren();
-		if(children == null || children.length == 0) return;
-		int[] heads = new int[children.length];
+		int childrenLen = children.length;
+		if(childrenLen == 0) return;
+		int[] heads = new int[childrenLen];
 		int maxHead = 0;
-		for(int i = 0; i < children.length; i++){
+		int minHead = Integer.MAX_VALUE;
+		for(int i = 0; i < childrenLen; i++){
 			heads[i] = getCharId(children[i].getLetters()[0]);
 			maxHead = Math.max(maxHead, heads[i]);
+			minHead = Math.min(minHead, heads[i]);
 		}
-		int empty = findFirstEmptyCheck();
-		int offset = empty - heads[0];
-		while(true){
-			if(check.length <= (offset + maxHead)){
-				extend(offset + maxHead);
-			}
-			// find space
-			boolean found = true;
-			for(int cid : heads){
-				if(check[offset + cid] >= 0){
-					found = false;
-					break;
-				}
-			}
-			if(found) break;
 
-			empty = findNextEmptyCheck(empty);
-			offset = empty - heads[0];
-		}
+		int offset = findInsertOffset(heads, minHead, maxHead);
 		base[nodeIndex] = offset;
 		for(int cid : heads){
 			setCheck(offset + cid, nodeIndex);
@@ -358,6 +329,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 			build(children[i], offset + heads[i]);
 		}
 /*/
+		// sort children by children's children count.
 		Map<Integer, List<Pair<Node, Integer>>> nodes = new TreeMap<Integer, List<Pair<Node, Integer>>>(new Comparator<Integer>() {
 			@Override
 			public int compare(Integer arg0, Integer arg1) {
@@ -383,6 +355,24 @@ public class DoubleArray extends AbstractTrie implements Trie{
 			}
 		}
 //*/
+	}
+
+	private int findInsertOffset(int[] heads, int minHead, int maxHead){
+		for(int empty = findFirstEmptyCheck(); ; empty = findNextEmptyCheck(empty)){
+			int offset = empty - minHead;
+			if((offset + maxHead) >= check.length){
+				extend(offset + maxHead);
+			}
+			// find space
+			boolean found = true;
+			for(int cid : heads){
+				if(check[offset + cid] >= 0){
+					found = false;
+					break;
+				}
+			}
+			if(found) return offset;
+		}
 	}
 
 	private int getCharId(char c){
@@ -465,7 +455,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 
 	private int[] base;
 	private int[] check;
-	private int firstEmptyCheck;
+	private int firstEmptyCheck = 1;
 	private BitSet term;
 	private Set<Character> chars = new TreeSet<Character>();
 	private char[] charToCode = new char[Character.MAX_VALUE];

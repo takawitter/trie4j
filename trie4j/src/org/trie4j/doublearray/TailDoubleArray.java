@@ -68,21 +68,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		term = new BitSet(65536);
 		Arrays.fill(charToCode, (char)0);
 
-		int nodeIndex = 0;
-		base[0] = nodeIndex;
-		Node root = trie.getRoot();
-		if(root == null) return;
-		if(root.getLetters() != null){
-			if(root.getLetters().length == 0){
-				if(root.isTerminate()) term.set(0);
-			} else{
-				int c = getCharId(root.getLetters()[0]);
-				check[c] = 0;
-				nodeIndex = c;
-				firstEmptyCheck = 1;
-			}
-		}
-		build(root, nodeIndex, tb);
+		build(trie.getRoot(), 0, tb);
 		tails = tb.getTails();
 	}
 
@@ -410,45 +396,27 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	private void build(Node node, int nodeIndex, TailBuilder tailb){
 		// letters
 		char[] letters = node.getLetters();
-		if(letters != null){
-			if(letters.length > 1){
-				tail[nodeIndex] = tailb.insert(letters, 1, letters.length - 1);
-			}
-			if(node.isTerminate()){
-				term.set(nodeIndex);
-			}
+		if(letters.length > 1){
+			tail[nodeIndex] = tailb.insert(letters, 1, letters.length - 1);
+		}
+		if(node.isTerminate()){
+			term.set(nodeIndex);
 		}
 
 		// children
 		Node[] children = node.getChildren();
-		if(children == null || children.length == 0) return;
-		int[] heads = new int[children.length];
+		int childrenLen = children.length;
+		if(childrenLen == 0) return;
+		int[] heads = new int[childrenLen];
 		int maxHead = 0;
 		int minHead = Integer.MAX_VALUE;
-		for(int i = 0; i < children.length; i++){
+		for(int i = 0; i < childrenLen; i++){
 			heads[i] = getCharId(children[i].getLetters()[0]);
 			maxHead = Math.max(maxHead, heads[i]);
 			minHead = Math.min(minHead, heads[i]);
 		}
-		int empty = findFirstEmptyCheck();
-		int offset = empty - minHead;
-		while(true){
-			if(check.length <= (offset + maxHead)){
-				extend(offset + maxHead);
-			}
-			// find space
-			boolean found = true;
-			for(int cid : heads){
-				if(check[offset + cid] >= 0){
-					found = false;
-					break;
-				}
-			}
-			if(found) break;
 
-			empty = findNextEmptyCheck(empty);
-			offset = empty - minHead;
-		}
+		int offset = findInsertOffset(heads, minHead, maxHead);
 		base[nodeIndex] = offset;
 		for(int cid : heads){
 			setCheck(offset + cid, nodeIndex);
@@ -462,7 +430,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		Map<Integer, List<Pair<Node, Integer>>> nodes = new TreeMap<Integer, List<Pair<Node, Integer>>>(new Comparator<Integer>() {
 			@Override
 			public int compare(Integer arg0, Integer arg1) {
-				return arg1 - arg0;
+				return arg0 - arg1;//arg1 - arg0;
 			}
 		});
 		for(int i = 0; i < children.length; i++){
@@ -484,6 +452,24 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 			}
 		}
 //*/
+	}
+
+	private int findInsertOffset(int[] heads, int minHead, int maxHead){
+		for(int empty = findFirstEmptyCheck(); ; empty = findNextEmptyCheck(empty)){
+			int offset = empty - minHead;
+			if((offset + maxHead) >= check.length){
+				extend(offset + maxHead);
+			}
+			// find space
+			boolean found = true;
+			for(int cid : heads){
+				if(check[offset + cid] >= 0){
+					found = false;
+					break;
+				}
+			}
+			if(found) return offset;
+		}
 	}
 
 	private int getCharId(char c){
@@ -542,7 +528,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		}
 		int prev = i;
 		i += d;
-		if(check.length <= i){
+		if(i >= check.length){
 			extend(i);
 			return i;
 		}
@@ -572,7 +558,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	private int[] base;
 	private int[] check;
 	private int[] tail;
-	private int firstEmptyCheck;
+	private int firstEmptyCheck = 1;
 	private int last;
 	private BitSet term;
 	private CharSequence tails;

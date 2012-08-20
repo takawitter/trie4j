@@ -43,6 +43,7 @@ public class TestWikipedia {
 		System.out.println("-- building double array.");
 		t1.lap();
 		Trie da = new TailDoubleArray(trie, 65536, new ConcatTailBuilder());
+//		Trie da = new DoubleArray(trie, 65536);
 //		Trie da = trie;
 		trie = null;
 		System.out.println("done in " + t1.lap() + " millis.");

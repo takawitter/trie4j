@@ -103,11 +103,7 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 	}
 
 	public void insert(String text){
-		char[] letters = text.toCharArray();
-		Node newRoot = root.insertChild(letters, 0);
-		if(newRoot != null){
-			root = newRoot;
-		}
+		root.insertChild(text.toCharArray(), 0);
 	}
 
 	public void visit(NodeVisitor visitor){
