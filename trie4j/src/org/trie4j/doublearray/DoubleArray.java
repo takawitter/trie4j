@@ -115,6 +115,28 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	}
 
 	@Override
+	public int findCommonPrefix(CharSequence chars, int start, int end) {
+		for(int i = start; i < end; i++){
+			int nodeIndex = 0;
+			try{
+				for(int j = i; j < end; j++){
+					int cid = findCharId(chars.charAt(j));
+					if(cid == -1) break;
+					int b = base[nodeIndex];
+					if(b == BASE_EMPTY) break;
+					int next = b + cid;
+					if(nodeIndex != check[next]) break;
+					nodeIndex = next;
+					if(term.get(nodeIndex)) return i;
+				}
+			} catch(ArrayIndexOutOfBoundsException e){
+				break;
+			}
+		}
+		return -1;
+	}
+
+	@Override
 	public Iterable<String> predictiveSearch(String prefix) {
 		List<String> ret = new ArrayList<String>();
 		char[] chars = prefix.toCharArray();

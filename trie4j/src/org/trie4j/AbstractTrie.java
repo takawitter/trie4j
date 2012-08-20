@@ -17,9 +17,9 @@ package org.trie4j;
 
 public abstract class AbstractTrie implements Trie{
 	@Override
-	public int findCommonPrefix(char[] chars, int begin, int end) {
-		for(int i = begin; i < end; i++){
-			if(commonPrefixSearch(new String(chars, i, end - i)).iterator().hasNext()){
+	public int findCommonPrefix(CharSequence chars, int start, int end) {
+		for(int i = start; i < end; i++){
+			if(commonPrefixSearch(chars.subSequence(start, end).toString()).iterator().hasNext()){
 				return i;
 			}
 		}

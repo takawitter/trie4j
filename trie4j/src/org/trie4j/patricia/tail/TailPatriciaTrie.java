@@ -62,33 +62,27 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 	}
 
 	@Override
-	public int findCommonPrefix(char[] chars, int begin, int end) {
-		TailCharIterator letters = new TailCharIterator(tails, -1);
-		for(int i = begin; i < end; i++){
-			int cur = i;
+	public int findCommonPrefix(CharSequence chars, int start, int end) {
+		TailCharIterator it = new TailCharIterator(tails, -1);
+		for(int i = start; i < end; i++){
 			Node node = root;
-			while(true){
-				int ti = node.getTailIndex();
-				if(ti != -1){
-					letters.setIndex(ti);
-					boolean matched = true;
-					while(letters.hasNext()){
-						if(cur == end){
-							matched = false;
-							break;
-						}
-						if(letters.next() != chars[cur++]){
-							matched = false;
-							break;
-						}
-					}
-					if(!matched) break;
-				}
-				if(node.isTerminate()) return i;
-				if(cur == end) break;
-				char nl = chars[cur++];
-				node = node.getChild(nl);
+			for(int j = i; j < end; j++){
+				node = node.getChild(chars.charAt(j));
 				if(node == null) break;
+				boolean matched = true;
+				it.setIndex(node.getTailIndex());
+				while(it.hasNext()){
+					j++;
+					if(j == end || chars.charAt(j) != it.next()){
+						matched = false;
+						break;
+					}
+				}
+				if(matched){
+					if(node.isTerminate()) return i;
+				} else{
+					break;
+				}
 			}
 		}
 		return -1;
