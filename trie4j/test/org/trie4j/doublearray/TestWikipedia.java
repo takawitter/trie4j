@@ -15,41 +15,35 @@
  */
 package org.trie4j.doublearray;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.zip.GZIPInputStream;
-
 import org.trie4j.Trie;
-import org.trie4j.util.CharsetUtil;
+import org.trie4j.patricia.tail.TailPatriciaTrie;
+import org.trie4j.tail.ConcatTailBuilder;
+import org.trie4j.test.WikipediaTitles;
 import org.trie4j.util.LapTimer;
 
 public class TestWikipedia {
 	private static final int maxCount = 20000000;
+	// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
+	private static final String wikipediaFilename = "data/jawiki-20120220-all-titles-in-ns0.gz";
+//	private static final String wikipediaFilename = "data/enwiki-20120403-all-titles-in-ns0.gz";
 
 	public static void main(String[] args) throws Exception{
-		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
-		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
-//				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
-				, CharsetUtil.newUTF8Decoder()));
 		System.out.println("--- building patricia trie ---");
-		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
+		Trie trie = new TailPatriciaTrie();
 		int c = 0;
-		String word = null;
 		LapTimer t1 = new LapTimer();
-		while((word = r.readLine()) != null){
+		for(String word : new WikipediaTitles(wikipediaFilename)){
 			trie.insert(word);
 			c++;
 			if(c == maxCount) break;
 		}
 		System.out.println("done in " + t1.lap() + " millis.");
 		System.out.println(c + "entries in ja wikipedia titles.");
-		r = null;
 
 		System.out.println("-- building double array.");
 		t1.lap();
-		Trie da = new TailDoubleArray(trie);
+		Trie da = new TailDoubleArray(trie, 65536, new ConcatTailBuilder());
+//		Trie da = trie;
 		trie = null;
 		System.out.println("done in " + t1.lap() + " millis.");
 		da.dump();
@@ -69,6 +63,7 @@ public class TestWikipedia {
 		for(String s : da.predictiveSearch("大阪城")){
 			System.out.println(s);
 		}
+		System.out.println("---- done ----");
 
 		Thread.sleep(10000);
 		da.contains("hello");
@@ -76,16 +71,11 @@ public class TestWikipedia {
 
 	private static void verify(Trie da) throws Exception{
 		System.out.println("verifying double array...");
-		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
-//				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
-				, CharsetUtil.newUTF8Decoder()));
 		int c = 0;
 		int sum = 0;
-		String word = null;
 		LapTimer t1 = new LapTimer();
 		LapTimer t = new LapTimer();
-		while((word = r.readLine()) != null){
+		for(String word : new WikipediaTitles(wikipediaFilename)){
 			if(c == maxCount) break;
 			t.lap();
 			boolean found = da.contains(word);
