@@ -27,23 +27,20 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 	@Override
 	public boolean contains(String word) {
 		int charsLen = word.length();
+		if(charsLen == 0) return false;
+		int charsIndex = 0;
 		Node node = root;
-		for(int i = 0; i < charsLen; i++){
-			Node child = node.getChild(word.charAt(i));
-			if(child == null) return false;
-			char[] letters = child.getLetters();
+		while(true){
+			node = node.getChild(word.charAt(charsIndex++));
+			if(node == null) return false;
+			char[] letters = node.getLetters();
 			int lettersLen = letters.length;
 			for(int j = 1; j < lettersLen; j++){
-				i++;
-				if(i == charsLen) return false;
-				if(word.charAt(i) != letters[j]) return false;
+				if(charsIndex >= charsLen) return false;
+				if(letters[j] != word.charAt(charsIndex++)) return false;
 			}
-			if((i + 1) == charsLen){
-				return child.isTerminate();
-			}
-			node = child;
+			if(charsIndex >= charsLen) return node.isTerminate();
 		}
-		return false;
 	}
 
 	@Override
