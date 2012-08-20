@@ -30,13 +30,12 @@
 
 	<target name="instrument" depends="compile">
 		<cobertura-instrument todir="build/instrumented-classes">
-		    <fileset dir="build/classes" includes="**/*.classes" />
-		    <fileset dir="build/test-classes" includes="**/*.classes" />
+		    <fileset dir="build/classes" includes="**/*.class" />
 		</cobertura-instrument>
 	</target>
 	
 	<target name="test" depends="instrument">
-		<junit printsummary="withOutAndErr" haltonfailure="yes" logfailedtests="true" fork="true">
+		<junit printsummary="withOutAndErr" haltonfailure="no" logfailedtests="true" fork="true">
 			<classpath>
 				<fileset dir="lib" includes="*.jar" />
 				<pathelement path="build/instrumented-classes" />
@@ -51,6 +50,9 @@
 	</target>
 
 	<target name="dist" depends="test">
-		<jar destfile="dist/trie4j-SNAPSHOT.jar" basedir="build/classes" includes="**/*" />
+		<jar destfile="dist/trie4j-SNAPSHOT.jar">
+			<fileset dir="build/classes" includes="**/*" />
+			<fileset dir="src" includes="**/*" />
+		</jar>
 	</target>
 </project>
