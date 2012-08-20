@@ -64,10 +64,8 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 		return ret;
 	}
 
-	private static void enumLetters(org.trie4j.Node node, String prefix, List<String> letters){
-		org.trie4j.Node[] children = node.getChildren();
-		if(children == null) return;
-		for(org.trie4j.Node child : children){
+	private static void enumLetters(Node node, String prefix, List<String> letters){
+		for(Node child : node.getChildren()){
 			String text = prefix + new String(child.getLetters());
 			if(child.isTerminate()) letters.add(text);
 			enumLetters(child, text, letters);
@@ -114,5 +112,5 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 		return root;
 	}
 
-	private Node root = new Node(new char[]{}, false);
+	private Node root = new Node();
 }

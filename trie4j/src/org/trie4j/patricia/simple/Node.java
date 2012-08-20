@@ -21,38 +21,31 @@ import org.trie4j.NodeVisitor;
 
 public class Node implements org.trie4j.Node{
 	public Node() {
-		this.letters = new char[]{};
-		this.terminated = false;
-		this.children = new Node[]{};
+		this(new char[]{}, false);
 	}
+
 	public Node(char[] letters, boolean terminated) {
-		this.letters = letters;
-		this.terminated = terminated;
-		this.children = new Node[]{};
+		this(letters, terminated, new Node[]{});
 	}
+
 	public Node(char[] letters, boolean terminated, Node[] children) {
 		this.letters = letters;
 		this.terminated = terminated;
 		this.children = children;
 	}
+
 	public Node[] getChildren() {
 		return children;
 	}
-	public void setChildren(Node[] children) {
-		this.children = children;
-	}
+
 	public char[] getLetters() {
 		return letters;
 	}
-	public void setLetters(char[] letters) {
-		this.letters = letters;
-	}
+
 	public boolean isTerminate() {
 		return terminated;
 	}
-	public void setTerminated(boolean terminated) {
-		this.terminated = terminated;
-	}
+
 	public Node getChild(char c){
 		int end = children.length;
 		if(end > 16){
@@ -73,13 +66,12 @@ public class Node implements org.trie4j.Node{
 		} else{
 			for(int i = 0; i < end; i++){
 				Node n = children[i];
-				if(n.letters != null && n.letters.length > 0 && n.letters[0] == c){
-					return n;
-				}
+				if(n.letters[0] == c) return n;
 			}
 		}
 		return null;
 	}
+
 	public void insertChild(char[] letters, int offset){
 		int i = 0;
 		int lettersRest = letters.length - offset;
@@ -146,10 +138,8 @@ public class Node implements org.trie4j.Node{
 	public void visit(NodeVisitor visitor, int nest){
 		if(!visitor.visit(this, nest)) return;
 		nest++;
-		if(children != null){
-			for(Node n : children){
-				n.visit(visitor, nest);
-			}
+		for(Node n : children){
+			n.visit(visitor, nest);
 		}
 	}
 
@@ -161,6 +151,7 @@ public class Node implements org.trie4j.Node{
 		this.children = newc;
 		return this;
 	}
+
 	private Node[] children;
 	private char[] letters;
 	private boolean terminated;
