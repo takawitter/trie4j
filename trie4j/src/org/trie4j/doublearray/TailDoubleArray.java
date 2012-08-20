@@ -92,54 +92,38 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	}
 
 	public boolean contains(String text){
-		int charsIndex = 0;
-		int charsLen = text.length();
-		int checkLen = check.length;
-		int nodeIndex = 0;
-		TailCharIterator it = new TailCharIterator(tails, -1);
-		while(charsIndex < charsLen){
-			int tailIndex = tail[nodeIndex];
-			if(tailIndex != -1){
-				it.setIndex(tailIndex);
+		try{
+			int nodeIndex = 0;
+			TailCharIterator it = new TailCharIterator(tails, -1);
+			int n = text.length();
+			for(int i = 0; i < n; i++){
+				int cid = findCharId(text.charAt(i));
+				if(cid == -1) return false;
+				int next = base[nodeIndex] + cid;
+				if(check[next] != nodeIndex) return false;
+				nodeIndex = next;
+				it.setIndex(tail[nodeIndex]);
 				while(it.hasNext()){
-					if(charsIndex == charsLen) return false;
-					if(text.charAt(charsIndex) != it.next()) return false;
-					charsIndex++;
-				}
-				if(charsIndex == charsLen){
-					if(!it.hasNext()) return term.get(nodeIndex);
-					else return false;
+					i++;
+					if(i == n) return false;
+					if(text.charAt(i) != it.next()) return false;
 				}
 			}
-			int cid = findCharId(text.charAt(charsIndex));
-			if(cid == -1) return false;
-			int i = base[nodeIndex] + cid;
-			if(i < 0 || checkLen <= i || check[i] != nodeIndex) return false;
-			charsIndex++;
-			nodeIndex = i;
+			return term.get(nodeIndex);
+		} catch(ArrayIndexOutOfBoundsException e){
+			return false;
 		}
-		return term.get(nodeIndex);
 	}
 
 	@Override
 	public Iterable<String> commonPrefixSearch(String query) {
 		List<String> ret = new ArrayList<String>();
-
-		char[] chars = query.toCharArray();
+		int charsLen = query.length();
 		int ci = 0;
-		if(tail[0] != -1){
-			TailCharIterator it = new TailCharIterator(tails, tail[0]);
-			while(it.hasNext()){
-				ci++;
-				if(ci >= chars.length) return ret;
-				if(it.next() != chars[ci]) return ret;
-			}
-			if(term.get(0)) ret.add(new String(chars, 0, ci + 1));
-		}
 		int ni = 0;
 		TailCharIterator it = new TailCharIterator(tails, -1);
-		for(; ci < chars.length; ci++){
-			int cid = findCharId(chars[ci]);
+		for(; ci < charsLen; ci++){
+			int cid = findCharId(query.charAt(ci));
 			if(cid == -1) return ret;
 			int b = base[ni];
 			if(b == BASE_EMPTY) return ret;
@@ -151,11 +135,11 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 				it.setIndex(ti);
 				while(it.hasNext()){
 					ci++;
-					if(ci >= chars.length) return ret;
-					if(it.next() != chars[ci]) return ret;
+					if(ci >= charsLen) return ret;
+					if(it.next() != query.charAt(ci)) return ret;
 				}
 			}
-			if(term.get(ni)) ret.add(new String(chars, 0, ci + 1));
+			if(term.get(ni)) ret.add(query.substring(0, ci + 1));
 		}
 		return ret;
 	}

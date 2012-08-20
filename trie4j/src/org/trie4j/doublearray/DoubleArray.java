@@ -82,8 +82,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 			int nodeIndex = 0;
 			int n = text.length();
 			for(int i = 0; i < n; i++){
-				char c = text.charAt(i);
-				int cid = findCharId(c);
+				int cid = findCharId(text.charAt(i));
 				if(cid == -1) return false;
 				int next = base[nodeIndex] + cid;
 				if(check[next] != nodeIndex) return false;
