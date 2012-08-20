@@ -9,20 +9,21 @@
 	<target name="clean">
 		<delete dir="build" />
 		<delete dir="coverage" />
+		<delete file="cobertura.ser" />
 	</target>
 
 	<target name="init">
 		<mkdir dir="build" />
 		<mkdir dir="build/classes" />
 		<mkdir dir="build/test-classes" />
-		<mkdir dir="build/instrument-classes" />
+		<mkdir dir="build/instrumented-classes" />
 		<mkdir dir="coverage" />
 		<mkdir dir="dist" />
 	</target>
 
-	<target name="compile" depends="init">
-		<javac destdir="build/classes" srcdir="src" includeantruntime="false" debug="true" />
-		<javac destdir="build/test-classes" srcdir="test" includeantruntime="false" debug="true" >
+	<target name="compile" depends="clean,init">
+		<javac destdir="build/classes" srcdir="src" includeantruntime="false" debug="true" encoding="UTF-8" source="1.6" target="1.6" />
+		<javac destdir="build/test-classes" srcdir="test" includeantruntime="false" debug="true" encoding="UTF-8" source="1.6" target="1.6">
 			<classpath path="build/classes" />
 			<classpath path="lib/junit-4.10.jar" />
 		</javac>
@@ -37,10 +38,10 @@
 	<target name="test" depends="instrument">
 		<junit printsummary="withOutAndErr" haltonfailure="no" logfailedtests="true" fork="true">
 			<classpath>
-				<fileset dir="lib" includes="*.jar" />
 				<pathelement path="build/instrumented-classes" />
 				<pathelement path="build/test-classes" />
 				<pathelement path="build/classes" />
+				<fileset dir="lib" includes="*.jar" />
 			</classpath>
 			<test name="org.trie4j.AllTests" />
 			<formatter type="xml"/>
