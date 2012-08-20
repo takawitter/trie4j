@@ -46,37 +46,32 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 
 	public boolean contains(String word) {
 		int charsLen = word.length();
-		int offset = 0;
+		if(charsLen == 0) return false;
+		int charsIndex = 0;
 		Node node = root;
 		TailCharIterator it = new TailCharIterator(tails, -1);
 		while(true){
-			node = node.getChild(word.charAt(offset++));
+			node = node.getChild(word.charAt(charsIndex++));
 			if(node== null) return false;
 			it.setIndex(node.getTailIndex());
 			while(it.hasNext()){
-				if(offset >= charsLen) return false;
-				char c1 = it.next();
-				char c2 = word.charAt(offset++);
-				if(c1 != c2) return false;
+				if(charsIndex >= charsLen) return false;
+				if(it.next() != word.charAt(charsIndex++)) return false;
 			}
-			if(offset >= charsLen) return node.isTerminate();
+			if(charsIndex >= charsLen) return node.isTerminate();
 		}
 	}
 
 	@Override
 	public int findCommonPrefix(char[] chars, int begin, int end) {
-		TailCharIterator letters = null;
+		TailCharIterator letters = new TailCharIterator(tails, -1);
 		for(int i = begin; i < end; i++){
 			int cur = i;
 			Node node = root;
 			while(true){
 				int ti = node.getTailIndex();
 				if(ti != -1){
-					if(letters == null){
-						letters = new TailCharIterator(tails, ti);
-					} else{
-						letters.setIndex(ti);
-					}
+					letters.setIndex(ti);
 					boolean matched = true;
 					while(letters.hasNext()){
 						if(cur == end){
