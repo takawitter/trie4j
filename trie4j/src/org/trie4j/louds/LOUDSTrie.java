@@ -115,18 +115,18 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	@Override
-	public boolean contains(String word){
+	public boolean contains(String text){
 		int nodeId = 0; // root
 		TailCharIterator it = new TailCharIterator(tails, -1);
-		int n = word.length();
+		int n = text.length();
 		for(int i = 0; i < n; i++){
-			nodeId = getChildNode(nodeId, word.charAt(i));
+			nodeId = getChildNode(nodeId, text.charAt(i));
 			if(nodeId == -1) return false;
 			it.setIndex(tail[nodeId]);
 			while(it.hasNext()){
 				i++;
 				if(i == n) return false;
-				if(word.charAt(i) != it.next()) return false;
+				if(text.charAt(i) != it.next()) return false;
 			}
 		}
 		return term.get(nodeId);

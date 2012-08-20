@@ -25,25 +25,25 @@ import org.trie4j.NodeVisitor;
 
 public class PatriciaTrie extends AbstractTrie implements Trie{
 	@Override
-	public boolean contains(String word) {
+	public boolean contains(String text) {
 		Node node = root;
-		int n = word.length();
+		int n = text.length();
 		for(int i = 0; i < n; i++){
-			node = node.getChild(word.charAt(i));
+			node = node.getChild(text.charAt(i));
 			if(node == null) return false;
 			char[] letters = node.getLetters();
 			int lettersLen = letters.length;
 			for(int j = 1; j < lettersLen; j++){
 				i++;
 				if(i == n) return false;
-				if(word.charAt(i) != letters[j]) return false;
+				if(text.charAt(i) != letters[j]) return false;
 			}
 		}
 		return node.isTerminate();
 	}
 
 	@Override
-	public Iterable<String> commonPrefixSearch(final String query) {
+	public Iterable<String> commonPrefixSearch(String query) {
 		List<String> ret = new ArrayList<String>();
 		char[] queryChars = query.toCharArray();
 		int cur = 0;

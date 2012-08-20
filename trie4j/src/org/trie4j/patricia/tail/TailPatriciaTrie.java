@@ -44,18 +44,19 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 		return new NodeAdapter(root, tails);
 	}
 
-	public boolean contains(String word) {
+	@Override
+	public boolean contains(String text) {
 		Node node = root;
 		TailCharIterator it = new TailCharIterator(tails, -1);
-		int n = word.length();
+		int n = text.length();
 		for(int i = 0; i < n; i++){
-			node = node.getChild(word.charAt(i));
+			node = node.getChild(text.charAt(i));
 			if(node == null) return false;
 			it.setIndex(node.getTailIndex());
 			while(it.hasNext()){
 				i++;
 				if(i == n) return false;
-				if(word.charAt(i) != it.next()) return false;
+				if(text.charAt(i) != it.next()) return false;
 			}
 		}
 		return node.isTerminate();

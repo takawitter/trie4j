@@ -64,9 +64,10 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public boolean contains(String text){
 		try{
-			int nodeIndex = 0;
+			int nodeIndex = 0; // root
 			int n = text.length();
 			for(int i = 0; i < n; i++){
 				int cid = findCharId(text.charAt(i));

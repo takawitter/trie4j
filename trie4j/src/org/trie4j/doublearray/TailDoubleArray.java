@@ -77,9 +77,10 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public boolean contains(String text){
 		try{
-			int nodeIndex = 0;
+			int nodeIndex = 0; // root
 			TailCharIterator it = new TailCharIterator(tails, -1);
 			int n = text.length();
 			for(int i = 0; i < n; i++){
