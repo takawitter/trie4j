@@ -30,7 +30,7 @@ public class Node {
 	}
 
 	public Node(char firstChar, int tailIndex, boolean terminate) {
-		this(firstChar, tailIndex, terminate, new Node[]{});
+		this(firstChar, tailIndex, terminate, emptyChildren);
 	}
 
 	public Node(char firstChar, int tailIndex, boolean terminate, Node[] children) {
@@ -262,4 +262,5 @@ public class Node {
 	private int tailIndex;
 	private boolean terminate;
 	private Node[] children;
+	private static Node[] emptyChildren = {};
 }

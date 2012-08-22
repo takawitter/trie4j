@@ -25,12 +25,12 @@ public class Node implements org.trie4j.Node{
 	}
 
 	public Node(char[] letters, boolean terminated) {
-		this(letters, terminated, new Node[]{});
+		this(letters, terminated, emptyChildren);
 	}
 
 	public Node(char[] letters, boolean terminated, Node[] children) {
 		this.letters = letters;
-		this.terminated = terminated;
+		this.terminate = terminated;
 		this.children = children;
 	}
 
@@ -43,7 +43,7 @@ public class Node implements org.trie4j.Node{
 	}
 
 	public boolean isTerminate() {
-		return terminated;
+		return terminate;
 	}
 
 	public Node getChild(char c){
@@ -81,22 +81,22 @@ public class Node implements org.trie4j.Node{
 		if(i != n){
 			Node child1 = new Node(
 					Arrays.copyOfRange(this.letters, i, this.letters.length)
-					, this.terminated, this.children);
+					, this.terminate, this.children);
 			Node child2 = new Node(
 					Arrays.copyOfRange(letters, i + offset, letters.length)
 					, true);
 			this.letters = Arrays.copyOfRange(this.letters, 0, i);
-			this.terminated = false;
+			this.terminate = false;
 			this.children = (child1.getLetters()[0] < child2.getLetters()[0]) ?
 					new Node[]{child1, child2} : new Node[]{child2, child1};
 		} else if(lettersRest == thisLettersLength){
-			terminated = true;
+			terminate = true;
 		} else if(lettersRest < thisLettersLength){
 			Node newChild = new Node(
 					Arrays.copyOfRange(this.letters, lettersRest, thisLettersLength)
-					, this.terminated, this.children);
+					, this.terminate, this.children);
 			this.letters = Arrays.copyOfRange(this.letters, 0, i);
-			this.terminated = true;
+			this.terminate = true;
 			this.children = new Node[]{newChild};
 		} else{
 			int index = 0;
@@ -152,7 +152,8 @@ public class Node implements org.trie4j.Node{
 		return this;
 	}
 
-	private Node[] children;
 	private char[] letters;
-	private boolean terminated;
+	private boolean terminate;
+	private Node[] children;
+	private static Node[] emptyChildren = {};
 }
