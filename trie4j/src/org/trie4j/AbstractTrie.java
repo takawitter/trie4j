@@ -15,11 +15,15 @@
  */
 package org.trie4j;
 
+import java.util.Iterator;
+
 public abstract class AbstractTrie implements Trie{
 	@Override
-	public int findCommonPrefix(CharSequence chars, int start, int end) {
+	public int findWord(CharSequence chars, int start, int end, StringBuilder word){
 		for(int i = start; i < end; i++){
-			if(commonPrefixSearch(chars.subSequence(start, end).toString()).iterator().hasNext()){
+			Iterator<String> it = commonPrefixSearch(chars.subSequence(i, end).toString()).iterator();
+			if(it.hasNext()){
+				if(word != null) word.append(it.next());
 				return i;
 			}
 		}

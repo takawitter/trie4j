@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.trie4j.AbstractTrie;
-import org.trie4j.Trie;
 import org.trie4j.NodeVisitor;
+import org.trie4j.Trie;
 import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
@@ -63,7 +63,7 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 	}
 
 	@Override
-	public int findCommonPrefix(CharSequence chars, int start, int end) {
+	public int findWord(CharSequence chars, int start, int end, StringBuilder word){
 		TailCharIterator it = new TailCharIterator(tails, -1);
 		for(int i = start; i < end; i++){
 			Node node = root;
@@ -80,7 +80,10 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 					}
 				}
 				if(matched){
-					if(node.isTerminate()) return i;
+					if(node.isTerminate()){
+						if(word != null) word.append(chars, i, j + 1);
+						return i;
+					}
 				} else{
 					break;
 				}

@@ -52,6 +52,18 @@ public abstract class TrieTestSet {
 	}
 
 	@Test
+	public void testContains_8() throws Exception{
+		Trie t = trieWithWords("hell", "hello", "apple", "orange", "banana", "watermelon",
+				"peach", "kiwi", "cherry", "hassaku", 
+				"yokan", "yatsuhashi", "anmitsu", "zenzai", "shiratama",
+				"hiyokomanju", "zundamochi", "kuromitsu", "wasanbon", "botamochi",
+				"warabimochi", "jelly", "momo", "nori", "donburi", "engawa",
+				"gomokuni", "ikura"
+				);
+		Assert.assertFalse(t.contains("warashibe"));
+	}
+
+	@Test
 	public void testCPS_1() throws Exception{
 		Trie t = trieWithWords();
 		Assert.assertFalse(t.commonPrefixSearch("hello").iterator().hasNext());
@@ -78,6 +90,16 @@ public abstract class TrieTestSet {
 	}
 
 	@Test
+	public void testFindWord_1() throws Exception{
+		Trie t = trieWithWords("hello", "helloworld", "hi", "howsgoing", "hell", "helloworld2", "world");
+		String text = "This is the best sweets.";
+		StringBuilder b = new StringBuilder();
+		int i = t.findWord(text, 0, text.length(), b);
+		Assert.assertEquals(1, i);
+		Assert.assertEquals("hi", b.toString());
+	}
+
+	@Test
 	public void testPS_1() throws Exception{
 		Trie t = trieWithWords();
 		Assert.assertFalse(t.predictiveSearch("hello").iterator().hasNext());
@@ -96,10 +118,10 @@ public abstract class TrieTestSet {
 
 	@Test
 	public void testPS_3() throws Exception{
-		Trie t = trieWithWords("hello", "helloworld", "hell", "helloworld2");
+		Trie t = trieWithWords("hello", "helloworld1", "hell", "helloworld2");
 		Iterator<String> it = t.predictiveSearch("hello").iterator();
 		Assert.assertEquals("hello", it.next());
-		Assert.assertEquals("helloworld", it.next());
+		Assert.assertEquals("helloworld1", it.next());
 		Assert.assertEquals("helloworld2", it.next());
 		Assert.assertFalse(it.hasNext());
 	}

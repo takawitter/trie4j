@@ -103,7 +103,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	}
 
 	@Override
-	public int findCommonPrefix(CharSequence chars, int start, int end) {
+	public int findWord(CharSequence chars, int start, int end, StringBuilder word) {
 		for(int i = start; i < end; i++){
 			int nodeIndex = 0;
 			try{
@@ -115,7 +115,10 @@ public class DoubleArray extends AbstractTrie implements Trie{
 					int next = b + cid;
 					if(nodeIndex != check[next]) break;
 					nodeIndex = next;
-					if(term.get(nodeIndex)) return i;
+					if(term.get(nodeIndex)){
+						if(word != null) word.append(chars, i, j + 1);
+						return i;
+					}
 				}
 			} catch(ArrayIndexOutOfBoundsException e){
 				break;

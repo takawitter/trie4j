@@ -133,7 +133,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 
 	@Override
 	public Iterable<String> predictiveSearch(String prefix) {
-		List<String> ret = new ArrayList<String>();
+		Set<String> ret = new TreeSet<String>();
 		StringBuilder current = new StringBuilder();
 		char[] chars = prefix.toCharArray();
 		int charsLen = chars.length;
