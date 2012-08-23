@@ -16,10 +16,11 @@
 package org.trie4j.doublearray;
 
 import org.trie4j.Trie;
+import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
 import org.trie4j.tail.ConcatTailBuilder;
+import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
-import org.trie4j.util.LapTimer;
 
 public class TestWikipedia {
 	private static final int maxCount = 20000000;
@@ -29,7 +30,8 @@ public class TestWikipedia {
 
 	public static void main(String[] args) throws Exception{
 		System.out.println("--- building patricia trie ---");
-		Trie trie = new TailPatriciaTrie();
+		Trie trie = new PatriciaTrie();
+//		Trie trie = new TailPatriciaTrie(new ConcatTailBuilder());
 		int c = 0;
 		LapTimer t1 = new LapTimer();
 		for(String word : new WikipediaTitles(wikipediaFilename)){
@@ -42,9 +44,9 @@ public class TestWikipedia {
 
 		System.out.println("-- building double array.");
 		t1.lap();
-		Trie da = new TailDoubleArray(trie, 65536, new ConcatTailBuilder());
+//		Trie da = new TailDoubleArray(trie, 65536, new ConcatTailBuilder());
 //		Trie da = new DoubleArray(trie, 65536);
-//		Trie da = trie;
+		Trie da = trie;
 		trie = null;
 		System.out.println("done in " + t1.lap() + " millis.");
 		da.dump();

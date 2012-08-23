@@ -11,8 +11,8 @@ import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.tail.ConcatTailBuilder;
+import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
-import org.trie4j.util.LapTimer;
 
 public class LOUDSTrieWithConcatTailBuilderTest extends TrieTestSet{
 	@Override

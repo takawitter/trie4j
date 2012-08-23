@@ -33,8 +33,8 @@ public class TestWikipedia {
 	public static void main(String[] args) throws Exception{
 		System.out.println("--- recursive patricia trie ---");
 //		Trie trie = new org.trie4j.patricia.simple.PatriciaTrie();
-//		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
-		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie(new ConcatTailBuilder());
+		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
+//		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie(new ConcatTailBuilder());
 		int c = 0;
 		long sum = 0;
 		long lap = System.currentTimeMillis();
@@ -79,7 +79,7 @@ public class TestWikipedia {
 			}
 		});
 		System.out.println(cnt + " nodes have 1 child.");
-		investigate(trie, charCount);
+//		investigate(trie, charCount);
 //*
 //		dump(trie);
 		System.out.println("-- pack");

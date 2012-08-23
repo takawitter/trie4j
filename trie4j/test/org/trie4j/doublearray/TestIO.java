@@ -25,8 +25,8 @@ import java.util.zip.GZIPOutputStream;
 
 import org.junit.Test;
 import org.trie4j.Trie;
+import org.trie4j.test.LapTimer;
 import org.trie4j.util.CharsetUtil;
-import org.trie4j.util.LapTimer;
 
 public class TestIO {
 	private static final int maxCount = 2000000;

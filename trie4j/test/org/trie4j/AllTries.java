@@ -13,8 +13,8 @@ import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
 import org.trie4j.tail.ConcatTailBuilder;
 import org.trie4j.tail.SuffixTrieTailBuilder;
+import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
-import org.trie4j.util.LapTimer;
 
 public class AllTries {
 	private static Iterable<String> newWords() throws IOException{
