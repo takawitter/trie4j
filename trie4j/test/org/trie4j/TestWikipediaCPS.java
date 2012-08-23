@@ -64,7 +64,6 @@ public class TestWikipediaCPS {
 			long start = System.currentTimeMillis();
 			System.out.println("---- packing... ----");
 			((org.trie4j.patricia.multilayer.MultilayerPatriciaTrie)trie).pack();
-			((org.trie4j.patricia.multilayer.MultilayerPatriciaTrie)trie).morePack();
 			System.out.println("---- packing done in millis: " + (System.currentTimeMillis() - start));
 			doSearches(trie);
 		}

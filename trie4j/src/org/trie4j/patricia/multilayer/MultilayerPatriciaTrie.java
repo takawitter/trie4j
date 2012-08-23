@@ -183,12 +183,7 @@ public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
 		if(labelTrie != null) return;
 		labelTrie = new LabelTrie();
 		root.pushLabel(labelTrie);
-	}
-
-	public void morePack(){
-		if(labelTrie != null){
-			labelTrie.pargeChildren();
-		}
+		labelTrie.pargeChildren();
 	}
 
 	public void visit(NodeVisitor visitor){

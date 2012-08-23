@@ -91,7 +91,6 @@ public class Test {
 		if(trie instanceof MultilayerPatriciaTrie){
 			System.out.println("--pack--");
 			((MultilayerPatriciaTrie)trie).pack();
-			((MultilayerPatriciaTrie)trie).morePack();
 			System.out.println("--dump--");
 			trie.traverse(new NodeVisitor() {
 				@Override

@@ -53,7 +53,6 @@ public class AllTries {
 			long b = 0;
 			for(String word : newWords()){ lt.lap(); t.insert(word); b += lt.lap();}
 			((MultilayerPatriciaTrie)t).pack();
-			((MultilayerPatriciaTrie)t).morePack();
 			b += lt.lap();
 			long c = lapContains(t);
 			log("MultilayerPatriciaTrie, %d, %d", b, c);

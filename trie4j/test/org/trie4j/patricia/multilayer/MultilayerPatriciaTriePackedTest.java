@@ -9,7 +9,6 @@ public class MultilayerPatriciaTriePackedTest extends TrieTestSet{
 		MultilayerPatriciaTrie trie = new MultilayerPatriciaTrie();
 		for(String w : words) trie.insert(w);
 		trie.pack();
-		trie.morePack();
 		return trie;
 	}
 }

@@ -22,49 +22,53 @@ import org.trie4j.patricia.multilayer.node.InternalCharsNode;
 import org.trie4j.patricia.multilayer.node.LabelTrieNode;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
 import org.trie4j.tail.ConcatTailBuilder;
+import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 
 public class TestWikipedia {
-	private static final int maxCount = 2000000;
+	private static final int maxCount = 20000000;
 	// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
-	private static final String wikipediaFile = "data/jawiki-20120220-all-titles-in-ns0.gz";
-//	private static final String wikipediaFile = "data/enwiki-20120403-all-titles-in-ns0.gz";
+//	private static final String wikipediaFile = "data/jawiki-20120220-all-titles-in-ns0.gz";
+	private static final String wikipediaFile = "data/enwiki-20120403-all-titles-in-ns0.gz";
 
 	public static void main(String[] args) throws Exception{
-		System.out.println("--- recursive patricia trie ---");
 //		Trie trie = new org.trie4j.patricia.simple.PatriciaTrie();
-		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
-//		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie(new ConcatTailBuilder());
-		int c = 0;
-		long sum = 0;
-		long lap = System.currentTimeMillis();
-		int charCount = 0;
-		for(String word : new WikipediaTitles(wikipediaFile)){
-			long d = System.currentTimeMillis();
-			trie.insert(word);
-			sum += System.currentTimeMillis() - d;
-			charCount += word.length();
-			if(c % 100000 == 0){
-				d = System.currentTimeMillis() - lap;
-				long free = Runtime.getRuntime().freeMemory();
-				System.out.println(
-						c + "," + free + "," + Runtime.getRuntime().maxMemory() + "," + d
-						);
-				lap = System.currentTimeMillis();
-			}
-			c++;
-			if(c == maxCount) break;
-		}
-		System.out.println(c + "entries in ja wikipedia titles.");
-		System.out.println("insert time: " + sum + " millis.");
+//		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
+		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie(new ConcatTailBuilder());
+		LapTimer t = new LapTimer();
 
-		System.out.println("-- insert done.");
-//		if(trie instanceof TailPatriciaTrie){
-//			((TailPatriciaTrie) trie).pack();
-//		}
-		System.gc();
-		Thread.sleep(1000);
-		System.out.println(Runtime.getRuntime().freeMemory() + " bytes free.");
+		{
+			System.out.println("-- building first trie.");
+			int c = 0;
+			int charCount = 0;
+			long sum = 0;
+			for(String word : new WikipediaTitles(wikipediaFile)){
+				t.lap();
+				trie.insert(word);
+				sum += t.lap();
+				charCount += word.length();
+				c++;
+				if(c == maxCount) break;
+			}
+			System.out.println(String.format(
+					"-- done in %d millis with %d entries, %d chars"
+					, sum / 1000000, c, charCount
+					));
+		}
+
+		{
+			System.out.println("-- building second trie.");
+			t.lap();
+//			trie = new org.trie4j.louds.LOUDSTrie(trie, 65536, new ConcatTailBuilder());
+			trie = new org.trie4j.doublearray.DoubleArray(trie, 65536);
+			System.out.println(String.format(
+					"-- done in %d millis.", t.lap() / 1000000
+					));
+			System.gc();
+			System.gc();
+			System.out.println("waiting 10 seconds.");
+			Thread.sleep(10000);
+		}
 
 		final AtomicInteger cnt = new AtomicInteger();
 		trie.traverse(new NodeVisitor() {
@@ -83,21 +87,21 @@ public class TestWikipedia {
 //*
 //		dump(trie);
 		System.out.println("-- pack");
-		lap = System.currentTimeMillis();
+		t.lap();
 		if(trie instanceof MultilayerPatriciaTrie){
 			MultilayerPatriciaTrie mt = (MultilayerPatriciaTrie)trie;
 			mt.pack();
-			System.out.println("-- pack done in " + (System.currentTimeMillis() - lap) + " millis.");
+			System.out.println("-- pack done in " + (t.lap() / 1000000) + " millis.");
 	//		dump(trie);
 			System.gc();
 			Thread.sleep(1000);
 			System.out.println(Runtime.getRuntime().freeMemory() + " bytes free.");
-			investigate(mt, charCount);
+			investigate(mt);
 		}
 //*/
 	}
 
-	private static void investigate(Trie trie, int charCount)
+	private static void investigate(Trie trie)
 	throws Exception{
 		System.out.println("-- dump root children.");
 		for(Node n : trie.getRoot().getChildren()){
@@ -148,7 +152,6 @@ public class TestWikipedia {
 		System.out.println("node: " + n.intValue());
 		System.out.println("leaf: " + l.intValue());
 		System.out.println("label node: " + ln.intValue());
-		System.out.println("total char count: " + charCount);
 		System.out.println("total char count in trie: " + chars.intValue());
 
 		System.out.println("verifying trie...");
@@ -176,9 +179,6 @@ public class TestWikipedia {
 		if(trie instanceof TailPatriciaTrie){
 //			((TailPatriciaTrie) trie).pack();
 			System.out.println("tail length: " + ((TailPatriciaTrie) trie).getTailBuilder().getTails().length());
-		}
-		if(trie instanceof MultilayerPatriciaTrie){
-			((MultilayerPatriciaTrie)trie).morePack();
 		}
 		final Trie t = trie;
 		new Thread(new Runnable() {
