@@ -5,7 +5,7 @@
 
 ---
 Sample codes:
-
+```java
 	import org.trie4j.doublearray.DoubleArray;
 	import org.trie4j.louds.LOUDSTrie;
 	import org.trie4j.patricia.simple.PatriciaTrie;
@@ -29,7 +29,7 @@ Sample codes:
 			lt.commonPrefixSearch("Wonderful!"); // -> {"Wonder", "Wonderful!"} as Iterable<String>
 		}
 	}
-
+```
 ---
 Currently Trie4J has following implementations:
 * patricia trie
