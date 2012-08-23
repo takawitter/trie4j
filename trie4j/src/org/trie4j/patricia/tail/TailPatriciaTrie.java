@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.trie4j.AbstractTrie;
-import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
 import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
@@ -193,6 +192,7 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 		return Collections.emptyList();
 	}
 
+	@Override
 	public void insert(String text){
 		char[] letters = text.toCharArray();
 		if(letters.length == 0){
@@ -200,10 +200,6 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 		} else{
 			root = root.insertChild(letters,  0, tails, tailBuilder);
 		}
-	}
-
-	public void visit(NodeVisitor visitor){
-		root.visit(visitor, 0, tails);
 	}
 
 	@Override
