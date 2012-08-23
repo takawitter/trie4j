@@ -6,29 +6,29 @@
 ---
 Sample codes:
 ```java
-	import org.trie4j.doublearray.DoubleArray;
-	import org.trie4j.louds.LOUDSTrie;
-	import org.trie4j.patricia.simple.PatriciaTrie;
-	import org.trie4j.tail.ConcatTailBuilder;
+import org.trie4j.doublearray.DoubleArray;
+import org.trie4j.louds.LOUDSTrie;
+import org.trie4j.patricia.simple.PatriciaTrie;
+import org.trie4j.tail.ConcatTailBuilder;
 
-	public class Sample {
-		public static void main(String[] args) throws Exception{
-			PatriciaTrie pat = new PatriciaTrie();
-			pat.insert("Hello");
-			pat.insert("World");
-			pat.insert("Wonder");
-			pat.insert("Wonderful!");
-			pat.contains("Hello"); // -> true
-			pat.predictiveSearch("Wo"); // -> {"Wonder", "Wonderful!", "World"} as Iterable<String>
-			
-			DoubleArray da = new DoubleArray(pat); // construct DoubleArray from existing Trie
-			da.contains("World"); // -> true
-			
-			LOUDSTrie lt = new LOUDSTrie(pat, 1024, new ConcatTailBuilder()); // construct LOUDS succinct Trie with ConcatTailBuilder
-			lt.contains("Wonderful!"); // -> true
-			lt.commonPrefixSearch("Wonderful!"); // -> {"Wonder", "Wonderful!"} as Iterable<String>
-		}
+public class Sample {
+	public static void main(String[] args) throws Exception{
+		PatriciaTrie pat = new PatriciaTrie();
+		pat.insert("Hello");
+		pat.insert("World");
+		pat.insert("Wonder");
+		pat.insert("Wonderful!");
+		pat.contains("Hello"); // -> true
+		pat.predictiveSearch("Wo"); // -> {"Wonder", "Wonderful!", "World"} as Iterable<String>
+		
+		DoubleArray da = new DoubleArray(pat); // construct DoubleArray from existing Trie
+		da.contains("World"); // -> true
+		
+		LOUDSTrie lt = new LOUDSTrie(pat, 1024, new ConcatTailBuilder()); // construct LOUDS succinct Trie with ConcatTailBuilder
+		lt.contains("Wonderful!"); // -> true
+		lt.commonPrefixSearch("Wonderful!"); // -> {"Wonder", "Wonderful!"} as Iterable<String>
 	}
+}
 ```
 ---
 Currently Trie4J has following implementations:
