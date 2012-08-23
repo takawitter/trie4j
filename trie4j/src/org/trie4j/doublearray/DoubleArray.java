@@ -45,6 +45,9 @@ import org.trie4j.util.Pair;
 public class DoubleArray extends AbstractTrie implements Trie{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 
+	public DoubleArray() {
+	}
+
 	public DoubleArray(Trie trie){
 		this(trie, 65536);
 	}
