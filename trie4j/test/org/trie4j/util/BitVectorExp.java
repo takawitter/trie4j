@@ -6,6 +6,7 @@ import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.NodeVisitor;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
+import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 
 public class BitVectorExp {
