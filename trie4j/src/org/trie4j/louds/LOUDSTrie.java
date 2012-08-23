@@ -96,6 +96,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		return bv;
 	}
 
+	@Override
 	public Node getRoot(){
 		return new LOUDSNode(0);
 	}

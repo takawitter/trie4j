@@ -230,6 +230,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		}
 	}
 
+	@Override
 	public void dump(){
 		System.out.println("array size: " + base.length);
 		System.out.print("      |");

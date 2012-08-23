@@ -265,6 +265,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		}
 	}
 
+	@Override
 	public void dump(){
 		System.out.println("--- dump " + getClass().getSimpleName() + " ---");
 		System.out.println("array size: " + base.length);
@@ -378,6 +379,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		System.out.println();
 	}
 
+	@Override
 	public void trimToSize(){
 		int sz = last + 1;
 		int[] nb = new int[sz];
