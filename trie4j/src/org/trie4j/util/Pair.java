@@ -27,10 +27,9 @@ public class Pair<T, U> {
 
 	@Override
 	public String toString() {
-		StringBuilder b = new StringBuilder();
-		b.append("first: ").append(first)
-			.append(", second: ").append(second);
-		return b.toString();
+		return new StringBuilder("first: ").append(first)
+			.append(", second: ").append(second)
+			.toString();
 	}
 
 	public T getFirst() {
