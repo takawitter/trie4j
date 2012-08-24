@@ -64,15 +64,10 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 			if(index >= labels.length){
 				extend();
 			}
-			if(node.isTerminate()){
-				term.set(index);
-			}
-			Node[] children = node.getChildren();
-			if(children != null){
-				for(Node c : children){
-					bv.append1();
-					queue.offerLast(c);
-				}
+			if(node.isTerminate()) term.set(index);
+			for(Node c : node.getChildren()){
+				bv.append1();
+				queue.offerLast(c);
 			}
 			bv.append0();
 			char[] letters = node.getLetters();
