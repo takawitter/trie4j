@@ -138,14 +138,11 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
 			int child = getChildNode(nodeId, chars[charsIndex]);
 			if(child == -1) return ret;
-			int ti = tail[child];
-			if(ti != -1){
-				tci.setIndex(ti);
-				while(tci.hasNext()){
-					charsIndex++;
-					if(charsLen <= charsIndex) return ret;
-					if(chars[charsIndex] != tci.next()) return ret;
-				}
+			tci.setIndex(tail[child]);
+			while(tci.hasNext()){
+				charsIndex++;
+				if(charsLen <= charsIndex) return ret;
+				if(chars[charsIndex] != tci.next()) return ret;
 			}
 			if(term.get(child)){
 				ret.add(new String(chars, 0, charsIndex + 1));
@@ -168,14 +165,11 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 			charsIndexBack = charsIndex;
 			int child = getChildNode(nodeId, chars[charsIndex]);
 			if(child == -1) return ret;
-			int ti = tail[child];
-			if(ti != -1){
-				tci.setIndex(ti);
-				while(tci.hasNext()){
-					charsIndex++;
-					if(charsIndex >= charsLen) break;
-					if(chars[charsIndex] != tci.next()) return ret;
-				}
+			tci.setIndex(tail[child]);
+			while(tci.hasNext()){
+				charsIndex++;
+				if(charsIndex >= charsLen) break;
+				if(chars[charsIndex] != tci.next()) return ret;
 			}
 			nodeId = child;
 		}
@@ -189,11 +183,8 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 
 			StringBuilder b = new StringBuilder(element.getSecond());
 			b.append(labels[nid]);
-			int ti = tail[nid];
-			if(ti != -1){
-				tci.setIndex(ti);
-				while(tci.hasNext()) b.append(tci.next());
-			}
+			tci.setIndex(tail[nid]);
+			while(tci.hasNext()) b.append(tci.next());
 			String letter = b.toString();
 			if(term.get(nid)) ret.add(letter);
 			int s = bv.select0(nid) + 1;
