@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.trie4j.Node;
-import org.trie4j.patricia.multilayer.labeltrie.LabelNode;
-import org.trie4j.patricia.multilayer.node.LabelTrieNode;
 
 public class Algorithms {
 	public static void traverseDepth(NodeVisitor visitor, Node root){
@@ -39,20 +37,6 @@ public class Algorithms {
 				char[] letters = node.getLetters();
 				if(letters != null && letters.length > 0){
 					System.out.print(letters);
-				} else if(node instanceof LabelTrieNode){
-					LabelNode ln = ((LabelTrieNode)node).getLettersNode();
-					if(ln != null){
-						do{
-							System.out.print("#");
-							char[] l = ln.getLetters();
-							for(int i = 0; i < l.length; i++){
-								System.out.print(l[l.length - i - 1]);
-							}
-							ln = ln.getParent();
-						} while(ln != null);
-					} else{
-						System.out.print("<empty>");
-					}
 				}
 				if(node.isTerminate()){
 					System.out.print("*");
