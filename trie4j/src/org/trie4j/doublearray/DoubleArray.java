@@ -64,7 +64,108 @@ public class DoubleArray extends AbstractTrie implements Trie{
 
 	@Override
 	public Node getRoot() {
-		throw new UnsupportedOperationException();
+		return new DoubleArrayNode(0);
+	}
+
+	private class DoubleArrayNode implements Node{
+		public DoubleArrayNode(int nodeId){
+			this.nodeId = nodeId;
+		}
+
+		public DoubleArrayNode(int nodeId, char firstChar){
+			this.nodeId = nodeId;
+			this.firstChar = firstChar;
+		}
+
+		@Override
+		public boolean isTerminate() {
+			int nid = nodeId;
+			while(true){
+				CharSequence children = listupChildChars(nid);
+				int n = children.length();
+				if(n == 0) return term.get(nid);
+				int b = base[nid];
+				char firstChar = children.charAt(0);
+				int firstNid = b + charToCode[firstChar];
+				if(n > 1){
+					return term.get(nid);
+				} else{
+					if(term.get(firstNid)) return true;
+					nid = firstNid; 
+				}
+			}
+		}
+
+		@Override
+		public char[] getLetters() {
+			StringBuilder ret = new StringBuilder();
+			ret.append(firstChar);
+			int nid = nodeId;
+			while(true){
+				CharSequence children = listupChildChars(nid);
+				int n = children.length();
+				if(n == 0) return ret.toString().toCharArray();
+				int b = base[nid];
+				char firstChar = children.charAt(0);
+				int firstNid = b + charToCode[firstChar];
+				if(n > 1){
+					return ret.toString().toCharArray();
+				} else{
+					ret.append(firstChar);
+					if(term.get(firstNid)) return ret.toString().toCharArray();
+					nid = firstNid; 
+				}
+			}
+		}
+
+		@Override
+		public Node[] getChildren() {
+			int nid = nodeId;
+			while(true){
+				CharSequence children = listupChildChars(nid);
+				int n = children.length();
+				if(n == 0) return emptyNodes;
+				int b = base[nid];
+				char firstChar = children.charAt(0);
+				int firstNid = b + charToCode[firstChar];
+				if(n > 1){
+					List<Node> ret = new ArrayList<Node>();
+					ret.add(new DoubleArrayNode(firstNid, firstChar));
+					for(int i = 1; i < n; i++){
+						char c = children.charAt(i);
+						ret.add(new DoubleArrayNode(b + charToCode[c], c));
+					}
+					return ret.toArray(emptyNodes);
+				} else{
+					nid = firstNid; 
+				}
+			}
+		}
+
+		@Override
+		public Node getChild(char c) {
+			int code = charToCode[c];
+			if(code == -1) return null;
+			int nid = base[nodeId] + c;
+			if(nid >= 0 && nid < check.length && check[nid] == nodeId) return new DoubleArrayNode(nid, c);
+			return null;
+		}
+
+		private CharSequence listupChildChars(int nodeId){
+			StringBuilder b = new StringBuilder();
+			int bs = base[nodeId];
+			for(char c : chars){
+				int code = charToCode[c];
+				int nid = bs + code;
+				if(nid >= 0 && nid < check.length && check[nid] == nodeId){
+					b.append(c);
+				}
+			}
+			return b;
+		}
+		
+		private char firstChar = 0;
+		private int nodeId;
 	}
 
 	@Override
@@ -232,6 +333,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 
 	@Override
 	public void dump(){
+		super.dump();
 		System.out.println("array size: " + base.length);
 		System.out.print("      |");
 		for(int i = 0; i < 16; i++){
@@ -271,10 +373,6 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		System.out.println();
 		System.out.println("chars count: " + chars.size());
 		System.out.println();
-	}
-
-	@Override
-	public void trimToSize() {
 	}
 
 	static class WorkNode{
@@ -467,4 +565,5 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	private BitSet term;
 	private Set<Character> chars = new TreeSet<Character>();
 	private char[] charToCode = new char[Character.MAX_VALUE];
+	private static final Node[] emptyNodes = {};
 }
