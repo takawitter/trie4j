@@ -99,22 +99,16 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		@Override
 		public char[] getLetters() {
 			StringBuilder ret = new StringBuilder();
-			ret.append(firstChar);
+			if(firstChar != 0) ret.append(firstChar);
 			int nid = nodeId;
 			while(true){
+				if(term.get(nid)) return ret.toString().toCharArray();
 				CharSequence children = listupChildChars(nid);
 				int n = children.length();
-				if(n == 0) return ret.toString().toCharArray();
-				int b = base[nid];
-				char firstChar = children.charAt(0);
-				int firstNid = b + charToCode[firstChar];
-				if(n > 1){
-					return ret.toString().toCharArray();
-				} else{
-					ret.append(firstChar);
-					if(term.get(firstNid)) return ret.toString().toCharArray();
-					nid = firstNid; 
-				}
+				if(n == 0 || n > 1) return ret.toString().toCharArray();
+				char c = children.charAt(0);
+				ret.append(c);
+				nid = base[nid] + charToCode[c]; 
 			}
 		}
 
@@ -126,19 +120,10 @@ public class DoubleArray extends AbstractTrie implements Trie{
 				int n = children.length();
 				if(n == 0) return emptyNodes;
 				int b = base[nid];
-				char firstChar = children.charAt(0);
-				int firstNid = b + charToCode[firstChar];
-				if(n > 1){
-					List<Node> ret = new ArrayList<Node>();
-					ret.add(new DoubleArrayNode(firstNid, firstChar));
-					for(int i = 1; i < n; i++){
-						char c = children.charAt(i);
-						ret.add(new DoubleArrayNode(b + charToCode[c], c));
-					}
-					return ret.toArray(emptyNodes);
-				} else{
-					nid = firstNid; 
+				if(n > 1 || term.get(nid)){
+					return listupChildNodes(b, children);
 				}
+				nid = b + charToCode[children.charAt(0)];
 			}
 		}
 
@@ -155,15 +140,25 @@ public class DoubleArray extends AbstractTrie implements Trie{
 			StringBuilder b = new StringBuilder();
 			int bs = base[nodeId];
 			for(char c : chars){
-				int code = charToCode[c];
-				int nid = bs + code;
+				int nid = bs + charToCode[c];
 				if(nid >= 0 && nid < check.length && check[nid] == nodeId){
 					b.append(c);
 				}
 			}
 			return b;
 		}
-		
+
+		private Node[] listupChildNodes(int base, CharSequence chars){
+			int n = chars.length();
+			Node[] ret = new Node[n];
+			for(int i = 0; i < n; i++){
+				char c = chars.charAt(i);
+				char code = charToCode[c];
+				ret[i] = new DoubleArrayNode(base + code, c);
+			}
+			return ret;
+		}
+				
 		private char firstChar = 0;
 		private int nodeId;
 	}

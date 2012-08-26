@@ -42,6 +42,7 @@ import org.trie4j.Trie;
 import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
+import org.trie4j.tail.TailUtil;
 import org.trie4j.util.Pair;
 
 public class TailDoubleArray extends AbstractTrie implements Trie{
@@ -74,7 +75,57 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 
 	@Override
 	public Node getRoot() {
-		throw new UnsupportedOperationException();
+		return new TailDoubleArrayNode(0);
+	}
+
+	private class TailDoubleArrayNode implements Node{
+		public TailDoubleArrayNode(int nodeId){
+			this.nodeId = nodeId;
+		}
+
+		public TailDoubleArrayNode(int nodeId, char firstChar){
+			this.nodeId = nodeId;
+			this.firstChar = firstChar;
+		}
+
+		@Override
+		public boolean isTerminate() {
+			return term.get(nodeId);
+		}
+
+		@Override
+		public char[] getLetters() {
+			StringBuilder ret = new StringBuilder();
+			ret.append(firstChar);
+			TailUtil.appendChars(tails, tail[nodeId],ret);
+			return ret.toString().toCharArray();
+		}
+
+		@Override
+		public Node[] getChildren() {
+			List<Node> ret = new ArrayList<Node>();
+			int b = base[nodeId];
+			for(char c : chars){
+				int code = charToCode[c];
+				int nid = b + code;
+				if(nid >= 0 && nid < check.length && check[nid] == nodeId){
+					ret.add(new TailDoubleArrayNode(nid, c));
+				}
+			}
+			return ret.toArray(emptyNodes);
+		}
+
+		@Override
+		public Node getChild(char c) {
+			int code = charToCode[c];
+			if(code == -1) return null;
+			int nid = base[nodeId] + c;
+			if(nid >= 0 && nid < check.length && check[nid] == nodeId) return new TailDoubleArrayNode(nid, c);
+			return null;
+		}
+
+		private char firstChar = 0;
+		private int nodeId;
 	}
 
 	@Override
@@ -267,6 +318,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 
 	@Override
 	public void dump(){
+		super.dump();
 		System.out.println("--- dump " + getClass().getSimpleName() + " ---");
 		System.out.println("array size: " + base.length);
 		System.out.println("last index of valid element: " + last);
@@ -567,4 +619,5 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	private CharSequence tails;
 	private Set<Character> chars = new TreeSet<Character>();
 	private char[] charToCode = new char[Character.MAX_VALUE];
+	private static final Node[] emptyNodes = {};
 }
