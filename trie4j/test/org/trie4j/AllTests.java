@@ -20,10 +20,11 @@ import org.junit.runners.Suite;
 import org.trie4j.doublearray.DoubleArrayTest;
 import org.trie4j.doublearray.OptimizedTailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest;
-import org.trie4j.doublearray.TailDoubleArrayWithSuffixTrieTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithConcatTailBuilderTest;
+import org.trie4j.doublearray.TailDoubleArrayWithSuffixTrieTailBuilderTest;
 import org.trie4j.louds.LOUDSTrieWithConcatTailBuilderTest;
 import org.trie4j.louds.LOUDSTrieWithSuffixTrieTailBuilderTest;
+import org.trie4j.louds.NoTailLOUDSTrieTest;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTriePackedTest;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrieTest;
 import org.trie4j.patricia.simple.PatriciaTrieTest;
@@ -46,9 +47,9 @@ import org.trie4j.util.SuccinctBitVectorTest;
 	TailDoubleArrayWithSuffixTrieTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithConcatTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest.class,
+	NoTailLOUDSTrieTest.class,
 	LOUDSTrieWithConcatTailBuilderTest.class,
 	LOUDSTrieWithSuffixTrieTailBuilderTest.class,
-	//WikipediaTitlesTest.class,
 })
 public class AllTests {
 }
