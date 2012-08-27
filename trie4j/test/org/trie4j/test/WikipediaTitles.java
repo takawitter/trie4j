@@ -1,7 +1,9 @@
 package org.trie4j.test;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
@@ -10,6 +12,7 @@ import java.util.zip.GZIPInputStream;
 
 public class WikipediaTitles implements Iterable<String>{
 	public WikipediaTitles(String gzFilePath) throws IOException{
+		if(!new File(gzFilePath).exists()) throw new FileNotFoundException(gzFilePath);
 		this.path = gzFilePath;
 	}
 
