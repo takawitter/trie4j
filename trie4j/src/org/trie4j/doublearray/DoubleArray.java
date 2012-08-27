@@ -158,7 +158,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 			}
 			return ret;
 		}
-				
+
 		private char firstChar = 0;
 		private int nodeId;
 	}
@@ -324,6 +324,13 @@ public class DoubleArray extends AbstractTrie implements Trie{
 			chars.add(c);
 			charToCode[c] = v;
 		}
+	}
+
+	@Override
+	public void trimToSize(){
+		int sz = last + 1;
+		base = Arrays.copyOf(base, sz);
+		check = Arrays.copyOf(check, sz);
 	}
 
 	@Override
@@ -495,14 +502,10 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		int sz = base.length;
 		int nsz = Math.max(i, (int)(sz * 1.5));
 //		System.out.println("extend to " + nsz);
-		int[] nb = new int[nsz];
-		System.arraycopy(base, 0, nb, 0, sz);
-		Arrays.fill(nb, sz, nsz, BASE_EMPTY);
-		base = nb;
-		int[] nc = new int[nsz];
-		System.arraycopy(check, 0, nc, 0, sz);
-		Arrays.fill(nc, sz, nsz, -1);
-		check = nc;
+		base = Arrays.copyOf(base, nsz);
+		Arrays.fill(base, sz, nsz, BASE_EMPTY);
+		check = Arrays.copyOf(check, nsz);
+		Arrays.fill(check, sz, nsz, -1);
 	}
 
 	private int findFirstEmptyCheck(){
@@ -552,11 +555,13 @@ public class DoubleArray extends AbstractTrie implements Trie{
 			firstEmptyCheck = findNextEmptyCheck(firstEmptyCheck);
 		}
 		check[index] = id;
+		last = Math.max(last, index);
 	}
 
 	private int[] base;
 	private int[] check;
 	private int firstEmptyCheck = 1;
+	private int last;
 	private BitSet term;
 	private Set<Character> chars = new TreeSet<Character>();
 	private char[] charToCode = new char[Character.MAX_VALUE];

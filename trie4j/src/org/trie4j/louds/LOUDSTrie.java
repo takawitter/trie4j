@@ -23,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -253,12 +254,8 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 
 	public void trimToSize(){
 		if(labels.length > size){
-			char[] nl = new char[size];
-			System.arraycopy(labels, 0, nl, 0, size);
-			labels = nl;
-			int[] nt = new int[size];
-			System.arraycopy(tail, 0, nt, 0, size);
-			tail = nt;
+			labels = Arrays.copyOf(labels, size);
+			tail = Arrays.copyOf(tail, size);
 		}
 		bv.trimToSize();
 	}
@@ -341,12 +338,8 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 
 	private void extend(){
 		int nsz = (int)(labels.length * 1.2);
-		char[] nl = new char[nsz];
-		System.arraycopy(labels, 0, nl, 0, labels.length);
-		labels = nl;
-		int[] nt = new int[nsz];
-		System.arraycopy(tail, 0, nt, 0, tail.length);
-		tail = nt;
+		labels = Arrays.copyOf(labels, nsz);
+		tail = Arrays.copyOf(tail, nsz);
 	}
 
 	private SuccinctBitVector bv;

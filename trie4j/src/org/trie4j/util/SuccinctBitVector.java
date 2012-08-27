@@ -23,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class SuccinctBitVector implements Serializable{
 	public SuccinctBitVector(){
@@ -52,19 +53,13 @@ public class SuccinctBitVector implements Serializable{
 
 	public void trimToSize(){
 		int vectorSize = size / 8 + 1;
-		byte[] nv = new byte[vectorSize];
-		System.arraycopy(vector, 0, nv, 0, Math.min(vector.length, vectorSize));
-		vector = nv;
+		vector = Arrays.copyOf(vector, Math.min(vector.length, vectorSize));
 		int blockSize = CACHE_WIDTH / 8;
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 		int countCacheSize0 = size;
-		int[] ncc0 = new int[countCacheSize0];
-		System.arraycopy(countCache0, 0, ncc0, 0, Math.min(countCache0.length, countCacheSize0));
-		countCache0 = ncc0;
+		countCache0 = Arrays.copyOf(countCache0, Math.min(countCache0.length, countCacheSize0));
 		int indexCacheSize = size + 1;
-		int[] nic = new int[indexCacheSize];
-		System.arraycopy(indexCache0, 0, nic, 0, Math.min(indexCache0.length, indexCacheSize));
-		indexCache0 = nic;
+		indexCache0 = Arrays.copyOf(indexCache0, Math.min(indexCache0.length, indexCacheSize));
 	}
 
 	public void append1(){
@@ -382,17 +377,11 @@ public class SuccinctBitVector implements Serializable{
 
 	private void extend(){
 		int vectorSize = (int)(vector.length * 1.2) + 1;
-		byte[] nv = new byte[vectorSize];
-		System.arraycopy(vector, 0, nv, 0, vector.length);
-		vector = nv;
+		vector = Arrays.copyOf(vector, vectorSize);
 		int blockSize = CACHE_WIDTH / 8;
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
-		int[] nc0 = new int[size];
-		System.arraycopy(countCache0, 0, nc0, 0, countCache0.length);
-		countCache0 = nc0;
-		int[] nic = new int[size + 1];
-		System.arraycopy(indexCache0, 0, nic, 0, indexCache0.length);
-		indexCache0 = nic;
+		countCache0 = Arrays.copyOf(countCache0, size);
+		indexCache0 = Arrays.copyOf(indexCache0, size);
 	}
 
 	private static final int CACHE_WIDTH = 64;

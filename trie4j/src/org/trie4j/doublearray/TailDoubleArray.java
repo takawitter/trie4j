@@ -434,15 +434,9 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	@Override
 	public void trimToSize(){
 		int sz = last + 1;
-		int[] nb = new int[sz];
-		System.arraycopy(base, 0, nb, 0, sz);
-		base = nb;
-		int[] nc = new int[sz];
-		System.arraycopy(check, 0, nc, 0, sz);
-		check = nc;
-		int[] nt = new int[sz];
-		System.arraycopy(tail, 0, nt, 0, sz);
-		tail = nt;
+		base = Arrays.copyOf(base, sz);
+		check = Arrays.copyOf(check, sz);
+		tail = Arrays.copyOf(tail, sz);
 		if(tails instanceof StringBuilder){
 			((StringBuilder)tails).trimToSize();
 		}
@@ -546,18 +540,12 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		int sz = base.length;
 		int nsz = Math.max(i, (int)(sz * 1.5));
 //		System.out.println("extend to " + nsz);
-		int[] nb = new int[nsz];
-		System.arraycopy(base, 0, nb, 0, sz);
-		Arrays.fill(nb, sz, nsz, BASE_EMPTY);
-		base = nb;
-		int[] nc = new int[nsz];
-		System.arraycopy(check, 0, nc, 0, sz);
-		Arrays.fill(nc, sz, nsz, -1);
-		check = nc;
-		int[] nt = new int[nsz];
-		System.arraycopy(tail, 0, nt, 0, sz);
-		Arrays.fill(nt, sz, nsz, -1);
-		tail = nt;
+		base = Arrays.copyOf(base, nsz);
+		Arrays.fill(base, sz, nsz, BASE_EMPTY);
+		check = Arrays.copyOf(check, nsz);
+		Arrays.fill(check, sz, nsz, -1);
+		tail = Arrays.copyOf(tail, nsz);
+		Arrays.fill(tail, sz, nsz, -1);
 	}
 
 	private int findFirstEmptyCheck(){
