@@ -1,3 +1,9 @@
+<html>
+<head>
+<meta name="author" content="Takao Nakaguchi" />
+<meta name="description" content="Trie4J - various trie implementation for Java" />
+<meta name="keywords" content="Trie,Java,DoubleArray,Double Array,LOUDS,PATRICIA" />
+</head>
 # Trie4J - various trie implementation for Java.
 
 Trie4J is the sort of collection of varios trie implementation.
@@ -8,49 +14,52 @@ Trie4J is the sort of collection of varios trie implementation.
 ---
 ### Performance comparison:
 with 1.27 million words and 10.04 million chars contained in jawiki-20120220-all-titles-in-ns0.gz .
+<br/>on MacOS X(10.7), Core i7 2.5GHz, Java 6.
 <table>
-<tr><th colspan="2">class</th><th>notes</th><th>build(ms)</th><th>contains(ms)</th><th>size(MB)</th></tr>
-<tr><td colspan="2">java.util.HashSet</td><td /><td align="right">417</td><td align="right">453</td><td align="right">160.4</td></tr>
-<tr><td colspan="2">java.util.TreeSet</td><td /><td align="right">402</td><td align="right">261</td><td align="right">160.2</td></tr>
+<tr><th colspan="2">class</th><th>notes</th><th>build1(ms)<sup>*1</sup></th><th>build2(ms)<sup>*2</sup></th><th>contains(ms)</th><th>size(MB)</th></tr>
+<tr><td colspan="2">java.util.HashSet</td><td /><td align="right">417</td><td></td><td align="right">453</td><td align="right">160.4</td></tr>
+<tr><td colspan="2">java.util.TreeSet</td><td /><td align="right">402</td><td></td><td align="right">261</td><td align="right">160.2</td></tr>
 <tr>
   <td colspan="2">PatriciaTrie(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/patricia/simple/PatriciaTrie.java">src</a>)</td>
-  <td>Simple PATRICIA Trie.</td><td align="right">442</td><td align="right">244</td><td align="right">104.6</td>
+  <td>Simple PATRICIA Trie.</td><td align="right">442</td><td/><td align="right">244</td><td align="right">104.6</td>
 </tr>
 <tr>
   <td rowspan="2">TailPatriciaTrie(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/patricia/tail/TailPatriciaTrie.java">src</a>)</td>
   <td>SuffixTrieTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/SuffixTrieTailBuilder.java">src</a>)</td>
   <td rowspan="2">PATRICIA Trie with tail string.</td>
-  <td align="right">1,220</td><td align="right">271</td><td align="right">100.8</td></tr>
+  <td align="right">1,220</td><td/><td align="right">271</td><td align="right">100.8</td></tr>
 <tr>
   <td>ConcatTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/ConcatTailBuilder.java">src</a>)</td>
-  <td align="right">517</td><td align="right">241</td><td align="right">86.0</td>
+  <td align="right">517</td><td/><td align="right">241</td><td align="right">86.0</td>
 </tr>
 <tr>
   <td colspan="2">DoubleArray(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/DoubleArray.java">src</a>)</td>
   <td>Simple Double Array Trie.</td>
-  <td align="right">471</td><td align="right">106</td><td align="right">48.5</td>
+  <td/><td align="right">471</td><td align="right">106</td><td align="right">48.5</td>
 </tr>
 <tr>
   <td rowspan="2">TailDoubleArray(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/TailDoubleArray.java">src</a>)</td>
   <td>SuffixTrieTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/SuffixTrieTailBuilder.java">src</a>)</td>
   <td rowspan="2">Double Array Trie with tail string.</td>
-  <td align="right">3,078</td><td align="right">175</td><td align="right">37.3</td>
+  <td/><td align="right">3,078</td><td align="right">175</td><td align="right">37.3</td>
 </tr>
 <tr>
   <td>ConcatTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/ConcatTailBuilder.java">src</a>)</td>
-  <td align="right">2,597</td><td align="right">157</td><td align="right">42.0</td>
+  <td/><td align="right">2,597</td><td align="right">157</td><td align="right">42.0</td>
 </tr>
 <tr>
   <td rowspan="2">LOUDSTrie(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/louds/LOUDSTrie.java">src</a>)</td>
   <td>SuffixTrieTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/SuffixTrieTailBuilder.java">src</a>)</td>
   <td rowspan="2">LOUDS Succinct Trie with tail string.</td>
-  <td align="right">777</td><td align="right">508</td><td align="right">18.1</td>
+  <td/><td align="right">777</td><td align="right">508</td><td align="right">18.1</td>
 </tr>
 <tr>
   <td>ConcatTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/ConcatTailBuilder.java">src</a>)</td>
-  <td align="right">234</td><td align="right">483</td><td align="right">22.9</td>
+  <td/><td align="right">234</td><td align="right">483</td><td align="right">22.9</td>
 </tr>
 </table>
+*1 - build from string array.
+<br/>*2 - build from other trie(org.trie4j.patricia.simple.PatriciaTrie).
 
 ---
 
@@ -115,3 +124,5 @@ These classes are experimental and not contained in trie4j-SNAPSHOT.jar.
 
 * TAIL配列付き最適化ダブルアレイ(OptimizedTailDoubleArray([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/OptimizedTailDoubleArray.java)))
     * 未使用領域の開放やcheck配列をshortにした。実装は完了していますが、大規模なデータ(数万レコード超)には対応できません。
+
+</html>
