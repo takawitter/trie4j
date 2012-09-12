@@ -95,9 +95,9 @@ public class Sample {
 ### additional notes.
 
 These classes are experimental and not contained in trie4j-SNAPSHOT.jar.
-* Multilayer Patricia Trie ([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/patricia/multilayer/MultilayerPatriciaTrie.java))
+* Multilayer Patricia Trie ([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src.kitchensink/org/trie4j/patricia/multilayer/MultilayerPatriciaTrie.java))
  * optimizes size using Multilayer Trie but no significant improvement.
-* DoubleArray Array with Tail Array and some optimization ([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/OptimizedTailDoubleArray.java))
+* DoubleArray Array with Tail Array and some optimization ([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src.kitchensink/org/trie4j/doublearray/OptimizedTailDoubleArray.java))
  * feature completed but can't support large data (over several 10 thoudsants).
 
 ---
@@ -117,12 +117,12 @@ These classes are experimental and not contained in trie4j-SNAPSHOT.jar.
 極力中間オブジェクトを作らないようになっており、オブジェクト生成/破棄によるパフォーマンス低下を起こさないよう実装されています。
 
 下記クラスは実験的実装で、trie4j-SNAPSHOT.jarには含まれません(src.kitchensinkにあります)。
-* 多層パトリシアトライ(MultilayerPatriciaTrie([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/patricia/multilayer/MultilayerPatriciaTrie.java)))
+* 多層パトリシアトライ(MultilayerPatriciaTrie([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src.kitchensink/org/trie4j/patricia/multilayer/MultilayerPatriciaTrie.java)))
  * [多層トライの実験結果 - やた＠はてな日記](http://d.hatena.ne.jp/s-yata/20101223/1293143633)
    を参考に、接尾辞を格納するトライを内包しサイズを最適化した実装です。また、子を持たないノード、子を一つだけ持つノード、それぞれの終端/非終端版と、様々な種類のノードを用意して
    使い分けることで、極力無駄なメモリを使わないようにしています。但しパトリシアトライのままなので、あまり効率が上がっていません。
 
-* TAIL配列付き最適化ダブルアレイ(OptimizedTailDoubleArray([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/OptimizedTailDoubleArray.java)))
+* TAIL配列付き最適化ダブルアレイ(OptimizedTailDoubleArray([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src.kitchensink/org/trie4j/doublearray/OptimizedTailDoubleArray.java)))
     * 未使用領域の開放やcheck配列をshortにした。実装は完了していますが、大規模なデータ(数万レコード超)には対応できません。
 
 </html>
