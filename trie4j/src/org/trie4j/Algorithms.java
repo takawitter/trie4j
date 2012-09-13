@@ -1,13 +1,31 @@
 package org.trie4j;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.trie4j.Node;
+import org.trie4j.util.Pair;
 
 public class Algorithms {
-	public static void traverseDepth(NodeVisitor visitor, Node root){
+	public static void traverseByBreadth(NodeVisitor visitor, Node root){
+		Queue<Pair<Node, Integer>> nodeAndNests = new LinkedList<Pair<Node, Integer>>();
+		nodeAndNests.offer(Pair.create(root, 0));
+		Pair<Node, Integer> nodeAndNest = null;
+		while((nodeAndNest = nodeAndNests.poll()) != null){
+			Node node = nodeAndNest.getFirst();
+			int nest = nodeAndNest.getSecond();
+			visitor.visit(node, nest);
+			nest++;
+			for(Node child : node.getChildren()){
+				nodeAndNests.offer(Pair.create(child, nest));
+			}
+		}
+	}
+
+	public static void traverseByDepth(NodeVisitor visitor, Node root){
 		traverseDepth(visitor, root, 0);
 	}
 
