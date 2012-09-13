@@ -42,5 +42,11 @@ public class StringUtil {
 		}
 	}
 
+	public static String repeted(String str, int count){
+		StringBuilder b = new StringBuilder();
+		for(int i = 0; i < count; i++) b.append(str);
+		return b.toString();
+	}
+
 	private static final String utf8 = "UTF8";
 }
