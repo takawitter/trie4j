@@ -36,7 +36,7 @@ public abstract class AbstractTrie implements Trie{
 
 	@Override
 	public void traverse(NodeVisitor visitor){
-		Algorithms.traverseDepth(visitor, getRoot());
+		Algorithms.traverseByDepth(visitor, getRoot());
 	}
 
 	@Override
