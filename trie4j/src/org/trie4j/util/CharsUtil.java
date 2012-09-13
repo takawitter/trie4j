@@ -16,6 +16,8 @@
 package org.trie4j.util;
 
 public class CharsUtil {
+	public static char[] emptyChars = {};
+
 	public static char[] revert(char[] values){
 		int n = values.length;
 		char[] ret = new char[n];
