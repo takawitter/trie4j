@@ -18,7 +18,6 @@ package org.trie4j;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
-import org.trie4j.patricia.multilayer.node.InternalCharsNode;
 import org.trie4j.patricia.multilayer.node.LabelTrieNode;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
 import org.trie4j.tail.ConcatTailBuilder;
@@ -28,8 +27,18 @@ import org.trie4j.test.WikipediaTitles;
 public class TestWikipedia {
 	private static final int maxCount = 20000000;
 	// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
-//	private static final String wikipediaFile = "data/jawiki-20120220-all-titles-in-ns0.gz";
-	private static final String wikipediaFile = "data/enwiki-20120403-all-titles-in-ns0.gz";
+	private static final String wikipediaFile = "data/jawiki-20120220-all-titles-in-ns0.gz";
+//	private static final String wikipediaFile = "data/enwiki-20120403-all-titles-in-ns0.gz";
+
+	public static void main2(String[] args) throws Exception{
+		int base = 137320;
+		int c = 0;
+		for(String word : new WikipediaTitles(wikipediaFile)){
+			if(c > base) System.out.println(word);
+			c++;
+			if(c == (base + 100)) break;
+		}
+	}
 
 	public static void main(String[] args) throws Exception{
 //		Trie trie = new org.trie4j.patricia.simple.PatriciaTrie();
@@ -38,7 +47,7 @@ public class TestWikipedia {
 		LapTimer t = new LapTimer();
 
 		{
-			System.out.println("-- building first trie.");
+			System.out.println("-- building first trie: " + trie.getClass().getName());
 			int c = 0;
 			int charCount = 0;
 			long sum = 0;
@@ -59,17 +68,25 @@ public class TestWikipedia {
 		{
 			System.out.println("-- building second trie.");
 			t.lap();
-//			trie = new org.trie4j.louds.LOUDSTrie(trie, 65536, new ConcatTailBuilder());
 			trie = new org.trie4j.doublearray.DoubleArray(trie, 65536);
+//			trie = new org.trie4j.doublearray.TailDoubleArray(trie, 65536, new ConcatTailBuilder());
+//			trie = new org.trie4j.louds.LOUDSTrie(trie, 65536, new ConcatTailBuilder());
+//			trie = new org.trie4j.louds.LOUDSTrie(trie, 65536, new SuffixTrieTailBuilder());
+			trie.trimToSize();
 			System.out.println(String.format(
 					"-- done in %d millis.", t.lap() / 1000000
 					));
 			System.gc();
 			System.gc();
 			System.out.println("waiting 10 seconds.");
-			Thread.sleep(10000);
+//			Thread.sleep(10000);
 		}
 
+		System.out.println("-- dump trie.");
+		trie.dump();
+		return;
+/*
+		System.out.println("-- traversing trie.");
 		final AtomicInteger cnt = new AtomicInteger();
 		trie.traverse(new NodeVisitor() {
 			@Override
@@ -110,7 +127,7 @@ public class TestWikipedia {
 		System.out.println();
 		System.out.println("-- count elements.");
 		final AtomicInteger count = new AtomicInteger();
-		trie.traverse(new NodeVisitor() {
+		Algorithms.traverseByDepth(trie.getRoot(), new NodeVisitor() {
 			public boolean visit(Node node, int nest) {
 				if(node.isTerminate()) count.incrementAndGet();
 				return true;
@@ -124,7 +141,7 @@ public class TestWikipedia {
 		final AtomicInteger l = new AtomicInteger();
 		final AtomicInteger ln = new AtomicInteger();
 		final AtomicInteger chars = new AtomicInteger();
-		trie.traverse(new NodeVisitor() {
+		Algorithms.traverseByDepth(trie.getRoot(), new NodeVisitor() {
 				public boolean visit(Node node, int nest) {
 					if(node.isTerminate()){
 						l.incrementAndGet();

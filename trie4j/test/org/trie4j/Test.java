@@ -42,7 +42,7 @@ public class Test {
 			System.out.println("insert \"" + w + "\"");
 			trie.insert(w);
 			System.out.println("--dump--");
-			trie.traverse(new NodeVisitor() {
+			Algorithms.traverseByDepth(trie.getRoot(), new NodeVisitor() {
 				@Override
 				public boolean visit(Node node, int nest) {
 					for(int i = 0; i < nest; i++){
@@ -92,7 +92,7 @@ public class Test {
 			System.out.println("--pack--");
 			((MultilayerPatriciaTrie)trie).pack();
 			System.out.println("--dump--");
-			trie.traverse(new NodeVisitor() {
+			Algorithms.traverseByDepth(trie.getRoot(), new NodeVisitor() {
 				@Override
 				public boolean visit(Node node, int nest) {
 					for(int i = 0; i < nest; i++){

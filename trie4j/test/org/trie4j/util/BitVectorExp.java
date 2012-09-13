@@ -2,6 +2,7 @@ package org.trie4j.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.trie4j.Algorithms;
 import org.trie4j.Node;
 import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
@@ -28,7 +29,7 @@ public class BitVectorExp {
 		t.lap("trie building done. %d words.", c);
 		final SuccinctBitVector bv = new SuccinctBitVector(5000000);
 		final AtomicInteger nodeCount = new AtomicInteger();
-		trie.traverse(new NodeVisitor() {
+		Algorithms.traverseByDepth(trie.getRoot(), new NodeVisitor() {
 			@Override
 			public boolean visit(Node node, int nest) {
 				Node[] children = node.getChildren();
@@ -45,7 +46,7 @@ public class BitVectorExp {
 		});
 		trie = null;
 		t.lap("done. %d nodes inserted. do rank and select", nodeCount.intValue());
-		for(int i = 0; i < c; i += 10){
+		for(int i = 0; i < c; i += 100){
 			int count = bv.rank(i, true);
 			bv.select(count, true);
 		}

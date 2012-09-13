@@ -25,14 +25,14 @@ public class AlgorithmsTest {
 	public void test_traverseByBreadth(){
 		final StringBuilder letters = new StringBuilder();
 		final StringBuilder nests = new StringBuilder();
-		Algorithms.traverseByBreadth(new NodeVisitor() {
+		Algorithms.traverseByBreadth(root, new NodeVisitor() {
 			@Override
 			public boolean visit(Node node, int nest) {
 				letters.append(node.getLetters());
 				nests.append(nest);
 				return true;
 			}
-		}, root);
+		});
 		Assert.assertEquals("abcdefgh", letters.toString());
 		Assert.assertEquals("01112223", nests.toString());
 	}
@@ -41,14 +41,14 @@ public class AlgorithmsTest {
 	public void test_traverseByDepth(){
 		final StringBuilder letters = new StringBuilder();
 		final StringBuilder nests = new StringBuilder();
-		Algorithms.traverseByDepth(new NodeVisitor() {
+		Algorithms.traverseByDepth(root, new NodeVisitor() {
 			@Override
 			public boolean visit(Node node, int nest) {
 				letters.append(node.getLetters());
 				nests.append(nest);
 				return true;
 			}
-		}, root);
+		});
 		Assert.assertEquals("abefhcdg", letters.toString());
 		Assert.assertEquals("01223112", nests.toString());
 	}
