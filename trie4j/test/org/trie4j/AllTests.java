@@ -37,6 +37,7 @@ import org.trie4j.util.SuccinctBitVectorTest;
 @Suite.SuiteClasses({
 	SuffixTrieTailBuilderTest.class,
 	SuccinctBitVectorTest.class,
+	AlgorithmsTest.class,
 	PatriciaTrieTest.class,
 	MultilayerPatriciaTrieTest.class,
 	MultilayerPatriciaTriePackedTest.class,
