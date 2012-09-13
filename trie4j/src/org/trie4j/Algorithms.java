@@ -10,7 +10,7 @@ import org.trie4j.Node;
 import org.trie4j.util.Pair;
 
 public class Algorithms {
-	public static void traverseByBreadth(NodeVisitor visitor, Node root){
+	public static void traverseByBreadth(Node root, NodeVisitor visitor){
 		Queue<Pair<Node, Integer>> nodeAndNests = new LinkedList<Pair<Node, Integer>>();
 		nodeAndNests.offer(Pair.create(root, 0));
 		Pair<Node, Integer> nodeAndNest = null;
@@ -25,7 +25,7 @@ public class Algorithms {
 		}
 	}
 
-	public static void traverseByDepth(NodeVisitor visitor, Node root){
+	public static void traverseByDepth(Node root, NodeVisitor visitor){
 		traverseDepth(visitor, root, 0);
 	}
 

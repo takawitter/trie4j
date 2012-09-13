@@ -22,7 +22,6 @@ public interface Trie {
 	Iterable<String> commonPrefixSearch(String query);
 	Iterable<String> predictiveSearch(String prefix);
 	void insert(String word);
-	void traverse(NodeVisitor visitor);
 	void dump();
 	void trimToSize();
 }
