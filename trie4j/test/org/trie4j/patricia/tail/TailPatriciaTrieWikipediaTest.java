@@ -3,6 +3,7 @@ package org.trie4j.patricia.tail;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.trie4j.Algorithms;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.NodeVisitor;
@@ -66,7 +67,7 @@ public class TailPatriciaTrieWikipediaTest {
 
 	private static void dump(Trie trie){
 		System.out.println("--dump--");
-		trie.traverse(new NodeVisitor() {
+		Algorithms.traverseByDepth(trie.getRoot(), new NodeVisitor() {
 			@Override
 			public boolean visit(Node node, int nest) {
 				for(int i = 0; i < nest; i++){
