@@ -34,6 +34,9 @@ public class AbstractWikipediaTest {
 		return first;
 	}
 
+	protected void afterVerification(Trie trie){
+	}
+
 	@Test
 	public void test() throws Exception{
 		Trie trie = createFirstTrie();
@@ -53,7 +56,7 @@ public class AbstractWikipediaTest {
 
 		Trie second = trie;
 		try{
-			getClass().getMethod("buildSecondTrie", Trie.class);
+			getClass().getDeclaredMethod("buildSecondTrie", Trie.class);
 			System.out.print("building second trie: ");
 			t.lap();
 			second = buildSecondTrie(trie);
@@ -77,5 +80,6 @@ public class AbstractWikipediaTest {
 			}
 		}
 		System.out.println("done in " + (sum / 1000000) + " millis with " + c + " words.");
+		afterVerification(second);
 	}
 }
