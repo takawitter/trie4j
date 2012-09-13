@@ -1,6 +1,22 @@
+/*
+ * Copyright 2012 Takao Nakaguchi
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.trie4j;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -17,7 +33,7 @@ public class Algorithms {
 		while((nodeAndNest = nodeAndNests.poll()) != null){
 			Node node = nodeAndNest.getFirst();
 			int nest = nodeAndNest.getSecond();
-			visitor.visit(node, nest);
+			if(!visitor.visit(node, nest)) return;
 			nest++;
 			for(Node child : node.getChildren()){
 				nodeAndNests.offer(Pair.create(child, nest));
@@ -26,23 +42,25 @@ public class Algorithms {
 	}
 
 	public static void traverseByDepth(Node root, NodeVisitor visitor){
-		traverseDepth(visitor, root, 0);
-	}
-
-	private static boolean traverseDepth(NodeVisitor visitor, Node node, int nest){
-		if(!visitor.visit(node, nest)) return false;
-		Node[] children = node.getChildren();
-		if(children == null) return true;
-		nest++;
-		for(Node c : children){
-			if(!traverseDepth(visitor, c, nest)) return false;
+		Deque<Pair<Node, Integer>> nodeAndNests = new LinkedList<Pair<Node, Integer>>();
+		nodeAndNests.offer(Pair.create(root, 0));
+		Pair<Node, Integer> nodeAndNest = null;
+		while((nodeAndNest = nodeAndNests.poll()) != null){
+			Node node = nodeAndNest.getFirst();
+			int nest = nodeAndNest.getSecond();
+			if(!visitor.visit(node, nest)) return;
+			nest++;
+			Node[] children = node.getChildren();
+			int n = children.length;
+			for(int i = n - 1; i >= 0; i--){
+				nodeAndNests.offerFirst(Pair.create(children[i], nest));
+			}
 		}
-		return true;
 	}
 
 	public static void dump(Node root){
 		final AtomicInteger c = new AtomicInteger();
-		traverseDepth(new NodeVisitor() {
+		traverseByDepth(root, new NodeVisitor() {
 			@Override
 			public boolean visit(Node node, int nest) {
 				for(int i = 0; i < nest; i++){
@@ -62,7 +80,7 @@ public class Algorithms {
 				System.out.println();
 				return true;
 			}
-		}, root, 0);
+		});
 	}
 
 	public static boolean contains(Node root, String text){
