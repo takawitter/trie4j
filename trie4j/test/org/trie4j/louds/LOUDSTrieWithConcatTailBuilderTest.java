@@ -2,9 +2,11 @@ package org.trie4j.louds;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.trie4j.Algorithms;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
@@ -25,6 +27,8 @@ public class LOUDSTrieWithConcatTailBuilderTest extends TrieTestSet{
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
 		LOUDSTrie lt = new LOUDSTrie(trie);
+		System.out.println(lt.getBv());
+		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));
 		}

@@ -15,12 +15,61 @@
  */
 package org.trie4j.louds;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.trie4j.AbstractWikipediaTest;
+import org.trie4j.Algorithms;
+import org.trie4j.Node;
+import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
-import org.trie4j.louds.LOUDSTrie;
+import org.trie4j.tail.SuffixTrieTailBuilder;
 
 public class LOUDSTrieWikipediaTest extends AbstractWikipediaTest{
+	@Override
 	protected Trie buildSecondTrie(Trie first) {
-		return new LOUDSTrie(first);
+		bv.resetCounts();
+		LOUDSTrie t = new LOUDSTrie(first, 65536, new SuffixTrieTailBuilder(), bv);
+		return t;
 	}
+
+	@Override
+	protected void afterVerification(Trie trie) throws Exception{
+		LOUDSTrie t = (LOUDSTrie)trie;
+		System.out.println("select0 time: " + (bv.getSelect0Time() / 1000000) + ", count: " + bv.getSelect0Count());
+		System.out.println("next0 time: " + (bv.getNext0Time() / 1000000) + ", count: " + bv.getNext0Count());
+		System.out.println("rank1 time: " + (bv.getRank1Time() / 1000000) + ", count: " + bv.getRank1Count());
+
+		final Map<Integer, List<Integer>> childrenCounts = new TreeMap<Integer, List<Integer>>(
+				new Comparator<Integer>() {
+					@Override
+					public int compare(Integer o1, Integer o2) {
+						return o2 - o1;
+					}
+				});
+		Algorithms.traverseByBreadth(t.getRoot(), new NodeVisitor() {
+			@Override
+			public boolean visit(Node node, int nest) {
+				int n = node.getChildren().length;
+				List<Integer> nodes = childrenCounts.get(n);
+				if(nodes == null){
+					nodes = new ArrayList<Integer>();
+					childrenCounts.put(n, nodes);
+				}
+				nodes.add(c++);
+				return c < 6189;
+			}
+			int c = 0;
+		});
+		for(Map.Entry<Integer, List<Integer>> entry : childrenCounts.entrySet()){
+			System.out.println(entry.getKey() + ": " + entry.getValue());
+		}
+
+		Thread.sleep(10000);
+	}
+
+	private MonitoredSuccinctBitVector bv = new MonitoredSuccinctBitVector(65536);
 }
