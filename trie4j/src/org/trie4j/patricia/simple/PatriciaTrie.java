@@ -25,6 +25,11 @@ import org.trie4j.NodeVisitor;
 
 public class PatriciaTrie extends AbstractTrie implements Trie{
 	@Override
+	public int size() {
+		return size;
+	}
+
+	@Override
 	public boolean contains(String text) {
 		Node node = root;
 		int n = text.length();
@@ -102,6 +107,7 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 
 	public void insert(String text){
 		root.insertChild(text.toCharArray(), 0);
+		size++;
 	}
 
 	public void visit(NodeVisitor visitor){
@@ -112,5 +118,6 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 		return root;
 	}
 
+	private int size;
 	private Node root = new Node();
 }

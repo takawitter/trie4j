@@ -39,6 +39,11 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 	}
 
 	@Override
+	public int size() {
+		return size;
+	}
+
+	@Override
 	public org.trie4j.Node getRoot() {
 		return new NodeAdapter(root, tails);
 	}
@@ -200,6 +205,7 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 		} else{
 			root = root.insertChild(letters,  0, tails, tailBuilder);
 		}
+		size++;
 	}
 
 	@Override
@@ -216,6 +222,7 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 		return tailBuilder;
 	}
 
+	private int size;
 	private Node root = new Node();
 	private TailBuilder tailBuilder;
 	private CharSequence tails;

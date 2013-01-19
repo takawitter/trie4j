@@ -57,6 +57,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 	}
 
 	public OptimizedTailDoubleArray(Trie trie, int arraySize, TailBuilder tb){
+		size = trie.size();
 		base = new int[arraySize];
 		Arrays.fill(base, BASE_EMPTY);
 		check = new short[arraySize];
@@ -80,6 +81,11 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 		}
 		build(root, nodeIndex, tb);
 		tails = tb.getTails();
+	}
+
+	@Override
+	public int size() {
+		return size;
 	}
 
 	@Override
@@ -275,6 +281,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 	public void save(OutputStream os) throws IOException{
 		BufferedOutputStream bos = new BufferedOutputStream(os);
 		DataOutputStream dos = new DataOutputStream(bos);
+		dos.writeInt(size);
 		dos.writeInt(base.length);
 		for(int v : base){
 			dos.writeInt(v);
@@ -304,6 +311,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 	public void load(InputStream is) throws IOException{
 		BufferedInputStream bis = new BufferedInputStream(is);
 		DataInputStream dis = new DataInputStream(bis);
+		size = dis.readInt();
 		int len = dis.readInt();
 		base = new int[len];
 		for(int i = 0; i < len; i++){
@@ -634,6 +642,7 @@ public class OptimizedTailDoubleArray extends AbstractTrie implements Trie{
 		if(base[index] == BASE_EMPTY) base[index]--;
 	}
 
+	private int size;
 	private int[] base;
 	private short[] check;
 	private int[] tail;

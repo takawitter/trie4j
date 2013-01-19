@@ -60,6 +60,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	}
 
 	public TailDoubleArray(Trie trie, int arraySize, TailBuilder tb){
+		size = trie.size();
 		base = new int[arraySize];
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[arraySize];
@@ -71,6 +72,11 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 
 		build(trie.getRoot(), 0, tb);
 		tails = tb.getTails();
+	}
+
+	@Override
+	public int size() {
+		return size;
 	}
 
 	@Override
@@ -251,6 +257,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	public void save(OutputStream os) throws IOException{
 		BufferedOutputStream bos = new BufferedOutputStream(os);
 		DataOutputStream dos = new DataOutputStream(bos);
+		dos.writeInt(size);
 		dos.writeInt(base.length);
 		for(int v : base){
 			dos.writeInt(v);
@@ -281,6 +288,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	public void load(InputStream is) throws IOException{
 		BufferedInputStream bis = new BufferedInputStream(is);
 		DataInputStream dis = new DataInputStream(bis);
+		size = dis.readInt();
 		int len = dis.readInt();
 		base = new int[len];
 		for(int i = 0; i < len; i++){
@@ -598,6 +606,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		last = Math.max(last, index);
 	}
 
+	private int size;
 	private int[] base;
 	private int[] check;
 	private int[] tail;

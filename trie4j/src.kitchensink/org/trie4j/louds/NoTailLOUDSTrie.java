@@ -44,6 +44,7 @@ public class NoTailLOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	public NoTailLOUDSTrie(Trie orig, int bitSize){
+		size = orig.size();
 		bv = new SuccinctBitVector(bitSize);
 		labels = new char[bitSize / 2];
 		tail = new char[bitSize / 2][];
@@ -76,7 +77,12 @@ public class NoTailLOUDSTrie extends AbstractTrie implements Trie {
 				}
 			}
 		}
-		size = count;
+		nodeSize = count;
+	}
+
+	@Override
+	public int size() {
+		return size;
 	}
 
 	public SuccinctBitVector getBv() {
@@ -234,12 +240,12 @@ public class NoTailLOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	public void trimToSize(){
-		if(labels.length > size){
-			char[] nl = new char[size];
-			System.arraycopy(labels, 0, nl, 0, size);
+		if(labels.length > nodeSize){
+			char[] nl = new char[nodeSize];
+			System.arraycopy(labels, 0, nl, 0, nodeSize);
 			labels = nl;
-			char[][] nt = new char[size][];
-			System.arraycopy(tail, 0, nt, 0, size);
+			char[][] nt = new char[nodeSize][];
+			System.arraycopy(tail, 0, nt, 0, nodeSize);
 			tail = nt;
 		}
 		bv.trimToSize();
@@ -249,6 +255,7 @@ public class NoTailLOUDSTrie extends AbstractTrie implements Trie {
 		DataOutputStream dos = new DataOutputStream(os);
 		ObjectOutputStream oos = new ObjectOutputStream(os);
 		dos.writeInt(size);
+		dos.writeInt(nodeSize);
 		trimToSize();
 		for(char c : labels){
 			dos.writeChar(c);
@@ -269,12 +276,13 @@ public class NoTailLOUDSTrie extends AbstractTrie implements Trie {
 		DataInputStream dis = new DataInputStream(is);
 		ObjectInputStream ois = new ObjectInputStream(is);
 		size = dis.readInt();
-		labels = new char[size];
-		for(int i = 0; i < size; i++){
+		nodeSize = dis.readInt();
+		labels = new char[nodeSize];
+		for(int i = 0; i < nodeSize; i++){
 			labels[i] = dis.readChar();
 		}
-		tail = new char[size][];
-		for(int i = 0; i < size; i++){
+		tail = new char[nodeSize][];
+		for(int i = 0; i < nodeSize; i++){
 			int n = dis.readInt();
 			StringBuilder b = new StringBuilder(n);
 			for(int j = 0; j < n; j++){
@@ -329,10 +337,11 @@ public class NoTailLOUDSTrie extends AbstractTrie implements Trie {
 		tail = nt;
 	}
 
+	private int size;
 	private SuccinctBitVector bv;
 	private char[] labels;
 	private char[][] tail;
 	private BitSet term;
-	private int size;
+	private int nodeSize;
 	private static final char[] emptyChars = {};
 }

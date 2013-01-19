@@ -29,6 +29,11 @@ import org.trie4j.patricia.multilayer.node.CharsNode;
 import org.trie4j.patricia.multilayer.node.TerminalCharsNode;
 
 public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
+	@Override
+	public int size() {
+		return size;
+	}
+
 	public Node getRoot(){
 		return root;
 	}
@@ -171,12 +176,13 @@ public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
 		char[] letters = text.toCharArray();
 		if(root == null){
 			root = new TerminalCharsNode(letters);
-			return;
+		} else{
+			Node newRoot = root.insertChild(letters, 0);
+			if(newRoot != null){
+				root = newRoot;
+			}
 		}
-		Node newRoot = root.insertChild(letters, 0);
-		if(newRoot != null){
-			root = newRoot;
-		}
+		size++;
 	}
 
 	public void pack(){
@@ -198,6 +204,7 @@ public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
 	public void trimToSize() {
 	}
 
+	private int size;
 	private Node root = new CharsNode(new char[]{}) ;
 	private LabelTrie labelTrie;
 }

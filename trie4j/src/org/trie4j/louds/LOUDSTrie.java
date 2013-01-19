@@ -57,6 +57,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 
 	public LOUDSTrie(Trie orig, int bitSize, TailBuilder tb, SuccinctBitVector bv){
 		this.bv = bv;
+		size = orig.size();
 		labels = new char[bitSize / 2];
 		tail = new int[bitSize / 2];
 		term = new BitSet(bitSize / 2);
@@ -88,7 +89,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 				}
 			}
 		}
-		size = count;
+		nodeSize = count;
 		tails = tb.getTails();
 	}
 
@@ -131,6 +132,11 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 			}
 		}
 		return term.get(nodeId);
+	}
+
+	@Override
+	public int size() {
+		return size;
 	}
 
 	@Override
@@ -257,9 +263,9 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	public void trimToSize(){
-		if(labels.length > size){
-			labels = Arrays.copyOf(labels, size);
-			tail = Arrays.copyOf(tail, size);
+		if(labels.length > nodeSize){
+			labels = Arrays.copyOf(labels, nodeSize);
+			tail = Arrays.copyOf(tail, nodeSize);
 		}
 		bv.trimToSize();
 	}
@@ -268,6 +274,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		DataOutputStream dos = new DataOutputStream(os);
 		ObjectOutputStream oos = new ObjectOutputStream(os);
 		dos.writeInt(size);
+		dos.writeInt(nodeSize);
 		trimToSize();
 		for(char c : labels){
 			dos.writeChar(c);
@@ -289,12 +296,13 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		DataInputStream dis = new DataInputStream(is);
 		ObjectInputStream ois = new ObjectInputStream(is);
 		size = dis.readInt();
-		labels = new char[size];
-		for(int i = 0; i < size; i++){
+		nodeSize = dis.readInt();
+		labels = new char[nodeSize];
+		for(int i = 0; i < nodeSize; i++){
 			labels[i] = dis.readChar();
 		}
-		tail = new int[size];
-		for(int i = 0; i < size; i++){
+		tail = new int[nodeSize];
+		for(int i = 0; i < nodeSize; i++){
 			tail[i] = dis.readInt();
 		}
 		int ts = dis.readInt();
@@ -347,9 +355,10 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	private SuccinctBitVector bv;
+	private int size;
 	private char[] labels;
 	private int[] tail;
 	private CharSequence tails;
 	private BitSet term;
-	private int size;
+	private int nodeSize;
 }

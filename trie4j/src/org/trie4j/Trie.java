@@ -16,12 +16,40 @@
 package org.trie4j;
 
 public interface Trie {
+	/**
+	 * returns inserted word count(equals to terminal node count)
+	 * @return inserted word count
+	 */
+	int size();
+
+	/**
+	 * retuns root node.
+	 * @return root node.
+	 */
 	Node getRoot();
+
+	/**
+	 * returns true if trie contains word.
+	 * @param word word to check it contained.
+	 * @return true if trie contains word.
+	 */
 	boolean contains(String word);
+
 	int findWord(CharSequence chars, int start, int end, StringBuilder word);
+	
 	Iterable<String> commonPrefixSearch(String query);
+	
 	Iterable<String> predictiveSearch(String prefix);
+
+	/**
+	 * insert word.
+	 * @param word word to insert.
+	 */
 	void insert(String word);
 	void dump();
+
+	/**
+	 * shrink buffer size to fit actual node count.
+	 */
 	void trimToSize();
 }

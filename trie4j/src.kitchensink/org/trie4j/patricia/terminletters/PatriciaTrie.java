@@ -27,6 +27,11 @@ import org.trie4j.util.Pair;
 @Deprecated
 public class PatriciaTrie extends AbstractTrie implements Trie{
 	@Override
+	public int size() {
+		return size;
+	}
+
+	@Override
 	public boolean contains(String word) {
 		return root.contains(word.toCharArray(), 0);
 	}
@@ -129,9 +134,10 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 		char[] letters = text.toCharArray();
 		if(root == null){
 			root = new Node(letters);
-			return;
+		} else{
+			root.insertChild(letters, 0);
 		}
-		root.insertChild(letters, 0);
+		size++;
 	}
 	public void visit(NodeVisitor visitor){
 		root.visit(visitor, 0);
@@ -148,5 +154,6 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 	public void trimToSize() {
 	}
 
+	private int size;
 	private Node root;
 }

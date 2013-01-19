@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +52,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	}
 
 	public DoubleArray(Trie trie, int arraySize){
+		size = trie.size();
 		base = new int[arraySize];
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[arraySize];
@@ -60,6 +60,11 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		term = new BitSet(65536);
 
 		build(trie.getRoot(), 0);
+	}
+
+	@Override
+	public int size() {
+		return size;
 	}
 
 	@Override
@@ -277,6 +282,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	public void save(OutputStream os) throws IOException{
 		BufferedOutputStream bos = new BufferedOutputStream(os);
 		DataOutputStream dos = new DataOutputStream(bos);
+		dos.writeInt(size);
 		dos.writeInt(base.length);
 		for(int v : base){
 			dos.writeInt(v);
@@ -301,6 +307,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	public void load(InputStream is) throws IOException{
 		BufferedInputStream bis = new BufferedInputStream(is);
 		DataInputStream dis = new DataInputStream(bis);
+		size = dis.readInt();
 		int len = dis.readInt();
 		base = new int[len];
 		for(int i = 0; i < len; i++){
@@ -375,28 +382,6 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		System.out.println();
 		System.out.println("chars count: " + chars.size());
 		System.out.println();
-	}
-
-	static class WorkNode{
-		private char[] letters;
-		private int childNodeIndex;
-	}
-
-	private void build(Iterator<String> it){
-		String prev = null;
-		while(it.hasNext()){
-			String word = it.next();
-			if(prev == null){
-				prev = word;
-				continue;
-			}
-			int n = Math.min(prev.length(), word.length());
-			int i = 0;
-			for(;i < n; i++){
-				if(prev.charAt(i) != word.charAt(i)) break;
-			}
-			if(i == n) continue;
-		}
 	}
 
 	private void build(Node node, int nodeIndex){
@@ -558,6 +543,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		last = Math.max(last, index);
 	}
 
+	private int size;
 	private int[] base;
 	private int[] check;
 	private int firstEmptyCheck = 1;
