@@ -52,7 +52,11 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	public LOUDSTrie(Trie orig, int bitSize, TailBuilder tb){
-		bv = new SuccinctBitVector(bitSize);
+		this(orig, bitSize, tb, new SuccinctBitVector(bitSize));
+	}
+
+	public LOUDSTrie(Trie orig, int bitSize, TailBuilder tb, SuccinctBitVector bv){
+		this.bv = bv;
 		labels = new char[bitSize / 2];
 		tail = new int[bitSize / 2];
 		term = new BitSet(bitSize / 2);
