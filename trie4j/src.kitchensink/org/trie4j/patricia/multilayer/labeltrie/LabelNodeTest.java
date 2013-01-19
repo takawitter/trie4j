@@ -15,6 +15,7 @@
  */
 package org.trie4j.patricia.multilayer.labeltrie;
 
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,7 +89,7 @@ public class LabelNodeTest {
 		for(char[] c : charss){
 			System.out.println("--insert [" + new String(c) + "]--");
 			LabelNode n = root.insertChild(0, CharsUtil.revert(c), 0);
-			Algorithms.dump(root);
+			Algorithms.dump(root, new OutputStreamWriter(System.out));
 			System.out.println("--containsBottomup: " + n.containsBottomup(Arrays.copyOf(
 					c, c.length - 1), 0));
 		}
