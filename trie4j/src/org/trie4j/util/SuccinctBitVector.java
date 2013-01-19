@@ -47,6 +47,10 @@ public class SuccinctBitVector implements Serializable{
 		return b.toString();
 	}
 
+	public boolean isZero(int index){
+		return (vector[index / 8] & BITS[index % 8]) == 0;
+	}
+
 	public int size(){
 		return this.size;
 	}
