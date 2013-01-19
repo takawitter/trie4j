@@ -15,6 +15,7 @@
  */
 package org.trie4j;
 
+import java.io.OutputStreamWriter;
 import java.util.Iterator;
 
 public abstract class AbstractTrie implements Trie{
@@ -37,6 +38,6 @@ public abstract class AbstractTrie implements Trie{
 	@Override
 	public void dump(){
 		System.out.println("-- dump " + getClass().getName() + " --");
-		Algorithms.dump(getRoot());
+		Algorithms.dump(getRoot(), new OutputStreamWriter(System.out));
 	}
 }

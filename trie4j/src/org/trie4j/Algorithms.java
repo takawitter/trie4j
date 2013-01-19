@@ -15,6 +15,8 @@
  */
 package org.trie4j;
 
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -58,29 +60,31 @@ public class Algorithms {
 		}
 	}
 
-	public static void dump(Node root){
+	public static void dump(Node root, Writer writer){
+		final PrintWriter w = new PrintWriter(writer);
 		final AtomicInteger c = new AtomicInteger();
 		traverseByDepth(root, new NodeVisitor() {
 			@Override
 			public boolean visit(Node node, int nest) {
 				for(int i = 0; i < nest; i++){
-					System.out.print(" ");
+					w.print(" ");
 				}
 				if(c.incrementAndGet() > 100){
-					System.out.println("... over 100 nodes");
+					w.println("... over 100 nodes");
 					return false;
 				}
 				char[] letters = node.getLetters();
 				if(letters != null && letters.length > 0){
-					System.out.print(letters);
+					w.print(letters);
 				}
 				if(node.isTerminate()){
-					System.out.print("*");
+					w.print("*");
 				}
-				System.out.println();
+				w.println();
 				return true;
 			}
 		});
+		w.flush();
 	}
 
 	public static boolean contains(Node root, String text){
