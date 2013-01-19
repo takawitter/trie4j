@@ -30,11 +30,11 @@ public class AbstractWikipediaTest {
 		return new org.trie4j.patricia.tail.TailPatriciaTrie(new org.trie4j.tail.ConcatTailBuilder());
 	}
 	
-	protected Trie buildSecondTrie(Trie first){
+	protected Trie buildSecondTrie(Trie first) throws Exception{
 		return first;
 	}
 
-	protected void afterVerification(Trie trie){
+	protected void afterVerification(Trie trie) throws Exception{
 	}
 
 	@Test
