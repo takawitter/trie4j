@@ -201,7 +201,7 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 
 	@Override
 	public void insert(String text){
-		root = insert(root, text.toCharArray(), 0);
+		insert(root, text.toCharArray(), 0);
 /*		char[] letters = text.toCharArray();
 		if(letters.length == 0){
 			root.setTerminate(true);
@@ -211,7 +211,7 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 */
 	}
 
-	private Node insert(Node node, char[] letters, int offset){
+	private void insert(Node node, char[] letters, int offset){
 		TailCharIterator it = new TailCharIterator(tails, node.getTailIndex());
 		int count = 0;
 		boolean matchComplete = true;
@@ -248,7 +248,6 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 					size++;
 				}
 			}
-			return node;
 		} else{
 			if(!matchComplete){
 				// n: abcwz
@@ -275,7 +274,6 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 						(n1.getFirstLetter() < n2.getFirstLetter()) ?
 								new Node[]{n1, n2} : new Node[]{n2, n1});
 				size++;
-				return node;
 			} else{
 				// n: abc
 				// l: abcde
@@ -291,8 +289,7 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 					Pair<Node, Integer> ret = node.findNode(fc);
 					Node child = ret.getFirst();
 					if(child != null){
-						Node newChild = insert(child, letters, offset);
-						node.getChildren()[ret.getSecond()] = newChild;
+						insert(child, letters, offset);
 					} else{
 						int idx = (offset < letters.length) ?
 							tailBuilder.insert(letters, offset, letters.length - offset) :
@@ -301,7 +298,6 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 						size++;
 					}
 				}
-				return node;
 			}
 		}
 	}

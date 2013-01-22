@@ -16,11 +16,9 @@
 package org.trie4j.patricia.tail;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.trie4j.NodeVisitor;
-import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 
@@ -93,94 +91,6 @@ public class Node {
 
 	public void setChildren(Node[] children) {
 		this.children = children;
-	}
-
-	public Node insertChild(char[] letters, int offset, CharSequence tails, TailBuilder tailBuilder){
-		TailCharIterator it = new TailCharIterator(tails, tailIndex);
-		int count = 0;
-		boolean matchComplete = true;
-		while(it.hasNext() && offset < letters.length){
-			if(letters[offset] != it.next()){
-				matchComplete = false;
-				break;
-			}
-			offset++;
-			count++;
-		}
-		if(offset == letters.length){
-			if(it.hasNext()){
-				// n: abcde
-				// l: abc
-				char c = it.next();
-				int idx = it.getNextIndex();
-				if(!it.hasNext()){
-					idx = -1;
-				}
-				Node newChild = new Node(c, idx, this.terminate, this.children);
-				this.tailIndex = (count > 0) ? tailBuilder.insert(Arrays.copyOfRange(letters, offset - count, offset)) : -1;
-				this.terminate = true;
-				this.children = new Node[]{newChild};
-				return this;
-			} else{
-				// n: abc
-				// l: abc
-				terminate = true;
-				return this;
-			}
-		} else{
-			if(!matchComplete){
-				// n: abcwz
-				// l: abcde
-				int firstOffset = offset - count;
-				char n1Fc = it.current();
-				int n1Idx = it.getNextIndex();
-				if(!it.hasNext()){
-					n1Idx = -1;
-				}
-				Node n1 = new Node(n1Fc, n1Idx, terminate, children);
-				char n2Fc = letters[offset++];
-				int n2Idx = (offset < letters.length) ?
-						tailBuilder.insert(Arrays.copyOfRange(letters, offset, letters.length)) :
-						-1;
-				Node n2 = new Node(n2Fc, n2Idx, true);
-				if(count > 0){
-					this.tailIndex = tailBuilder.insert(letters, firstOffset, count);
-				} else{
-					this.tailIndex = -1;
-				}
-				this.terminate = false;
-				if(n1.getFirstLetter() < n2.getFirstLetter()){
-					this.children = new Node[]{n1, n2};
-				} else{
-					this.children = new Node[]{n2, n1};
-				}
-				return this;
-			} else{
-				// n: abc
-				// l: abcde
-				char fc = letters[offset++];
-				if(children == null){
-					int idx = (offset < letters.length) ?
-							tailBuilder.insert(Arrays.copyOfRange(letters, offset, letters.length)) :
-							-1;
-					this.children = new Node[]{new Node(fc, idx, true)};
-				} else{
-					// find node
-					Pair<Node, Integer> ret = findNode(fc);
-					Node child = ret.getFirst();
-					if(child != null){
-						Node newChild = child.insertChild(letters, offset, tails, tailBuilder);
-						children[ret.getSecond()] = newChild;
-					} else{
-						int idx = (offset < letters.length) ?
-							tailBuilder.insert(letters, offset, letters.length - offset) :
-							-1;
-						addChild(ret.getSecond(), new Node(fc, idx, true));
-					}
-				}
-				return this;
-			}
-		}
 	}
 
 	public void visit(NodeVisitor visitor, int nest, CharSequence tails) {
