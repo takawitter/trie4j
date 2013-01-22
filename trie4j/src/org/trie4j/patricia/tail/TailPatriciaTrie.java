@@ -16,6 +16,7 @@
 package org.trie4j.patricia.tail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.trie4j.Trie;
 import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
+import org.trie4j.util.Pair;
 
 public class TailPatriciaTrie extends AbstractTrie implements Trie{
 	public TailPatriciaTrie() {
@@ -199,13 +201,109 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 
 	@Override
 	public void insert(String text){
-		char[] letters = text.toCharArray();
+		root = insert(root, text.toCharArray(), 0);
+/*		char[] letters = text.toCharArray();
 		if(letters.length == 0){
 			root.setTerminate(true);
 		} else{
 			root = root.insertChild(letters,  0, tails, tailBuilder);
 		}
-		size++;
+*/
+	}
+
+	private Node insert(Node node, char[] letters, int offset){
+		TailCharIterator it = new TailCharIterator(tails, node.getTailIndex());
+		int count = 0;
+		boolean matchComplete = true;
+		while(it.hasNext() && offset < letters.length){
+			if(letters[offset] != it.next()){
+				matchComplete = false;
+				break;
+			}
+			offset++;
+			count++;
+		}
+		if(offset == letters.length){
+			if(it.hasNext()){
+				// n: abcde
+				// l: abc
+				char c = it.next();
+				int idx = it.getNextIndex();
+				if(!it.hasNext()){
+					idx = -1;
+				}
+				Node newChild = new Node(c, idx, node.isTerminate(), node.getChildren());
+				node.setTailIndex(
+						(count > 0) ? tailBuilder.insert(Arrays.copyOfRange(letters, offset - count, offset))
+								: -1
+						);
+				node.setChildren(new Node[]{newChild});
+				node.setTerminate(true);
+				size++;
+			} else{
+				// n: abc
+				// l: abc
+				if(!node.isTerminate()){
+					node.setTerminate(true);
+					size++;
+				}
+			}
+			return node;
+		} else{
+			if(!matchComplete){
+				// n: abcwz
+				// l: abcde
+				int firstOffset = offset - count;
+				char n1Fc = it.current();
+				int n1Idx = it.getNextIndex();
+				if(!it.hasNext()){
+					n1Idx = -1;
+				}
+				Node n1 = new Node(n1Fc, n1Idx, node.isTerminate(), node.getChildren());
+				char n2Fc = letters[offset++];
+				int n2Idx = (offset < letters.length) ?
+						tailBuilder.insert(Arrays.copyOfRange(letters, offset, letters.length)) :
+						-1;
+				Node n2 = new Node(n2Fc, n2Idx, true);
+				if(count > 0){
+					node.setTailIndex(tailBuilder.insert(letters, firstOffset, count));
+				} else{
+					node.setTailIndex(-1);
+				}
+				node.setTerminate(false);
+				node.setChildren(
+						(n1.getFirstLetter() < n2.getFirstLetter()) ?
+								new Node[]{n1, n2} : new Node[]{n2, n1});
+				size++;
+				return node;
+			} else{
+				// n: abc
+				// l: abcde
+				char fc = letters[offset++];
+				if(node.getChildren() == null){
+					int idx = (offset < letters.length) ?
+							tailBuilder.insert(Arrays.copyOfRange(letters, offset, letters.length)) :
+							-1;
+					node.setChildren(new Node[]{new Node(fc, idx, true)});
+					size++;
+				} else{
+					// find node
+					Pair<Node, Integer> ret = node.findNode(fc);
+					Node child = ret.getFirst();
+					if(child != null){
+						Node newChild = insert(child, letters, offset);
+						node.getChildren()[ret.getSecond()] = newChild;
+					} else{
+						int idx = (offset < letters.length) ?
+							tailBuilder.insert(letters, offset, letters.length - offset) :
+							-1;
+						node.addChild(ret.getSecond(), new Node(fc, idx, true));
+						size++;
+					}
+				}
+				return node;
+			}
+		}
 	}
 
 	@Override

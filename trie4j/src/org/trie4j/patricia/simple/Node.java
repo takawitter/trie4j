@@ -37,13 +37,25 @@ public class Node implements org.trie4j.Node{
 	public Node[] getChildren() {
 		return children;
 	}
+	
+	public void setChildren(Node[] children){
+		this.children = children;
+	}
 
 	public char[] getLetters() {
 		return letters;
 	}
+	
+	public void setLetters(char[] letters){
+		this.letters = letters;
+	}
 
 	public boolean isTerminate() {
 		return terminate;
+	}
+	
+	public void setTerminate(boolean terminate){
+		this.terminate = terminate;
 	}
 
 	public Node getChild(char c){
@@ -143,7 +155,7 @@ public class Node implements org.trie4j.Node{
 		}
 	}
 
-	private Node addChild(int index, Node n){
+	public Node addChild(int index, Node n){
 		Node[] newc = new Node[children.length + 1];
 		System.arraycopy(children,  0, newc, 0, index);
 		newc[index] = n;

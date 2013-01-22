@@ -72,6 +72,10 @@ public class Node {
 		return tailIndex;
 	}
 
+	public void setTailIndex(int tailIndex) {
+		this.tailIndex = tailIndex;
+	}
+
 	public TailCharIterator getSecondLetters(CharSequence tails){
 		return new TailCharIterator(tails, tailIndex);
 	}
@@ -85,6 +89,10 @@ public class Node {
 
 	public Node[] getChildren() {
 		return children;
+	}
+
+	public void setChildren(Node[] children) {
+		this.children = children;
 	}
 
 	public Node insertChild(char[] letters, int offset, CharSequence tails, TailBuilder tailBuilder){
@@ -194,7 +202,7 @@ public class Node {
 		return this;
 	}
 
-	private Pair<Node, Integer> findNode(char firstChar){
+	public Pair<Node, Integer> findNode(char firstChar){
 		int end = children.length;
 		if(end > 16){
 			int start = 0;

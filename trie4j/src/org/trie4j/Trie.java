@@ -46,6 +46,7 @@ public interface Trie {
 	 * @param word word to insert.
 	 */
 	void insert(String word);
+
 	void dump();
 
 	/**

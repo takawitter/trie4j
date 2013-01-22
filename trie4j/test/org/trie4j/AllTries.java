@@ -8,6 +8,8 @@ import java.util.TreeSet;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.LOUDSTrie;
+import org.trie4j.louds.LOUDSTriePP;
+import org.trie4j.louds.LOUDSTriePP2;
 import org.trie4j.louds.NoTailLOUDSTrie;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
@@ -95,7 +97,7 @@ public class AllTries {
 		int n = 2;
 		System.out.println("run each process " + n + " times.");
 		Process[] procs = {
-				new SetProcess("HashSet", HashSet.class),
+/*				new SetProcess("HashSet", HashSet.class),
 				new SetProcess("TreeSet", TreeSet.class),
 				new TrieProcess("PatriciaTrie"){
 					public Pair<Long, Long> run() throws IOException {
@@ -112,7 +114,7 @@ public class AllTries {
 						return runForTrie(new TailPatriciaTrie(new ConcatTailBuilder()));
 					}
 				},
-				new TrieProcess("MultilayerPatriciaTrie(no pack)"){
+/*				new TrieProcess("MultilayerPatriciaTrie(no pack)"){
 					public Pair<Long, Long> run() throws IOException {
 						return runForTrie(new MultilayerPatriciaTrie());
 					}
@@ -140,7 +142,7 @@ public class AllTries {
 						return new TailDoubleArray(trie, 65536, new ConcatTailBuilder());
 					}
 				},
-				new TrieProcess2("LOUDSTrie"){
+*/				new TrieProcess2("LOUDSTrie"){
 					protected Trie buildFrom(Trie trie){
 						return new NoTailLOUDSTrie(trie, 65536);
 					}
@@ -153,6 +155,16 @@ public class AllTries {
 				new TrieProcess2("TailLOUDSTrie(concatTail)"){
 					protected Trie buildFrom(Trie trie){
 						return new LOUDSTrie(trie, 65536, new ConcatTailBuilder());
+					}
+				},
+				new TrieProcess2("TailLOUDSTriePP(concatTail)"){
+					protected Trie buildFrom(Trie trie){
+						return new LOUDSTriePP(trie, 65536, new ConcatTailBuilder());
+					}
+				},
+				new TrieProcess2("TailLOUDSTriePP2(concatTail)"){
+					protected Trie buildFrom(Trie trie){
+						return new LOUDSTriePP2(trie, 65536, new ConcatTailBuilder());
 					}
 				},
 		};
@@ -170,8 +182,8 @@ public class AllTries {
 				System.gc();
 			}
 			System.out.println(String.format(", %d, %d", b / n, c / n));
-//			Thread.sleep(5000);
-//			holder.hashCode();
+			Thread.sleep(5000);
+			holder.hashCode();
 			holder = null;
 		}
 //*

@@ -10,6 +10,36 @@ public abstract class TrieTestSet {
 	protected abstract Trie trieWithWords(String... words);
 
 	@Test
+	public void test_size_1() throws Exception{
+		Trie t = trieWithWords("hello", "world");
+		Assert.assertEquals(2, t.size());
+	}
+
+	@Test
+	public void test_size_2() throws Exception{
+		Trie t = trieWithWords("hello", "hel", "world");
+		Assert.assertEquals(3, t.size());
+	}
+
+	@Test
+	public void test_size_3() throws Exception{
+		Trie t = trieWithWords("hello", "hel", "world", "hel");
+		Assert.assertEquals(3, t.size());
+	}
+
+	@Test
+	public void test_size_4() throws Exception{
+		Trie t = trieWithWords("hello", "helicoptor", "world", "hel");
+		Assert.assertEquals(4, t.size());
+	}
+
+	@Test
+	public void test_size_5() throws Exception{
+		Trie t = trieWithWords("");
+		Assert.assertEquals(1, t.size());
+	}
+
+	@Test
 	public void testContains_1() throws Exception{
 		Trie t = trieWithWords("");
 		Assert.assertFalse(t.contains("hello"));
