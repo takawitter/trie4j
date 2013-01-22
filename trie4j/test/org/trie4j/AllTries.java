@@ -8,10 +8,6 @@ import java.util.TreeSet;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.LOUDSTrie;
-import org.trie4j.louds.LOUDSTriePP;
-import org.trie4j.louds.LOUDSTriePP2;
-import org.trie4j.louds.NoTailLOUDSTrie;
-import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
 import org.trie4j.tail.ConcatTailBuilder;
@@ -97,7 +93,8 @@ public class AllTries {
 		int n = 2;
 		System.out.println("run each process " + n + " times.");
 		Process[] procs = {
-/*				new SetProcess("HashSet", HashSet.class),
+//*
+				new SetProcess("HashSet", HashSet.class),
 				new SetProcess("TreeSet", TreeSet.class),
 				new TrieProcess("PatriciaTrie"){
 					public Pair<Long, Long> run() throws IOException {
@@ -127,11 +124,13 @@ public class AllTries {
 						((MultilayerPatriciaTrie)trie).pack();
 					}
 				},
+//*/
 				new TrieProcess2("DoubleArray"){
 					protected Trie buildFrom(Trie trie){
 						return new DoubleArray(trie, 65536);
 					}
 				},
+
 				new TrieProcess2("TailDoubleArray(suffixTrieTail)"){
 					protected Trie buildFrom(Trie trie){
 						return new TailDoubleArray(trie, 65536, new SuffixTrieTailBuilder());
@@ -142,12 +141,12 @@ public class AllTries {
 						return new TailDoubleArray(trie, 65536, new ConcatTailBuilder());
 					}
 				},
-*/				new TrieProcess2("LOUDSTrie"){
+/*				new TrieProcess2("LOUDSTrie"){
 					protected Trie buildFrom(Trie trie){
 						return new NoTailLOUDSTrie(trie, 65536);
 					}
 				},
-				new TrieProcess2("TailLOUDSTrie(suffixTrieTail)"){
+*/				new TrieProcess2("TailLOUDSTrie(suffixTrieTail)"){
 					protected Trie buildFrom(Trie trie){
 						return new LOUDSTrie(trie, 65536, new SuffixTrieTailBuilder());
 					}
@@ -157,7 +156,7 @@ public class AllTries {
 						return new LOUDSTrie(trie, 65536, new ConcatTailBuilder());
 					}
 				},
-				new TrieProcess2("TailLOUDSTriePP(concatTail)"){
+/*				new TrieProcess2("TailLOUDSTriePP(concatTail)"){
 					protected Trie buildFrom(Trie trie){
 						return new LOUDSTriePP(trie, 65536, new ConcatTailBuilder());
 					}
@@ -167,7 +166,7 @@ public class AllTries {
 						return new LOUDSTriePP2(trie, 65536, new ConcatTailBuilder());
 					}
 				},
-		};
+*/		};
 		for(Process p : procs){
 			System.out.print(p.getName());
 			p.run();
