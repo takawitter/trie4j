@@ -111,72 +111,83 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 	}
 	
 	private void insert(Node node, char[] letters, int offset){
-		int i = 0;
 		int lettersRest = letters.length - offset;
-		int thisLettersLength = node.getLetters().length;
-		int n = Math.min(lettersRest, thisLettersLength);
-		while(i < n && (letters[i + offset] - node.getLetters()[i]) == 0) i++;
-		if(i != n){
-			Node child1 = new Node(
-					Arrays.copyOfRange(node.getLetters(), i, node.getLetters().length)
-					, node.isTerminate(), node.getChildren());
-			Node child2 = new Node(
-					Arrays.copyOfRange(letters, i + offset, letters.length)
-					, true);
-			node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
-			node.setTerminate(false);
-			node.setChildren(
-					(child1.getLetters()[0] < child2.getLetters()[0]) ?
-					new Node[]{child1, child2} : new Node[]{child2, child1});
-			size++;
-		} else if(lettersRest == thisLettersLength){
-			if(!node.isTerminate()){
+		while(true){
+			int thisLettersLength = node.getLetters().length;
+			int n = Math.min(lettersRest, thisLettersLength);
+			int i = 0;
+			while(i < n && (letters[i + offset] - node.getLetters()[i]) == 0) i++;
+			if(i != n){
+				Node child1 = new Node(
+						Arrays.copyOfRange(node.getLetters(), i, node.getLetters().length)
+						, node.isTerminate(), node.getChildren());
+				Node child2 = new Node(
+						Arrays.copyOfRange(letters, i + offset, letters.length)
+						, true);
+				node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
+				node.setTerminate(false);
+				node.setChildren(
+						(child1.getLetters()[0] < child2.getLetters()[0]) ?
+						new Node[]{child1, child2} : new Node[]{child2, child1});
+				size++;
+			} else if(lettersRest == thisLettersLength){
+				if(!node.isTerminate()){
+					node.setTerminate(true);
+					size++;
+				}
+			} else if(lettersRest < thisLettersLength){
+				Node newChild = new Node(
+						Arrays.copyOfRange(node.getLetters(), lettersRest, thisLettersLength)
+						, node.isTerminate(), node.getChildren());
+				node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
 				node.setTerminate(true);
+				node.setChildren(new Node[]{newChild});
+				size++;
+			} else{
+				int index = 0;
+				int end = node.getChildren().length;
+				boolean cont = false;
+				if(end > 16){
+					int start = 0;
+					while(start < end){
+						index = (start + end) / 2;
+						Node child = node.getChildren()[index];
+						int c = letters[i + offset] - child.getLetters()[0];
+						if(c == 0){
+							node = child;
+							offset += i;
+							lettersRest -= i;
+							cont = true;
+							break;
+						}
+						if(c < 0){
+							end = index;
+						} else if(start == index){
+							index = end;
+							break;
+						} else{
+							start = index;
+						}
+					}
+				} else{
+					for(; index < end; index++){
+						Node child = node.getChildren()[index];
+						int c = letters[i + offset] - child.getLetters()[0];
+						if(c < 0) break;
+						if(c == 0){
+							node = child;
+							offset += i;
+							lettersRest -= i;
+							cont = true;
+							break;
+						}
+					}
+				}
+				if(cont) continue;
+				node.addChild(index, new Node(Arrays.copyOfRange(letters, i + offset, letters.length), true));
 				size++;
 			}
-		} else if(lettersRest < thisLettersLength){
-			Node newChild = new Node(
-					Arrays.copyOfRange(node.getLetters(), lettersRest, thisLettersLength)
-					, node.isTerminate(), node.getChildren());
-			node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
-			node.setTerminate(true);
-			node.setChildren(new Node[]{newChild});
-			size++;
-		} else{
-			int index = 0;
-			int end = node.getChildren().length;
-			if(end > 16){
-				int start = 0;
-				while(start < end){
-					index = (start + end) / 2;
-					Node child = node.getChildren()[index];
-					int c = letters[i + offset] - child.getLetters()[0];
-					if(c == 0){
-						insert(child, letters, i + offset);
-						return;
-					}
-					if(c < 0){
-						end = index;
-					} else if(start == index){
-						index = end;
-						break;
-					} else{
-						start = index;
-					}
-				}
-			} else{
-				for(; index < end; index++){
-					Node child = node.getChildren()[index];
-					int c = letters[i + offset] - child.getLetters()[0];
-					if(c < 0) break;
-					if(c == 0){
-						insert(child, letters, i + offset);
-						return;
-					}
-				}
-			}
-			node.addChild(index, new Node(Arrays.copyOfRange(letters, i + offset, letters.length), true));
-			size++;
+			break;
 		}
 	}
 

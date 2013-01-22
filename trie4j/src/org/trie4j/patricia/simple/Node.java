@@ -15,8 +15,6 @@
  */
 package org.trie4j.patricia.simple;
 
-import java.util.Arrays;
-
 import org.trie4j.NodeVisitor;
 
 public class Node implements org.trie4j.Node{
@@ -82,69 +80,6 @@ public class Node implements org.trie4j.Node{
 			}
 		}
 		return null;
-	}
-
-	public void insertChild(char[] letters, int offset){
-		int i = 0;
-		int lettersRest = letters.length - offset;
-		int thisLettersLength = this.letters.length;
-		int n = Math.min(lettersRest, thisLettersLength);
-		while(i < n && (letters[i + offset] - this.letters[i]) == 0) i++;
-		if(i != n){
-			Node child1 = new Node(
-					Arrays.copyOfRange(this.letters, i, this.letters.length)
-					, this.terminate, this.children);
-			Node child2 = new Node(
-					Arrays.copyOfRange(letters, i + offset, letters.length)
-					, true);
-			this.letters = Arrays.copyOfRange(this.letters, 0, i);
-			this.terminate = false;
-			this.children = (child1.getLetters()[0] < child2.getLetters()[0]) ?
-					new Node[]{child1, child2} : new Node[]{child2, child1};
-		} else if(lettersRest == thisLettersLength){
-			terminate = true;
-		} else if(lettersRest < thisLettersLength){
-			Node newChild = new Node(
-					Arrays.copyOfRange(this.letters, lettersRest, thisLettersLength)
-					, this.terminate, this.children);
-			this.letters = Arrays.copyOfRange(this.letters, 0, i);
-			this.terminate = true;
-			this.children = new Node[]{newChild};
-		} else{
-			int index = 0;
-			int end = children.length;
-			if(end > 16){
-				int start = 0;
-				while(start < end){
-					index = (start + end) / 2;
-					Node child = children[index];
-					int c = letters[i + offset] - child.getLetters()[0];
-					if(c == 0){
-						child.insertChild(letters, i + offset);
-						return;
-					}
-					if(c < 0){
-						end = index;
-					} else if(start == index){
-						index = end;
-						break;
-					} else{
-						start = index;
-					}
-				}
-			} else{
-				for(; index < end; index++){
-					Node child = children[index];
-					int c = letters[i + offset] - child.getLetters()[0];
-					if(c < 0) break;
-					if(c == 0){
-						child.insertChild(letters, i + offset);
-						return;
-					}
-				}
-			}
-			addChild(index, new Node(Arrays.copyOfRange(letters, i + offset, letters.length), true));
-		}
 	}
 
 	public void visit(NodeVisitor visitor, int nest){
