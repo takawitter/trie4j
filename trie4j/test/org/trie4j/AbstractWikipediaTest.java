@@ -45,9 +45,15 @@ public class AbstractWikipediaTest {
 		long b = 0;
 		LapTimer t = new LapTimer();
 		for(String word : new WikipediaTitles(wikipediaFilename)){
-			t.lap();
-			trie.insert(word);
-			b += t.lap();;
+			try{
+				t.lap();
+				trie.insert(word);
+				b += t.lap();
+			} catch(Exception e){
+				System.out.println("exception at " + c + "th word: " + word);
+				trie.dump();
+				throw e;
+			}
 			c++;
 			chars += word.length();
 		}
