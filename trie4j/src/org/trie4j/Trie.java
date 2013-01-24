@@ -35,10 +35,33 @@ public interface Trie {
 	 */
 	boolean contains(String word);
 
+	/**
+	 * search trie for word contained in chars. If the word is found, this method
+	 * returns the position in chars and add found word to word parameter.
+	 * @param chars chars
+	 * @param start start position
+	 * @param end end position
+	 * @param word buffer to append found word. this can be null
+	 * @return found position. -1 if no word found.
+	 */
 	int findWord(CharSequence chars, int start, int end, StringBuilder word);
 	
+	/**
+	 * search trie for words contained in query.
+	 * If query is "helloworld" and trie contains "he", "hello" and "world",
+	 * the words "he" and "hello" will be found.
+	 * @param query query
+	 * @return Iterable object which iterates found words.
+	 */
 	Iterable<String> commonPrefixSearch(String query);
-	
+
+	/**
+	 * search trie for words starting prefix.
+	 * If prefix is "he" and trie contains "he", "hello" and "world",
+	 * the words "he" and "hello" will be found.
+	 * @param prefix prefix
+	 * @return Iterable object which iterates found words.
+	 */
 	Iterable<String> predictiveSearch(String prefix);
 
 	/**
