@@ -196,14 +196,6 @@ public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
 		root.visit(visitor, 0);
 	}
 
-	@Override
-	public void dump() {
-	}
-
-	@Override
-	public void trimToSize() {
-	}
-
 	private int size;
 	private Node root = new CharsNode(new char[]{}) ;
 	private LabelTrie labelTrie;

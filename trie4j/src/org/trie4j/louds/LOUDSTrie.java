@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -103,17 +104,17 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	@Override
-	public void dump() {
-		super.dump();
+	public void dump(PrintWriter writer) {
+		super.dump(writer);
 		String bvs = bv.toString();
-		System.out.println("bitvec: " + ((bvs.length() > 100) ? bvs.substring(0, 100) : bvs));
-		System.out.print("labels: ");
+		writer.println("bitvec: " + ((bvs.length() > 100) ? bvs.substring(0, 100) : bvs));
+		writer.print("labels: ");
 		int count = 0;
 		for(char c : labels){
-			System.out.print(c);
+			writer.print(c);
 			if(count++ == 99) break;
 		}
-		System.out.println();
+		writer.println();
 	}
 
 	@Override

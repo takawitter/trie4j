@@ -109,7 +109,7 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 	public void insert(String text){
 		insert(root, text.toCharArray(), 0);
 	}
-	
+
 	private void insert(Node node, char[] letters, int offset){
 		int lettersRest = letters.length - offset;
 		while(true){

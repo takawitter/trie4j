@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -341,47 +342,46 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	}
 
 	@Override
-	public void dump(){
-		super.dump();
-		System.out.println("array size: " + base.length);
-		System.out.print("      |");
+	public void dump(PrintWriter writer){
+		writer.println("array size: " + base.length);
+		writer.print("      |");
 		for(int i = 0; i < 16; i++){
 			System.out.print(String.format("%3d|", i));
 		}
-		System.out.println();
-		System.out.print("|base |");
+		writer.println();
+		writer.print("|base |");
 		for(int i = 0; i < 16; i++){
 			if(base[i] == BASE_EMPTY){
-				System.out.print("N/A|");
+				writer.print("N/A|");
 			} else{
-				System.out.print(String.format("%3d|", base[i]));
+				writer.print(String.format("%3d|", base[i]));
 			}
 		}
-		System.out.println();
-		System.out.print("|check|");
+		writer.println();
+		writer.print("|check|");
 		for(int i = 0; i < 16; i++){
 			if(check[i] < 0){
-				System.out.print("N/A|");
+				writer.print("N/A|");
 			} else{
-				System.out.print(String.format("%3d|", check[i]));
+				writer.print(String.format("%3d|", check[i]));
 			}
 		}
-		System.out.println();
-		System.out.print("|term |");
+		writer.println();
+		writer.print("|term |");
 		for(int i = 0; i < 16; i++){
-			System.out.print(String.format("%3d|", term.get(i) ? 1 : 0));
+			writer.print(String.format("%3d|", term.get(i) ? 1 : 0));
 		}
-		System.out.println();
-		System.out.print("chars: ");
+		writer.println();
+		writer.print("chars: ");
 		int c = 0;
 		for(char e : chars){
-			System.out.print(String.format("%c:%d,", e, (int)charToCode[e]));
+			writer.print(String.format("%c:%d,", e, (int)charToCode[e]));
 			c++;
 			if(c > 16) break;
 		}
-		System.out.println();
-		System.out.println("chars count: " + chars.size());
-		System.out.println();
+		writer.println();
+		writer.println("chars count: " + chars.size());
+		writer.println();
 	}
 
 	private void build(Node node, int nodeIndex){

@@ -15,6 +15,8 @@
  */
 package org.trie4j;
 
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
@@ -83,7 +85,7 @@ public class TestWikipedia {
 		}
 
 		System.out.println("-- dump trie.");
-		trie.dump();
+		trie.dump(new PrintWriter(System.out));
 		return;
 /*
 		System.out.println("-- traversing trie.");

@@ -9,6 +9,7 @@ import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.LOUDSTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
+import org.trie4j.patricia.simple.PatriciaTrie2;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
 import org.trie4j.tail.ConcatTailBuilder;
 import org.trie4j.tail.SuffixTrieTailBuilder;
@@ -99,6 +100,11 @@ public class AllTries {
 				new TrieProcess("PatriciaTrie"){
 					public Pair<Long, Long> run() throws IOException {
 						return runForTrie(new PatriciaTrie());
+					}
+				},
+				new TrieProcess("PatriciaTrie2"){
+					public Pair<Long, Long> run() throws IOException {
+						return runForTrie(new PatriciaTrie2<Object>());
 					}
 				},
 				new TrieProcess("TailPatriciaTrie(suffixTrieTail)"){

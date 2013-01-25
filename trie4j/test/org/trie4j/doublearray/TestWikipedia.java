@@ -15,6 +15,8 @@
  */
 package org.trie4j.doublearray;
 
+import java.io.PrintWriter;
+
 import org.trie4j.Trie;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
@@ -49,7 +51,7 @@ public class TestWikipedia {
 		Trie da = trie;
 		trie = null;
 		System.out.println("done in " + t1.lap() + " millis.");
-		da.dump();
+		da.dump(new PrintWriter(System.out));
 
 		verify(da);
 		System.out.println("---- common prefix search ----");

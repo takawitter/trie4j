@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.trie4j.AbstractTrie;
+import org.trie4j.Algorithms;
 import org.trie4j.Trie;
 import org.trie4j.NodeVisitor;
 import org.trie4j.util.Pair;
@@ -145,10 +146,6 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 
 	public Node getRoot(){
 		return root;
-	}
-
-	@Override
-	public void dump() {
 	}
 
 	public void trimToSize() {

@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -63,7 +64,7 @@ public class TestIO {
 			t1.lap();
 			da.save(os);
 			System.out.println("done in " + t1.lap() + " millis.");
-			da.dump();
+			da.dump(new PrintWriter(System.out));
 		} finally{
 			os.close();
 		}
@@ -76,7 +77,7 @@ public class TestIO {
 		System.out.println("-- loading double array.");
 		da.load(new GZIPInputStream(new FileInputStream("da.dat")));
 		System.out.println("done in " + t.lap() + " millis.");
-		da.dump();
+		da.dump(new PrintWriter(System.out));
 		verify(da);
 		System.out.println("---- common prefix search ----");
 		System.out.println("-- for 東京国際フォーラム");

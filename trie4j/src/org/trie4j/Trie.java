@@ -15,6 +15,8 @@
  */
 package org.trie4j;
 
+import java.io.PrintWriter;
+
 public interface Trie {
 	/**
 	 * returns inserted word count(equals to terminal node count)
@@ -70,7 +72,11 @@ public interface Trie {
 	 */
 	void insert(String word);
 
-	void dump();
+	/**
+	 * dump trie to Writer.
+	 * @param writer writer
+	 */
+	void dump(PrintWriter writer);
 
 	/**
 	 * shrink buffer size to fit actual node count.

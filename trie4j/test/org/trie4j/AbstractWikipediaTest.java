@@ -15,6 +15,8 @@
  */
 package org.trie4j;
 
+import java.io.PrintWriter;
+
 import org.junit.Test;
 import org.trie4j.Trie;
 import org.trie4j.test.LapTimer;
@@ -51,7 +53,7 @@ public class AbstractWikipediaTest {
 				b += t.lap();
 			} catch(Exception e){
 				System.out.println("exception at " + c + "th word: " + word);
-				trie.dump();
+				trie.dump(new PrintWriter(System.out));
 				throw e;
 			}
 			c++;

@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -325,94 +326,93 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	}
 
 	@Override
-	public void dump(){
-		super.dump();
-		System.out.println("--- dump " + getClass().getSimpleName() + " ---");
-		System.out.println("array size: " + base.length);
-		System.out.println("last index of valid element: " + last);
+	public void dump(PrintWriter writer){
+		writer.println("--- dump " + getClass().getSimpleName() + " ---");
+		writer.println("array size: " + base.length);
+		writer.println("last index of valid element: " + last);
 		int vc = 0;
 		for(int i = 0; i < base.length; i++){
 			if(base[i] != BASE_EMPTY || check[i] >= 0) vc++;
 		}
-		System.out.println("valid elements: " + vc);
-		System.out.print("      |");
+		writer.println("valid elements: " + vc);
+		writer.print("      |");
 		for(int i = 0; i < 16; i++){
-			System.out.print(String.format("%3d|", i));
+			writer.print(String.format("%3d|", i));
 		}
-		System.out.println();
-		System.out.print("|base |");
+		writer.println();
+		writer.print("|base |");
 		for(int i = 0; i < 16; i++){
 			if(base[i] == BASE_EMPTY){
-				System.out.print("N/A|");
+				writer.print("N/A|");
 			} else{
-				System.out.print(String.format("%3d|", base[i]));
+				writer.print(String.format("%3d|", base[i]));
 			}
 		}
-		System.out.println();
-		System.out.print("|check|");
+		writer.println();
+		writer.print("|check|");
 		for(int i = 0; i < 16; i++){
 			if(check[i] < 0){
-				System.out.print("N/A|");
+				writer.print("N/A|");
 			} else{
-				System.out.print(String.format("%3d|", check[i]));
+				writer.print(String.format("%3d|", check[i]));
 			}
 		}
-		System.out.println();
-		System.out.print("|tail |");
+		writer.println();
+		writer.print("|tail |");
 		for(int i = 0; i < 16; i++){
 			if(tail[i] < 0){
-				System.out.print("N/A|");
+				writer.print("N/A|");
 			} else{
-				System.out.print(String.format("%3d|", tail[i]));
+				writer.print(String.format("%3d|", tail[i]));
 			}
 		}
-		System.out.println();
-		System.out.print("|term |");
+		writer.println();
+		writer.print("|term |");
 		for(int i = 0; i < 16; i++){
-			System.out.print(String.format("%3d|", term.get(i) ? 1 : 0));
+			writer.print(String.format("%3d|", term.get(i) ? 1 : 0));
 		}
-		System.out.println();
+		writer.println();
 		int count = 0;
 		for(int i : tail){
 			if(i != -1) count++;
 		}
-		System.out.println("tail count: " + count);
-		System.out.println();
-		System.out.print("tails: [");
+		writer.println("tail count: " + count);
+		writer.println();
+		writer.print("tails: [");
 		char[] tailChars = tails.subSequence(0, Math.min(tails.length(), 64)).toString().toCharArray();
 		for(int i = 0; i < tailChars.length; i++){
 			char c = tailChars[i];
 			if(c == '\0'){
-				System.out.print("\\0");
+				writer.print("\\0");
 				continue;
 			}
 			if(c == '\1'){
 				int index = tailChars[i + 1] + (tailChars[i + 2] << 16);
 				i += 2;
-				System.out.print(String.format("\\1(%d)", index));
+				writer.print(String.format("\\1(%d)", index));
 				continue;
 			}
-			System.out.print(c);
+			writer.print(c);
 		}
-		System.out.println("]");
-		System.out.print("tailBuf size: " + tails.length());
+		writer.println("]");
+		writer.print("tailBuf size: " + tails.length());
 		if(tails instanceof StringBuilder){
-			System.out.print("(capacity: " + ((StringBuilder)tails).capacity() + ")");
+			writer.print("(capacity: " + ((StringBuilder)tails).capacity() + ")");
 		}
-		System.out.println();
+		writer.println();
 		{
-			System.out.print("chars: ");
+			writer.print("chars: ");
 			int c = 0;
 			for(char e : chars){
-				System.out.print(String.format("%c:%d,", e, (int)charToCode[e]));
+				writer.print(String.format("%c:%d,", e, (int)charToCode[e]));
 				c++;
 				if(c > 16) break;
 			}
-			System.out.println();
-			System.out.println("chars count: " + chars.size());
+			writer.println();
+			writer.println("chars count: " + chars.size());
 		}
 		{
-			System.out.println("calculating max and min base.");
+			writer.println("calculating max and min base.");
 			int min = Integer.MAX_VALUE;
 			int max = Integer.MIN_VALUE;
 			int maxDelta = Integer.MIN_VALUE;
@@ -423,20 +423,20 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 				max = Math.max(max, b);
 				maxDelta = Math.max(maxDelta, Math.abs(i - b));
 			}
-			System.out.println("maxDelta: " + maxDelta);
-			System.out.println("max: " + max);
-			System.out.println("min: " + min);
+			writer.println("maxDelta: " + maxDelta);
+			writer.println("max: " + max);
+			writer.println("min: " + min);
 		}
 		{
-			System.out.println("calculating min check.");
+			writer.println("calculating min check.");
 			int min = Integer.MAX_VALUE;
 			for(int i = 0; i < base.length; i++){
 				int b = check[i];
 				min = Math.min(min, b);
 			}
-			System.out.println("min: " + min);
+			writer.println("min: " + min);
 		}
-		System.out.println();
+		writer.println();
 	}
 
 	@Override
