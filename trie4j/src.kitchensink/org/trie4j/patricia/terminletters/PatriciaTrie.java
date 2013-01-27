@@ -20,9 +20,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.trie4j.AbstractTrie;
-import org.trie4j.Algorithms;
-import org.trie4j.Trie;
 import org.trie4j.NodeVisitor;
+import org.trie4j.Trie;
 import org.trie4j.util.Pair;
 
 @Deprecated
