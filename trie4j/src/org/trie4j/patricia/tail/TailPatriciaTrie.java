@@ -31,13 +31,19 @@ import org.trie4j.util.Pair;
 
 public class TailPatriciaTrie extends AbstractTrie implements Trie{
 	public TailPatriciaTrie() {
-		this.tailBuilder = new SuffixTrieTailBuilder();
-		this.tails = tailBuilder.getTails();
+		this(new SuffixTrieTailBuilder());
 	}
 
 	public TailPatriciaTrie(TailBuilder builder){
 		this.tailBuilder = builder;
 		this.tails = builder.getTails();
+	}
+
+	public TailPatriciaTrie(Trie orig, TailBuilder builder){
+		this(builder);
+		for(String s : orig.predictiveSearch("")){
+			insert(s);
+		}
 	}
 
 	@Override
@@ -201,6 +207,9 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 
 	@Override
 	public void insert(String text){
+		if(tailBuilder == null){
+			throw new UnsupportedOperationException("insert isn't permitted for freezed trie");
+		}
 		insert(root, text.toCharArray(), 0);
 /*		char[] letters = text.toCharArray();
 		if(letters.length == 0){
@@ -307,7 +316,8 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 		((StringBuilder)tails).trimToSize();
 	}
 
-	public void pack(){
+	@Override
+	public void freeze(){
 		trimToSize();
 		tailBuilder = null;
 	}
