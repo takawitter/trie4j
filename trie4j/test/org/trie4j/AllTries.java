@@ -9,7 +9,7 @@ import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.LOUDSTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.patricia.simple.PatriciaTrie2;
+import org.trie4j.patricia.simple.MapPatriciaTrie;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
 import org.trie4j.tail.ConcatTailBuilder;
 import org.trie4j.tail.SuffixTrieTailBuilder;
@@ -102,9 +102,9 @@ public class AllTries {
 						return runForTrie(new PatriciaTrie());
 					}
 				},
-				new TrieProcess("PatriciaTrie2"){
+				new TrieProcess("MapPatriciaTrie"){
 					public Pair<Long, Long> run() throws IOException {
-						return runForTrie(new PatriciaTrie2<Object>());
+						return runForTrie(new MapPatriciaTrie<Object>());
 					}
 				},
 				new TrieProcess("TailPatriciaTrie(suffixTrieTail)"){
