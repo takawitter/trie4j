@@ -27,7 +27,7 @@ public class TailDoubleArrayWithSuffixTrieTailBuilderTest extends TrieTestSet{
 	protected Trie trieWithWords(String... words) {
 		PatriciaTrie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		return new TailDoubleArray(trie, 65536, new SuffixTrieTailBuilder());
+		return new TailDoubleArray(trie, new SuffixTrieTailBuilder());
 	}
 
 	@Test
@@ -105,7 +105,7 @@ public class TailDoubleArrayWithSuffixTrieTailBuilderTest extends TrieTestSet{
 	}
 
 	private Trie newDA(Trie trie){
-		return new TailDoubleArray(trie, 65536, new SuffixTrieTailBuilder());
+		return new TailDoubleArray(trie, new SuffixTrieTailBuilder());
 	}
 
 	public static void main(String[] args) throws Exception{

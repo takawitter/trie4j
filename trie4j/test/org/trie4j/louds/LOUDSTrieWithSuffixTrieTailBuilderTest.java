@@ -16,7 +16,7 @@ public class LOUDSTrieWithSuffixTrieTailBuilderTest extends TrieTestSet{
 	protected Trie trieWithWords(String... words) {
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		return new LOUDSTrie(trie, 65536, new SuffixTrieTailBuilder());
+		return new LOUDSTrie(trie, new SuffixTrieTailBuilder());
 	}
 
 	@Test

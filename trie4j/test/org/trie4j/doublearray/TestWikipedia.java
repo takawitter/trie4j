@@ -19,8 +19,6 @@ import java.io.PrintWriter;
 
 import org.trie4j.Trie;
 import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.patricia.tail.TailPatriciaTrie;
-import org.trie4j.tail.ConcatTailBuilder;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 

@@ -32,7 +32,7 @@ public class LOUDSTrieWikipediaTest extends AbstractWikipediaTest{
 	@Override
 	protected Trie buildSecondTrie(Trie first) {
 		bv.resetCounts();
-		LOUDSTrie t = new LOUDSTrie(first, 65536, new SuffixTrieTailBuilder(), bv);
+		LOUDSTrie t = new LOUDSTrie(first, new SuffixTrieTailBuilder(), bv);
 		return t;
 	}
 

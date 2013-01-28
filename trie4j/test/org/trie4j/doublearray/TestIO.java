@@ -49,6 +49,7 @@ public class TestIO {
 			c++;
 			if(c == maxCount) break;
 		}
+		r.close();
 		System.out.println("done in " + t1.lap() + " millis.");
 		System.out.println(c + "entries in ja wikipedia titles.");
 
