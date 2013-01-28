@@ -82,4 +82,10 @@ public interface Trie {
 	 * shrink buffer size to fit actual node count.
 	 */
 	void trimToSize();
+
+	/**
+	 * freeze trie and drop useless objects allocated for insert operation.
+	 * trie goes immutable.
+	 */
+	void freeze();
 }

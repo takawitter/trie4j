@@ -32,12 +32,16 @@ public abstract class AbstractTrie implements Trie{
 	}
 
 	@Override
+	public void dump(PrintWriter writer){
+		System.out.println("-- dump " + getClass().getName() + " --");
+		Algorithms.dump(getRoot(), writer);
+	}
+
+	@Override
 	public void trimToSize() {
 	}
 
 	@Override
-	public void dump(PrintWriter writer){
-		System.out.println("-- dump " + getClass().getName() + " --");
-		Algorithms.dump(getRoot(), writer);
+	public void freeze() {
 	}
 }
