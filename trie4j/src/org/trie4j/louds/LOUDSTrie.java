@@ -45,23 +45,19 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	public LOUDSTrie(Trie orig){
-		this(orig, 65536);
+		this(orig, new SuffixTrieTailBuilder());
 	}
 
-	public LOUDSTrie(Trie orig, int bitSize){
-		this(orig, bitSize, new SuffixTrieTailBuilder());
+	public LOUDSTrie(Trie orig, TailBuilder tb){
+		this(orig, tb, new SuccinctBitVector(orig.size()));
 	}
 
-	public LOUDSTrie(Trie orig, int bitSize, TailBuilder tb){
-		this(orig, bitSize, tb, new SuccinctBitVector(bitSize));
-	}
-
-	public LOUDSTrie(Trie orig, int bitSize, TailBuilder tb, SuccinctBitVector bv){
+	public LOUDSTrie(Trie orig, TailBuilder tb, SuccinctBitVector bv){
 		this.bv = bv;
 		size = orig.size();
-		labels = new char[bitSize / 2];
-		tail = new int[bitSize / 2];
-		term = new BitSet(bitSize / 2);
+		labels = new char[size];
+		tail = new int[size];
+		term = new BitSet(size);
 		LinkedList<Node> queue = new LinkedList<Node>();
 		int count = 0;
 		if(orig.getRoot() != null) queue.add(orig.getRoot());

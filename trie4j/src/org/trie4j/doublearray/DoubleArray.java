@@ -49,7 +49,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	}
 
 	public DoubleArray(Trie trie){
-		this(trie, 65536);
+		this(trie, trie.size());
 	}
 
 	public DoubleArray(Trie trie, int arraySize){

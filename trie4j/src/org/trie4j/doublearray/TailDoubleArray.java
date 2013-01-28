@@ -53,25 +53,21 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	}
 
 	public TailDoubleArray(Trie orig){
-		this(orig, 65536);
+		this(orig, new SuffixTrieTailBuilder());
 	}
 
-	public TailDoubleArray(Trie orig, int arraySize){
-		this(orig, 65536, new SuffixTrieTailBuilder());
-	}
-
-	public TailDoubleArray(Trie trie, int arraySize, TailBuilder tb){
-		size = trie.size();
-		base = new int[arraySize];
+	public TailDoubleArray(Trie orig, TailBuilder tb){
+		size = orig.size();
+		base = new int[size];
 		Arrays.fill(base, BASE_EMPTY);
-		check = new int[arraySize];
+		check = new int[size];
 		Arrays.fill(check, -1);
-		tail = new int[arraySize];
+		tail = new int[size];
 		Arrays.fill(tail, -1);
 		term = new BitSet(65536);
 		Arrays.fill(charToCode, (char)0);
 
-		build(trie.getRoot(), 0, tb);
+		build(orig.getRoot(), 0, tb);
 		tails = tb.getTails();
 	}
 
