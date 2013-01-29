@@ -347,6 +347,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 
 	private void extend(){
 		int nsz = (int)(labels.length * 1.2);
+		if(nsz <= labels.length) nsz = labels.length * 2 + 1;
 		labels = Arrays.copyOf(labels, nsz);
 		tail = Arrays.copyOf(tail, nsz);
 	}
