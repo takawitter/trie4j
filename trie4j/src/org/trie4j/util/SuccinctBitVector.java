@@ -385,7 +385,7 @@ public class SuccinctBitVector implements Serializable{
 		int blockSize = CACHE_WIDTH / 8;
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 		countCache0 = Arrays.copyOf(countCache0, size);
-		indexCache0 = Arrays.copyOf(indexCache0, size);
+		indexCache0 = Arrays.copyOf(indexCache0, size + 1);
 	}
 
 	private static final int CACHE_WIDTH = 64;
