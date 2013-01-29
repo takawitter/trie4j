@@ -49,16 +49,17 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	}
 
 	public DoubleArray(Trie trie){
-		this(trie, trie.size());
+		this(trie, trie.size() * 2);
 	}
 
 	public DoubleArray(Trie trie, int arraySize){
+		if(arraySize <= 1) arraySize = 2;
 		size = trie.size();
 		base = new int[arraySize];
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[arraySize];
 		Arrays.fill(check, -1);
-		term = new BitSet(65536);
+		term = new BitSet(arraySize);
 
 		build(trie.getRoot(), 0);
 	}

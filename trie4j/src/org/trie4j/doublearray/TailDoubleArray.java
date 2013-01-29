@@ -58,11 +58,13 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 
 	public TailDoubleArray(Trie orig, TailBuilder tb){
 		size = orig.size();
-		base = new int[size];
+		int as = size;
+		if(as <= 1) as = 2;
+		base = new int[as];
 		Arrays.fill(base, BASE_EMPTY);
-		check = new int[size];
+		check = new int[as];
 		Arrays.fill(check, -1);
-		tail = new int[size];
+		tail = new int[as];
 		Arrays.fill(tail, -1);
 		term = new BitSet(65536);
 		Arrays.fill(charToCode, (char)0);
