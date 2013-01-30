@@ -8,7 +8,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.trie4j.doublearray.DoubleArray;
+import org.trie4j.doublearray.MapDoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
+import org.trie4j.louds.LOUDSPPTrie;
 import org.trie4j.louds.LOUDSTrie;
 import org.trie4j.patricia.simple.MapPatriciaTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
@@ -109,7 +111,31 @@ public class AllTries {
 			return Pair.create(b / 1000000, c / 1000000);
 		}
 	}
-
+	private static abstract class MapTrieProcess2 extends Process{
+		public MapTrieProcess2(String name){
+			super(name);
+		}
+		protected abstract MapTrie<Integer> buildFrom(MapTrie<Integer> trie);
+		@Override
+		public Pair<Long, Long> run() throws IOException {
+			MapPatriciaTrie<Integer> first = new MapPatriciaTrie<Integer>();
+			int i = 0;
+			for(String w : newWords()){ first.insert(w, i++);}
+			long b = 0, c = 0;
+			LapTimer lt = new LapTimer();
+			MapTrie<Integer> trie = buildFrom(first);
+			b += lt.lap();
+			i = 0;
+			for(String w : newWords()){
+				lt.lap();
+				Integer r = trie.get(w);
+				c += lt.lap();
+				if(r != i++) throw new RuntimeException("verification failed for \"" + w + "\"");
+			}
+			holder = trie;
+			return Pair.create(b / 1000000, c / 1000000);
+		}
+	}
 	private static Process[] procs = {
 //*
 			new SetProcess("HashSet", HashSet.class),
@@ -163,7 +189,11 @@ public class AllTries {
 					return new DoubleArray(trie);
 				}
 			},
-
+			new MapTrieProcess2("MapDoubleArray"){
+				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie){
+					return new MapDoubleArray<Integer>(trie);
+				}
+			},
 			new TrieProcess2("TailDoubleArray(suffixTrieTail)"){
 				protected Trie buildFrom(Trie trie){
 					return new TailDoubleArray(trie, new SuffixTrieTailBuilder());
@@ -189,17 +219,17 @@ public class AllTries {
 					return new LOUDSTrie(trie, new ConcatTailBuilder());
 				}
 			},
-/*				new TrieProcess2("TailLOUDSTriePP(concatTail)"){
+			new TrieProcess2("TailLOUDSPPTrie(suffixTrieTail)"){
 				protected Trie buildFrom(Trie trie){
-					return new LOUDSTriePP(trie, 65536, new ConcatTailBuilder());
+					return new LOUDSPPTrie(trie, new SuffixTrieTailBuilder());
 				}
 			},
 			new TrieProcess2("TailLOUDSTriePP2(concatTail)"){
 				protected Trie buildFrom(Trie trie){
-					return new LOUDSTriePP2(trie, 65536, new ConcatTailBuilder());
+					return new LOUDSPPTrie(trie, new ConcatTailBuilder());
 				}
 			},
-*/		};
+		};
 
 	public static void main(String[] args) throws Exception{
 		MemoryMXBean mb = ManagementFactory.getMemoryMXBean();

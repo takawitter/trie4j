@@ -17,11 +17,14 @@ package org.trie4j;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.trie4j.bv.BitVectorUtilTest;
 import org.trie4j.doublearray.DoubleArrayTest;
 import org.trie4j.doublearray.OptimizedTailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithSuffixTrieTailBuilderTest;
+import org.trie4j.louds.LOUDSPPTrieWithConcatTailBuilderTest;
+import org.trie4j.louds.LOUDSPPTrieWithSuffixTrieTailBuilderTest;
 import org.trie4j.louds.LOUDSTrieWithConcatTailBuilderTest;
 import org.trie4j.louds.LOUDSTrieWithSuffixTrieTailBuilderTest;
 import org.trie4j.louds.NoTailLOUDSTrieTest;
@@ -36,6 +39,7 @@ import org.trie4j.util.SuccinctBitVectorTest;
 @Suite.SuiteClasses({
 	SuffixTrieTailBuilderTest.class,
 	SuccinctBitVectorTest.class,
+	BitVectorUtilTest.class,
 	AlgorithmsTest.class,
 	PatriciaTrieTest.class,
 	MapPatriciaTrieTest.class,
@@ -49,6 +53,8 @@ import org.trie4j.util.SuccinctBitVectorTest;
 	NoTailLOUDSTrieTest.class,
 	LOUDSTrieWithConcatTailBuilderTest.class,
 	LOUDSTrieWithSuffixTrieTailBuilderTest.class,
+	LOUDSPPTrieWithConcatTailBuilderTest.class,
+	LOUDSPPTrieWithSuffixTrieTailBuilderTest.class,
 })
 public class AllTests {
 }
