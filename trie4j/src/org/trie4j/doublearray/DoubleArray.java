@@ -347,7 +347,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		writer.println("array size: " + base.length);
 		writer.print("      |");
 		for(int i = 0; i < 16; i++){
-			System.out.print(String.format("%3d|", i));
+			writer.print(String.format("%3d|", i));
 		}
 		writer.println();
 		writer.print("|base |");
@@ -383,6 +383,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		writer.println();
 		writer.println("chars count: " + chars.size());
 		writer.println();
+		writer.flush();
 	}
 
 	private void build(Node node, int nodeIndex){
