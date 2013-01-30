@@ -25,7 +25,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class SuccinctBitVector implements Serializable{
+public class SuccinctBitVector implements Serializable, org.trie4j.bv.SuccinctBitVector{
 	public SuccinctBitVector(){
 		this(16);
 	}
@@ -321,13 +321,17 @@ public class SuccinctBitVector implements Serializable{
 		dos.writeInt(node2pos);
 		dos.writeInt(node3pos);
 		trimToSize();
+		dos.writeInt(vector.length);
 		dos.write(vector);
+		dos.writeInt(countCache0.length);
 		for(int e : countCache0){
 			dos.writeInt(e);
 		}
+		dos.writeInt(indexCache0.length);
 		for(int e : indexCache0){
 			dos.writeInt(e);
 		}
+		dos.flush();
 	}
 
 	public void load(InputStream is) throws IOException{
@@ -337,17 +341,17 @@ public class SuccinctBitVector implements Serializable{
 		node1pos = dis.readInt();
 		node2pos = dis.readInt();
 		node3pos = dis.readInt();
-		int vectorSize = size / 8 + 1;
+		int vectorSize = dis.readInt();
 		vector = new byte[vectorSize];
 		dis.read(vector, 0, vectorSize);
-		int blockSize = CACHE_WIDTH / 8;
-		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
+		int size = dis.readInt();
 		countCache0 = new int[size];
 		for(int i = 0; i < size; i++){
 			countCache0[i] = dis.readInt();
 		}
-		indexCache0 = new int[size + 1];
-		for(int i = 0; i < size + 1; i++){
+		size = dis.readInt();
+		indexCache0 = new int[size];
+		for(int i = 0; i < size; i++){
 			indexCache0[i] = dis.readInt();
 		}
 	}
