@@ -94,7 +94,7 @@ public class Sample {
 		DoubleArray da = new DoubleArray(pat); // construct DoubleArray from existing Trie
 		da.contains("World"); // -> true
 		
-		LOUDSTrie lt = new LOUDSTrie(pat, 1024, new ConcatTailBuilder()); // construct LOUDS succinct Trie with ConcatTailBuilder
+		LOUDSTrie lt = new LOUDSTrie(pat, new ConcatTailBuilder()); // construct LOUDS succinct Trie with ConcatTailBuilder
 		lt.contains("Wonderful!"); // -> true
 		lt.commonPrefixSearch("Wonderful!"); // -> {"Wonder", "Wonderful!"} as Iterable<String>
 	}
