@@ -10,12 +10,12 @@ import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
 
-public class NoTailLOUDSTrieTest extends TrieTestSet{
+public class LOUDSTrieTest extends TrieTestSet{
 	@Override
 	protected Trie trieWithWords(String... words) {
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		return new NoTailLOUDSTrie(trie, 65536);
+		return new LOUDSTrie(trie, 65536);
 	}
 
 	@Test
@@ -23,7 +23,7 @@ public class NoTailLOUDSTrieTest extends TrieTestSet{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		NoTailLOUDSTrie lt = new NoTailLOUDSTrie(trie);
+		LOUDSTrie lt = new LOUDSTrie(trie);
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));
 		}
@@ -43,10 +43,10 @@ public class NoTailLOUDSTrieTest extends TrieTestSet{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		NoTailLOUDSTrie lt = new NoTailLOUDSTrie(trie);
+		LOUDSTrie lt = new LOUDSTrie(trie);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		lt.save(baos);
-		lt = new NoTailLOUDSTrie();
+		lt = new LOUDSTrie();
 		lt.load(new ByteArrayInputStream(baos.toByteArray()));
 		for(String w : words){
 			Assert.assertTrue(lt.contains(w));

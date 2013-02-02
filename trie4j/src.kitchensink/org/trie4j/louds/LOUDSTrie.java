@@ -36,15 +36,15 @@ import org.trie4j.Trie;
 import org.trie4j.util.Pair;
 import org.trie4j.util.SuccinctBitVector;
 
-public class NoTailLOUDSTrie extends AbstractTrie implements Trie {
-	public NoTailLOUDSTrie(){
+public class LOUDSTrie extends AbstractTrie implements Trie {
+	public LOUDSTrie(){
 	}
 
-	public NoTailLOUDSTrie(Trie orig){
+	public LOUDSTrie(Trie orig){
 		this(orig, 65536);
 	}
 
-	public NoTailLOUDSTrie(Trie orig, int bitSize){
+	public LOUDSTrie(Trie orig, int bitSize){
 		size = orig.size();
 		bv = new SuccinctBitVector(bitSize);
 		labels = new char[bitSize / 2];

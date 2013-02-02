@@ -18,8 +18,8 @@ package org.trie4j.louds;
 import org.trie4j.AbstractWikipediaTest;
 import org.trie4j.Trie;
 
-public class NoTailLOUDSTrieWikipediaTest extends AbstractWikipediaTest{
+public class LOUDSTrieWikipediaTest extends AbstractWikipediaTest{
 	protected Trie buildSecondTrie(Trie first) {
-		return new NoTailLOUDSTrie(first);
+		return new LOUDSTrie(first);
 	}
 }
