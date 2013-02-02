@@ -3,7 +3,7 @@ package org.trie4j.doublearray;
 import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.SuffixTrieTailBuilder;
+import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 
 public class OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest extends TrieTestSet{
 	@Override

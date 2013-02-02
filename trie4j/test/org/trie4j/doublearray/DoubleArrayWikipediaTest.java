@@ -15,11 +15,18 @@
  */
 package org.trie4j.doublearray;
 
+import java.io.PrintWriter;
+
 import org.trie4j.AbstractWikipediaTest;
 import org.trie4j.Trie;
 
 public class DoubleArrayWikipediaTest extends AbstractWikipediaTest{
 	protected Trie buildSecondTrie(Trie first) {
 		return new DoubleArray(first);
+	}
+	@Override
+	protected void afterVerification(Trie trie) throws Exception {
+		super.afterVerification(trie);
+		((DoubleArray)trie).dump(new PrintWriter(System.out));
 	}
 }
