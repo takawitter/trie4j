@@ -33,36 +33,33 @@ import java.util.List;
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.bv.BitVectorUtil;
-import org.trie4j.tail.SuffixTrieTailBuilder;
-import org.trie4j.tail.TailBuilder;
+import org.trie4j.bv.BitVector01Devider;
+import org.trie4j.bv.Rank0OnlySuccinctBitVector;
+import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.TailArray;
 import org.trie4j.tail.TailCharIterator;
-import org.trie4j.tail.TailUtil;
 import org.trie4j.util.Pair;
 import org.trie4j.util.SuccinctBitVector;
 
 public class LOUDSPPTrie extends AbstractTrie implements Trie {
 	public LOUDSPPTrie(){
+		tailArray = newTailArray(0);
 	}
 
 	public LOUDSPPTrie(Trie orig){
-		this(orig, new SuffixTrieTailBuilder());
+		this(orig, new Rank0OnlySuccinctBitVector(orig.size() + 1), new SuccinctBitVector(orig.size() + 1));
 	}
 
-	public LOUDSPPTrie(Trie orig, TailBuilder tb){
-		this(orig, tb, new SuccinctBitVector(orig.size()), new SuccinctBitVector(orig.size()));
-	}
-
-	public LOUDSPPTrie(Trie orig, TailBuilder tb, SuccinctBitVector r0, SuccinctBitVector r1){
+	public LOUDSPPTrie(Trie orig, Rank0OnlySuccinctBitVector r0, SuccinctBitVector r1){
 		this.r0 = r0;
 		this.r1 = r1;
 		size = orig.size();
+		this.tailArray = newTailArray(size);
 		labels = new char[size];
-		tail = new int[size];
 		term = new BitSet(size);
 		LinkedList<Node> queue = new LinkedList<Node>();
 		int count = 0;
-		SuccinctBitVector bv = new SuccinctBitVector();
+		BitVector01Devider d = new BitVector01Devider(r0, r1);
 		if(orig.getRoot() != null) queue.add(orig.getRoot());
 		while(!queue.isEmpty()){
 			Node node = queue.pollFirst();
@@ -72,31 +69,28 @@ public class LOUDSPPTrie extends AbstractTrie implements Trie {
 			}
 			if(node.isTerminate()) term.set(index);
 			for(Node c : node.getChildren()){
-				bv.append1();
+				d.append1();
 				queue.offerLast(c);
 			}
-			bv.append0();
+			d.append0();
 			char[] letters = node.getLetters();
 			if(letters.length == 0){
 				labels[index] = 0xffff;
-				tail[index] = -1;
+				tailArray.appendEmpty();
 			} else{
 				labels[index] = letters[0];
 				if(letters.length >= 2){
-					tail[index] = tb.insert(letters, 1, letters.length - 1);
+					tailArray.append(letters, 1, letters.length - 1);
 				} else{
-					tail[index] = -1;
+					tailArray.appendEmpty();
 				}
 			}
 		}
 		nodeSize = count;
-		tails = tb.getTails();
-		r0.append0();
-		r1.append0();
-		BitVectorUtil.divide01(bv, r0, r1);
+		tailArray.freeze();
 	}
 
-	public SuccinctBitVector getR0() {
+	public Rank0OnlySuccinctBitVector getR0() {
 		return r0;
 	}
 
@@ -128,12 +122,12 @@ public class LOUDSPPTrie extends AbstractTrie implements Trie {
 	@Override
 	public boolean contains(String text){
 		int nodeId = 0; // root
-		TailCharIterator it = new TailCharIterator(tails, -1);
+		TailCharIterator it = tailArray.newIterator();
 		int n = text.length();
 		for(int i = 0; i < n; i++){
 			nodeId = getChildNode(nodeId, text.charAt(i));
 			if(nodeId == -1) return false;
-			it.setIndex(tail[nodeId]);
+			it.setOffset(tailArray.getIteratorOffset(nodeId));
 			while(it.hasNext()){
 				i++;
 				if(i == n) return false;
@@ -154,11 +148,11 @@ public class LOUDSPPTrie extends AbstractTrie implements Trie {
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
 		int nodeId = 0; // root
-		TailCharIterator tci = new TailCharIterator(tails, -1);
+		TailCharIterator tci = tailArray.newIterator();
 		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
 			int child = getChildNode(nodeId, chars[charsIndex]);
 			if(child == -1) return ret;
-			tci.setIndex(tail[child]);
+			tci.setOffset(tailArray.getIteratorOffset(child));
 			while(tci.hasNext()){
 				charsIndex++;
 				if(charsLen <= charsIndex) return ret;
@@ -178,14 +172,14 @@ public class LOUDSPPTrie extends AbstractTrie implements Trie {
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
 		int nodeId = 0; // root
-		TailCharIterator tci = new TailCharIterator(tails, -1);
+		TailCharIterator tci = tailArray.newIterator();
 		String pfx = null;
 		int charsIndexBack = 0;
 		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
 			charsIndexBack = charsIndex;
 			int child = getChildNode(nodeId, chars[charsIndex]);
 			if(child == -1) return ret;
-			tci.setIndex(tail[child]);
+			tci.setOffset(tailArray.getIteratorOffset(child));
 			while(tci.hasNext()){
 				charsIndex++;
 				if(charsIndex >= charsLen) break;
@@ -203,7 +197,7 @@ public class LOUDSPPTrie extends AbstractTrie implements Trie {
 
 			StringBuilder b = new StringBuilder(element.getSecond());
 			b.append(labels[nid]);
-			tci.setIndex(tail[nid]);
+			tci.setOffset(tailArray.getIteratorOffset(nid));
 			while(tci.hasNext()) b.append(tci.next());
 			String letter = b.toString();
 			if(term.get(nid)) ret.add(letter);
@@ -237,9 +231,11 @@ public class LOUDSPPTrie extends AbstractTrie implements Trie {
 			if(h != 0xffff){
 				b.append(h);
 			}
-			int ti = tail[nodeId];
+			int ti = tailArray.getIteratorOffset(nodeId);
 			if(ti != -1){
-				TailUtil.appendChars(tails, ti, b);
+				TailCharIterator it = tailArray.newIterator();
+				it.setOffset(ti);
+				while(it.hasNext()) b.append(it.next());
 			}
 			return b.toString().toCharArray();
 		}
@@ -271,8 +267,8 @@ public class LOUDSPPTrie extends AbstractTrie implements Trie {
 	public void trimToSize(){
 		if(labels.length > nodeSize){
 			labels = Arrays.copyOf(labels, nodeSize);
-			tail = Arrays.copyOf(tail, nodeSize);
 		}
+		tailArray.trimToSize();
 		r0.trimToSize();
 		r1.trimToSize();
 	}
@@ -286,14 +282,8 @@ public class LOUDSPPTrie extends AbstractTrie implements Trie {
 		for(char c : labels){
 			dos.writeChar(c);
 		}
-		for(int i : tail){
-			dos.writeInt(i);
-		}
-		dos.writeInt(tails.length());
-		for(int i = 0; i < tails.length(); i++){
-			dos.writeChar(tails.charAt(i));
-		}
 		dos.flush();
+		tailArray.save(os);
 		oos.writeObject(term);
 		oos.flush();
 		r0.save(os);
@@ -302,25 +292,17 @@ public class LOUDSPPTrie extends AbstractTrie implements Trie {
 
 	public void load(InputStream is) throws ClassNotFoundException, IOException{
 		DataInputStream dis = new DataInputStream(is);
-		ObjectInputStream ois = new ObjectInputStream(is);
+		ObjectInputStream ois = new ObjectInputStream(dis);
 		size = dis.readInt();
 		nodeSize = dis.readInt();
 		labels = new char[nodeSize];
 		for(int i = 0; i < nodeSize; i++){
 			labels[i] = dis.readChar();
 		}
-		tail = new int[nodeSize];
-		for(int i = 0; i < nodeSize; i++){
-			tail[i] = dis.readInt();
-		}
-		int ts = dis.readInt();
-		StringBuilder b = new StringBuilder(ts);
-		for(int i = 0; i < ts; i++){
-			b.append(dis.readChar());
-		}
-		tails = b;
+		tailArray = new ConcatTailArray(0);
+		tailArray.load(is);
 		term = (BitSet)ois.readObject();
-		r0 = new SuccinctBitVector();
+		r0 = new Rank0OnlySuccinctBitVector();
 		r0.load(is);
 		r1 = new SuccinctBitVector();
 		r1.load(is);
@@ -360,15 +342,17 @@ public class LOUDSPPTrie extends AbstractTrie implements Trie {
 		int nsz = (int)(labels.length * 1.2);
 		if(nsz <= labels.length) nsz = labels.length * 2 + 1;
 		labels = Arrays.copyOf(labels, nsz);
-		tail = Arrays.copyOf(tail, nsz);
 	}
 
-	private SuccinctBitVector r0;
+	protected TailArray newTailArray(int initialCapacity){
+		return new ConcatTailArray(initialCapacity);
+	}
+
+	private Rank0OnlySuccinctBitVector r0;
 	private SuccinctBitVector r1;
 	private int size;
 	private char[] labels;
-	private int[] tail;
-	private CharSequence tails;
+	private TailArray tailArray;
 	private BitSet term;
 	private int nodeSize;
 }
