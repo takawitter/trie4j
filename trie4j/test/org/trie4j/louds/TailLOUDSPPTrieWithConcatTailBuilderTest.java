@@ -13,12 +13,12 @@ import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.tail.index.SBVTailIndex;
 
-public class LOUDSPPTrieWithConcatTailBuilderTest extends TrieTestSet{
+public class TailLOUDSPPTrieWithConcatTailBuilderTest extends TrieTestSet{
 	@Override
 	protected Trie trieWithWords(String... words) {
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		return new LOUDSPPTrie(trie);
+		return new TailLOUDSPPTrie(trie);
 	}
 
 	@Test
@@ -28,7 +28,7 @@ public class LOUDSPPTrieWithConcatTailBuilderTest extends TrieTestSet{
 		for(String w : words) trie.insert(w);
 		
 		final SBVTailIndex ti = new SBVTailIndex();
-		LOUDSPPTrie lt = new LOUDSPPTrie(trie);
+		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
 		System.out.println(lt.getR0());
 		System.out.println(lt.getR1());
 		System.out.println(ti.getSBV());
@@ -52,10 +52,10 @@ public class LOUDSPPTrieWithConcatTailBuilderTest extends TrieTestSet{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		LOUDSPPTrie lt = new LOUDSPPTrie(trie);
+		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		lt.save(baos);
-		lt = new LOUDSPPTrie();
+		lt = new TailLOUDSPPTrie();
 		lt.load(new ByteArrayInputStream(baos.toByteArray()));
 		for(String w : words){
 			Assert.assertTrue(lt.contains(w));

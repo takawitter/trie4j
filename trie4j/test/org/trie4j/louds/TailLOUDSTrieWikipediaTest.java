@@ -28,17 +28,17 @@ import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 
-public class LOUDSTrieWikipediaTest extends AbstractWikipediaTest{
+public class TailLOUDSTrieWikipediaTest extends AbstractWikipediaTest{
 	@Override
 	protected Trie buildSecondTrie(Trie first) {
 		bv.resetCounts();
-		LOUDSTrie t = new LOUDSTrie(first, new SuffixTrieTailBuilder(), bv);
+		TailLOUDSTrie t = new TailLOUDSTrie(first, new SuffixTrieTailBuilder(), bv);
 		return t;
 	}
 
 	@Override
 	protected void afterVerification(Trie trie) throws Exception{
-		LOUDSTrie t = (LOUDSTrie)trie;
+		TailLOUDSTrie t = (TailLOUDSTrie)trie;
 		System.out.println("select0 time: " + (bv.getSelect0Time() / 1000000) + ", count: " + bv.getSelect0Count());
 		System.out.println("next0 time: " + (bv.getNext0Time() / 1000000) + ", count: " + bv.getNext0Count());
 		System.out.println("rank1 time: " + (bv.getRank1Time() / 1000000) + ", count: " + bv.getRank1Count());

@@ -23,10 +23,10 @@ import org.trie4j.doublearray.OptimizedTailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithSuffixTrieTailBuilderTest;
-import org.trie4j.louds.LOUDSPPTrieWithConcatTailBuilderTest;
-import org.trie4j.louds.LOUDSPPTrieWithSuffixTrieTailBuilderTest;
-import org.trie4j.louds.LOUDSTrieWithConcatTailBuilderTest;
-import org.trie4j.louds.LOUDSTrieWithSuffixTrieTailBuilderTest;
+import org.trie4j.louds.TailLOUDSPPTrieWithConcatTailBuilderTest;
+import org.trie4j.louds.TailLOUDSPPTrieWithSuffixTrieTailBuilderTest;
+import org.trie4j.louds.TailLOUDSTrieWithConcatTailBuilderTest;
+import org.trie4j.louds.TailLOUDSTrieWithSuffixTrieTailBuilderTest;
 import org.trie4j.louds.NoTailLOUDSTrieTest;
 import org.trie4j.patricia.simple.MapPatriciaTrieTest;
 import org.trie4j.patricia.simple.PatriciaTrieTest;
@@ -57,10 +57,10 @@ import org.trie4j.util.SuccinctBitVectorTest;
 	OptimizedTailDoubleArrayWithConcatTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest.class,
 	NoTailLOUDSTrieTest.class,
-	LOUDSTrieWithConcatTailBuilderTest.class,
-	LOUDSTrieWithSuffixTrieTailBuilderTest.class,
-	LOUDSPPTrieWithConcatTailBuilderTest.class,
-	LOUDSPPTrieWithSuffixTrieTailBuilderTest.class,
+	TailLOUDSTrieWithConcatTailBuilderTest.class,
+	TailLOUDSTrieWithSuffixTrieTailBuilderTest.class,
+	TailLOUDSPPTrieWithConcatTailBuilderTest.class,
+	TailLOUDSPPTrieWithSuffixTrieTailBuilderTest.class,
 })
 public class AllTests {
 }

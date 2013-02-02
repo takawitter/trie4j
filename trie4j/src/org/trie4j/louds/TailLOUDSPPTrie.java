@@ -33,33 +33,33 @@ import java.util.List;
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.tail.TailBuilder;
+import org.trie4j.bv.BitVector01Devider;
+import org.trie4j.bv.Rank0OnlySuccinctBitVector;
+import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.TailArray;
 import org.trie4j.tail.TailCharIterator;
-import org.trie4j.tail.TailUtil;
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.util.Pair;
 import org.trie4j.util.SuccinctBitVector;
 
-public class LOUDSTrie extends AbstractTrie implements Trie {
-	public LOUDSTrie(){
+public class TailLOUDSPPTrie extends AbstractTrie implements Trie {
+	public TailLOUDSPPTrie(){
+		tailArray = newTailArray(0);
 	}
 
-	public LOUDSTrie(Trie orig){
-		this(orig, new SuffixTrieTailBuilder());
+	public TailLOUDSPPTrie(Trie orig){
+		this(orig, new Rank0OnlySuccinctBitVector(orig.size() + 1), new SuccinctBitVector(orig.size() + 1));
 	}
 
-	public LOUDSTrie(Trie orig, TailBuilder tb){
-		this(orig, tb, new SuccinctBitVector(orig.size() * 2));
-	}
-
-	public LOUDSTrie(Trie orig, TailBuilder tb, SuccinctBitVector bv){
-		this.bv = bv;
+	public TailLOUDSPPTrie(Trie orig, Rank0OnlySuccinctBitVector r0, SuccinctBitVector r1){
+		this.r0 = r0;
+		this.r1 = r1;
 		size = orig.size();
+		this.tailArray = newTailArray(size);
 		labels = new char[size];
-		tail = new int[size];
 		term = new BitSet(size);
 		LinkedList<Node> queue = new LinkedList<Node>();
 		int count = 0;
+		BitVector01Devider d = new BitVector01Devider(r0, r1);
 		if(orig.getRoot() != null) queue.add(orig.getRoot());
 		while(!queue.isEmpty()){
 			Node node = queue.pollFirst();
@@ -69,29 +69,33 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 			}
 			if(node.isTerminate()) term.set(index);
 			for(Node c : node.getChildren()){
-				bv.append1();
+				d.append1();
 				queue.offerLast(c);
 			}
-			bv.append0();
+			d.append0();
 			char[] letters = node.getLetters();
 			if(letters.length == 0){
 				labels[index] = 0xffff;
-				tail[index] = -1;
+				tailArray.appendEmpty();
 			} else{
 				labels[index] = letters[0];
 				if(letters.length >= 2){
-					tail[index] = tb.insert(letters, 1, letters.length - 1);
+					tailArray.append(letters, 1, letters.length - 1);
 				} else{
-					tail[index] = -1;
+					tailArray.appendEmpty();
 				}
 			}
 		}
 		nodeSize = count;
-		tails = tb.getTails();
+		tailArray.freeze();
 	}
 
-	public SuccinctBitVector getBv() {
-		return bv;
+	public Rank0OnlySuccinctBitVector getR0() {
+		return r0;
+	}
+
+	public SuccinctBitVector getR1() {
+		return r1;
 	}
 
 	@Override
@@ -102,8 +106,10 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	@Override
 	public void dump(PrintWriter writer) {
 		super.dump(writer);
-		String bvs = bv.toString();
-		writer.println("bitvec: " + ((bvs.length() > 100) ? bvs.substring(0, 100) : bvs));
+		String r0s = r0.toString();
+		writer.println("r0: " + ((r0s.length() > 100) ? r0s.substring(0, 100) : r0s));
+		String r1s = r1.toString();
+		writer.println("r1: " + ((r1s.length() > 100) ? r1s.substring(0, 100) : r1s));
 		writer.print("labels: ");
 		int count = 0;
 		for(char c : labels){
@@ -116,12 +122,12 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	@Override
 	public boolean contains(String text){
 		int nodeId = 0; // root
-		TailCharIterator it = new TailCharIterator(tails, -1);
+		TailCharIterator it = tailArray.newIterator();
 		int n = text.length();
 		for(int i = 0; i < n; i++){
 			nodeId = getChildNode(nodeId, text.charAt(i));
 			if(nodeId == -1) return false;
-			it.setIndex(tail[nodeId]);
+			it.setOffset(tailArray.getIteratorOffset(nodeId));
 			while(it.hasNext()){
 				i++;
 				if(i == n) return false;
@@ -142,11 +148,11 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
 		int nodeId = 0; // root
-		TailCharIterator tci = new TailCharIterator(tails, -1);
+		TailCharIterator tci = tailArray.newIterator();
 		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
 			int child = getChildNode(nodeId, chars[charsIndex]);
 			if(child == -1) return ret;
-			tci.setIndex(tail[child]);
+			tci.setOffset(tailArray.getIteratorOffset(child));
 			while(tci.hasNext()){
 				charsIndex++;
 				if(charsLen <= charsIndex) return ret;
@@ -166,14 +172,14 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
 		int nodeId = 0; // root
-		TailCharIterator tci = new TailCharIterator(tails, -1);
+		TailCharIterator tci = tailArray.newIterator();
 		String pfx = null;
 		int charsIndexBack = 0;
 		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
 			charsIndexBack = charsIndex;
 			int child = getChildNode(nodeId, chars[charsIndex]);
 			if(child == -1) return ret;
-			tci.setIndex(tail[child]);
+			tci.setOffset(tailArray.getIteratorOffset(child));
 			while(tci.hasNext()){
 				charsIndex++;
 				if(charsIndex >= charsLen) break;
@@ -191,15 +197,16 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 
 			StringBuilder b = new StringBuilder(element.getSecond());
 			b.append(labels[nid]);
-			tci.setIndex(tail[nid]);
+			tci.setOffset(tailArray.getIteratorOffset(nid));
 			while(tci.hasNext()) b.append(tci.next());
 			String letter = b.toString();
 			if(term.get(nid)) ret.add(letter);
-			int s = bv.select0(nid) + 1;
-			int e = bv.next0(s);
-			int lastNodeId = bv.rank1(s) + e - s - 1;
-			for(int i = (e - 1); i >= s; i--){
-				queue.offerFirst(Pair.create(lastNodeId--, letter));
+			if(r0.isZero(nid)){
+				int s = r1.select0(r0.rank0(nid)) + 1;
+				int e = r1.next0(s) + 1;
+				for(int i = (e - 1); i >= s; i--){
+					queue.offerFirst(Pair.create(i, letter));
+				}
 			}
 		}
 		return ret;
@@ -224,9 +231,11 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 			if(h != 0xffff){
 				b.append(h);
 			}
-			int ti = tail[nodeId];
+			int ti = tailArray.getIteratorOffset(nodeId);
 			if(ti != -1){
-				TailUtil.appendChars(tails, ti, b);
+				TailCharIterator it = tailArray.newIterator();
+				it.setOffset(ti);
+				while(it.hasNext()) b.append(it.next());
 			}
 			return b.toString().toCharArray();
 		}
@@ -242,16 +251,12 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		}
 		@Override
 		public Node[] getChildren() {
-			int start = 0;
-			if(nodeId > 0){
-				start = bv.select0(nodeId) + 1;
-			}
-			int end = bv.next0(start);
-			int ci = bv.rank1(start);
-			int n = end - start;
-			Node[] children = new Node[n];
-			for(int i = 0; i < n; i++){
-				children[i] = new LOUDSNode(ci + i);
+			if(!r0.isZero(nodeId)) return new Node[]{};
+			int start = r1.select0(r0.rank0(nodeId)) + 1;
+			int end = r1.next0(start) + 1;
+			Node[] children = new Node[end - start];
+			for(int i = start; i < end; i++){
+				children[i - start] = new LOUDSNode(i);
 			}
 			return children;
 		}
@@ -262,9 +267,10 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	public void trimToSize(){
 		if(labels.length > nodeSize){
 			labels = Arrays.copyOf(labels, nodeSize);
-			tail = Arrays.copyOf(tail, nodeSize);
 		}
-		bv.trimToSize();
+		tailArray.trimToSize();
+		r0.trimToSize();
+		r1.trimToSize();
 	}
 
 	public void save(OutputStream os) throws IOException{
@@ -276,69 +282,56 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		for(char c : labels){
 			dos.writeChar(c);
 		}
-		for(int i : tail){
-			dos.writeInt(i);
-		}
-		dos.writeInt(tails.length());
-		for(int i = 0; i < tails.length(); i++){
-			dos.writeChar(tails.charAt(i));
-		}
 		dos.flush();
+		tailArray.save(os);
 		oos.writeObject(term);
 		oos.flush();
-		bv.save(os);
+		r0.save(os);
+		r1.save(os);
 	}
 
 	public void load(InputStream is) throws ClassNotFoundException, IOException{
 		DataInputStream dis = new DataInputStream(is);
-		ObjectInputStream ois = new ObjectInputStream(is);
+		ObjectInputStream ois = new ObjectInputStream(dis);
 		size = dis.readInt();
 		nodeSize = dis.readInt();
 		labels = new char[nodeSize];
 		for(int i = 0; i < nodeSize; i++){
 			labels[i] = dis.readChar();
 		}
-		tail = new int[nodeSize];
-		for(int i = 0; i < nodeSize; i++){
-			tail[i] = dis.readInt();
-		}
-		int ts = dis.readInt();
-		StringBuilder b = new StringBuilder(ts);
-		for(int i = 0; i < ts; i++){
-			b.append(dis.readChar());
-		}
-		tails = b;
+		tailArray = new ConcatTailArray(0);
+		tailArray.load(is);
 		term = (BitSet)ois.readObject();
-		bv = new SuccinctBitVector();
-		bv.load(is);
+		r0 = new Rank0OnlySuccinctBitVector();
+		r0.load(is);
+		r1 = new SuccinctBitVector();
+		r1.load(is);
 	}
 
 	private int getChildNode(int nodeId, char c){
-		int start = bv.select0(nodeId) + 1;
-		int end = bv.next0(start);
+		if(!r0.isZero(nodeId)) return -1;
+		int start = r1.select0(r0.rank0(nodeId)) + 1;
+		int end = r1.next0(start) + 1;
 		if(end == -1) return -1;
-		int pos2Id = bv.rank1(start) - start;
 		if((end - start) <= 16){
 			for(int i = start; i < end; i++){
-				int index = i + pos2Id;
-				int d = c - labels[index];
+				int d = c - labels[i];
 				if(d == 0){
-					return index;
+					return i;
 				}
 			}
 			return -1;
 		} else{
 			do{
 				int i = (start + end) / 2;
-				int index = i + pos2Id;
-				int d = c - labels[index];
+				int d = c - labels[i];
 				if(d < 0){
 					end = i;
 				} else if(d > 0){
 					if(start == i) return -1;
 					else start = i;
 				} else{
-					return index;
+					return i;
 				}
 			} while(start != end);
 			return -1;
@@ -349,14 +342,17 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		int nsz = (int)(labels.length * 1.2);
 		if(nsz <= labels.length) nsz = labels.length * 2 + 1;
 		labels = Arrays.copyOf(labels, nsz);
-		tail = Arrays.copyOf(tail, nsz);
 	}
 
-	private SuccinctBitVector bv;
+	protected TailArray newTailArray(int initialCapacity){
+		return new ConcatTailArray(initialCapacity);
+	}
+
+	private Rank0OnlySuccinctBitVector r0;
+	private SuccinctBitVector r1;
 	private int size;
 	private char[] labels;
-	private int[] tail;
-	private CharSequence tails;
+	private TailArray tailArray;
 	private BitSet term;
 	private int nodeSize;
 }

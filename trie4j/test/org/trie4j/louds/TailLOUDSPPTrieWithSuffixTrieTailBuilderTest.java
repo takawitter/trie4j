@@ -2,21 +2,29 @@ package org.trie4j.louds;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.trie4j.Algorithms;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.SuffixTrieTailArray;
+import org.trie4j.tail.TailArray;
 
-public class LOUDSTrieWithSuffixTrieTailBuilderTest extends TrieTestSet{
+public class TailLOUDSPPTrieWithSuffixTrieTailBuilderTest extends TrieTestSet{
 	@Override
 	protected Trie trieWithWords(String... words) {
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		return new LOUDSTrie(trie, new SuffixTrieTailBuilder());
+		return new TailLOUDSPPTrie(trie){
+			@Override
+			protected TailArray newTailArray(int initialCapacity) {
+				return new SuffixTrieTailArray(initialCapacity);
+			}
+		};
 	}
 
 	@Test
@@ -24,7 +32,10 @@ public class LOUDSTrieWithSuffixTrieTailBuilderTest extends TrieTestSet{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		LOUDSTrie lt = new LOUDSTrie(trie);
+		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
+		System.out.println(lt.getR0());
+		System.out.println(lt.getR1());
+		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));
 		}
@@ -44,10 +55,10 @@ public class LOUDSTrieWithSuffixTrieTailBuilderTest extends TrieTestSet{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		LOUDSTrie lt = new LOUDSTrie(trie);
+		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		lt.save(baos);
-		lt = new LOUDSTrie();
+		lt = new TailLOUDSPPTrie();
 		lt.load(new ByteArrayInputStream(baos.toByteArray()));
 		for(String w : words){
 			Assert.assertTrue(lt.contains(w));

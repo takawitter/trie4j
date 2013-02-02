@@ -13,12 +13,12 @@ import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 
-public class LOUDSTrieWithConcatTailBuilderTest extends TrieTestSet{
+public class TailLOUDSTrieWithConcatTailBuilderTest extends TrieTestSet{
 	@Override
 	protected Trie trieWithWords(String... words) {
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		return new LOUDSTrie(trie, new ConcatTailBuilder());
+		return new TailLOUDSTrie(trie, new ConcatTailBuilder());
 	}
 
 	@Test
@@ -26,7 +26,7 @@ public class LOUDSTrieWithConcatTailBuilderTest extends TrieTestSet{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		LOUDSTrie lt = new LOUDSTrie(trie);
+		TailLOUDSTrie lt = new TailLOUDSTrie(trie);
 		System.out.println(lt.getBv());
 		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){
@@ -48,10 +48,10 @@ public class LOUDSTrieWithConcatTailBuilderTest extends TrieTestSet{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		LOUDSTrie lt = new LOUDSTrie(trie);
+		TailLOUDSTrie lt = new TailLOUDSTrie(trie);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		lt.save(baos);
-		lt = new LOUDSTrie();
+		lt = new TailLOUDSTrie();
 		lt.load(new ByteArrayInputStream(baos.toByteArray()));
 		for(String w : words){
 			Assert.assertTrue(lt.contains(w));

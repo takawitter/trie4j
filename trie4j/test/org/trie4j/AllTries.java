@@ -10,8 +10,8 @@ import java.util.TreeSet;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.MapDoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
-import org.trie4j.louds.LOUDSPPTrie;
-import org.trie4j.louds.LOUDSTrie;
+import org.trie4j.louds.TailLOUDSPPTrie;
+import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.patricia.simple.MapPatriciaTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
@@ -217,12 +217,12 @@ public class AllTries {
 			},
 */				new TrieProcess2("TailLOUDSTrie(suffixTrieTail)"){
 				protected Trie buildFrom(Trie trie){
-					return new LOUDSTrie(trie, new SuffixTrieTailBuilder());
+					return new TailLOUDSTrie(trie, new SuffixTrieTailBuilder());
 				}
 			},
 			new TrieProcess2("TailLOUDSTrie(concatTail)"){
 				protected Trie buildFrom(Trie trie){
-					return new LOUDSTrie(trie, new ConcatTailBuilder());
+					return new TailLOUDSTrie(trie, new ConcatTailBuilder());
 				}
 			},
 /*
@@ -234,7 +234,7 @@ public class AllTries {
 */
 			new TrieProcess2("TailLOUDSPPTrie(suffixTrieTail, arrayTi)"){
 				protected Trie buildFrom(Trie trie){
-					return new LOUDSPPTrie(trie){
+					return new TailLOUDSPPTrie(trie){
 						protected TailArray newTailArray(int capacity){
 							return new SuffixTrieTailArray(capacity);
 						}
@@ -243,7 +243,7 @@ public class AllTries {
 			},
 			new TrieProcess2("TailLOUDSPPTrie(concatTail,arrayTi)"){
 				protected Trie buildFrom(Trie trie){
-					return new LOUDSPPTrie(trie){
+					return new TailLOUDSPPTrie(trie){
 						protected TailArray newTailArray(int capacity){
 							return new ConcatTailArray(capacity);
 						}
@@ -252,7 +252,7 @@ public class AllTries {
 			},
 			new TrieProcess2("TailLOUDSPPTrie(concatTail,sbvTi)"){
 				protected Trie buildFrom(Trie trie){
-					return new LOUDSPPTrie(trie){
+					return new TailLOUDSPPTrie(trie){
 						protected TailArray newTailArray(int capacity) {
 							return new SBVConcatTailArray(capacity);
 						};
