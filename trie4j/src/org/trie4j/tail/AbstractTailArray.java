@@ -40,6 +40,7 @@ public abstract class AbstractTailArray implements TailArray{
 
 	@Override
 	public void trimToSize() {
+		tails.trimToSize();
 		index.trimToSize();
 	}
 
