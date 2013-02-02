@@ -15,30 +15,17 @@
  */
 package org.trie4j.tail;
 
-public class ConcatTailBuilder implements TailBuilder{
-	public ConcatTailBuilder() {
-		tails = new StringBuilder();
-	}
-
-	public ConcatTailBuilder(StringBuilder tails) {
-		this.tails = tails;
-	}
-
-	public CharSequence getTails() {
-		return tails;
+public class SuffixTrieTailArray extends AbstractTailArray implements TailArray{
+	public SuffixTrieTailArray(int initialCapacity) {
+		super(initialCapacity);
 	}
 
 	@Override
-	public int insert(char[] letters) {
-		return insert(letters, 0, letters.length);
+	protected TailBuilder newTailBuilder(StringBuilder tails) {
+		return new SuffixTrieTailBuilder(tails);
 	}
-
 	@Override
-	public int insert(char[] letters, int offset, int len){
-		int ret = tails.length();
-		tails.append(letters, offset, len).append('\0');
-		return ret;
+	protected TailIndex newTailIndex(int initialCapacity) {
+		return new ArrayTailIndex(initialCapacity);
 	}
-
-	private StringBuilder tails;
 }

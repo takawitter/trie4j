@@ -11,6 +11,9 @@ public class TailCharIterator{
 		}
 	}
 
+	public void setOffset(int offset){
+		setIndex(offset);
+	}
 	public void setIndex(int index){
 		this.index = index;
 		this.current = '\0';

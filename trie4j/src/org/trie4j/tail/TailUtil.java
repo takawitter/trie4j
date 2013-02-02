@@ -22,4 +22,10 @@ public class TailUtil {
 			builder.append(it.next());
 		}
 	}
+
+	public static String readAll(TailCharIterator it){
+		StringBuilder b = new StringBuilder();
+		while(it.hasNext()) b.append(it.next());
+		return b.toString();
+	}
 }

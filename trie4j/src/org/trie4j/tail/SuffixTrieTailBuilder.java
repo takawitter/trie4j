@@ -19,6 +19,14 @@ import java.util.Arrays;
 
 
 public class SuffixTrieTailBuilder implements TailBuilder{
+	public SuffixTrieTailBuilder(){
+		tails = new StringBuilder();
+	}
+
+	public SuffixTrieTailBuilder(StringBuilder tails){
+		this.tails = tails;
+	}
+
 	public Node getRoot(){
 		return root;
 	}

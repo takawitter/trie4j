@@ -15,30 +15,19 @@
  */
 package org.trie4j.tail;
 
-public class ConcatTailBuilder implements TailBuilder{
-	public ConcatTailBuilder() {
-		tails = new StringBuilder();
-	}
+import org.junit.Assert;
+import org.junit.Test;
 
-	public ConcatTailBuilder(StringBuilder tails) {
-		this.tails = tails;
+public class ConcatTailArrayTest {
+	@Test
+	public void test_tailtrie_1() throws Exception{
+		TailArray tb = new ConcatTailArray(0);
+		tb.append("hello".toCharArray(), 0, 5);
+		tb.append("mello".toCharArray(), 0, 5);
+		TailCharIterator it = tb.newIterator();
+		it.setOffset(tb.getIteratorOffset(0));
+		Assert.assertEquals("hello", TailUtil.readAll(it));
+		it.setOffset(tb.getIteratorOffset(1));
+		Assert.assertEquals("mello", TailUtil.readAll(it));
 	}
-
-	public CharSequence getTails() {
-		return tails;
-	}
-
-	@Override
-	public int insert(char[] letters) {
-		return insert(letters, 0, letters.length);
-	}
-
-	@Override
-	public int insert(char[] letters, int offset, int len){
-		int ret = tails.length();
-		tails.append(letters, offset, len).append('\0');
-		return ret;
-	}
-
-	private StringBuilder tails;
 }
