@@ -32,12 +32,18 @@ import org.trie4j.patricia.simple.MapPatriciaTrieTest;
 import org.trie4j.patricia.simple.PatriciaTrieTest;
 import org.trie4j.patricia.tail.TailPatriciaTrieWithConcatTailBuilderTest;
 import org.trie4j.patricia.tail.TailPatriciaTrieWithSuffixTrieTailBuilderTest;
-import org.trie4j.tail.SuffixTrieTailBuilderTest;
+import org.trie4j.tail.ConcatTailArrayTest;
+import org.trie4j.tail.builder.SuffixTrieTailBuilderTest;
+import org.trie4j.tail.index.ArrayTailIndexTest;
+import org.trie4j.tail.index.SBVTailIndexTest;
 import org.trie4j.util.SuccinctBitVectorTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	SuffixTrieTailBuilderTest.class,
+	ArrayTailIndexTest.class,
+	SBVTailIndexTest.class,
+	ConcatTailArrayTest.class,
 	SuccinctBitVectorTest.class,
 	BitVectorUtilTest.class,
 	AlgorithmsTest.class,
