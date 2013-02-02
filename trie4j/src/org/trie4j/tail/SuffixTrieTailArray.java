@@ -15,6 +15,9 @@
  */
 package org.trie4j.tail;
 
+import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.index.ArrayTailIndex;
+
 public class SuffixTrieTailArray extends AbstractTailArray implements TailArray{
 	public SuffixTrieTailArray(int initialCapacity) {
 		super(initialCapacity);

@@ -1,4 +1,4 @@
-package org.trie4j.tail;
+package org.trie4j.tail.index;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+
+import org.trie4j.tail.TailIndex;
 
 public class ArrayTailIndex implements TailIndex{
 	public ArrayTailIndex() {

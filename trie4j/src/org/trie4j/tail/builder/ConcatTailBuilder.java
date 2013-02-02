@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.tail;
+package org.trie4j.tail.builder;
+
+import org.trie4j.tail.TailBuilder;
 
 public class ConcatTailBuilder implements TailBuilder{
 	public ConcatTailBuilder() {

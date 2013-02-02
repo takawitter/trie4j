@@ -1,9 +1,10 @@
-package org.trie4j.tail;
+package org.trie4j.tail.index;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.trie4j.tail.TailIndex;
 import org.trie4j.util.SuccinctBitVector;
 
 public class SBVTailIndex implements TailIndex{
