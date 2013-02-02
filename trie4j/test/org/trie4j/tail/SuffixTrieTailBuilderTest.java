@@ -17,7 +17,7 @@ package org.trie4j.tail;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.tail.SuffixTrieTailBuilder;
+import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 
 public class SuffixTrieTailBuilderTest {
 	@Test

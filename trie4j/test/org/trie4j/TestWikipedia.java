@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 import org.trie4j.patricia.multilayer.node.LabelTrieNode;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
-import org.trie4j.tail.ConcatTailBuilder;
+import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 

@@ -26,7 +26,7 @@ import org.trie4j.Algorithms;
 import org.trie4j.Node;
 import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
-import org.trie4j.tail.SuffixTrieTailBuilder;
+import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 
 public class LOUDSTrieWikipediaTest extends AbstractWikipediaTest{
 	@Override

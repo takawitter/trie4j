@@ -1,6 +1,7 @@
 package org.trie4j.tail;
 
 import org.junit.Test;
+import org.trie4j.tail.index.SBVTailIndex;
 
 import junit.framework.Assert;
 

@@ -29,7 +29,7 @@ public class AbstractWikipediaTest {
 
 	protected Trie createFirstTrie(){
 //		return new PatriciaTrie();
-		return new org.trie4j.patricia.tail.TailPatriciaTrie(new org.trie4j.tail.ConcatTailBuilder());
+		return new org.trie4j.patricia.tail.TailPatriciaTrie(new org.trie4j.tail.builder.ConcatTailBuilder());
 	}
 	
 	protected Trie buildSecondTrie(Trie first) throws Exception{

@@ -11,7 +11,7 @@ import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.ConcatTailBuilder;
+import org.trie4j.tail.builder.ConcatTailBuilder;
 
 public class LOUDSTrieWithConcatTailBuilderTest extends TrieTestSet{
 	@Override
