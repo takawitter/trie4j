@@ -33,10 +33,10 @@ import java.util.List;
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.TailUtil;
+import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.util.Pair;
 import org.trie4j.util.SuccinctBitVector;
 

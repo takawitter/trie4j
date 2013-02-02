@@ -24,9 +24,9 @@ import java.util.NoSuchElementException;
 
 import org.trie4j.AbstractTrie;
 import org.trie4j.Trie;
-import org.trie4j.tail.SuffixTrieTailBuilder;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
+import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.util.Pair;
 
 public class TailPatriciaTrie extends AbstractTrie implements Trie{
