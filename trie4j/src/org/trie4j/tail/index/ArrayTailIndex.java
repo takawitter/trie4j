@@ -69,6 +69,6 @@ public class ArrayTailIndex implements TailIndex{
 		}
 	}
 
-	private int[] tail = new int[1024];
+	private int[] tail = new int[]{};
 	private int current;
 }
