@@ -27,7 +27,7 @@ import org.trie4j.louds.TailLOUDSPPTrieWithConcatTailBuilderTest;
 import org.trie4j.louds.TailLOUDSPPTrieWithSuffixTrieTailBuilderTest;
 import org.trie4j.louds.TailLOUDSTrieWithConcatTailBuilderTest;
 import org.trie4j.louds.TailLOUDSTrieWithSuffixTrieTailBuilderTest;
-import org.trie4j.louds.NoTailLOUDSTrieTest;
+import org.trie4j.louds.LOUDSTrieTest;
 import org.trie4j.patricia.simple.MapPatriciaTrieTest;
 import org.trie4j.patricia.simple.PatriciaTrieTest;
 import org.trie4j.patricia.tail.TailPatriciaTrieWithConcatTailBuilderTest;
@@ -56,7 +56,7 @@ import org.trie4j.util.SuccinctBitVectorTest;
 	TailDoubleArrayWithSuffixTrieTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithConcatTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest.class,
-	NoTailLOUDSTrieTest.class,
+	LOUDSTrieTest.class,
 	TailLOUDSTrieWithConcatTailBuilderTest.class,
 	TailLOUDSTrieWithSuffixTrieTailBuilderTest.class,
 	TailLOUDSPPTrieWithConcatTailBuilderTest.class,

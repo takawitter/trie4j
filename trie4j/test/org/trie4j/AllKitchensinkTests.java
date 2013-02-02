@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.trie4j.doublearray.OptimizedTailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest;
-import org.trie4j.louds.NoTailLOUDSTrieTest;
+import org.trie4j.louds.LOUDSTrieTest;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTriePackedTest;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrieTest;
 
@@ -29,7 +29,7 @@ import org.trie4j.patricia.multilayer.MultilayerPatriciaTrieTest;
 	MultilayerPatriciaTriePackedTest.class,
 	OptimizedTailDoubleArrayWithConcatTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest.class,
-	NoTailLOUDSTrieTest.class,
+	LOUDSTrieTest.class,
 })
 public class AllKitchensinkTests {
 }
