@@ -12,19 +12,13 @@ import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.tail.SuffixTrieTailArray;
-import org.trie4j.tail.TailArray;
 
 public class TailLOUDSPPTrieWithSuffixTrieTailBuilderTest extends TrieTestSet{
 	@Override
 	protected Trie trieWithWords(String... words) {
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		return new TailLOUDSPPTrie(trie){
-			@Override
-			protected TailArray newTailArray(int initialCapacity) {
-				return new SuffixTrieTailArray(initialCapacity);
-			}
-		};
+		return new TailLOUDSPPTrie(trie, new SuffixTrieTailArray(trie.size()));
 	}
 
 	@Test
@@ -33,8 +27,7 @@ public class TailLOUDSPPTrieWithSuffixTrieTailBuilderTest extends TrieTestSet{
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
 		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
-		System.out.println(lt.getR0());
-		System.out.println(lt.getR1());
+		System.out.println(lt.getBvTree());
 		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));

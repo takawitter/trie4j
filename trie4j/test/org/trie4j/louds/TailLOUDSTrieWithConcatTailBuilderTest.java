@@ -11,14 +11,14 @@ import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.builder.ConcatTailBuilder;
+import org.trie4j.tail.ConcatTailArray;
 
 public class TailLOUDSTrieWithConcatTailBuilderTest extends TrieTestSet{
 	@Override
 	protected Trie trieWithWords(String... words) {
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		return new TailLOUDSTrie(trie, new ConcatTailBuilder());
+		return new TailLOUDSTrie(trie, new ConcatTailArray(trie.size()));
 	}
 
 	@Test
@@ -26,8 +26,8 @@ public class TailLOUDSTrieWithConcatTailBuilderTest extends TrieTestSet{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		TailLOUDSTrie lt = new TailLOUDSTrie(trie);
-		System.out.println(lt.getBv());
+		Trie lt = new AbstractTailLOUDSTrie(trie);
+//		System.out.println(lt.getBv());
 		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));

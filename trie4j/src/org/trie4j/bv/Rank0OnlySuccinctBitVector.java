@@ -40,7 +40,8 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		for(int i = 0; i < size; i++){
+		int n = Math.min(size, 32);
+		for(int i = 0; i < n; i++){
 			b.append((vector[(i / 8)] & (0x80 >> (i % 8))) != 0 ? "1" : "0");
 		}
 		return b.toString();

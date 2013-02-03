@@ -7,6 +7,7 @@ import java.io.OutputStream;
 public interface TailArray {
 	int append(char[] letters, int offset, int len);
 	int appendEmpty();
+	TailCharIterator newIterator(int offset);
 	TailCharIterator newIterator();
 	int getIteratorOffset(int index);
 	void trimToSize();

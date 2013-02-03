@@ -9,14 +9,14 @@ import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.SuffixTrieTailArray;
 
 public class TailLOUDSTrieWithSuffixTrieTailBuilderTest extends TrieTestSet{
 	@Override
 	protected Trie trieWithWords(String... words) {
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		return new TailLOUDSTrie(trie, new SuffixTrieTailBuilder());
+		return new TailLOUDSTrie(trie, new SuffixTrieTailArray(trie.size()));
 	}
 
 	@Test

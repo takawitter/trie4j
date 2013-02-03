@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.util;
+package org.trie4j.bv;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -25,12 +25,12 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class SuccinctBitVector implements Serializable, org.trie4j.bv.SuccinctBitVector{
-	public SuccinctBitVector(){
+public class Select0OnlySuccinctBitVector implements Serializable, BitVector{
+	public Select0OnlySuccinctBitVector(){
 		this(16);
 	}
 
-	public SuccinctBitVector(int initialCapacity){
+	public Select0OnlySuccinctBitVector(int initialCapacity){
 		vector = new byte[initialCapacity / 8 + 1];
 		int blockSize = CACHE_WIDTH;
 		int size = initialCapacity / blockSize + 1;
@@ -41,8 +41,7 @@ public class SuccinctBitVector implements Serializable, org.trie4j.bv.SuccinctBi
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		int n = Math.min(size, 32);
-		for(int i = 0; i < n; i++){
+		for(int i = 0; i < size; i++){
 			b.append((vector[(i / 8)] & (0x80 >> (i % 8))) != 0 ? "1" : "0");
 		}
 		return b.toString();
@@ -111,95 +110,6 @@ public class SuccinctBitVector implements Serializable, org.trie4j.bv.SuccinctBi
 		size++;
 	}
 
-	public void append(boolean bit){
-		if(bit) append1();
-		else append0();
-	}
-
-	public int rank1(int pos){
-		int ret = 0;
-		int cn = pos / CACHE_WIDTH;
-		if(cn > 0){
-			ret = cn * CACHE_WIDTH - countCache0[cn - 1];
-		}
-		int n = pos / 8;
-		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
-			ret += BITCOUNTS1[vector[i] & 0xff];
-		}
-		ret += BITCOUNTS1[vector[n] & MASKS[pos % 8]];
-		return ret;
-	}
-
-	public int rank0(int pos){
-		int ret = 0;
-		int cn = pos / CACHE_WIDTH;
-		if(cn > 0){
-			ret = countCache0[cn - 1];
-		}
-		int n = pos / 8;
-		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
-			ret += BITCOUNTS0[vector[i] & 0xff];
-		}
-		ret += BITCOUNTS0[vector[n] & MASKS[pos % 8]] - 7 + (pos % 8);
-		return ret;
-	}
-
-	public int rank(int pos, boolean b){
-		if(b) return rank1(pos);
-		else return rank0(pos);
-	}
-
-	public int select0_(int count){
-		if(count <= 2){
-			if(count == 1) return node1pos;
-			else return node2pos;
-		}
-		int block = count / CACHE_WIDTH;
-		int i = indexCache0[block] / 8;
-		if(i > 0){
-			count -= countCache0[(i - 1) / CACHE_WIDTH * 8];
-		}
-		if(count > 0){
-			for(; i < vector.length; i++){
-				if(i * 8 >= size) return -1;
-				int c = BITCOUNTS0[vector[i] & 0xff];
-				if(count <= c){
-					int v = vector[i] & 0xff;
-					for(int j = 0; j < 8; j++){
-						if(i * 8 + j >= size) return -1;
-						if((v & 0x80) == 0){
-							count--;
-							if(count == 0){
-								return i * 8 + j;
-							}
-						}
-						v <<= 1;
-					}
-				}
-				count -= c;
-			}
-		} else{
-			count--;
-			i = Math.min(((i + 1) * CACHE_WIDTH) - 1, size - 1);
-			int v = vector[i / 8] & 0xff;
-			v >>= 8 - (i % 8) - 1;
-			while(i >= 0){
-				if((v & 0x01) == 0){
-					count++;
-					if(count == 0){
-						return i;
-					}
-				}
-				if(i % 8 == 0){
-					v = vector[(i - 1) / 8] & 0xff;
-				} else{
-					v >>= 1;
-				}
-				i--;
-			}		}
-		return -1;
-	}
-
 	public int select0(int count){
 		if(count > size) return -1;
 		if(count <= 3){
@@ -260,33 +170,6 @@ public class SuccinctBitVector implements Serializable, org.trie4j.bv.SuccinctBi
 			count -= c;
 		}
 		return -1;
-	}
-
-	public int select1(int count){
-		for(int i = 0; i < vector.length; i++){
-			if(i * 8 >= size) return -1;
-			int c = BITCOUNTS1[vector[i] & 0xff];
-			if(count <= c){
-				int v = vector[i] & 0xff;
-				for(int j = 0; j < 8; j++){
-					if(i * 8 + j >= size) return -1;
-					if((v & 0x80) != 0){
-						count--;
-						if(count == 0){
-							return i * 8 + j;
-						}
-					}
-					v <<= 1;
-				}
-			}
-			count -= c;
-		}
-		return -1;
-	}
-
-	public int select(int count, boolean b){
-		if(b) return select1(count);
-		else return select0(count);
 	}
 
 	public int next0(int pos){
@@ -403,31 +286,9 @@ public class SuccinctBitVector implements Serializable, org.trie4j.bv.SuccinctBi
 	private int[] countCache0;
 	private int[] indexCache0;
 
-	private static final int[] MASKS = {
-		0x80, 0xc0, 0xe0, 0xf0
-		, 0xf8, 0xfc, 0xfe, 0xff
-	};
 	private static final byte[] BITS = {
 		(byte)0x80, (byte)0x40, (byte)0x20, (byte)0x10
 		, (byte)0x08, (byte)0x04, (byte)0x02, (byte)0x01
-	};
-	private static final byte[] BITCOUNTS1 = {
-		0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
-		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-		4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
 	};
 	private static final byte[] BITCOUNTS0 = {
 		8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4, 

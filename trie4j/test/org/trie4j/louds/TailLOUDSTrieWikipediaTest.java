@@ -26,13 +26,15 @@ import org.trie4j.Algorithms;
 import org.trie4j.Node;
 import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.louds.bvtree.LOUDSBvTree;
+import org.trie4j.tail.SuffixTrieTailArray;
 
 public class TailLOUDSTrieWikipediaTest extends AbstractWikipediaTest{
 	@Override
 	protected Trie buildSecondTrie(Trie first) {
 		bv.resetCounts();
-		TailLOUDSTrie t = new TailLOUDSTrie(first, new SuffixTrieTailBuilder(), bv);
+		TailLOUDSTrie t = new TailLOUDSTrie(
+				first, new LOUDSBvTree(bv), new SuffixTrieTailArray(first.size()));
 		return t;
 	}
 

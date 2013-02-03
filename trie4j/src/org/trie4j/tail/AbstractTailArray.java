@@ -34,6 +34,11 @@ public abstract class AbstractTailArray implements TailArray{
 	}
 
 	@Override
+	public TailCharIterator newIterator(int offset) {
+		return new TailCharIterator(tails, offset);
+	}
+	
+	@Override
 	public int getIteratorOffset(int index) {
 		return this.index.get(index);
 	}

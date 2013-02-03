@@ -29,8 +29,7 @@ public class TailLOUDSPPTrieWithConcatTailBuilderTest extends TrieTestSet{
 		
 		final SBVTailIndex ti = new SBVTailIndex();
 		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
-		System.out.println(lt.getR0());
-		System.out.println(lt.getR1());
+		System.out.println(lt.getBvTree());
 		System.out.println(ti.getSBV());
 		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){

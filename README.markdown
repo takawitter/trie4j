@@ -77,9 +77,8 @@ with 1.27 million words and 10.04 million chars contained in jawiki-20120220-all
 ### Sample codes:
 ```java
 import org.trie4j.doublearray.DoubleArray;
-import org.trie4j.louds.LOUDSTrie;
+import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.ConcatTailBuilder;
 
 public class Sample {
 	public static void main(String[] args) throws Exception{
@@ -94,7 +93,7 @@ public class Sample {
 		DoubleArray da = new DoubleArray(pat); // construct DoubleArray from existing Trie
 		da.contains("World"); // -> true
 		
-		LOUDSTrie lt = new LOUDSTrie(pat, new ConcatTailBuilder()); // construct LOUDS succinct Trie with ConcatTailBuilder
+		TailLOUDSTrie lt = new TailLOUDSTrie(pat); // construct LOUDS succinct Trie with ConcatTailBuilder(default)
 		lt.contains("Wonderful!"); // -> true
 		lt.commonPrefixSearch("Wonderful!"); // -> {"Wonder", "Wonderful!"} as Iterable<String>
 	}

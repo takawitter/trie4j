@@ -10,6 +10,8 @@ import java.util.TreeSet;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.MapDoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
+import org.trie4j.louds.InlinedTailLOUDSPPTrie;
+import org.trie4j.louds.InlinedTailLOUDSTrie;
 import org.trie4j.louds.TailLOUDSPPTrie;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.patricia.simple.MapPatriciaTrie;
@@ -18,7 +20,6 @@ import org.trie4j.patricia.tail.TailPatriciaTrie;
 import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.tail.SBVConcatTailArray;
 import org.trie4j.tail.SuffixTrieTailArray;
-import org.trie4j.tail.TailArray;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.test.LapTimer;
@@ -174,6 +175,7 @@ public class AllTries {
 					return runForTrie(new TailPatriciaTrie(new ConcatTailBuilder()));
 				}
 			},
+//*/
 /*				new TrieProcess("MultilayerPatriciaTrie(no pack)"){
 				public Pair<Long, Long> run() throws IOException {
 					return runForTrie(new MultilayerPatriciaTrie());
@@ -188,7 +190,7 @@ public class AllTries {
 				}
 			},
 //*/
-
+//*
 			new TrieProcess2("DoubleArray"){
 				protected Trie buildFrom(Trie trie){
 					return new DoubleArray(trie);
@@ -209,54 +211,52 @@ public class AllTries {
 					return new TailDoubleArray(trie, new ConcatTailBuilder());
 				}
 			},
-
-/*				new TrieProcess2("LOUDSTrie"){
-				protected Trie buildFrom(Trie trie){
-					return new NoTailLOUDSTrie(trie, 65536);
-				}
-			},
-*/				new TrieProcess2("TailLOUDSTrie(suffixTrieTail)"){
-				protected Trie buildFrom(Trie trie){
-					return new TailLOUDSTrie(trie, new SuffixTrieTailBuilder());
-				}
-			},
-			new TrieProcess2("TailLOUDSTrie(concatTail)"){
-				protected Trie buildFrom(Trie trie){
-					return new TailLOUDSTrie(trie, new ConcatTailBuilder());
-				}
-			},
+//*/
 /*
-			new TrieProcess2("CopyOfTailLOUDSPPTrie(concatTail)"){
+			new TrieProcess2("LOUDSTrie"){
 				protected Trie buildFrom(Trie trie){
-					return new CopyOfLOUDSPPTrie(trie, new ConcatTailBuilder());
+					return new LOUDSTrie(trie, 65536);
 				}
 			},
-*/
-			new TrieProcess2("TailLOUDSPPTrie(suffixTrieTail, arrayTi)"){
+//*/
+			new TrieProcess2("TailLOUDSTrie(suffixTrieTail,arrayTI)"){
 				protected Trie buildFrom(Trie trie){
-					return new TailLOUDSPPTrie(trie){
-						protected TailArray newTailArray(int capacity){
-							return new SuffixTrieTailArray(capacity);
-						}
-					};
+					return new TailLOUDSTrie(trie, new SuffixTrieTailArray(trie.size()));
 				}
 			},
-			new TrieProcess2("TailLOUDSPPTrie(concatTail,arrayTi)"){
+			new TrieProcess2("TailLOUDSTrie(concatTail,arrayTI)"){
 				protected Trie buildFrom(Trie trie){
-					return new TailLOUDSPPTrie(trie){
-						protected TailArray newTailArray(int capacity){
-							return new ConcatTailArray(capacity);
-						}
-					};
+					return new TailLOUDSTrie(trie, new ConcatTailArray(trie.size()));
 				}
 			},
-			new TrieProcess2("TailLOUDSPPTrie(concatTail,sbvTi)"){
+			new TrieProcess2("TailLOUDSTrie(concatTail,sbvTI)"){
 				protected Trie buildFrom(Trie trie){
-					return new TailLOUDSPPTrie(trie){
-						protected TailArray newTailArray(int capacity) {
-							return new SBVConcatTailArray(capacity);
-						};
-					};
+					return new TailLOUDSTrie(trie, new SBVConcatTailArray(trie.size()));
+				}
+			},
+			new TrieProcess2("TailLOUDSPPTrie(suffixTrieTail,arrayTI)"){
+				protected Trie buildFrom(Trie trie){
+					return new TailLOUDSPPTrie(trie, new SuffixTrieTailArray(trie.size()));
+				}
+			},
+			new TrieProcess2("TailLOUDSPPTrie(concatTail,arrayTI)"){
+				protected Trie buildFrom(Trie trie){
+					return new TailLOUDSPPTrie(trie, new ConcatTailArray(trie.size()));
+				}
+			},
+			new TrieProcess2("TailLOUDSPPTrie(concatTail,sbvTI)"){
+				protected Trie buildFrom(Trie trie){
+					return new TailLOUDSPPTrie(trie, new SBVConcatTailArray(trie.size()));
+				}
+			},
+			new TrieProcess2("InlinedTailLOUDSTrie(concatTail,arrayTI)"){
+				protected Trie buildFrom(Trie trie){
+					return new InlinedTailLOUDSTrie(trie, new ConcatTailBuilder());
+				}
+			},
+			new TrieProcess2("InlinedTailLOUDSPPTrie(concatTail,arrayTI)"){
+				protected Trie buildFrom(Trie trie){
+					return new InlinedTailLOUDSPPTrie(trie);
 				}
 			},
 		};
@@ -275,8 +275,8 @@ public class AllTries {
 		for(Process p : procs){
 			System.out.print(p.getName());
 			p.run();
-			System.gc();
-			System.gc();
+			mb.gc();
+			mb.gc();
 			long b = 0, c = 0;
 			for(int i = 0; i < n; i++){
 				Pair<Long, Long> r = p.run();
