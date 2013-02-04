@@ -25,6 +25,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -343,47 +344,51 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	}
 
 	@Override
-	public void dump(PrintWriter writer){
-		writer.println("array size: " + base.length);
-		writer.print("      |");
-		for(int i = 0; i < 16; i++){
-			writer.print(String.format("%3d|", i));
-		}
-		writer.println();
-		writer.print("|base |");
-		for(int i = 0; i < 16; i++){
-			if(base[i] == BASE_EMPTY){
-				writer.print("N/A|");
-			} else{
-				writer.print(String.format("%3d|", base[i]));
+	public void dump(Writer w){
+		PrintWriter writer = new PrintWriter(w);
+		try{
+			writer.println("array size: " + base.length);
+			writer.print("      |");
+			for(int i = 0; i < 16; i++){
+				writer.print(String.format("%3d|", i));
 			}
-		}
-		writer.println();
-		writer.print("|check|");
-		for(int i = 0; i < 16; i++){
-			if(check[i] < 0){
-				writer.print("N/A|");
-			} else{
-				writer.print(String.format("%3d|", check[i]));
+			writer.println();
+			writer.print("|base |");
+			for(int i = 0; i < 16; i++){
+				if(base[i] == BASE_EMPTY){
+					writer.print("N/A|");
+				} else{
+					writer.print(String.format("%3d|", base[i]));
+				}
 			}
+			writer.println();
+			writer.print("|check|");
+			for(int i = 0; i < 16; i++){
+				if(check[i] < 0){
+					writer.print("N/A|");
+				} else{
+					writer.print(String.format("%3d|", check[i]));
+				}
+			}
+			writer.println();
+			writer.print("|term |");
+			for(int i = 0; i < 16; i++){
+				writer.print(String.format("%3d|", term.get(i) ? 1 : 0));
+			}
+			writer.println();
+			writer.print("chars: ");
+			int c = 0;
+			for(char e : chars){
+				writer.print(String.format("%c:%d,", e, (int)charToCode[e]));
+				c++;
+				if(c > 16) break;
+			}
+			writer.println();
+			writer.println("chars count: " + chars.size());
+			writer.println();
+		} finally{
+			writer.flush();
 		}
-		writer.println();
-		writer.print("|term |");
-		for(int i = 0; i < 16; i++){
-			writer.print(String.format("%3d|", term.get(i) ? 1 : 0));
-		}
-		writer.println();
-		writer.print("chars: ");
-		int c = 0;
-		for(char e : chars){
-			writer.print(String.format("%c:%d,", e, (int)charToCode[e]));
-			c++;
-			if(c > 16) break;
-		}
-		writer.println();
-		writer.println("chars count: " + chars.size());
-		writer.println();
-		writer.flush();
 	}
 
 	private void build(Node node, int nodeIndex){

@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -104,19 +104,19 @@ public class InlinedTailLOUDSPPTrie extends AbstractTrie implements Trie {
 	}
 
 	@Override
-	public void dump(PrintWriter writer) {
+	public void dump(Writer writer) throws IOException{
 		super.dump(writer);
 		String r0s = r0.toString();
-		writer.println("r0: " + ((r0s.length() > 100) ? r0s.substring(0, 100) : r0s));
+		writer.write("r0: " + ((r0s.length() > 100) ? r0s.substring(0, 100) : r0s));
 		String r1s = r1.toString();
-		writer.println("r1: " + ((r1s.length() > 100) ? r1s.substring(0, 100) : r1s));
-		writer.print("labels: ");
+		writer.write("\nr1: " + ((r1s.length() > 100) ? r1s.substring(0, 100) : r1s));
+		writer.write("\nlabels: ");
 		int count = 0;
 		for(char c : labels){
-			writer.print(c);
+			writer.write(c);
 			if(count++ == 99) break;
 		}
-		writer.println();
+		writer.write("\n");
 	}
 
 	@Override

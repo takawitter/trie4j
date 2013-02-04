@@ -25,6 +25,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -324,117 +325,122 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	}
 
 	@Override
-	public void dump(PrintWriter writer){
-		writer.println("--- dump " + getClass().getSimpleName() + " ---");
-		writer.println("array size: " + base.length);
-		writer.println("last index of valid element: " + last);
-		int vc = 0;
-		for(int i = 0; i < base.length; i++){
-			if(base[i] != BASE_EMPTY || check[i] >= 0) vc++;
-		}
-		writer.println("valid elements: " + vc);
-		writer.print("      |");
-		for(int i = 0; i < 16; i++){
-			writer.print(String.format("%3d|", i));
-		}
-		writer.println();
-		writer.print("|base |");
-		for(int i = 0; i < 16; i++){
-			if(base[i] == BASE_EMPTY){
-				writer.print("N/A|");
-			} else{
-				writer.print(String.format("%3d|", base[i]));
+	public void dump(Writer w){
+		PrintWriter writer = new PrintWriter(w);
+		try{
+			writer.println("--- dump " + getClass().getSimpleName() + " ---");
+			writer.println("array size: " + base.length);
+			writer.println("last index of valid element: " + last);
+			int vc = 0;
+			for(int i = 0; i < base.length; i++){
+				if(base[i] != BASE_EMPTY || check[i] >= 0) vc++;
 			}
-		}
-		writer.println();
-		writer.print("|check|");
-		for(int i = 0; i < 16; i++){
-			if(check[i] < 0){
-				writer.print("N/A|");
-			} else{
-				writer.print(String.format("%3d|", check[i]));
-			}
-		}
-		writer.println();
-		writer.print("|tail |");
-		for(int i = 0; i < 16; i++){
-			if(tail[i] < 0){
-				writer.print("N/A|");
-			} else{
-				writer.print(String.format("%3d|", tail[i]));
-			}
-		}
-		writer.println();
-		writer.print("|term |");
-		for(int i = 0; i < 16; i++){
-			writer.print(String.format("%3d|", term.get(i) ? 1 : 0));
-		}
-		writer.println();
-		int count = 0;
-		for(int i : tail){
-			if(i != -1) count++;
-		}
-		writer.println("tail count: " + count);
-		writer.println();
-		writer.print("tails: [");
-		char[] tailChars = tails.subSequence(0, Math.min(tails.length(), 64)).toString().toCharArray();
-		for(int i = 0; i < tailChars.length; i++){
-			char c = tailChars[i];
-			if(c == '\0'){
-				writer.print("\\0");
-				continue;
-			}
-			if(c == '\1'){
-				int index = tailChars[i + 1] + (tailChars[i + 2] << 16);
-				i += 2;
-				writer.print(String.format("\\1(%d)", index));
-				continue;
-			}
-			writer.print(c);
-		}
-		writer.println("]");
-		writer.print("tailBuf size: " + tails.length());
-		if(tails instanceof StringBuilder){
-			writer.print("(capacity: " + ((StringBuilder)tails).capacity() + ")");
-		}
-		writer.println();
-		{
-			writer.print("chars: ");
-			int c = 0;
-			for(char e : chars){
-				writer.print(String.format("%c:%d,", e, (int)charToCode[e]));
-				c++;
-				if(c > 16) break;
+			writer.println("valid elements: " + vc);
+			writer.print("      |");
+			for(int i = 0; i < 16; i++){
+				writer.print(String.format("%3d|", i));
 			}
 			writer.println();
-			writer.println("chars count: " + chars.size());
-		}
-		{
-			writer.println("calculating max and min base.");
-			int min = Integer.MAX_VALUE;
-			int max = Integer.MIN_VALUE;
-			int maxDelta = Integer.MIN_VALUE;
-			for(int i = 0; i < base.length; i++){
-				int b = base[i];
-				if(b == BASE_EMPTY) continue;
-				min = Math.min(min, b);
-				max = Math.max(max, b);
-				maxDelta = Math.max(maxDelta, Math.abs(i - b));
+			writer.print("|base |");
+			for(int i = 0; i < 16; i++){
+				if(base[i] == BASE_EMPTY){
+					writer.print("N/A|");
+				} else{
+					writer.print(String.format("%3d|", base[i]));
+				}
 			}
-			writer.println("maxDelta: " + maxDelta);
-			writer.println("max: " + max);
-			writer.println("min: " + min);
-		}
-		{
-			writer.println("calculating min check.");
-			int min = Integer.MAX_VALUE;
-			for(int i = 0; i < base.length; i++){
-				int b = check[i];
-				min = Math.min(min, b);
+			writer.println();
+			writer.print("|check|");
+			for(int i = 0; i < 16; i++){
+				if(check[i] < 0){
+					writer.print("N/A|");
+				} else{
+					writer.print(String.format("%3d|", check[i]));
+				}
 			}
-			writer.println("min: " + min);
+			writer.println();
+			writer.print("|tail |");
+			for(int i = 0; i < 16; i++){
+				if(tail[i] < 0){
+					writer.print("N/A|");
+				} else{
+					writer.print(String.format("%3d|", tail[i]));
+				}
+			}
+			writer.println();
+			writer.print("|term |");
+			for(int i = 0; i < 16; i++){
+				writer.print(String.format("%3d|", term.get(i) ? 1 : 0));
+			}
+			writer.println();
+			int count = 0;
+			for(int i : tail){
+				if(i != -1) count++;
+			}
+			writer.println("tail count: " + count);
+			writer.println();
+			writer.print("tails: [");
+			char[] tailChars = tails.subSequence(0, Math.min(tails.length(), 64)).toString().toCharArray();
+			for(int i = 0; i < tailChars.length; i++){
+				char c = tailChars[i];
+				if(c == '\0'){
+					writer.print("\\0");
+					continue;
+				}
+				if(c == '\1'){
+					int index = tailChars[i + 1] + (tailChars[i + 2] << 16);
+					i += 2;
+					writer.print(String.format("\\1(%d)", index));
+					continue;
+				}
+				writer.print(c);
+			}
+			writer.println("]");
+			writer.print("tailBuf size: " + tails.length());
+			if(tails instanceof StringBuilder){
+				writer.print("(capacity: " + ((StringBuilder)tails).capacity() + ")");
+			}
+			writer.println();
+			{
+				writer.print("chars: ");
+				int c = 0;
+				for(char e : chars){
+					writer.print(String.format("%c:%d,", e, (int)charToCode[e]));
+					c++;
+					if(c > 16) break;
+				}
+				writer.println();
+				writer.println("chars count: " + chars.size());
+			}
+			{
+				writer.println("calculating max and min base.");
+				int min = Integer.MAX_VALUE;
+				int max = Integer.MIN_VALUE;
+				int maxDelta = Integer.MIN_VALUE;
+				for(int i = 0; i < base.length; i++){
+					int b = base[i];
+					if(b == BASE_EMPTY) continue;
+					min = Math.min(min, b);
+					max = Math.max(max, b);
+					maxDelta = Math.max(maxDelta, Math.abs(i - b));
+				}
+				writer.println("maxDelta: " + maxDelta);
+				writer.println("max: " + max);
+				writer.println("min: " + min);
+			}
+			{
+				writer.println("calculating min check.");
+				int min = Integer.MAX_VALUE;
+				for(int i = 0; i < base.length; i++){
+					int b = check[i];
+					min = Math.min(min, b);
+				}
+				writer.println("min: " + min);
+			}
+			writer.println();
+		} finally{
+			writer.flush();
 		}
-		writer.println();
 	}
 
 	@Override

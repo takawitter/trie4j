@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -97,16 +97,16 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	@Override
-	public void dump(PrintWriter writer) {
+	public void dump(Writer writer) throws IOException{
 		super.dump(writer);
-		writer.println(bvtree);
-		writer.print("labels: ");
+		writer.write(bvtree.toString());
+		writer.write("\nlabels: ");
 		int count = 0;
 		for(char c : labels){
-			writer.print(c);
+			writer.write(c);
 			if(count++ == 99) break;
 		}
-		writer.println();
+		writer.write("\n");
 	}
 
 	Range r = new Range();

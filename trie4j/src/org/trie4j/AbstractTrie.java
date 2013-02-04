@@ -15,7 +15,8 @@
  */
 package org.trie4j;
 
-import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Iterator;
 
 public abstract class AbstractTrie implements Trie{
@@ -32,8 +33,8 @@ public abstract class AbstractTrie implements Trie{
 	}
 
 	@Override
-	public void dump(PrintWriter writer){
-		System.out.println("-- dump " + getClass().getName() + " --");
+	public void dump(Writer writer) throws IOException{
+		writer.write("-- dump " + getClass().getName() + " --\n");
 		Algorithms.dump(getRoot(), writer);
 	}
 

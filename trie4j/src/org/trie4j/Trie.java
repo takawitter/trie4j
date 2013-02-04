@@ -15,7 +15,8 @@
  */
 package org.trie4j;
 
-import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.Writer;
 
 public interface Trie {
 	/**
@@ -76,7 +77,7 @@ public interface Trie {
 	 * dump trie to Writer.
 	 * @param writer writer
 	 */
-	void dump(PrintWriter writer);
+	void dump(Writer writer) throws IOException;
 
 	/**
 	 * shrink buffer size to fit actual node count.
@@ -84,7 +85,7 @@ public interface Trie {
 	void trimToSize();
 
 	/**
-	 * freeze trie and drop useless objects allocated for insert operation.
+	 * freeze trie and drop objects allocated for insert operation.
 	 * trie goes immutable.
 	 */
 	void freeze();
