@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +42,7 @@ import org.trie4j.AbstractTrie;
 import org.trie4j.MapNode;
 import org.trie4j.MapTrie;
 import org.trie4j.Node;
+import org.trie4j.bv.Rank0OnlySuccinctBitVector;
 import org.trie4j.util.Pair;
 
 public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
@@ -63,8 +63,22 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		check = new int[arraySize];
 		Arrays.fill(check, -1);
 		term = new BitSet(arraySize);
+		values = new Object[arraySize];
 
 		build(trie.getRoot(), 0);
+
+		int c = 0;
+		for(int i = 0; i < values.length; i++){
+			if(term.get(i)){
+				Object v = values[i];
+				values[c] = v;
+				idToValueIndex.append0();
+				c++;
+			} else{
+				idToValueIndex.append1();
+			}
+		}
+		values = Arrays.copyOf(values, c);
 	}
 
 	@Override
@@ -170,13 +184,14 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		}
 		
 		@Override
+		@SuppressWarnings("unchecked")
 		public T getValue() {
-			return values.get(nodeId);
+			return (T)values[idToValueIndex.rank0(nodeId) - 1];
 		}
 
 		@Override
 		public void setValue(T value) {
-			values.put(nodeId, value);
+			values[idToValueIndex.rank0(nodeId) - 1] = value;
 		}
 
 		private char firstChar = 0;
@@ -184,10 +199,11 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public T get(String word) {
 		int i = getIndex(word);
 		if(i == -1) return null;
-		return values.get(i);
+		return (T)values[idToValueIndex.rank0(i) - 1];
 	}
 
 	@Override
@@ -435,7 +451,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		}
 		if(node.isTerminate()){
 			term.set(nodeIndex);
-			values.put(nodeIndex, node.getValue());
+			values[nodeIndex] = node.getValue();
 		}
 
 		// children
@@ -524,12 +540,13 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 
 	private void extend(int i){
 		int sz = base.length;
-		int nsz = Math.max(i, (int)(sz * 1.5));
+		int nsz = Math.max(i, (int)((sz + 1) * 1.5));
 //		System.out.println("extend to " + nsz);
 		base = Arrays.copyOf(base, nsz);
 		Arrays.fill(base, sz, nsz, BASE_EMPTY);
 		check = Arrays.copyOf(check, nsz);
 		Arrays.fill(check, sz, nsz, -1);
+		values = Arrays.copyOf(values, nsz);
 	}
 
 	private int findFirstEmptyCheck(){
@@ -591,5 +608,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 	private Set<Character> chars = new TreeSet<Character>();
 	private char[] charToCode = new char[Character.MAX_VALUE];
 	private static final Node[] emptyNodes = {};
-	private Map<Integer, T> values = new HashMap<Integer, T>();
+
+	private Object[] values;
+	private Rank0OnlySuccinctBitVector idToValueIndex = new Rank0OnlySuccinctBitVector();
 }
