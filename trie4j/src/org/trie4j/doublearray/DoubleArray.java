@@ -75,6 +75,10 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		return new DoubleArrayNode(0);
 	}
 
+	public int[] getBase(){
+		return base;
+	}
+
 	private class DoubleArrayNode implements Node{
 		public DoubleArrayNode(int nodeId){
 			this.nodeId = nodeId;
