@@ -34,8 +34,8 @@ import java.util.List;
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.util.Pair;
-import org.trie4j.util.SuccinctBitVector;
 
 public class LOUDSTrie extends AbstractTrie implements Trie {
 	public LOUDSTrie(){
@@ -47,7 +47,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 
 	public LOUDSTrie(Trie orig, int bitSize){
 		size = orig.size();
-		bv = new SuccinctBitVector(bitSize);
+		bv = new BytesSuccinctBitVector(bitSize);
 		labels = new char[bitSize / 2];
 		tail = new char[bitSize / 2][];
 		term = new BitSet(bitSize / 2);
@@ -87,7 +87,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		return size;
 	}
 
-	public SuccinctBitVector getBv() {
+	public BytesSuccinctBitVector getBv() {
 		return bv;
 	}
 
@@ -297,7 +297,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 			tail[i] = b.toString().toCharArray();
 		}
 		term = (BitSet)ois.readObject();
-		bv = new SuccinctBitVector();
+		bv = new BytesSuccinctBitVector();
 		bv.load(is);
 	}
 
@@ -344,7 +344,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	private int size;
-	private SuccinctBitVector bv;
+	private BytesSuccinctBitVector bv;
 	private char[] labels;
 	private char[][] tail;
 	private BitSet term;

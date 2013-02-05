@@ -4,19 +4,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.tail.TailIndex;
-import org.trie4j.util.SuccinctBitVector;
 
 public class SBVTailIndex implements TailIndex{
 	public SBVTailIndex() {
-		bv = new SuccinctBitVector();
+		bv = new BytesSuccinctBitVector();
 	}
 
 	public SBVTailIndex(int initialCapacity) {
-		bv = new SuccinctBitVector(initialCapacity);
+		bv = new BytesSuccinctBitVector(initialCapacity);
 	}
 
-	public SuccinctBitVector getSBV(){
+	public BytesSuccinctBitVector getSBV(){
 		return bv;
 	}
 
@@ -59,5 +59,5 @@ public class SBVTailIndex implements TailIndex{
 		bv.save(os);
 	}
 
-	private SuccinctBitVector bv;
+	private BytesSuccinctBitVector bv;
 }

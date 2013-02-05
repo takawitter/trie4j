@@ -34,12 +34,12 @@ import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.bv.BitVector01Devider;
+import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
 import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.tail.TailArray;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
-import org.trie4j.util.SuccinctBitVector;
 
 public class InlinedTailLOUDSPPTrie extends AbstractTrie implements Trie {
 	public InlinedTailLOUDSPPTrie(){
@@ -47,10 +47,10 @@ public class InlinedTailLOUDSPPTrie extends AbstractTrie implements Trie {
 	}
 
 	public InlinedTailLOUDSPPTrie(Trie orig){
-		this(orig, new Rank0OnlySuccinctBitVector(orig.size() + 1), new SuccinctBitVector(orig.size() + 1));
+		this(orig, new Rank0OnlySuccinctBitVector(orig.size() + 1), new BytesSuccinctBitVector(orig.size() + 1));
 	}
 
-	public InlinedTailLOUDSPPTrie(Trie orig, Rank0OnlySuccinctBitVector r0, SuccinctBitVector r1){
+	public InlinedTailLOUDSPPTrie(Trie orig, Rank0OnlySuccinctBitVector r0, BytesSuccinctBitVector r1){
 		this.r0 = r0;
 		this.r1 = r1;
 		size = orig.size();
@@ -94,7 +94,7 @@ public class InlinedTailLOUDSPPTrie extends AbstractTrie implements Trie {
 		return r0;
 	}
 
-	public SuccinctBitVector getR1() {
+	public BytesSuccinctBitVector getR1() {
 		return r1;
 	}
 
@@ -304,7 +304,7 @@ public class InlinedTailLOUDSPPTrie extends AbstractTrie implements Trie {
 		term = (BitSet)ois.readObject();
 		r0 = new Rank0OnlySuccinctBitVector();
 		r0.load(is);
-		r1 = new SuccinctBitVector();
+		r1 = new BytesSuccinctBitVector();
 		r1.load(is);
 	}
 
@@ -349,7 +349,7 @@ public class InlinedTailLOUDSPPTrie extends AbstractTrie implements Trie {
 	}
 
 	private Rank0OnlySuccinctBitVector r0;
-	private SuccinctBitVector r1;
+	private BytesSuccinctBitVector r1;
 	private int size;
 	private char[] labels;
 	private TailArray tailArray;

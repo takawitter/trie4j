@@ -5,14 +5,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.trie4j.bv.BitVector01Devider;
+import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
 import org.trie4j.util.Range;
-import org.trie4j.util.SuccinctBitVector;
 
 public class LOUDSPPBvTree implements BvTree{
 	public LOUDSPPBvTree(int initialCapacity) {
 		r0 = new Rank0OnlySuccinctBitVector(initialCapacity);
-		r1 = new SuccinctBitVector(initialCapacity);
+		r1 = new BytesSuccinctBitVector(initialCapacity);
 		divider = new BitVector01Devider(r0, r1);
 	}
 
@@ -63,5 +63,5 @@ public class LOUDSPPBvTree implements BvTree{
 
 	private BitVector01Devider divider;
 	private Rank0OnlySuccinctBitVector r0;
-	private SuccinctBitVector r1;
+	private BytesSuccinctBitVector r1;
 }

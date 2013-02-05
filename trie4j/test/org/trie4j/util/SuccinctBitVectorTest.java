@@ -23,11 +23,12 @@ import java.io.ObjectOutputStream;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.trie4j.bv.BytesSuccinctBitVector;
 
 public class SuccinctBitVectorTest {
 	@Test
 	public void test_rank() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector(16);
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector(16);
 		for(int i = 0; i < 2048; i++){
 			bv.append(i % 2 == 0);
 			Assert.assertEquals(i / 2 + 1, bv.rank1(i));
@@ -37,7 +38,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_select0_1() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector(16);
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector(16);
 		bv.append(true);
 		bv.append(true);
 		bv.append(false);
@@ -49,7 +50,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_select0_2() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector(1);
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector(1);
 		for(int i = 0; i < 2000; i++){
 			bv.append(true);
 			bv.append(true);
@@ -67,7 +68,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_select0_3() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector(1);
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector(1);
 		for(int i = 0; i < 64; i++){
 			bv.append0();
 		}
@@ -87,7 +88,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_select1_1() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector(1);
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector(1);
 		for(int i = 0; i < 2000; i++){
 			bv.append(true);
 			bv.append(true);
@@ -102,7 +103,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_select_fail_1() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector(1);
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector(1);
 		Assert.assertEquals(-1, bv.select1(9));
 		Assert.assertEquals(-1, bv.select0(1));
 		bv.append0();
@@ -113,7 +114,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_next0_1() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector();
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector();
 		bv.append(false);
 		bv.append(false);
 		Assert.assertEquals(0, bv.next0(0));
@@ -122,7 +123,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_next0_2() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector();
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector();
 		bv.append(true);
 		bv.append(false);
 		bv.append(true);
@@ -133,7 +134,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_next0_3() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector();
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector();
 		for(int i = 0; i < 8; i++){
 			bv.append(true);
 		}
@@ -143,7 +144,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_next0_4() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector();
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector();
 		for(int i = 0; i < 130; i++){
 			bv.append(true);
 		}
@@ -153,7 +154,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_next0_5() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector();
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector();
 		for(int i = 0; i < 63; i++){
 			bv.append(true);
 		}
@@ -166,7 +167,7 @@ public class SuccinctBitVectorTest {
 	@Test
 	public void test_hugedata_rank1() throws Exception{
 		int size = 1000000;
-		SuccinctBitVector bv = new SuccinctBitVector(size);
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector(size);
 		for(int i = 0; i < size; i++){
 			bv.append(true);
 		}
@@ -178,7 +179,7 @@ public class SuccinctBitVectorTest {
 	@Test
 	public void test_hugedata_select0() throws Exception{
 		int size = 1000000;
-		SuccinctBitVector bv = new SuccinctBitVector(size);
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector(size);
 		for(int i = 0; i < size; i++){
 			bv.append0();
 		}
@@ -189,7 +190,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_write_read() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector();
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector();
 		for(int i = 0; i < 1000; i++){
 			bv.append0();
 			bv.append1();
@@ -197,7 +198,7 @@ public class SuccinctBitVectorTest {
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		new ObjectOutputStream(baos).writeObject(bv);
-		SuccinctBitVector bv2 = (SuccinctBitVector)new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())).readObject();
+		BytesSuccinctBitVector bv2 = (BytesSuccinctBitVector)new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())).readObject();
 		for(int i = 0; i < 1000; i++){
 			Assert.assertEquals(i + 1, bv2.rank0(i * 3));
 			Assert.assertEquals(i * 2 + 1, bv2.rank1(i * 3 + 1));
@@ -207,7 +208,7 @@ public class SuccinctBitVectorTest {
 
 	@Test
 	public void test_save_load() throws Exception{
-		SuccinctBitVector bv = new SuccinctBitVector();
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector();
 		for(int i = 0; i < 1000; i++){
 			bv.append0();
 			bv.append1();
@@ -215,7 +216,7 @@ public class SuccinctBitVectorTest {
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		bv.save(baos);
-		SuccinctBitVector bv2 = new SuccinctBitVector();
+		BytesSuccinctBitVector bv2 = new BytesSuccinctBitVector();
 		bv2.load(new ByteArrayInputStream(baos.toByteArray()));
 		for(int i = 0; i < 1000; i++){
 			Assert.assertEquals(i + 1, bv2.rank0(i * 3));

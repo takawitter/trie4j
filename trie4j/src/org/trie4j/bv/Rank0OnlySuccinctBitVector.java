@@ -87,8 +87,8 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		if(size % CACHE_WIDTH == 0 && ci > 0){
 			countCache0[ci] = countCache0[ci - 1];
 		}
-		int r = size % 8;
-		vector[i] &= ~BITS[r];
+//		int r = size % 8;
+//		vector[i] &= ~BITS[r];
 		countCache0[ci]++;
 		size++;
 	}

@@ -1,9 +1,9 @@
 package org.trie4j.louds;
 
+import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.test.LapTimer;
-import org.trie4j.util.SuccinctBitVector;
 
-public class MonitoredSuccinctBitVector extends SuccinctBitVector{
+public class MonitoredSuccinctBitVector extends BytesSuccinctBitVector{
 	public MonitoredSuccinctBitVector() {
 		super();
 	}

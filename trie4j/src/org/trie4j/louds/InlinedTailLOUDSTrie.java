@@ -33,12 +33,12 @@ import java.util.List;
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.TailUtil;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.util.Pair;
-import org.trie4j.util.SuccinctBitVector;
 
 public class InlinedTailLOUDSTrie extends AbstractTrie implements Trie {
 	public InlinedTailLOUDSTrie(){
@@ -49,10 +49,10 @@ public class InlinedTailLOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	public InlinedTailLOUDSTrie(Trie orig, TailBuilder tb){
-		this(orig, tb, new SuccinctBitVector(orig.size() * 2));
+		this(orig, tb, new BytesSuccinctBitVector(orig.size() * 2));
 	}
 
-	public InlinedTailLOUDSTrie(Trie orig, TailBuilder tb, SuccinctBitVector bv){
+	public InlinedTailLOUDSTrie(Trie orig, TailBuilder tb, BytesSuccinctBitVector bv){
 		this.bv = bv;
 		size = orig.size();
 		labels = new char[size];
@@ -90,7 +90,7 @@ public class InlinedTailLOUDSTrie extends AbstractTrie implements Trie {
 		tails = tb.getTails();
 	}
 
-	public SuccinctBitVector getBv() {
+	public BytesSuccinctBitVector getBv() {
 		return bv;
 	}
 
@@ -309,7 +309,7 @@ public class InlinedTailLOUDSTrie extends AbstractTrie implements Trie {
 		}
 		tails = b;
 		term = (BitSet)ois.readObject();
-		bv = new SuccinctBitVector();
+		bv = new BytesSuccinctBitVector();
 		bv.load(is);
 	}
 
@@ -352,7 +352,7 @@ public class InlinedTailLOUDSTrie extends AbstractTrie implements Trie {
 		tail = Arrays.copyOf(tail, nsz);
 	}
 
-	private SuccinctBitVector bv;
+	private BytesSuccinctBitVector bv;
 	private int size;
 	private char[] labels;
 	private int[] tail;

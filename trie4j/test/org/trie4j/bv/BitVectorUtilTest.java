@@ -3,12 +3,11 @@ package org.trie4j.bv;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.trie4j.util.SuccinctBitVector;
 
 public class BitVectorUtilTest {
 	@Test
 	public void test() throws Exception{
-		SuccinctBitVector r = new SuccinctBitVector();
+		BytesSuccinctBitVector r = new BytesSuccinctBitVector();
 		// build tree on r
 		r.append1(); r.append0(); // super root
 		r.append1(); r.append1(); r.append1(); r.append0(); // 0
@@ -23,8 +22,8 @@ public class BitVectorUtilTest {
 		r.append0(); // 9
 
 		// divide to two sbv
-		SuccinctBitVector r0 = new SuccinctBitVector();
-		SuccinctBitVector r1 = new SuccinctBitVector();
+		BytesSuccinctBitVector r0 = new BytesSuccinctBitVector();
+		BytesSuccinctBitVector r1 = new BytesSuccinctBitVector();
 		r0.append0();
 		r1.append0();
 		BitVectorUtil.divide01(r, r0, r1);

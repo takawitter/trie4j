@@ -6,6 +6,7 @@ import org.trie4j.Algorithms;
 import org.trie4j.Node;
 import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
+import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
@@ -27,7 +28,7 @@ public class BitVectorExp {
 			if(c == maxCount) break;
 		}
 		t.lap("trie building done. %d words.", c);
-		final SuccinctBitVector bv = new SuccinctBitVector(5000000);
+		final BytesSuccinctBitVector bv = new BytesSuccinctBitVector(5000000);
 		final AtomicInteger nodeCount = new AtomicInteger();
 		Algorithms.traverseByDepth(trie.getRoot(), new NodeVisitor() {
 			@Override

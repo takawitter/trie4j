@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.util.Range;
-import org.trie4j.util.SuccinctBitVector;
 
 public class LOUDSBvTree implements BvTree{
 	public LOUDSBvTree(int initialCapacity) {
-		vector = new SuccinctBitVector(initialCapacity);
+		vector = new BytesSuccinctBitVector(initialCapacity);
 	}
 
-	public LOUDSBvTree(SuccinctBitVector vector) {
+	public LOUDSBvTree(BytesSuccinctBitVector vector) {
 		this.vector = vector;
 	}
 
@@ -55,5 +55,5 @@ public class LOUDSBvTree implements BvTree{
 		vector.save(os);
 	}
 
-	private SuccinctBitVector vector;
+	private BytesSuccinctBitVector vector;
 }

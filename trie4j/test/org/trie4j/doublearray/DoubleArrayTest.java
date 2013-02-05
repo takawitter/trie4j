@@ -87,5 +87,6 @@ public class DoubleArrayTest extends TrieTestSet{
 		System.out.println("hello: " + da.contains("hello"));
 		System.out.println("hi: " + da.contains("hi"));
 		System.out.println("world: " + da.contains("world"));
+		System.out.println("base.length: " + da.getBase().length);
 	}
 }

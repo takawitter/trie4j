@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.util;
+package org.trie4j.bv;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -25,12 +25,12 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class SuccinctBitVector implements Serializable, org.trie4j.bv.SuccinctBitVector{
-	public SuccinctBitVector(){
+public class BytesSuccinctBitVector implements Serializable, org.trie4j.bv.SuccinctBitVector{
+	public BytesSuccinctBitVector(){
 		this(16);
 	}
 
-	public SuccinctBitVector(int initialCapacity){
+	public BytesSuccinctBitVector(int initialCapacity){
 		vector = new byte[initialCapacity / 8 + 1];
 		int blockSize = CACHE_WIDTH;
 		int size = initialCapacity / blockSize + 1;
@@ -90,8 +90,8 @@ public class SuccinctBitVector implements Serializable, org.trie4j.bv.SuccinctBi
 		if(size % CACHE_WIDTH == 0 && ci > 0){
 			countCache0[ci] = countCache0[ci - 1];
 		}
-		int r = size % 8;
-		vector[i] &= ~BITS[r];
+//		int r = size % 8;
+//		vector[i] &= ~BITS[r];
 		size0++;
 		switch(size0){
 			case 1:
