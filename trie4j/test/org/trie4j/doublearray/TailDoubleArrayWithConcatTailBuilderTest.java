@@ -15,10 +15,13 @@
  */
 package org.trie4j.doublearray;
 
+import java.util.Iterator;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.trie4j.patricia.simple.PatriciaTrie;
+import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.Trie;
 import org.trie4j.TrieTestSet;
 
@@ -79,10 +82,21 @@ public class TailDoubleArrayWithConcatTailBuilderTest extends TrieTestSet{
 		Assert.assertTrue(da.contains("world"));
 	}
 
-	private Trie newDA(Trie trie){
-		return new TailDoubleArray(trie);
+	@Test
+	public void test_cps() throws Exception{
+		Trie trie = new PatriciaTrie();
+		trie.insert("hello");
+		trie.insert("hi");
+		trie.insert("world");
+		Trie da = newDA(trie);
+		Iterator<String> it = da.commonPrefixSearch("hellow").iterator();
+		Assert.assertEquals("hello", it.next());
 	}
 	
+	private Trie newDA(Trie trie){
+		return new TailDoubleArray(trie, new ConcatTailBuilder());
+	}
+
 	public static void main(String[] args) throws Exception{
 		Trie t = new PatriciaTrie();
 		t.insert("hello");
