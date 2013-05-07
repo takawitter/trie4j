@@ -34,15 +34,14 @@ public class TailCharIterator{
 
 	public char next() {
 		if(!hasNext()){
-			throw new NoSuchElementException(); 
+			throw new NoSuchElementException();
 		}
 		current = next;
 		index++;
 		char c = chars.charAt(index);
 		if(c == '\0'){
 			index = -1;
-		}
-		if(c == '\1'){
+		} else if(c == '\1'){
 			int i = chars.charAt(index + 1);
 			i += chars.charAt(index + 2) << 16;
 			index = i;

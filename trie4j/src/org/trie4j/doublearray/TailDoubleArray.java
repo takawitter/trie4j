@@ -43,6 +43,7 @@ import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
+import org.trie4j.tail.FastTailCharIterator;
 import org.trie4j.tail.TailUtil;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.util.Pair;
@@ -138,7 +139,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 	public boolean contains(String text){
 		try{
 			int nodeIndex = 0; // root
-			TailCharIterator it = new TailCharIterator(tails, -1);
+			FastTailCharIterator it = new FastTailCharIterator(tails, -1);
 			int n = text.length();
 			for(int i = 0; i < n; i++){
 				int cid = findCharId(text.charAt(i));
@@ -146,11 +147,14 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 				int next = base[nodeIndex] + cid;
 				if(check[next] != nodeIndex) return false;
 				nodeIndex = next;
-				it.setIndex(tail[nodeIndex]);
-				while(it.hasNext()){
+				int ti = tail[nodeIndex];
+				if(ti == -1) continue;
+				it.setIndex(ti);
+				char c;
+				while((c = it.getNext()) != '\0'){
 					i++;
 					if(i == n) return false;
-					if(text.charAt(i) != it.next()) return false;
+					if(text.charAt(i) != c) return false;
 				}
 			}
 			return term.get(nodeIndex);
@@ -165,7 +169,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		int charsLen = query.length();
 		int ci = 0;
 		int ni = 0;
-		TailCharIterator it = new TailCharIterator(tails, -1);
+		FastTailCharIterator it = new FastTailCharIterator(tails, -1);
 		for(; ci < charsLen; ci++){
 			int cid = findCharId(query.charAt(ci));
 			if(cid == -1) return ret;
@@ -177,10 +181,11 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 			int ti = tail[ni];
 			if(ti != -1){
 				it.setIndex(ti);
-				while(it.hasNext()){
+				char c;
+				while((c = it.getNext()) != '\0'){
 					ci++;
 					if(ci >= charsLen) return ret;
-					if(it.next() != query.charAt(ci)) return ret;
+					if(c != query.charAt(ci)) return ret;
 				}
 			}
 			if(term.get(ni)) ret.add(query.substring(0, ci + 1));
