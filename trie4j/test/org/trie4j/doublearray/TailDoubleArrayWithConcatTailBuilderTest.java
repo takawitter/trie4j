@@ -15,86 +15,14 @@
  */
 package org.trie4j.doublearray;
 
-import java.util.Iterator;
-
-import junit.framework.Assert;
-
-import org.junit.Test;
-import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.builder.ConcatTailBuilder;
+import org.trie4j.AbstractTrieTest;
 import org.trie4j.Trie;
-import org.trie4j.TrieTestSet;
+import org.trie4j.patricia.simple.PatriciaTrie;
 
-public class TailDoubleArrayWithConcatTailBuilderTest extends TrieTestSet{
+public class TailDoubleArrayWithConcatTailBuilderTest extends AbstractTrieTest{
 	@Override
-	protected Trie trieWithWords(String... words) {
-		PatriciaTrie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
-		return new TailDoubleArray(trie);
-	}
-
-	@Test
-	public void test() throws Exception{
-		Trie da = newDA(new PatriciaTrie());
-		Assert.assertFalse(da.contains("hello"));
-	}
-
-	@Test
-	public void test2() throws Exception{
-		Trie trie = new PatriciaTrie();
-		trie.insert("hello");
-		Trie da = newDA(trie);
-		Assert.assertTrue(da.contains("hello"));
-		Assert.assertFalse(da.contains("hi"));
-	}
-
-	@Test
-	public void test3() throws Exception{
-		Trie trie = new PatriciaTrie();
-		trie.insert("hello");
-		trie.insert("hi");
-		Trie da = newDA(trie);
-		Assert.assertTrue(da.contains("hello"));
-		Assert.assertTrue(da.contains("hi"));
-		Assert.assertFalse(da.contains("world"));
-	}
-
-	@Test
-	public void test4() throws Exception{
-		Trie trie = new PatriciaTrie();
-		trie.insert("hello");
-		trie.insert("hi");
-		trie.insert("world");
-		Trie da = newDA(trie);
-		Assert.assertTrue(da.contains("hello"));
-		Assert.assertTrue(da.contains("hi"));
-		Assert.assertTrue(da.contains("world"));
-	}
-
-	@Test
-	public void test5() throws Exception{
-		Trie trie = new PatriciaTrie();
-		trie.insert("hello");
-		trie.insert("world");
-		Trie da = newDA(trie);
-		Assert.assertTrue(da.contains("hello"));
-		Assert.assertFalse(da.contains("hi"));
-		Assert.assertTrue(da.contains("world"));
-	}
-
-	@Test
-	public void test_cps() throws Exception{
-		Trie trie = new PatriciaTrie();
-		trie.insert("hello");
-		trie.insert("hi");
-		trie.insert("world");
-		Trie da = newDA(trie);
-		Iterator<String> it = da.commonPrefixSearch("hellow").iterator();
-		Assert.assertEquals("hello", it.next());
-	}
-	
-	private Trie newDA(Trie trie){
-		return new TailDoubleArray(trie, new ConcatTailBuilder());
+	protected Trie buildSecondTrie(Trie firstTrie) {
+		return new TailDoubleArray(firstTrie);
 	}
 
 	public static void main(String[] args) throws Exception{

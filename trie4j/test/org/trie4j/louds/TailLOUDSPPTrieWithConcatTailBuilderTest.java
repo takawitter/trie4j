@@ -2,23 +2,18 @@ package org.trie4j.louds;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.Algorithms;
+import org.trie4j.AbstractTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.index.SBVTailIndex;
 
-public class TailLOUDSPPTrieWithConcatTailBuilderTest extends TrieTestSet{
+public class TailLOUDSPPTrieWithConcatTailBuilderTest extends AbstractTrieTest{
 	@Override
-	protected Trie trieWithWords(String... words) {
-		Trie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
-		return new TailLOUDSPPTrie(trie);
+	protected Trie buildSecondTrie(Trie firstTrie) {
+		return new TailLOUDSPPTrie(firstTrie);
 	}
 
 	@Test
@@ -27,11 +22,11 @@ public class TailLOUDSPPTrieWithConcatTailBuilderTest extends TrieTestSet{
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
 		
-		final SBVTailIndex ti = new SBVTailIndex();
+//		final SBVTailIndex ti = new SBVTailIndex();
 		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
-		System.out.println(lt.getBvTree());
-		System.out.println(ti.getSBV());
-		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
+//		System.out.println(lt.getBvTree());
+//		System.out.println(ti.getSBV());
+//		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));
 		}

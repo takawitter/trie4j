@@ -1,27 +1,26 @@
+/*
+ * Copyright 2012 Takao Nakaguchi
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.trie4j.patricia.simple;
 
-import junit.framework.Assert;
+import org.trie4j.AbstractMapTrieTest;
+import org.trie4j.MapTrie;
 
-import org.junit.Test;
-import org.trie4j.Trie;
-import org.trie4j.TrieTestSet;
-
-public class MapPatriciaTrieTest extends TrieTestSet{
+public class MapPatriciaTrieTest extends AbstractMapTrieTest{
 	@Override
-	protected Trie trieWithWords(String... words) {
-		Trie trie = new MapPatriciaTrie<Integer>();
-		for(String w : words) trie.insert(w);
-		return trie;
-	}
-
-	@Test
-	public void test_get() throws Exception{
-		MapPatriciaTrie<Integer> trie = new MapPatriciaTrie<Integer>();
-		for(String s : new String[]{"hello", "hi", "world", "happy"}){
-			trie.insert(s, s.length());
-		}
-		for(String s : trie.predictiveSearch("")){
-			Assert.assertEquals(s.length(), trie.get(s).intValue());
-		}
+	protected MapTrie<Integer> createFirstTrie() {
+		return new MapPatriciaTrie<Integer>();
 	}
 }

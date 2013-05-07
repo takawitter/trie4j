@@ -2,23 +2,19 @@ package org.trie4j.louds;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.Algorithms;
+import org.trie4j.AbstractTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.TrieTestSet;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArray;
 
-public class TailLOUDSTrieWithConcatTailBuilderTest extends TrieTestSet{
+public class TailLOUDSTrieWithConcatTailBuilderTest extends AbstractTrieTest{
 	@Override
-	protected Trie trieWithWords(String... words) {
-		Trie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
-		return new TailLOUDSTrie(trie, new ConcatTailArray(trie.size()));
+	protected Trie buildSecondTrie(Trie firstTrie) {
+		return new TailLOUDSTrie(firstTrie, new ConcatTailArray(firstTrie.size()));
 	}
 
 	@Test
@@ -28,7 +24,7 @@ public class TailLOUDSTrieWithConcatTailBuilderTest extends TrieTestSet{
 		for(String w : words) trie.insert(w);
 		Trie lt = new AbstractTailLOUDSTrie(trie);
 //		System.out.println(lt.getBv());
-		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
+//		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));
 		}

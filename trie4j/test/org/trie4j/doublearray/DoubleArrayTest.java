@@ -15,68 +15,14 @@
  */
 package org.trie4j.doublearray;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
-import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.Trie;
-import org.trie4j.TrieTestSet;
+import org.trie4j.AbstractTrieTest;
+import org.trie4j.patricia.simple.PatriciaTrie;
 
-public class DoubleArrayTest extends TrieTestSet{
+public class DoubleArrayTest extends AbstractTrieTest{
 	@Override
-	protected Trie trieWithWords(String... words) {
-		PatriciaTrie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
-		return new DoubleArray(trie);
-	}
-
-	@Test
-	public void test() throws Exception{
-		DoubleArray da = new DoubleArray(new PatriciaTrie());
-		Assert.assertFalse(da.contains("hello"));
-	}
-
-	@Test
-	public void test2() throws Exception{
-		Trie trie = new PatriciaTrie();
-		trie.insert("hello");
-		DoubleArray da = new DoubleArray(trie);
-		Assert.assertTrue(da.contains("hello"));
-		Assert.assertFalse(da.contains("hi"));
-	}
-
-	@Test
-	public void test3() throws Exception{
-		Trie trie = new PatriciaTrie();
-		trie.insert("hello");
-		trie.insert("hi");
-		DoubleArray da = new DoubleArray(trie);
-		Assert.assertTrue(da.contains("hello"));
-		Assert.assertTrue(da.contains("hi"));
-		Assert.assertFalse(da.contains("world"));
-	}
-
-	@Test
-	public void test4() throws Exception{
-		Trie trie = new PatriciaTrie();
-		trie.insert("hello");
-		trie.insert("hi");
-		trie.insert("world");
-		DoubleArray da = new DoubleArray(trie);
-		Assert.assertTrue(da.contains("hello"));
-		Assert.assertTrue(da.contains("hi"));
-		Assert.assertTrue(da.contains("world"));
-	}
-
-	@Test
-	public void test5() throws Exception{
-		Trie trie = new PatriciaTrie();
-		trie.insert("hello");
-		trie.insert("world");
-		DoubleArray da = new DoubleArray(trie);
-		Assert.assertTrue(da.contains("hello"));
-		Assert.assertFalse(da.contains("hi"));
-		Assert.assertTrue(da.contains("world"));
+	protected Trie buildSecondTrie(Trie firstTrie) {
+		return new DoubleArray(firstTrie);
 	}
 
 	public static void main(String[] args) throws Exception{

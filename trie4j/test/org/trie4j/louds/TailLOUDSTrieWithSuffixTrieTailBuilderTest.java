@@ -7,16 +7,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.TrieTestSet;
+import org.trie4j.AbstractTrieTest;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.tail.SuffixTrieTailArray;
 
-public class TailLOUDSTrieWithSuffixTrieTailBuilderTest extends TrieTestSet{
+public class TailLOUDSTrieWithSuffixTrieTailBuilderTest extends AbstractTrieTest{
 	@Override
-	protected Trie trieWithWords(String... words) {
-		Trie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
-		return new TailLOUDSTrie(trie, new SuffixTrieTailArray(trie.size()));
+	protected Trie buildSecondTrie(Trie firstTrie) {
+		return new TailLOUDSTrie(firstTrie, new SuffixTrieTailArray(firstTrie.size()));
 	}
 
 	@Test
