@@ -24,6 +24,7 @@ import java.util.NoSuchElementException;
 
 import org.trie4j.AbstractTrie;
 import org.trie4j.Trie;
+import org.trie4j.tail.FastTailCharIterator;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
@@ -59,16 +60,19 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 	@Override
 	public boolean contains(String text) {
 		Node node = root;
-		TailCharIterator it = new TailCharIterator(tails, -1);
+		FastTailCharIterator it = new FastTailCharIterator(tails, -1);
 		int n = text.length();
 		for(int i = 0; i < n; i++){
 			node = node.getChild(text.charAt(i));
 			if(node == null) return false;
+			int ti = node.getTailIndex();
+			if(ti == -1) continue;
 			it.setIndex(node.getTailIndex());
-			while(it.hasNext()){
+			char c;
+			while((c = it.getNext()) != '\0'){
 				i++;
 				if(i == n) return false;
-				if(text.charAt(i) != it.next()) return false;
+				if(text.charAt(i) != c) return false;
 			}
 		}
 		return node.isTerminate();
