@@ -177,20 +177,16 @@ public class DoubleArray extends AbstractTrie implements Trie{
 
 	@Override
 	public boolean contains(String text){
-		try{
-			int nodeIndex = 0; // root
-			int n = text.length();
-			for(int i = 0; i < n; i++){
-				int cid = findCharId(text.charAt(i));
-				if(cid == -1) return false;
-				int next = base[nodeIndex] + cid;
-				if(check[next] != nodeIndex) return false;
-				nodeIndex = next;
-			}
-			return term.get(nodeIndex);
-		} catch(ArrayIndexOutOfBoundsException e){
-			return false;
+		int nodeIndex = 0; // root
+		int n = text.length();
+		for(int i = 0; i < n; i++){
+			char cid = charToCode[text.charAt(i)];
+			if(cid == 0) return false;
+			int next = base[nodeIndex] + cid;
+			if(check[next] != nodeIndex) return false;
+			nodeIndex = next;
 		}
+		return term.get(nodeIndex);
 	}
 
 	@Override
@@ -342,7 +338,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 
 	@Override
 	public void trimToSize(){
-		int sz = last + 1;
+		int sz = last + 1 + 0xFFFF;
 		base = Arrays.copyOf(base, sz);
 		check = Arrays.copyOf(check, sz);
 	}
@@ -496,7 +492,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 
 	private void extend(int i){
 		int sz = base.length;
-		int nsz = Math.max(i, (int)(sz * 1.5));
+		int nsz = Math.max(i + 0xFFFF, (int)(sz * 1.5));
 //		System.out.println("extend to " + nsz);
 		base = Arrays.copyOf(base, nsz);
 		Arrays.fill(base, sz, nsz, BASE_EMPTY);
