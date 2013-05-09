@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.simple.bytes;
+package org.trie4j.bytes;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -21,9 +21,9 @@ import java.io.InputStreamReader;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
-import org.trie4j.patricia.simple.bytes.Node;
-import org.trie4j.patricia.simple.bytes.PatriciaTrie;
-import org.trie4j.patricia.simple.bytes.TrieVisitor;
+import org.trie4j.bytes.Node;
+import org.trie4j.bytes.PatriciaTrie;
+import org.trie4j.bytes.TrieVisitor;
 import org.trie4j.util.CharsetUtil;
 import org.trie4j.util.StringUtil;
 
@@ -32,7 +32,7 @@ public class TestWikipedia {
 
 	public static void main(String[] args) throws Exception{
 		System.out.println("--- recursive patricia trie ---");
-		PatriciaTrie trie = new org.trie4j.patricia.simple.bytes.PatriciaTrie();
+		PatriciaTrie trie = new org.trie4j.bytes.PatriciaTrie();
 		int c = 0;
 		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
 		BufferedReader r = new BufferedReader(new InputStreamReader(
@@ -48,8 +48,9 @@ public class TestWikipedia {
 		long lap = System.currentTimeMillis();
 		int charCount = 0;
 		while((word = r.readLine()) != null){
+			byte[] bytes = word.getBytes("UTF-8");
 			long d = System.currentTimeMillis();
-			trie.insert(word);
+			trie.insert(bytes);
 			sum += System.currentTimeMillis() - d;
 			charCount += word.length();
 			if(c % 100000 == 0){
@@ -101,7 +102,7 @@ public class TestWikipedia {
 				if(letters != null && letters.length > 0){
 					System.out.print(StringUtil.fromUTF8(letters));
 				}
-				if(node.isTerminated()){
+				if(node.isTerminate()){
 					System.out.print("*");
 				}
 				System.out.println();
@@ -115,7 +116,7 @@ public class TestWikipedia {
 		final AtomicInteger count = new AtomicInteger();
 		trie.visit(new TrieVisitor() {
 			public void accept(Node node, int nest) {
-				if(node.isTerminated()) count.incrementAndGet();
+				if(node.isTerminate()) count.incrementAndGet();
 			}
 		});
 		System.out.println(count.intValue() + " elements.");
@@ -128,7 +129,7 @@ public class TestWikipedia {
 		final AtomicInteger chars = new AtomicInteger();
 		trie.visit(new TrieVisitor() {
 				public void accept(Node node, int nest) {
-					if(node.isTerminated()){
+					if(node.isTerminate()){
 						l.incrementAndGet();
 					} else{
 						n.incrementAndGet();

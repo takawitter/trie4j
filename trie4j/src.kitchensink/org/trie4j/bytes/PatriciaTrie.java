@@ -13,22 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.simple.bytes;
+package org.trie4j.bytes;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.trie4j.util.StringUtil;
 
-public class PatriciaTrie{
+public class PatriciaTrie implements Trie{
 	public boolean contains(String word) {
 		return root.contains(StringUtil.toUTF8(word), 0);
 	}
 
-	public Iterable<String> commonPrefixSearch(final String query) {
-		List<String> ret = new ArrayList<String>();
-		byte[] queryChars = StringUtil.toUTF8(query);
+	@Override
+	public boolean contains(byte[] word) {
+		return root.contains(word, 0);
+	}
+
+	@Override
+	public Iterable<byte[]> commonPrefixSearch(final byte[] query) {
+		List<byte[]> ret = new ArrayList<byte[]>();
+		byte[] queryChars = query;
 		int cur = 0;
 		Node node = root;
 		while(node != null){
@@ -37,8 +47,8 @@ public class PatriciaTrie{
 			for(int i = 0; i < letters.length; i++){
 				if(letters[i] != queryChars[cur + i]) return ret;
 			}
-			if(node.isTerminated()){
-				ret.add(StringUtil.fromUTF8(queryChars, 0 , cur + letters.length));
+			if(node.isTerminate()){
+				ret.add(Arrays.copyOfRange(queryChars, 0 , cur + letters.length));
 			}
 			cur += letters.length;
 			if(queryChars.length == cur) return ret;
@@ -52,7 +62,7 @@ public class PatriciaTrie{
 		if(children == null) return;
 		for(Node child : children){
 			String text = prefix + StringUtil.fromUTF8(child.getLetters());
-			if(child.isTerminated()) letters.add(text);
+			if(child.isTerminate()) letters.add(text);
 			enumLetters(child, text, letters);
 		}
 	}
@@ -76,7 +86,7 @@ public class PatriciaTrie{
 				if(rest > 0){
 					prefix += new String(letters, n, rest);
 				}
-				if(node.isTerminated()) ret.add(prefix);
+				if(node.isTerminate()) ret.add(prefix);
 				enumLetters(node, prefix, ret);
 				return ret;
 			}
@@ -85,10 +95,10 @@ public class PatriciaTrie{
 		return Collections.emptyList();
 	}
 
-	public void insert(String text){
-		byte[] letters = StringUtil.toUTF8(text);
+	public void insert(byte[] text){
+		byte[] letters = text;
 		if(root == null){
-			root = new Node(letters, true);
+			root = new PatriciaTrieNode(letters, true);
 			return;
 		}
 		root.insertChild(letters, 0);
@@ -100,6 +110,42 @@ public class PatriciaTrie{
 	public Node getRoot(){
 		return root;
 	}
+	
+	@Override
+	public void freeze() {
+		
+	}
 
-	private Node root;
+	@Override
+	public void dump(Writer writer) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int findWord(byte[] chars, int start, int end, OutputStream word)
+			throws IOException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	@Override
+	public int size() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Iterable<byte[]> predictiveSearch(byte[] prefix) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void trimToSize() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private PatriciaTrieNode root;
 }

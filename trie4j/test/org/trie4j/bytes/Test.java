@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.simple.bytes;
+package org.trie4j.bytes;
 
 import java.io.UnsupportedEncodingException;
 
-import org.trie4j.patricia.simple.bytes.Node;
-import org.trie4j.patricia.simple.bytes.PatriciaTrie;
-import org.trie4j.patricia.simple.bytes.TrieVisitor;
+import org.trie4j.bytes.Node;
+import org.trie4j.bytes.PatriciaTrie;
+import org.trie4j.bytes.TrieVisitor;
 
 public class Test {
 	public static void main(String[] args) throws Exception{
@@ -35,10 +35,10 @@ public class Test {
 				, "applejuice", "appletea", "appleshower"
 				, "orangejuice"
 				};
-		trie.insert("");
+		trie.insert("".getBytes("UTF-8"));
 		for(String w : words){
 			System.out.println("insert \"" + w + "\"");
-			trie.insert(w);
+			trie.insert(w.getBytes("UTF-8"));
 			System.out.println("--dump--");
 			trie.visit(new TrieVisitor() {
 				@Override
@@ -52,7 +52,7 @@ public class Test {
 					} else{
 						System.out.print(fromUTF8(letters));
 					}
-					if(node.isTerminated()){
+					if(node.isTerminate()){
 						System.out.println("*");
 					} else{
 						System.out.println("");
@@ -73,8 +73,8 @@ public class Test {
 		}
 		System.out.println("-- test common prefix search --");
 		System.out.println("query: applejuicebar");
-		for(String w : trie.commonPrefixSearch("applejuicebar")){
-			System.out.println(w);
+		for(byte[] w : trie.commonPrefixSearch("applejuicebar".getBytes("UTF-8"))){
+			System.out.println(new String(w, "UTF-8"));
 		}
 	}
 
