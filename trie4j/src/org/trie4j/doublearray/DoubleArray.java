@@ -28,7 +28,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -41,6 +40,7 @@ import java.util.TreeSet;
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
 
 public class DoubleArray extends AbstractTrie implements Trie{
@@ -60,7 +60,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[arraySize];
 		Arrays.fill(check, -1);
-		term = new BitSet(arraySize);
+		term = new FastBitSet(arraySize);
 
 		build(trie.getRoot(), 0);
 	}
@@ -322,7 +322,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 		}
 		ObjectInputStream ois = new ObjectInputStream(bis);
 		try{
-			term = (BitSet)ois.readObject();
+			term = (FastBitSet)ois.readObject();
 		} catch(ClassNotFoundException e){
 			throw new IOException(e);
 		}
@@ -555,7 +555,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 	private int[] check;
 	private int firstEmptyCheck = 1;
 	private int last;
-	private BitSet term;
+	private FastBitSet term;
 	private Set<Character> chars = new TreeSet<Character>();
 	private char[] charToCode = new char[Character.MAX_VALUE];
 	private static final Node[] emptyNodes = {};
