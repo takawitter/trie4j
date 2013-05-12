@@ -109,10 +109,10 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 		writer.write("\n");
 	}
 
-	Range r = new Range();
 	@Override
 	public boolean contains(String text){
 		int nodeId = 0; // root
+		Range r = new Range();
 		TailCharIterator it = tailArray.newIterator();
 		int n = text.length();
 		for(int i = 0; i < n; i++){
