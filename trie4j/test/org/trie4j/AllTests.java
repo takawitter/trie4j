@@ -36,10 +36,12 @@ import org.trie4j.tail.ConcatTailArrayTest;
 import org.trie4j.tail.builder.SuffixTrieTailBuilderTest;
 import org.trie4j.tail.index.ArrayTailIndexTest;
 import org.trie4j.tail.index.SBVTailIndexTest;
+import org.trie4j.util.FastBitSetTest;
 import org.trie4j.util.SuccinctBitVectorTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	FastBitSetTest.class,
 	SuffixTrieTailBuilderTest.class,
 	ArrayTailIndexTest.class,
 	SBVTailIndexTest.class,
