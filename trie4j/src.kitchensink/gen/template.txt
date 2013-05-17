@@ -1,0 +1,63 @@
+<table>
+<tr><th colspan="2">class</th><th>notes</th><th>build(ms)</th><th>contains(ms)</th><th>used heap(MB)</th></tr>
+<tr><td colspan="2">java.util.HashSet</td><td /><td align="right">${HashSet.build}<sup>*1</sup></td><td align="right">${HashSet.contains}</td><td align="right">${HashSet.mem}</td></tr>
+<tr><td colspan="2">java.util.TreeSet</td><td /><td align="right"><font color="red">${TreeSet.build}</font><sup>*1</sup></td><td align="right">${TreeSet.contains}</td><td align="right">${TreeSet.mem}</td></tr>
+<tr>
+  <td colspan="2">PatriciaTrie(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/patricia/simple/PatriciaTrie.java">src</a>)</td>
+  <td>Simple PATRICIA Trie.</td><td align="right">${PatriciaTrie.build}<sup>*1</sup></td><td align="right">${PatriciaTrie.contains}</td><td align="right">${PatriciaTrie.mem}</td>
+</tr>
+<tr>
+  <td rowspan="2">TailPatriciaTrie(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/patricia/tail/TailPatriciaTrie.java">src</a>)</td>
+  <td>SuffixTrieTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/SuffixTrieTailBuilder.java">src</a>)</td>
+  <td rowspan="2">PATRICIA Trie with tail string.</td>
+  <td align="right">${TailPatriciaTrie(suffixTrieTail).build}<sup>*1</sup></td><td align="right">${TailPatriciaTrie(suffixTrieTail).contains}</td><td align="right">${TailPatriciaTrie(suffixTrieTail).mem}</td></tr>
+<tr>
+  <td>ConcatTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/ConcatTailBuilder.java">src</a>)</td>
+  <td align="right">${TailPatriciaTrie(concatTail).build}<sup>*1</sup></td><td align="right">${TailPatriciaTrie(concatTail).contains}</td><td align="right">${TailPatriciaTrie(concatTail).mem}</td>
+</tr>
+<tr>
+  <td colspan="2">DoubleArray(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/DoubleArray.java">src</a>)</td>
+  <td>Simple Double Array Trie.</td>
+  <td align="right">${DoubleArray.build}<sup>*2</sup></td><td align="right"><font color="red">${DoubleArray.contains}</a></td><td align="right">${DoubleArray.mem}</td>
+</tr>
+<tr>
+  <td rowspan="2">TailDoubleArray(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/doublearray/TailDoubleArray.java">src</a>)</td>
+  <td>SuffixTrieTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/SuffixTrieTailBuilder.java">src</a>)</td>
+  <td rowspan="2">Double Array Trie with tail string.</td>
+  <td align="right">${TailDoubleArray(suffixTrieTail).build}<sup>*2</sup></td><td align="right">${TailDoubleArray(suffixTrieTail).contains}</td><td align="right">${TailDoubleArray(suffixTrieTail).mem}</td>
+</tr>
+<tr>
+  <td>ConcatTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/ConcatTailBuilder.java">src</a>)</td>
+  <td align="right">${TailDoubleArray(concatTail).build}<sup>*2</sup></td><td align="right">${TailDoubleArray(concatTail).contains}</td><td align="right">${TailDoubleArray(concatTail).mem}</td>
+</tr>
+<tr>
+  <td rowspan="3">TailLOUDSTrie(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/louds/TailLOUDSTrie.java">src</a>)</td>
+  <td>SuffixTrieTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/SuffixTrieTailBuilder.java">src</a>)</td>
+  <td rowspan="3">LOUDS Succinct Trie with tail string.</td>
+  <td align="right">${TailLOUDSTrie(suffixTrieTail,arrayTI).build}<sup>*2</sup></td><td align="right">${TailLOUDSTrie(suffixTrieTail,arrayTI).contains}</td><td align="right"><font color="red">${TailLOUDSTrie(suffixTrieTail,arrayTI).mem}</a></td>
+</tr>
+<tr>
+  <td>ConcatTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/builder/ConcatTailBuilder.java">src</a>)</td>
+  <td align="right"><font color="red">${TailLOUDSTrie(concatTail,arrayTI).build}</font><sup>*2</sup></td><td align="right">${TailLOUDSTrie(concatTail,arrayTI).contains}</td><td align="right">${TailLOUDSTrie(concatTail,arrayTI).mem}</td>
+</tr>
+<tr>
+  <td>ConcatTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/builder/ConcatTailBuilder.java">src</a>)
+with <a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/index/SBVTailIndex.java">sbvTI<sup>*3</sup></a></td>
+  <td align="right"><font color="red">${TailLOUDSTrie(concatTail,sbvTI).build}</font><sup>*2</sup></td><td align="right">${TailLOUDSTrie(concatTail,sbvTI).contains}</td><td align="right">${TailLOUDSTrie(concatTail,sbvTI).mem}</td>
+</tr>
+<tr>
+  <td rowspan="3">TailLOUDSPPTrie(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/louds/TailLOUDSPPTrie.java">src</a>)</td>
+  <td>SuffixTrieTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/SuffixTrieTailBuilder.java">src</a>)</td>
+  <td rowspan="3">LOUDS++ Succinct Trie with tail string.</td>
+  <td align="right">${TailLOUDSPPTrie(suffixTrieTail,arrayTI).build}<sup>*2</sup></td><td align="right">${TailLOUDSPPTrie(suffixTrieTail,arrayTI).contains}</td><td align="right"><font color="red">${TailLOUDSPPTrie(suffixTrieTail,arrayTI).mem}</a></td>
+</tr>
+<tr>
+  <td>ConcatTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/builder/ConcatTailBuilder.java">src</a>)</td>
+  <td align="right"><font color="red">${TailLOUDSPPTrie(concatTail,arrayTI).build}</font><sup>*2</sup></td><td align="right">${TailLOUDSPPTrie(concatTail,arrayTI).contains}</td><td align="right">${TailLOUDSPPTrie(concatTail,arrayTI).mem}</td>
+</tr>
+<tr>
+  <td>ConcatTailBuilder(<a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/builder/ConcatTailBuilder.java">src</a>)
+with <a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/trie4j/tail/index/SBVTailIndex.java">sbvTI<sup>*3</sup></a></td>
+  <td align="right"><font color="red">${TailLOUDSPPTrie(concatTail,sbvTI).build}</font><sup>*2</sup></td><td align="right">${TailLOUDSPPTrie(concatTail,sbvTI).contains}</td><td align="right">${TailLOUDSPPTrie(concatTail,sbvTI).mem}</td>
+</tr>
+</table>
