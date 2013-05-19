@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.trie4j.test.LapTimer;
+import org.trie4j.test.WikipediaTitles;
 
 public class LZ77 {
 	public static void main(String[] args) throws Exception{
@@ -23,6 +24,7 @@ public class LZ77 {
 		LapTimer lt = new LapTimer();
 		String src = "abcabdrz";
 		src = read("data/jawiki-20120220-tail");
+//		src = readTitles("data/jawiki-20120220-all-titles-in-ns0.gz");
 		int windowSize = 8192;
 		StringBuilder dest = new StringBuilder();
 		lt.lap();
@@ -97,6 +99,7 @@ public class LZ77 {
 			return "" + c;
 		}
 	}
+
 	private static String read(String filename)
 	throws IOException{
 		InputStream is = new FileInputStream(filename);
@@ -111,6 +114,15 @@ public class LZ77 {
 		} finally{
 			is.close();
 		}
+	}
+
+	private static String readTitles(String filename)
+	throws IOException{
+		StringBuilder b = new StringBuilder();
+		for(String s : new WikipediaTitles(filename)){
+			b.append(s).append("\n");
+		}
+		return b.toString();
 	}
 
 	private static void dump(CharSequence... src){
