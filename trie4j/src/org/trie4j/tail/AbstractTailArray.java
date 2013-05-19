@@ -15,6 +15,14 @@ public abstract class AbstractTailArray implements TailArray{
 		index = newTailIndex(initialCapacity);
 	}
 
+	public CharSequence getTails(){
+		return tails;
+	}
+
+	public TailIndex getTailIndex(){
+		return index;
+	}
+
 	@Override
 	public int append(char[] letters, int offset, int len) {
 		int ret = builder.insert(letters, offset, len);

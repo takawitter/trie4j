@@ -91,6 +91,18 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 		return bvtree;
 	}
 
+	public char[] getLabels(){
+		return labels;
+	}
+
+	public TailArray getTailArray(){
+		return tailArray;
+	}
+
+	public BitSet getTerm(){
+		return term;
+	}
+
 	@Override
 	public Node getRoot(){
 		return new LOUDSNode(0);
