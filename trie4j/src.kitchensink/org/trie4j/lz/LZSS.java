@@ -1,5 +1,7 @@
 package org.trie4j.lz;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -151,9 +153,12 @@ public class LZSS {
 	throws IOException{
 		InputStream is = new FileInputStream(filename);
 		try{
-			Reader r = new InputStreamReader(is, "UTF-16");
+			DataInputStream dis = new DataInputStream(new BufferedInputStream(is));
 			char[] buff = new char[is.available() / 2];
-			r.read(buff);
+			int i = 0;
+			while(dis.available() > 0){
+				buff[i++] = dis.readChar();
+			}
 			return new String(buff);
 		} finally{
 			is.close();
