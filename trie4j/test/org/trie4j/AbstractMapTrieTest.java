@@ -15,8 +15,7 @@
  */
 package org.trie4j;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.patricia.simple.MapPatriciaTrie;
 
@@ -44,6 +43,14 @@ public abstract class AbstractMapTrieTest extends AbstractTrieTest {
 		for(int i = 0; i < words.length; i++){
 			Assert.assertEquals(values[i], trie.get(words[i]));
 		}
+	}
+
+	@Test
+	public void test_MapTrie_get_2() throws Exception{
+		MapTrie<Integer> mapTrie = new MapPatriciaTrie<Integer>();
+		mapTrie.insert("Test", 1);
+		mapTrie.insert("Tes", 4);
+		Assert.assertEquals(1, mapTrie.get("Test").intValue());
 	}
 
 	private MapTrie<Integer> newMapTrie(String[] words, Integer[] values){

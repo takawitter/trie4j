@@ -161,9 +161,10 @@ public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
 				mn.setValue(value);
 				return old;
 			} else if(lettersRest < thisLettersLength){
-				Node newChild = new MapNode<T>(
+				MapNode<T> newChild = new MapNode<T>(
 						Arrays.copyOfRange(node.getLetters(), lettersRest, thisLettersLength)
 						, node.isTerminate(), node.getChildren());
+				newChild.setValue(((MapNode<T>)node).getValue());
 				node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
 				node.setTerminate(true);
 				node.setChildren(new Node[]{newChild});
