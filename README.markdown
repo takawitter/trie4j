@@ -11,7 +11,7 @@ Trie4J is the sort of collection of varios trie implementation.
 [![Build Status](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/badge/icon)](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/)
  **latest binary: [trie4j-SNAPSHOT.jar](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/lastSuccessfulBuild/artifact/trie4j/dist/trie4j-SNAPSHOT.jar)**
 
-See [original maven site](https://github.com/takawitter/repo) to use from pom.xml.
+See [original maven repository](https://github.com/takawitter/repo) to use from pom.xml.
 
 ---
 ### Performance comparison:
