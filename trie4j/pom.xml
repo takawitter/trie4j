@@ -30,6 +30,7 @@
           <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
           <branch>refs/heads/master</branch>
           <includes><include>**/*</include></includes>
+          <merge>true</merge>
           <repositoryName>repo</repositoryName>
           <repositoryOwner>takawitter</repositoryOwner>
         </configuration>
@@ -56,5 +57,10 @@
   <properties>
     <github.global.server>github</github.global.server>
   </properties>
+  <scm>
+  	<connection>git:https://github.com/takawitter/trie4j.git</connection>
+  	<url>scm:https://github.com/takawitter/trie4j</url>
+  	<developerConnection>scm:git:https://github.com/takawitter/trie4j.git</developerConnection>
+  </scm>
 </project>
 
