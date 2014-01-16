@@ -261,7 +261,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 			String c = p.getSecond();
 			for(char v : this.chars){
 				int next = b + charToCode[v];
-				if(next >= checkLen) continue;
+				if(next < 0 || next >= checkLen) continue;
 				if(check[next] == ni){
 					String n = new StringBuilder(c).append(v).toString();
 					if(term.get(next)){
