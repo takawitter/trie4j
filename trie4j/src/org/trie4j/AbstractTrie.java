@@ -45,4 +45,9 @@ public abstract class AbstractTrie implements Trie{
 	@Override
 	public void freeze() {
 	}
+
+	@Override
+	public void insert(String word) {
+		throw new UnsupportedOperationException();
+	}
 }

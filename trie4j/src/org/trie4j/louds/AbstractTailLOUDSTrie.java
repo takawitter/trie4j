@@ -214,11 +214,6 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 		return ret;
 	}
 
-	@Override
-	public void insert(String word) {
-		throw new UnsupportedOperationException();
-	}
-
 	public class LOUDSNode implements Node{
 		public LOUDSNode(int nodeId) {
 			this.nodeId = nodeId;

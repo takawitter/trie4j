@@ -183,7 +183,7 @@ public class DoubleArray extends AbstractTrie implements Trie{
 			char cid = charToCode[text.charAt(i)];
 			if(cid == 0) return false;
 			int next = base[nodeIndex] + cid;
-			if(check[next] != nodeIndex) return false;
+			if(next < 0 || check[next] != nodeIndex) return false;
 			nodeIndex = next;
 		}
 		return term.get(nodeIndex);
@@ -272,14 +272,6 @@ public class DoubleArray extends AbstractTrie implements Trie{
 			}
 		}
 		return ret;
-	}
-
-	/**
-	 * Double Array currently not support dynamic construction.
-	 */
-	@Override
-	public void insert(String word) {
-		throw new UnsupportedOperationException();
 	}
 
 	public void save(OutputStream os) throws IOException{

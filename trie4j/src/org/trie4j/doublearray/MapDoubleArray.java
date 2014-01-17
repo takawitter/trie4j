@@ -221,7 +221,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 				int cid = findCharId(text.charAt(i));
 				if(cid == -1) return -1;
 				int next = base[nodeIndex] + cid;
-				if(check[next] != nodeIndex) return -1;
+				if(next < 0 || check[next] != nodeIndex) return -1;
 				nodeIndex = next;
 			}
 			return nodeIndex;
@@ -315,14 +315,6 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		return ret;
 	}
 
-	/**
-	 * Double Array currently not support dynamic construction.
-	 */
-	@Override
-	public void insert(String word) {
-		throw new UnsupportedOperationException();
-	}
-	
 	@Override
 	public T insert(String word, T value) {
 		throw new UnsupportedOperationException();
