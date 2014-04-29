@@ -187,25 +187,10 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements IdTrie {
 
 	@Override
 	public Iterable<String> commonPrefixSearch(String query) {
+		Iterable<Pair<String, Integer>> retID = commonPrefixSearchId(query);
 		List<String> ret = new ArrayList<String>();
-		char[] chars = query.toCharArray();
-		int charsLen = chars.length;
-		int nodeId = 0; // root
-		TailCharIterator tci = tailArray.newIterator();
-		Range r = new Range();
-		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
-			int child = getChildNode(nodeId, chars[charsIndex], r);
-			if(child == -1) return ret;
-			tci.setOffset(tailArray.getIteratorOffset(child));
-			while(tci.hasNext()){
-				charsIndex++;
-				if(charsLen <= charsIndex) return ret;
-				if(chars[charsIndex] != tci.next()) return ret;
-			}
-			if(term.get(child)){
-				ret.add(new String(chars, 0, charsIndex + 1));
-			}
-			nodeId = child;
+		for (Pair<String, Integer> pair : retID) {
+			ret.add(pair.getFirst());
 		}
 		return ret;
 	}
@@ -256,44 +241,10 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements IdTrie {
 	
 	@Override
 	public Iterable<String> predictiveSearch(String query) {
+		Iterable<Pair<String, Integer>> retID = predictiveSearchId(query);
 		List<String> ret = new ArrayList<String>();
-		char[] chars = query.toCharArray();
-		int charsLen = chars.length;
-		int nodeId = 0; // root
-		Range r = new Range();
-		TailCharIterator tci = tailArray.newIterator();
-		String pfx = null;
-		int charsIndexBack = 0;
-		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
-			charsIndexBack = charsIndex;
-			int child = getChildNode(nodeId, chars[charsIndex], r);
-			if(child == -1) return ret;
-			tci.setOffset(tailArray.getIteratorOffset(child));
-			while(tci.hasNext()){
-				charsIndex++;
-				if(charsIndex >= charsLen) break;
-				if(chars[charsIndex] != tci.next()) return ret;
-			}
-			nodeId = child;
-		}
-		pfx = new String(chars, 0, charsIndexBack);
-
-		Deque<Pair<Integer, String>> queue = new LinkedList<Pair<Integer,String>>();
-		queue.offerLast(Pair.create(nodeId, pfx));
-		while(queue.size() > 0){
-			Pair<Integer, String> element = queue.pollFirst();
-			int nid = element.getFirst();
-
-			StringBuilder b = new StringBuilder(element.getSecond());
-			b.append(labels[nid]);
-			tci.setOffset(tailArray.getIteratorOffset(nid));
-			while(tci.hasNext()) b.append(tci.next());
-			String letter = b.toString();
-			if(term.get(nid)) ret.add(letter);
-			bvtree.getChildNodeIds(nid, r);
-			for(int i = (r.getEnd() - 1); i >= r.getStart(); i--){
-				queue.offerFirst(Pair.create(i, letter));
-			}
+		for (Pair<String, Integer> pair : retID) {
+			ret.add(pair.getFirst());
 		}
 		return ret;
 	}
