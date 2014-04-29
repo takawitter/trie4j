@@ -20,5 +20,4 @@ public interface SuccinctBitVector extends BitVector {
 	int select1(int num);
 	int rank0(int pos);
 	int rank1(int pos);
-	boolean isZero(int pos);
 }
