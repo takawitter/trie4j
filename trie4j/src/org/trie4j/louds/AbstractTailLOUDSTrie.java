@@ -31,8 +31,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.trie4j.AbstractTrie;
+import org.trie4j.IdTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.bv.BytesSuccinctBitVector;
+import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.tail.ConcatTailArray;
@@ -41,7 +44,7 @@ import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 import org.trie4j.util.Range;
 
-public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
+public class AbstractTailLOUDSTrie extends AbstractTrie implements IdTrie {
 	public AbstractTailLOUDSTrie(){
 	}
 
@@ -55,6 +58,7 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 		this.size = orig.size();
 		this.labels = new char[size];
 		this.term = new BitSet(size);
+		this.termBV = new BytesSuccinctBitVector(size);
 		LinkedList<Node> queue = new LinkedList<Node>();
 		int count = 0;
 		if(orig.getRoot() != null) queue.add(orig.getRoot());
@@ -64,7 +68,12 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 			if(index >= labels.length){
 				extend();
 			}
-			if(node.isTerminate()) term.set(index);
+			if(node.isTerminate()) {
+				term.set(index);
+				termBV.append1();
+			} else {
+				termBV.append0();
+			}
 			for(Node c : node.getChildren()){
 				bvtree.appendChild();
 				queue.offerLast(c);
@@ -120,24 +129,29 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 		}
 		writer.write("\n");
 	}
-
+	
 	@Override
-	public boolean contains(String text){
+	public int getId(String text) {
 		int nodeId = 0; // root
 		Range r = new Range();
 		TailCharIterator it = tailArray.newIterator();
 		int n = text.length();
 		for(int i = 0; i < n; i++){
 			nodeId = getChildNode(nodeId, text.charAt(i), r);
-			if(nodeId == -1) return false;
+			if(nodeId == -1) return -1;
 			it.setOffset(tailArray.getIteratorOffset(nodeId));
 			while(it.hasNext()){
 				i++;
-				if(i == n) return false;
-				if(text.charAt(i) != it.next()) return false;
+				if(i == n) return -1;
+				if(text.charAt(i) != it.next()) return -1;
 			}
 		}
-		return term.get(nodeId);
+		return termBV.rank1(nodeId) - 1;
+	}
+
+	@Override
+	public boolean contains(String text){
+		return getId(text) != -1;
 	}
 
 	@Override
@@ -146,8 +160,8 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	@Override
-	public Iterable<String> commonPrefixSearch(String query) {
-		List<String> ret = new ArrayList<String>();
+	public Iterable<Pair<String, Integer>> commonPrefixSearchId(String query) {
+		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
 		int nodeId = 0; // root
@@ -163,7 +177,8 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 				if(chars[charsIndex] != tci.next()) return ret;
 			}
 			if(term.get(child)){
-				ret.add(new String(chars, 0, charsIndex + 1));
+				ret.add(new Pair<String, Integer>(new String(chars, 0, charsIndex + 1),
+						termBV.rank1(child) - 1));
 			}
 			nodeId = child;
 		}
@@ -171,8 +186,18 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	@Override
-	public Iterable<String> predictiveSearch(String query) {
+	public Iterable<String> commonPrefixSearch(String query) {
+		Iterable<Pair<String, Integer>> retID = commonPrefixSearchId(query);
 		List<String> ret = new ArrayList<String>();
+		for (Pair<String, Integer> pair : retID) {
+			ret.add(pair.getFirst());
+		}
+		return ret;
+	}
+
+	@Override
+	public Iterable<Pair<String, Integer>> predictiveSearchId(String query) {
+		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
 		int nodeId = 0; // root
@@ -205,11 +230,21 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 			tci.setOffset(tailArray.getIteratorOffset(nid));
 			while(tci.hasNext()) b.append(tci.next());
 			String letter = b.toString();
-			if(term.get(nid)) ret.add(letter);
+			if(term.get(nid)) ret.add(new Pair<String, Integer>(letter, termBV.rank1(nid) - 1));
 			bvtree.getChildNodeIds(nid, r);
 			for(int i = (r.getEnd() - 1); i >= r.getStart(); i--){
 				queue.offerFirst(Pair.create(i, letter));
 			}
+		}
+		return ret;
+	}
+	
+	@Override
+	public Iterable<String> predictiveSearch(String query) {
+		Iterable<Pair<String, Integer>> retID = predictiveSearchId(query);
+		List<String> ret = new ArrayList<String>();
+		for (Pair<String, Integer> pair : retID) {
+			ret.add(pair.getFirst());
 		}
 		return ret;
 	}
@@ -297,6 +332,14 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 		}
 		tailArray.load(is);
 		term = (BitSet)ois.readObject();
+		termBV = new BytesSuccinctBitVector(term.length());
+		for (int i = 0; i < term.length(); ++i) {
+			if (term.get(i)) {
+				termBV.append1();
+			} else {
+				termBV.append0();
+			}
+		}
 	}
 
 	private int getChildNode(int nodeId, char c, Range r){
@@ -338,5 +381,6 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 	private char[] labels;
 	private TailArray tailArray;
 	private BitSet term;
+	private SuccinctBitVector termBV;
 	private int nodeSize;
 }
