@@ -16,9 +16,10 @@
 package org.trie4j;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.Writer;
 
-public interface Trie {
+public interface Trie extends Serializable{
 	/**
 	 * returns inserted word count(equals to terminal node count)
 	 * @return inserted word count

@@ -15,13 +15,12 @@
  */
 package org.trie4j.doublearray;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -41,14 +40,14 @@ import java.util.TreeSet;
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.tail.FastTailCharIterator;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
-import org.trie4j.tail.FastTailCharIterator;
 import org.trie4j.tail.TailUtil;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.util.Pair;
 
-public class TailDoubleArray extends AbstractTrie implements Trie{
+public class TailDoubleArray extends AbstractTrie implements Trie, Externalizable{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 
 	public TailDoubleArray(){
@@ -247,73 +246,83 @@ public class TailDoubleArray extends AbstractTrie implements Trie{
 		return ret;
 	}
 
-	public void save(OutputStream os) throws IOException{
-		BufferedOutputStream bos = new BufferedOutputStream(os);
-		DataOutputStream dos = new DataOutputStream(bos);
-		dos.writeInt(size);
-		dos.writeInt(base.length);
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(size);
+		out.writeInt(base.length);
 		for(int v : base){
-			dos.writeInt(v);
+			out.writeInt(v);
 		}
 		for(int v : check){
-			dos.writeInt(v);
+			out.writeInt(v);
 		}
 		for(int v : tail){
-			dos.writeInt(v);
+			out.writeInt(v);
 		}
-		dos.flush();
-		ObjectOutputStream oos = new ObjectOutputStream(bos);
-		oos.writeObject(term);
-		oos.flush();
-		dos.writeInt(firstEmptyCheck);
-		dos.writeInt(tails.length());
-		dos.writeChars(tails.toString());
-		dos.writeInt(chars.size());
+		out.writeObject(term);
+		out.flush();
+		out.writeInt(firstEmptyCheck);
+		out.writeInt(tails.length());
+		out.writeChars(tails.toString());
+		out.writeInt(chars.size());
 		for(char c : chars){
-			dos.writeChar(c);
-			dos.writeChar(charToCode[c]);
+			out.writeChar(c);
+			out.writeChar(charToCode[c]);
 		}
-		dos.flush();
-		
-		bos.flush();
 	}
 
-	public void load(InputStream is) throws IOException{
-		BufferedInputStream bis = new BufferedInputStream(is);
-		DataInputStream dis = new DataInputStream(bis);
-		size = dis.readInt();
-		int len = dis.readInt();
+	public void save(OutputStream os) throws IOException{
+		ObjectOutputStream out = new ObjectOutputStream(os);
+		try{
+			writeExternal(out);
+		} finally{
+			out.flush();
+		}
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		size = in.readInt();
+		int len = in.readInt();
 		base = new int[len];
 		for(int i = 0; i < len; i++){
-			base[i] = dis.readInt();
+			base[i] = in.readInt();
 		}
 		check = new int[len];
 		for(int i = 0; i < len; i++){
-			check[i] = dis.readInt();
+			check[i] = in.readInt();
 		}
 		tail = new int[len];
 		for(int i = 0; i < len; i++){
-			tail[i] = dis.readInt();
+			tail[i] = in.readInt();
 		}
-		ObjectInputStream ois = new ObjectInputStream(bis);
 		try{
-			term = (BitSet)ois.readObject();
+			term = (BitSet)in.readObject();
 		} catch(ClassNotFoundException e){
 			throw new IOException(e);
 		}
-		firstEmptyCheck = dis.readInt();
-		int n = dis.readInt();
+		firstEmptyCheck = in.readInt();
+		int n = in.readInt();
 		StringBuilder b = new StringBuilder(n);
 		for(int i = 0; i < n; i++){
-			b.append(dis.readChar());
+			b.append(in.readChar());
 		}
 		tails = b;
-		n = dis.readInt();
+		n = in.readInt();
 		for(int i = 0; i < n; i++){
-			char c = dis.readChar();
-			char v = dis.readChar();
+			char c = in.readChar();
+			char v = in.readChar();
 			chars.add(c);
 			charToCode[c] = v;
+		}
+	}
+
+	public void load(InputStream is) throws IOException{
+		try{
+			readExternal(new ObjectInputStream(is));
+		} catch(ClassNotFoundException e){
+			throw new IOException(e);
 		}
 	}
 

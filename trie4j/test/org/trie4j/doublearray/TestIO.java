@@ -30,17 +30,21 @@ import org.trie4j.test.LapTimer;
 import org.trie4j.util.CharsetUtil;
 
 public class TestIO {
+	private static final String file =
+			"data/jawiki-20140416-all-titles-in-ns0.gz"
+			//"data/enwiki-20120403-all-titles-in-ns0.gz"
+			;
+	
 	private static final int maxCount = 2000000;
 	
 	@Test
 	public void testSave() throws Exception{
 		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream("data/jawiki-20120220-all-titles-in-ns0.gz"))
-//				new GZIPInputStream(new FileInputStream("data/enwiki-20120403-all-titles-in-ns0.gz"))
+				new GZIPInputStream(new FileInputStream(file))
 				, CharsetUtil.newUTF8Decoder()));
 		System.out.println("--- building patricia trie ---");
-		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
+		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie();
 		int c = 0;
 		String word = null;
 		LapTimer t1 = new LapTimer();
@@ -101,8 +105,7 @@ public class TestIO {
 	private static void verify(Trie da) throws Exception{
 		System.out.println("verifying double array...");
 		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream("data/jawiki-20120220-all-titles-in-ns0.gz"))
-//				new GZIPInputStream(new FileInputStream("enwiki-20120403-all-titles-in-ns0.gz"))
+				new GZIPInputStream(new FileInputStream(file))
 				, CharsetUtil.newUTF8Decoder()));
 		int c = 0;
 		int sum = 0;
