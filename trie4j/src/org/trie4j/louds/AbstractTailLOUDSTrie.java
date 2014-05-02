@@ -15,13 +15,10 @@
  */
 package org.trie4j.louds;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,7 +38,9 @@ import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 import org.trie4j.util.Range;
 
-public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
+public class AbstractTailLOUDSTrie
+extends AbstractTrie
+implements Externalizable, Trie{
 	public AbstractTailLOUDSTrie(){
 	}
 
@@ -268,35 +267,31 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 		tailArray.trimToSize();
 	}
 
-	public void save(OutputStream os) throws IOException{
-		DataOutputStream dos = new DataOutputStream(os);
-		ObjectOutputStream oos = new ObjectOutputStream(os);
-		dos.writeInt(size);
-		dos.writeInt(nodeSize);
-		dos.flush();
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(size);
+		out.writeInt(nodeSize);
 		trimToSize();
-		bvtree.save(os);
+		out.writeObject(bvtree);
 		for(char c : labels){
-			dos.writeChar(c);
+			out.writeChar(c);
 		}
-		dos.flush();
-		tailArray.save(os);
-		oos.writeObject(term);
-		oos.flush();
+		out.writeObject(tailArray);
+		out.writeObject(term);
 	}
 
-	public void load(InputStream is) throws ClassNotFoundException, IOException{
-		DataInputStream dis = new DataInputStream(is);
-		ObjectInputStream ois = new ObjectInputStream(is);
-		size = dis.readInt();
-		nodeSize = dis.readInt();
-		bvtree.load(is);
+	@Override
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		size = in.readInt();
+		nodeSize = in.readInt();
+		bvtree = (BvTree)in.readObject();
 		labels = new char[nodeSize];
 		for(int i = 0; i < nodeSize; i++){
-			labels[i] = dis.readChar();
+			labels[i] = in.readChar();
 		}
-		tailArray.load(is);
-		term = (BitSet)ois.readObject();
+		tailArray = (TailArray)in.readObject();
+		term = (BitSet)in.readObject();
 	}
 
 	private int getChildNode(int nodeId, char c, Range r){

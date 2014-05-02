@@ -275,7 +275,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		dos.flush();
 		oos.writeObject(term);
 		oos.flush();
-		bv.save(os);
+		bv.writeExternal(oos);
 	}
 
 	public void load(InputStream is) throws ClassNotFoundException, IOException{
@@ -298,7 +298,7 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 		}
 		term = (BitSet)ois.readObject();
 		bv = new BytesSuccinctBitVector();
-		bv.load(is);
+		bv.readExternal(ois);
 	}
 
 	private int getChildNode(int nodeId, char c){

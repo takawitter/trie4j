@@ -16,7 +16,11 @@
 package org.trie4j.doublearray;
 
 import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.trie4j.Algorithms;
+import org.trie4j.Node;
+import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.test.LapTimer;
@@ -25,7 +29,7 @@ import org.trie4j.test.WikipediaTitles;
 public class TestWikipedia {
 	private static final int maxCount = 20000000;
 	// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
-	private static final String wikipediaFilename = "data/jawiki-20120220-all-titles-in-ns0.gz";
+	private static final String wikipediaFilename = "data/jawiki-20140416-all-titles-in-ns0.gz";
 //	private static final String wikipediaFilename = "data/enwiki-20120403-all-titles-in-ns0.gz";
 
 	public static void main(String[] args) throws Exception{
@@ -49,6 +53,15 @@ public class TestWikipedia {
 		Trie da = trie;
 		trie = null;
 		System.out.println("done in " + t1.lap() + " millis.");
+		final AtomicInteger count = new AtomicInteger();
+		Algorithms.traverseByBreadth(da.getRoot(), new NodeVisitor() {
+			@Override
+			public boolean visit(Node node, int nest) {
+				count.incrementAndGet();
+				return true;
+			}
+		});
+		System.out.println(count + " nodes in trie.");
 		da.dump(new PrintWriter(System.out));
 
 		verify(da);

@@ -28,7 +28,7 @@ import org.trie4j.util.Pair;
 
 public class AllTries {
 	private static Iterable<String> newWords() throws IOException{
-		return new WikipediaTitles("data/jawiki-20120220-all-titles-in-ns0.gz");
+		return new WikipediaTitles("data/jawiki-20140416-all-titles-in-ns0.gz");
 	}
 
 	private static Object holder;

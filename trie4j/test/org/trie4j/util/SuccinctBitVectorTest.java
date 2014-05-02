@@ -20,7 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.trie4j.bv.BytesSuccinctBitVector;
@@ -215,9 +215,11 @@ public class SuccinctBitVectorTest {
 			bv.append1();
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		bv.save(baos);
-		BytesSuccinctBitVector bv2 = new BytesSuccinctBitVector();
-		bv2.load(new ByteArrayInputStream(baos.toByteArray()));
+		ObjectOutputStream oos = new ObjectOutputStream(baos);
+		oos.writeObject(bv);
+		BytesSuccinctBitVector bv2 = (BytesSuccinctBitVector)new ObjectInputStream(
+				new ByteArrayInputStream(baos.toByteArray()))
+				.readObject();
 		for(int i = 0; i < 1000; i++){
 			Assert.assertEquals(i + 1, bv2.rank0(i * 3));
 			Assert.assertEquals(i * 2 + 1, bv2.rank1(i * 3 + 1));

@@ -2,6 +2,8 @@ package org.trie4j.louds;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,9 +46,37 @@ public class TailLOUDSTrieWithSuffixTrieTailBuilderTest extends AbstractTrieTest
 		for(String w : words) trie.insert(w);
 		TailLOUDSTrie lt = new TailLOUDSTrie(trie);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		lt.save(baos);
+		ObjectOutputStream oos = new ObjectOutputStream(baos);
+		lt.writeExternal(oos);
+		oos.flush();
 		lt = new TailLOUDSTrie();
-		lt.load(new ByteArrayInputStream(baos.toByteArray()));
+		lt.readExternal(new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())));
+		for(String w : words){
+			Assert.assertTrue(lt.contains(w));
+		}
+		Assert.assertFalse(lt.contains("おやすみなさい"));
+
+		StringBuilder b = new StringBuilder();
+		Node[] children = lt.getRoot().getChildren();
+		for(Node n : children){
+			char[] letters = n.getLetters();
+			b.append(letters[0]);
+		}
+		Assert.assertEquals("おこさ", b.toString());
+	}
+
+	@Test
+	public void test_save_load2() throws Exception{
+		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
+		Trie trie = new PatriciaTrie();
+		for(String w : words) trie.insert(w);
+		TailLOUDSTrie lt = new TailLOUDSTrie(trie);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(baos);
+		oos.writeObject(lt);
+		oos.flush();
+		lt = (TailLOUDSTrie)new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()))
+				.readObject();
 		for(String w : words){
 			Assert.assertTrue(lt.contains(w));
 		}
