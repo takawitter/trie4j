@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.zip.GZIPInputStream;
 
 import org.junit.Assert;
+import org.trie4j.MapTrie;
 import org.trie4j.Trie;
 
 public class WikipediaTitles implements Iterable<String>{
@@ -32,9 +33,24 @@ public class WikipediaTitles implements Iterable<String>{
 		return trie;
 	}
 
+	public MapTrie<Integer> insertTo(MapTrie<Integer> trie){
+		int i = 0;
+		for(String s : this){
+			trie.insert(s, (Integer)(i++));
+		}
+		return trie;
+	}
+
 	public void assertAllContains(Trie trie){
 		for(String s : this){
 			Assert.assertTrue(trie.contains(s));
+		}
+	}
+
+	public void assertAllContains(MapTrie<Integer> trie){
+		int i = 0;
+		for(String s : this){
+			Assert.assertEquals(i + "th entry.", (Integer)(i++), trie.get(s));
 		}
 	}
 

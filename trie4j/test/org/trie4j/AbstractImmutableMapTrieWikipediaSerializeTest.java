@@ -28,16 +28,17 @@ public abstract class AbstractImmutableMapTrieWikipediaSerializeTest{
 	protected abstract <T> Trie newTrie(MapTrie<T> orig);
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void test() throws Exception{
 		WikipediaTitles wt = new WikipediaTitles();
-		Trie trie = newTrie(wt.insertTo(new MapPatriciaTrie<Object>()));
+		Trie trie = newTrie(wt.insertTo(new MapPatriciaTrie<Integer>()));
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(baos);
 		oos.writeObject(trie);
 		oos.flush();
 		byte[] serialized = baos.toByteArray();
 		System.out.println("size: " + serialized.length);
-		Trie t = (Trie)new ObjectInputStream(new ByteArrayInputStream(serialized))
+		MapTrie<Integer> t = (MapTrie<Integer>)new ObjectInputStream(new ByteArrayInputStream(serialized))
 				.readObject();
 		wt.assertAllContains(t);
 	}

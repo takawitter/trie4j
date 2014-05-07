@@ -338,6 +338,11 @@ implements MapTrie<T>, Externalizable{
 			out.writeChar(c);
 			out.writeChar(charToCode[c]);
 		}
+		out.writeInt(values.length);
+		for(Object v : values){
+			out.writeObject(v);
+		}
+		idToValueIndex.writeExternal(out);
 	}
 
 	public void save(OutputStream os) throws IOException{
@@ -371,6 +376,12 @@ implements MapTrie<T>, Externalizable{
 			chars.add(c);
 			charToCode[c] = v;
 		}
+		int valuesSize = in.readInt();
+		values = new Object[valuesSize];
+		for(int i = 0; i < valuesSize; i++){
+			values[i] = in.readObject();
+		}
+		idToValueIndex.readExternal(in);
 	}
 
 	public void load(InputStream is) throws IOException{
