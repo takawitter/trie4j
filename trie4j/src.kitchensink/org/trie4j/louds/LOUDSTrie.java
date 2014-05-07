@@ -263,7 +263,7 @@ implements Externalizable, Trie {
 	public void save(OutputStream os) throws IOException{
 		ObjectOutputStream out = new ObjectOutputStream(os);
 		try{
-			writeExternal(new ObjectOutputStream(os));
+			writeExternal(out);
 		} finally{
 			out.flush();
 		}
