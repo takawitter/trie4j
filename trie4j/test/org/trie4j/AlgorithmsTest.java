@@ -15,8 +15,7 @@
  */
 package org.trie4j;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.test.SimpleNode;
 
