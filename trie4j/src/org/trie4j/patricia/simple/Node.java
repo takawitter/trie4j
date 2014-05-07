@@ -15,9 +15,12 @@
  */
 package org.trie4j.patricia.simple;
 
+import java.io.Serializable;
+
 import org.trie4j.NodeVisitor;
 
-public class Node implements org.trie4j.Node{
+public class Node
+implements Serializable, org.trie4j.Node{
 	public Node() {
 		this(new char[]{}, false);
 	}
@@ -103,4 +106,5 @@ public class Node implements org.trie4j.Node{
 	private boolean terminate;
 	private Node[] children;
 	private static Node[] emptyChildren = {};
+	private static final long serialVersionUID = -1625115329685564809L;
 }

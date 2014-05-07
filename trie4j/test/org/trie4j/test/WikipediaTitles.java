@@ -10,10 +10,32 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.zip.GZIPInputStream;
 
+import org.junit.Assert;
+import org.trie4j.Trie;
+
 public class WikipediaTitles implements Iterable<String>{
 	public WikipediaTitles(String gzFilePath) throws IOException{
 		if(!new File(gzFilePath).exists()) throw new FileNotFoundException(gzFilePath);
 		this.path = gzFilePath;
+	}
+
+	public WikipediaTitles() throws IOException{
+		String gzFilePath = "data/" + IOUtil.readLine("data/wiki");
+		if(!new File(gzFilePath).exists()) throw new FileNotFoundException(gzFilePath);
+		this.path = gzFilePath;
+	}
+
+	public <T extends Trie> T insertTo(T trie){
+		for(String s : this){
+			trie.insert(s);
+		}
+		return trie;
+	}
+
+	public void assertAllContains(Trie trie){
+		for(String s : this){
+			Assert.assertTrue(trie.contains(s));
+		}
 	}
 
 	@Override

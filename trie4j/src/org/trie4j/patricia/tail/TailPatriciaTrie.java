@@ -15,6 +15,7 @@
  */
 package org.trie4j.patricia.tail;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,7 +31,9 @@ import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.util.Pair;
 
-public class TailPatriciaTrie extends AbstractTrie implements Trie{
+public class TailPatriciaTrie
+extends AbstractTrie
+implements Serializable, Trie{
 	public TailPatriciaTrie() {
 		this(new SuffixTrieTailBuilder());
 	}
@@ -334,4 +337,5 @@ public class TailPatriciaTrie extends AbstractTrie implements Trie{
 	private Node root = new Node();
 	private TailBuilder tailBuilder;
 	private CharSequence tails;
+	private static final long serialVersionUID = -2084269385978925271L;
 }

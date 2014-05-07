@@ -15,16 +15,19 @@
  */
 package org.trie4j.patricia.simple;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.trie4j.AbstractTrie;
-import org.trie4j.Trie;
 import org.trie4j.NodeVisitor;
+import org.trie4j.Trie;
 
-public class PatriciaTrie extends AbstractTrie implements Trie{
+public class PatriciaTrie
+extends AbstractTrie
+implements Serializable, Trie{
 	@Override
 	public int size() {
 		return size;
@@ -201,4 +204,5 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 
 	private int size;
 	private Node root = new Node();
+	private static final long serialVersionUID = -7611399538600722195L;
 }

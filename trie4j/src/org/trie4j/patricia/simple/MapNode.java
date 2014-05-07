@@ -15,7 +15,11 @@
  */
 package org.trie4j.patricia.simple;
 
-public class MapNode<T> extends Node implements org.trie4j.MapNode<T>{
+import java.io.Serializable;
+
+public class MapNode<T>
+extends Node
+implements Serializable, org.trie4j.MapNode<T>{
 	public MapNode() {
 		super();
 	}
@@ -47,4 +51,5 @@ public class MapNode<T> extends Node implements org.trie4j.MapNode<T>{
 	}
 
 	private T value;
+	private static final long serialVersionUID = 8611758181642617230L;
 }

@@ -15,12 +15,14 @@
  */
 package org.trie4j.tail.builder;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.trie4j.tail.TailBuilder;
 
 
-public class SuffixTrieTailBuilder implements TailBuilder{
+public class SuffixTrieTailBuilder
+implements Serializable, TailBuilder{
 	public SuffixTrieTailBuilder(){
 		tails = new StringBuilder();
 	}
@@ -62,7 +64,7 @@ public class SuffixTrieTailBuilder implements TailBuilder{
 	private StringBuilder tails = new StringBuilder();
 
 
-	public static class Node {
+	public static class Node implements Serializable{
 		public final char[] emptyChars = {};
 
 		public Node(int first, int last) {
@@ -283,5 +285,8 @@ public class SuffixTrieTailBuilder implements TailBuilder{
 		private int last;
 		private Node parent;
 		private Node[] children;
+		private static final long serialVersionUID = 6049322543029754258L;
 	}
+
+	private static final long serialVersionUID = 2700592335145146376L;
 }

@@ -15,6 +15,7 @@
  */
 package org.trie4j.patricia.tail;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,8 @@ import org.trie4j.NodeVisitor;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 
-public class Node {
+public class Node
+implements Serializable{
 	public Node() {
 		this((char)0xffff, -1, false);
 	}
@@ -181,4 +183,5 @@ public class Node {
 	private boolean terminate;
 	private Node[] children;
 	private static Node[] emptyChildren = {};
+	private static final long serialVersionUID = -4622654571874519425L;
 }

@@ -15,6 +15,7 @@
  */
 package org.trie4j.patricia.simple;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,7 +25,9 @@ import org.trie4j.AbstractTrie;
 import org.trie4j.MapTrie;
 import org.trie4j.NodeVisitor;
 
-public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
+public class MapPatriciaTrie<T>
+extends AbstractTrie
+implements Serializable, MapTrie<T>{
 	@Override
 	public int size() {
 		return size;
@@ -231,4 +234,5 @@ public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
 
 	private int size;
 	private MapNode<T> root = new MapNode<T>();
+	private static final long serialVersionUID = 2165079531157534766L;
 }

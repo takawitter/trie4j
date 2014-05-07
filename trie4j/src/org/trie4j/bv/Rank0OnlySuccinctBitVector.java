@@ -121,7 +121,7 @@ implements Externalizable, BitVector{
 		size = in.readInt();
 		int vectorSize = in.readInt();
 		vector = new byte[vectorSize];
-		in.read(vector, 0, vectorSize);
+		in.readFully(vector, 0, vectorSize);
 		int size = in.readInt();
 		countCache0 = new int[size];
 		for(int i = 0; i < size; i++){
