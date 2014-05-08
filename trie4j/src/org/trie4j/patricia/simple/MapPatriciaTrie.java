@@ -45,12 +45,11 @@ public class MapPatriciaTrie<T> extends AbstractMapTrie<T> implements MapTrie<T>
 		return ((MapNode<T>)node).getValue();
 	}
 
-	@SuppressWarnings("unchecked")
 	public MapNode<T> getNode(String text) {
 		MapNode<T> node = root;
 		int n = text.length();
 		for(int i = 0; i < n; i++){
-			node = (MapNode<T>)node.getChild(text.charAt(i));
+			node = node.getChild(text.charAt(i));
 			if(node == null) return null;
 			char[] letters = node.getLetters();
 			int lettersLen = letters.length;
@@ -85,7 +84,7 @@ public class MapPatriciaTrie<T> extends AbstractMapTrie<T> implements MapTrie<T>
 		private String key;
 		private MapNode<T> node;
 	}
-			
+
 	@Override
 	public Iterable<Map.Entry<String, T>> commonPrefixSearchEntries(String query){
 		List<Map.Entry<String, T>> ret = new ArrayList<Map.Entry<String, T>>();
@@ -175,7 +174,7 @@ public class MapPatriciaTrie<T> extends AbstractMapTrie<T> implements MapTrie<T>
 				node.setTerminate(false);
 				node.setChildren(
 						(child1.getLetters()[0] < child2.getLetters()[0]) ?
-						new Node[]{child1, child2} : new Node[]{child2, child1});
+						new MapNode[]{child1, child2} : new MapNode[]{child2, child1});
 				node.setValue(null);
 				size++;
 			} else if(lettersRest == thisLettersLength){
@@ -183,19 +182,18 @@ public class MapPatriciaTrie<T> extends AbstractMapTrie<T> implements MapTrie<T>
 					node.setTerminate(true);
 					size++;
 				}
-				MapNode<T> mn = (MapNode<T>)node;
-				T old = mn.getValue();
-				mn.setValue(value);
+				T old = node.getValue();
+				node.setValue(value);
 				return old;
 			} else if(lettersRest < thisLettersLength){
 				MapNode<T> newChild = new MapNode<T>(
 						Arrays.copyOfRange(node.getLetters(), lettersRest, thisLettersLength)
 						, node.isTerminate(), node.getChildren());
-				newChild.setValue(((MapNode<T>)node).getValue());
+				newChild.setValue(node.getValue());
 				node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
 				node.setTerminate(true);
-				node.setChildren(new Node[]{newChild});
-				((MapNode<T>)node).setValue(value);
+				node.setChildren(new MapNode[]{newChild});
+				node.setValue(value);
 				size++;
 			} else{
 				int index = 0;

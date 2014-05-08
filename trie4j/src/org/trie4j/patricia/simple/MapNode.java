@@ -17,15 +17,15 @@ package org.trie4j.patricia.simple;
 
 public class MapNode<T> extends Node implements org.trie4j.MapNode<T>{
 	public MapNode() {
-		super();
+		super(new char[]{}, false, emptyChildren);
 	}
 
 	public MapNode(char[] letters, boolean terminated) {
-		super(letters, terminated);
+		super(letters, terminated, emptyChildren);
 	}
 
 	public MapNode(char[] letters, boolean terminated, T value) {
-		super(letters, terminated);
+		super(letters, terminated, emptyChildren);
 		this.value = value;
 	}
 
@@ -58,5 +58,26 @@ public class MapNode<T> extends Node implements org.trie4j.MapNode<T>{
 		return (MapNode<T>[])super.getChildren();
 	}
 
+	@Override
+	public void setChildren(Node[] children) {
+		super.setChildren(children);
+	}
+
+	public void setChildren(MapNode<T>[] children) {
+		super.setChildren(children);
+	}
+
+	@Override
+	public Node addChild(int index, Node n){
+		MapNode[] newc = new MapNode[getChildren().length + 1];
+		System.arraycopy(getChildren(), 0, newc, 0, index);
+		newc[index] = (MapNode)n;
+		System.arraycopy(getChildren(), index, newc, index + 1, getChildren().length - index);
+		super.setChildren(newc);
+		return this;
+	}
+
 	private T value;
+	@SuppressWarnings("rawtypes")
+	private static MapNode[] emptyChildren = {};
 }
