@@ -183,6 +183,10 @@ implements Externalizable, MapTrie<T>{
 						}
 					};
 				}
+				@Override
+				public void remove() {
+					it.remove();
+				}
 			};
 		}
 		private Iterable<Pair<String, Integer>> iterable;
