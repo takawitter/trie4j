@@ -30,7 +30,9 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.trie4j.AbstractTrie;
+import org.trie4j.AbstractIdTrie;
+import org.trie4j.IdNode;
+import org.trie4j.IdTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.louds.bvtree.BvTree;
@@ -41,7 +43,7 @@ import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 import org.trie4j.util.Range;
 
-public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
+public class AbstractTailLOUDSTrie extends AbstractIdTrie implements IdTrie {
 	public AbstractTailLOUDSTrie(){
 	}
 
@@ -49,7 +51,15 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 		this(orig, new LOUDSBvTree(orig.size()), new ConcatTailArray(orig.size() * 3));
 	}
 
+	static interface NodeListener{
+		void listen(Node node);
+	}
 	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray){
+		build(orig, bvtree, tailArray, new NodeListener(){ public void listen(Node node){}});
+	}
+
+	void build(Trie orig, BvTree bvtree, TailArray tailArray,
+			NodeListener listener){
 		this.tailArray = tailArray;
 		this.bvtree = bvtree;
 		this.size = orig.size();
@@ -60,6 +70,7 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 		if(orig.getRoot() != null) queue.add(orig.getRoot());
 		while(!queue.isEmpty()){
 			Node node = queue.pollFirst();
+			listener.listen(node);
 			int index = count++;
 			if(index >= labels.length){
 				extend();
@@ -104,7 +115,7 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	@Override
-	public Node getRoot(){
+	public IdNode getRoot(){
 		return new LOUDSNode(0);
 	}
 
@@ -122,22 +133,22 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	@Override
-	public boolean contains(String text){
+	public int getIdFor(String text){
 		int nodeId = 0; // root
 		Range r = new Range();
 		TailCharIterator it = tailArray.newIterator();
 		int n = text.length();
 		for(int i = 0; i < n; i++){
 			nodeId = getChildNode(nodeId, text.charAt(i), r);
-			if(nodeId == -1) return false;
+			if(nodeId == -1) return -1;
 			it.setOffset(tailArray.getIteratorOffset(nodeId));
 			while(it.hasNext()){
 				i++;
-				if(i == n) return false;
-				if(text.charAt(i) != it.next()) return false;
+				if(i == n) return -1;
+				if(text.charAt(i) != it.next()) return -1;
 			}
 		}
-		return term.get(nodeId);
+		return term.get(nodeId) ? nodeId : -1;
 	}
 
 	@Override
@@ -146,8 +157,8 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	@Override
-	public Iterable<String> commonPrefixSearch(String query) {
-		List<String> ret = new ArrayList<String>();
+	public Iterable<Pair<String, Integer>> commonPrefixSearchWithId(String query) {
+		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
 		int nodeId = 0; // root
@@ -163,7 +174,9 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 				if(chars[charsIndex] != tci.next()) return ret;
 			}
 			if(term.get(child)){
-				ret.add(new String(chars, 0, charsIndex + 1));
+				ret.add(Pair.create(
+						new String(chars, 0, charsIndex + 1),
+						child));
 			}
 			nodeId = child;
 		}
@@ -171,8 +184,8 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	@Override
-	public Iterable<String> predictiveSearch(String query) {
-		List<String> ret = new ArrayList<String>();
+	public Iterable<Pair<String, Integer>> predictiveSearchWithId(String query) {
+		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
 		int nodeId = 0; // root
@@ -205,7 +218,7 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 			tci.setOffset(tailArray.getIteratorOffset(nid));
 			while(tci.hasNext()) b.append(tci.next());
 			String letter = b.toString();
-			if(term.get(nid)) ret.add(letter);
+			if(term.get(nid)) ret.add(Pair.create(letter, nid));
 			bvtree.getChildNodeIds(nid, r);
 			for(int i = (r.getEnd() - 1); i >= r.getStart(); i--){
 				queue.offerFirst(Pair.create(i, letter));
@@ -214,10 +227,11 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 		return ret;
 	}
 
-	public class LOUDSNode implements Node{
+	public class LOUDSNode implements IdNode{
 		public LOUDSNode(int nodeId) {
 			this.nodeId = nodeId;
 		}
+		@Override
 		public int getId(){
 			return nodeId;
 		}
@@ -339,4 +353,5 @@ public class AbstractTailLOUDSTrie extends AbstractTrie implements Trie {
 	private TailArray tailArray;
 	private BitSet term;
 	private int nodeSize;
+	private static final long serialVersionUID = 8376289953859608479L;
 }

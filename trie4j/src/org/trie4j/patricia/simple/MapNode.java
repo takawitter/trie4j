@@ -29,11 +29,11 @@ public class MapNode<T> extends Node implements org.trie4j.MapNode<T>{
 		this.value = value;
 	}
 
-	public MapNode(char[] letters, boolean terminated, Node[] children) {
+	public MapNode(char[] letters, boolean terminated, MapNode<T>[] children) {
 		super(letters, terminated, children);
 	}
 	
-	public MapNode(char[] letters, boolean terminated, Node[] children, T value) {
+	public MapNode(char[] letters, boolean terminated, MapNode<T>[] children, T value) {
 		super(letters, terminated, children);
 		this.value = value;
 	}
@@ -44,6 +44,18 @@ public class MapNode<T> extends Node implements org.trie4j.MapNode<T>{
 
 	public void setValue(T value){
 		this.value = value;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public MapNode<T> getChild(char c) {
+		return (MapNode<T>)super.getChild(c);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public MapNode<T>[] getChildren() {
+		return (MapNode<T>[])super.getChildren();
 	}
 
 	private T value;

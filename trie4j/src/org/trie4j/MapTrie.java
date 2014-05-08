@@ -15,6 +15,8 @@
  */
 package org.trie4j;
 
+import java.util.Map;
+
 public interface MapTrie<T> extends Trie{
 	/**
 	 * retuns root node.
@@ -36,4 +38,22 @@ public interface MapTrie<T> extends Trie{
 	 * @return value. null if word not inserted or inserted with null value.
 	 */
 	T get(String word);
+
+	/**
+	 * search trie for words contained in query.
+	 * If query is "helloworld" and trie contains "he", "hello" and "world",
+	 * the words "he" and "hello" will be found.
+	 * @param query query
+	 * @return Iterable object which iterates found words.
+	 */
+	Iterable<Map.Entry<String, T>> commonPrefixSearchEntries(String query);
+
+	/**
+	 * search trie for words starting prefix.
+	 * If prefix is "he" and trie contains "he", "hello" and "world",
+	 * the words "he" and "hello" will be found.
+	 * @param prefix prefix
+	 * @return Iterable object which iterates found words.
+	 */
+	Iterable<Map.Entry<String, T>> predictiveSearchEntries(String prefix);
 }

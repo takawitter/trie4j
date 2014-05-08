@@ -19,12 +19,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import org.trie4j.AbstractTrie;
+import org.trie4j.AbstractMapTrie;
 import org.trie4j.MapTrie;
 import org.trie4j.NodeVisitor;
 
-public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
+public class MapPatriciaTrie<T> extends AbstractMapTrie<T> implements MapTrie<T>{
 	@Override
 	public int size() {
 		return size;
@@ -62,13 +63,35 @@ public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
 		return node;
 	}
 
-
+	private class Entry implements Map.Entry<String, T>{
+		public Entry(String key, MapNode<T> node) {
+			this.key = key;
+			this.node = node;
+		}
+	
+		@Override
+		public String getKey() {
+			return key;
+		}
+		public T getValue() {
+			return node.getValue();
+		}
+		@Override
+		public T setValue(T value) {
+			T ret = node.getValue();
+			node.setValue(value);
+			return ret;
+		}
+		private String key;
+		private MapNode<T> node;
+	}
+			
 	@Override
-	public Iterable<String> commonPrefixSearch(String query) {
-		List<String> ret = new ArrayList<String>();
+	public Iterable<Map.Entry<String, T>> commonPrefixSearchEntries(String query){
+		List<Map.Entry<String, T>> ret = new ArrayList<Map.Entry<String, T>>();
 		char[] queryChars = query.toCharArray();
 		int cur = 0;
-		Node node = root;
+		MapNode<T> node = root;
 		while(node != null){
 			char[] letters = node.getLetters();
 			if(letters.length > (queryChars.length - cur)) return ret;
@@ -76,7 +99,10 @@ public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
 				if(letters[i] != queryChars[cur + i]) return ret;
 			}
 			if(node.isTerminate()){
-				ret.add(new String(queryChars, 0 , cur + letters.length));
+				ret.add(new Entry(
+						new String(queryChars, 0 , cur + letters.length),
+						node
+						));
 			}
 			cur += letters.length;
 			if(queryChars.length == cur) return ret;
@@ -85,18 +111,19 @@ public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
 		return ret;
 	}
 
-	private static void enumLetters(Node node, String prefix, List<String> letters){
-		for(Node child : node.getChildren()){
+	private void enumLetters(MapNode<T> node, String prefix, List<Map.Entry<String, T>> letters){
+		for(MapNode<T> child : node.getChildren()){
 			String text = prefix + new String(child.getLetters());
-			if(child.isTerminate()) letters.add(text);
+			if(child.isTerminate()) letters.add(new Entry(text, child));
 			enumLetters(child, text, letters);
 		}
 	}
 
-	public Iterable<String> predictiveSearch(String prefix) {
+	@Override
+	public Iterable<Map.Entry<String, T>> predictiveSearchEntries(String prefix) {
 		char[] queryChars = prefix.toCharArray();
 		int cur = 0;
-		Node node = root;
+		MapNode<T> node = root;
 		while(node != null){
 			char[] letters = node.getLetters();
 			int n = Math.min(letters.length, queryChars.length - cur);
@@ -107,12 +134,12 @@ public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
 			}
 			cur += n;
 			if(queryChars.length == cur){
-				List<String> ret = new ArrayList<String>();
+				List<Map.Entry<String, T>> ret = new ArrayList<Map.Entry<String, T>>();
 				int rest = letters.length - n;
 				if(rest > 0){
 					prefix += new String(letters, n, rest);
 				}
-				if(node.isTerminate()) ret.add(prefix);
+				if(node.isTerminate()) ret.add(new Entry(prefix, node));
 				enumLetters(node, prefix, ret);
 				return ret;
 			}
@@ -130,7 +157,7 @@ public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
 	}
 
 	@SuppressWarnings("unchecked")
-	private T insert(Node node, char[] letters, int offset, T value){
+	private T insert(MapNode<T> node, char[] letters, int offset, T value){
 		int lettersRest = letters.length - offset;
 		while(true){
 			int thisLettersLength = node.getLetters().length;
@@ -138,10 +165,10 @@ public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
 			int i = 0;
 			while(i < n && (letters[i + offset] - node.getLetters()[i]) == 0) i++;
 			if(i != n){
-				Node child1 = new MapNode<T>(
+				MapNode<T> child1 = new MapNode<T>(
 						Arrays.copyOfRange(node.getLetters(), i, node.getLetters().length)
 						, node.isTerminate(), node.getChildren(), ((MapNode<T>)node).getValue());
-				Node child2 = new MapNode<T>(
+				MapNode<T> child2 = new MapNode<T>(
 						Arrays.copyOfRange(letters, i + offset, letters.length)
 						, true, value);
 				node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
@@ -149,7 +176,7 @@ public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
 				node.setChildren(
 						(child1.getLetters()[0] < child2.getLetters()[0]) ?
 						new Node[]{child1, child2} : new Node[]{child2, child1});
-				((MapNode<T>)node).setValue(null);
+				node.setValue(null);
 				size++;
 			} else if(lettersRest == thisLettersLength){
 				if(!node.isTerminate()){
@@ -178,7 +205,7 @@ public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
 					int start = 0;
 					while(start < end){
 						index = (start + end) / 2;
-						Node child = node.getChildren()[index];
+						MapNode<T> child = node.getChildren()[index];
 						int c = letters[i + offset] - child.getLetters()[0];
 						if(c == 0){
 							node = child;
@@ -198,7 +225,7 @@ public class MapPatriciaTrie<T> extends AbstractTrie implements MapTrie<T>{
 					}
 				} else{
 					for(; index < end; index++){
-						Node child = node.getChildren()[index];
+						MapNode<T> child = node.getChildren()[index];
 						int c = letters[i + offset] - child.getLetters()[0];
 						if(c < 0) break;
 						if(c == 0){

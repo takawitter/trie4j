@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ import org.trie4j.MapTrie;
 import org.trie4j.Node;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
 import org.trie4j.util.Pair;
+import org.trie4j.util.Trio;
 
 public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
@@ -156,8 +158,11 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 			int code = charToCode[c];
 			if(code == -1) return null;
 			int nid = base[nodeId] + c;
-			if(nid >= 0 && nid < check.length && check[nid] == nodeId) return new DoubleArrayNode(nid, c);
-			return null;
+			if(nid >= 0 && nid < check.length && check[nid] == nodeId){
+				return new DoubleArrayNode(nid, c);
+			} else{
+				return null;
+			}
 		}
 
 		private CharSequence listupChildChars(int nodeId){
@@ -250,6 +255,93 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		return ret;
 	}
 
+	public class Entry implements Map.Entry<String, T>{
+		public Entry() {
+		}
+
+		public Entry(String key, int nodeIndex){
+			this.key = key;
+			this.nodeIndex = nodeIndex;
+		}
+
+		@Override
+		public String getKey() {
+			return key;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public T getValue() {
+			return (T)values[idToValueIndex.rank0(nodeIndex) - 1];
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public T setValue(T value) {
+			int i = idToValueIndex.rank0(nodeIndex) - 1;
+			Object prev = values[i];
+			values[i] = value;
+			return (T)prev;
+		}
+
+		private String key;
+		private int nodeIndex;
+	}
+
+	@Override
+	public Iterable<Map.Entry<String, T>> commonPrefixSearchEntries(final String query) {
+		return new Iterable<Map.Entry<String, T>>() {
+			@Override
+			public Iterator<Map.Entry<String, T>> iterator() {
+				return new Iterator<Map.Entry<String, T>>() {
+					@Override
+					public boolean hasNext() {
+						return current != null;
+					}
+					@Override
+					public Map.Entry<String, T> next() {
+						Map.Entry<String, T> ret = current;
+						getNext();
+						return ret;
+					}
+					@Override
+					public void remove() {
+						throw new UnsupportedOperationException();
+					}
+					{
+						getNext();
+					}
+					private Map.Entry<String, T> current = null;
+					private int charsLen = query.length();
+					private int checkLen = check.length;
+					private int nodeIndex = 0;
+					private int currentIndex = 0;
+					private void getNext(){
+						current = null;
+						while(currentIndex < charsLen){
+							int cid = findCharId(query.charAt(currentIndex));
+							if(cid == -1) break;
+							int b = base[nodeIndex];
+							if(b == BASE_EMPTY) break;
+							int next = b + cid;
+							if(next >= checkLen || check[next] != nodeIndex) break;
+							nodeIndex = next;
+							if(term.get(nodeIndex)){
+								String key = query.substring(0, currentIndex + 1);
+								current = new Entry(key, nodeIndex);
+								currentIndex++;
+								break;
+							} else{
+								currentIndex++;
+								continue;
+							}
+						}
+					}
+				};
+			}
+		};
+	}
+
 	@Override
 	public int findWord(CharSequence chars, int start, int end, StringBuilder word) {
 		for(int i = start; i < end; i++){
@@ -313,6 +405,89 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 			}
 		}
 		return ret;
+	}
+
+	@Override
+	public Iterable<Map.Entry<String, T>> predictiveSearchEntries(final String prefix) {
+		return new Iterable<Map.Entry<String, T>>() {
+			@Override
+			public Iterator<Map.Entry<String, T>> iterator() {
+				return new Iterator<Map.Entry<String, T>>() {
+					@Override
+					public boolean hasNext() {
+						return current != null;
+					}
+					@Override
+					public Map.Entry<String, T> next() {
+						Map.Entry<String, T> ret = current;
+						if(ret != null){
+							getNext();
+						}
+						return ret;
+					}
+					@Override
+					public void remove() {
+						throw new UnsupportedOperationException();
+					}
+					{
+						getNext();
+					}
+					private int checkLen = check.length;
+					private int nodeIndex = 0;
+					private Deque<Trio<Integer, String, Iterator<Character>>> q;
+					private Map.Entry<String, T> current;
+					private void getNext(){
+						current = null;
+						if(q == null){
+							int charsLen = prefix.length();
+							Character c = null;
+							for(int i = 0; i < charsLen; i++){
+								c = prefix.charAt(i);
+								int cid = findCharId(c);
+								if(cid == -1) return;
+								int next = base[nodeIndex] + cid;
+								if(next < 0 || next >= checkLen || check[next] != nodeIndex) return;
+								nodeIndex = next;
+							}
+							q = new LinkedList<Trio<Integer, String, Iterator<Character>>>();
+							q.add(Trio.create(nodeIndex, prefix, chars.iterator()));
+							if(term.get(nodeIndex)){
+								current = new Entry(prefix, nodeIndex);
+								return;
+							}
+						}
+						while(!q.isEmpty()){
+							Trio<Integer, String, Iterator<Character>> p = q.peek();
+							int ni = p.getFirst();
+							int b = base[ni];
+							if(b == BASE_EMPTY){
+								q.pop();
+								continue;
+							}
+							Iterator<Character> ci = p.getThird();
+							while(ci.hasNext()){
+								char v = ci.next();
+								int next = b + charToCode[v];
+								if(next < 0 || next >= checkLen) continue;
+								if(check[next] == ni){
+									String n = new StringBuilder(p.getSecond()).append(v).toString();
+									q.push(Trio.create(next, n, chars.iterator()));
+									if(term.get(next)){
+										current = new Entry(n, nodeIndex);
+										if(!ci.hasNext()){
+											q.pop();
+										}
+										return;
+									}
+								}
+							}
+							q.pop();
+						}
+						return;
+					}
+				};
+			}
+		};
 	}
 
 	@Override
