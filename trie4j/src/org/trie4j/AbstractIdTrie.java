@@ -20,7 +20,7 @@ import java.util.Iterator;
 import org.trie4j.util.Pair;
 
 public abstract class AbstractIdTrie extends AbstractTrie implements IdTrie{
-	static class StringIterableAdapter implements Iterable<String>{
+	private static class StringIterableAdapter implements Iterable<String>{
 		public StringIterableAdapter(Iterable<Pair<String, Integer>> iterable) {
 			this.iterable = iterable;
 		}
@@ -43,11 +43,6 @@ public abstract class AbstractIdTrie extends AbstractTrie implements IdTrie{
 			};
 		}
 		private Iterable<Pair<String, Integer>> iterable;
-	}
-
-	@Override
-	public boolean contains(String text){
-		return getIdFor(text) != -1;
 	}
 
 	@Override

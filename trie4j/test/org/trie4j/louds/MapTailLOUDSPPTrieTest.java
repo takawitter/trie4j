@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,36 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.util;
+package org.trie4j.louds;
 
-public class Range {
-	public Range() {
-	}
-	public Range(int start, int end) {
-		this.start = start;
-		this.end = end;
-	}
-	public int getStart() {
-		return start;
-	}
-	public void setStart(int start) {
-		this.start = start;
-	}
-	public int getEnd() {
-		return end;
-	}
-	public void setEnd(int end) {
-		this.end = end;
-	}
+import org.trie4j.AbstractMapTrieTest;
+import org.trie4j.MapTrie;
 
-	public int getLength(){
-		return end - start;
+public class MapTailLOUDSPPTrieTest extends AbstractMapTrieTest{
+	@Override
+	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
+		return new MapTailLOUDSPPTrie<Integer>(firstTrie);
 	}
-	public void set(int start, int end){
-		this.start = start;
-		this.end = end;
-	}
-
-	private int start;
-	private int end;
 }

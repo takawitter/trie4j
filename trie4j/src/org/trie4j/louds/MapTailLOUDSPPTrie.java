@@ -24,17 +24,17 @@ import org.trie4j.Node;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.tail.ConcatTailArray;
 
-public class MapTailLOUDSTrie<T>
+public class MapTailLOUDSPPTrie<T>
 extends IdMapTrie<T>
 implements Externalizable, MapTrie<T>{
-	public MapTailLOUDSTrie(){
+	public MapTailLOUDSPPTrie(){
 	}
-	public MapTailLOUDSTrie(MapTrie<T> orig){
+	public MapTailLOUDSPPTrie(MapTrie<T> orig){
 		setIdTrie(build(orig));
 	}
 
 	private IdTrie build(MapTrie<T> orig){
-		TailLOUDSTrie trie = new TailLOUDSTrie();
+		TailLOUDSPPTrie trie = new TailLOUDSPPTrie();
 		trie.build(orig, new LOUDSBvTree(orig.size() * 2),
 				new ConcatTailArray(orig.size() * 3),
 				new AbstractTailLOUDSTrie.NodeListener() {

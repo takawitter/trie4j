@@ -36,13 +36,17 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.trie4j.AbstractTrie;
+import org.trie4j.AbstractIdTrie;
+import org.trie4j.IdNode;
+import org.trie4j.IdTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
 
-public class DoubleArray extends AbstractTrie implements Trie, Externalizable{
+public class DoubleArray
+extends AbstractIdTrie
+implements IdTrie, Externalizable{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 
 	public DoubleArray() {
@@ -70,7 +74,7 @@ public class DoubleArray extends AbstractTrie implements Trie, Externalizable{
 	}
 
 	@Override
-	public Node getRoot() {
+	public IdNode getRoot() {
 		return new DoubleArrayNode(0);
 	}
 
@@ -78,7 +82,7 @@ public class DoubleArray extends AbstractTrie implements Trie, Externalizable{
 		return base;
 	}
 
-	private class DoubleArrayNode implements Node{
+	private class DoubleArrayNode implements IdNode{
 		public DoubleArrayNode(int nodeId){
 			this.nodeId = nodeId;
 		}
@@ -147,6 +151,11 @@ public class DoubleArray extends AbstractTrie implements Trie, Externalizable{
 			return null;
 		}
 
+		@Override
+		public int getId() {
+			return nodeId;
+		}
+
 		private CharSequence listupChildChars(int nodeId){
 			StringBuilder b = new StringBuilder();
 			int bs = base[nodeId];
@@ -209,6 +218,29 @@ public class DoubleArray extends AbstractTrie implements Trie, Externalizable{
 	}
 
 	@Override
+	public Iterable<Pair<String, Integer>> commonPrefixSearchWithId(String query) {
+		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
+		char[] chars = query.toCharArray();
+		int charsLen = chars.length;
+		int checkLen = check.length;
+		int nodeIndex = 0;
+		for(int i = 0; i < charsLen; i++){
+			int cid = findCharId(chars[i]);
+			if(cid == -1) return ret;
+			int b = base[nodeIndex];
+			if(b == BASE_EMPTY) return ret;
+			int next = b + cid;
+			if(next >= checkLen || check[next] != nodeIndex) return ret;
+			nodeIndex = next;
+			if(term.get(nodeIndex)) ret.add(Pair.create(
+					new String(chars, 0, i + 1),
+					nodeIndex
+					));
+		}
+		return ret;
+	}
+
+	@Override
 	public int findWord(CharSequence chars, int start, int end, StringBuilder word) {
 		for(int i = start; i < end; i++){
 			int nodeIndex = 0;
@@ -265,6 +297,46 @@ public class DoubleArray extends AbstractTrie implements Trie, Externalizable{
 					String n = new StringBuilder(c).append(v).toString();
 					if(term.get(next)){
 						ret.add(n);
+					}
+					q.push(Pair.create(next, n));
+				}
+			}
+		}
+		return ret;
+	}
+
+	@Override
+	public Iterable<Pair<String, Integer>> predictiveSearchWithId(String prefix) {
+		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
+		char[] chars = prefix.toCharArray();
+		int charsLen = chars.length;
+		int checkLen = check.length;
+		int nodeIndex = 0;
+		for(int i = 0; i < charsLen; i++){
+			int cid = findCharId(chars[i]);
+			if(cid == -1) return ret;
+			int next = base[nodeIndex] + cid;
+			if(next < 0 || next >= checkLen || check[next] != nodeIndex) return ret;
+			nodeIndex = next;
+		}
+		if(term.get(nodeIndex)){
+			ret.add(Pair.create(prefix, nodeIndex));
+		}
+		Deque<Pair<Integer, String>> q = new LinkedList<Pair<Integer, String>>();
+		q.add(Pair.create(nodeIndex, prefix));
+		while(!q.isEmpty()){
+			Pair<Integer, String> p = q.pop();
+			int ni = p.getFirst();
+			int b = base[ni];
+			if(b == BASE_EMPTY) continue;
+			String c = p.getSecond();
+			for(char v : this.chars){
+				int next = b + charToCode[v];
+				if(next < 0 || next >= checkLen) continue;
+				if(check[next] == ni){
+					String n = new StringBuilder(c).append(v).toString();
+					if(term.get(next)){
+						ret.add(Pair.create(n, next));
 					}
 					q.push(Pair.create(next, n));
 				}
@@ -390,6 +462,20 @@ public class DoubleArray extends AbstractTrie implements Trie, Externalizable{
 		} finally{
 			writer.flush();
 		}
+	}
+
+	@Override
+	public int getIdFor(String text) {
+		int nodeIndex = 0; // root
+		int n = text.length();
+		for(int i = 0; i < n; i++){
+			char cid = charToCode[text.charAt(i)];
+			if(cid == 0) return -1;
+			int next = base[nodeIndex] + cid;
+			if(next < 0 || check[next] != nodeIndex) return -1;
+			nodeIndex = next;
+		}
+		return nodeIndex;
 	}
 
 	private void build(Node node, int nodeIndex){

@@ -24,7 +24,7 @@ import org.trie4j.test.WikipediaTitles;
 
 public class AbstractWikipediaTest {
 	// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
-	private static final String wikipediaFilename = "data/jawiki-20120220-all-titles-in-ns0.gz";
+	private static final String wikipediaFilename = "data/jawiki-20140416-all-titles-in-ns0.gz";
 //	private static final String wikipediaFilename = "data/enwiki-20120403-all-titles-in-ns0.gz";
 
 	protected Trie createFirstTrie(){

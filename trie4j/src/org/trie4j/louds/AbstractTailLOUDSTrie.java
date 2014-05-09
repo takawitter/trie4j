@@ -51,6 +51,13 @@ public class AbstractTailLOUDSTrie extends AbstractIdTrie implements IdTrie {
 		this(orig, new LOUDSBvTree(orig.size()), new ConcatTailArray(orig.size() * 3));
 	}
 
+	@Override
+	public boolean contains(String word) {
+		int id = getIdFor(word);
+		if(id == -1) return false;
+		return term.get(id);
+	}
+
 	static interface NodeListener{
 		void listen(Node node);
 	}
