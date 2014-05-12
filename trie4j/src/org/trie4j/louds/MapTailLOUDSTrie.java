@@ -17,6 +17,7 @@ package org.trie4j.louds;
 
 import java.io.Externalizable;
 
+import org.trie4j.AbstractDenseKeyIdMapTrie;
 import org.trie4j.IdTrie;
 import org.trie4j.MapNode;
 import org.trie4j.MapTrie;
@@ -25,7 +26,7 @@ import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.tail.ConcatTailArray;
 
 public class MapTailLOUDSTrie<T>
-extends IdMapTrie<T>
+extends AbstractDenseKeyIdMapTrie<T>
 implements Externalizable, MapTrie<T>{
 	public MapTailLOUDSTrie(){
 	}

@@ -19,9 +19,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public interface BitVector {
+import org.trie4j.util.BitSet;
+
+public interface BitVector extends BitSet {
 	int size();
 	boolean isZero(int pos);
+	boolean isOne(int pos);
 	void append0();
 	void append1();
 	void save(OutputStream os) throws IOException;

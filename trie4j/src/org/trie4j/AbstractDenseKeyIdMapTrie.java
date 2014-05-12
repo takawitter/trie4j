@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.louds;
+package org.trie4j;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -24,21 +24,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.trie4j.FilteredNode;
-import org.trie4j.IdNode;
-import org.trie4j.IdTrie;
-import org.trie4j.MapNode;
-import org.trie4j.MapTrie;
-import org.trie4j.Node;
 import org.trie4j.util.Pair;
-import org.trie4j.util.SBVIntMap;
 
-public class IdMapTrie<T>
+public abstract class AbstractDenseKeyIdMapTrie<T>
 implements Externalizable, MapTrie<T>{
-	public IdMapTrie() {
+	protected AbstractDenseKeyIdMapTrie() {
 	}
 
-	public IdMapTrie(IdTrie trie) {
+	protected AbstractDenseKeyIdMapTrie(DenseKeyIdTrie trie) {
 		this.trie = trie;
 	}
 
@@ -88,39 +81,49 @@ implements Externalizable, MapTrie<T>{
 		trie.freeze();
 	}
 
-	public class MapNodeAdapter extends FilteredNode implements MapNode<T>{
-		public MapNodeAdapter(IdNode orig){
-			super(orig);
-			this.id = orig.getId();
+	public class MapNodeAdapter implements MapNode<T>{
+		public MapNodeAdapter(DenseKeyIdNode orig){
+			this.orig = orig;
+		}
+
+		@Override
+		public char[] getLetters() {
+			return orig.getLetters();
+		}
+
+		@Override
+		public boolean isTerminate() {
+			return orig.isTerminate();
 		}
 
 		@Override
 		public MapNode<T> getChild(char c) {
-			return new MapNodeAdapter((IdNode)super.getChild(c));
+			return new MapNodeAdapter(orig.getChild(c));
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
 		public MapNode<T>[] getChildren() {
-			Node[] orig = super.getChildren();
-			MapNode<T>[] ret = new MapNode[orig.length];
+			DenseKeyIdNode[] origArray = orig.getChildren();
+			MapNode<T>[] ret = new MapNode[origArray.length];
 			for(int i = 0; i < ret.length; i++){
-				ret[i] = new MapNodeAdapter((IdNode)orig[i]);
+				ret[i] = new MapNodeAdapter(origArray[i]);
 			}
 			return ret;
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public T getValue() {
-			return values.get(id);
+			return (T)values[orig.getDenseKeyId()];
 		}
 
 		@Override
 		public void setValue(T value) {
-			values.set(id, value);
+			values[orig.getDenseKeyId()] = value;
 		}
 
-		private int id;
+		private DenseKeyIdNode orig;
 	}
 	@Override
 	public MapNode<T> getRoot() {
@@ -128,10 +131,11 @@ implements Externalizable, MapTrie<T>{
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public T get(String text) {
-		int id = trie.getIdFor(text);
-		if(id == -1) return null;
-		return values.get(id);
+		int id = trie.getDenseKeyIdFor(text);
+		if(id < 0) return null;
+		return (T)values[id];
 	}
 
 	@Override
@@ -160,13 +164,14 @@ implements Externalizable, MapTrie<T>{
 							return e.getFirst();
 						}
 						@Override
+						@SuppressWarnings("unchecked")
 						public T getValue() {
-							return values.get(e.getSecond());
+							return (T)values[e.getSecond()];
 						}
 						@Override
 						public T setValue(T value) {
 							T ret = getValue();
-							values.set(e.getSecond(), value);
+							values[e.getSecond()] = value;
 							return ret;
 						}
 					};
@@ -181,20 +186,19 @@ implements Externalizable, MapTrie<T>{
 	}
 	@Override
 	public Iterable<Map.Entry<String, T>> commonPrefixSearchEntries(final String query) {
-		return new IterableAdapter(trie.commonPrefixSearchWithId(query));
+		return new IterableAdapter(trie.commonPrefixSearchWithDenseKeyId(query));
 	}
 
 	@Override
 	public Iterable<Entry<String, T>> predictiveSearchEntries(String prefix) {
-		return new IterableAdapter(trie.predictiveSearchWithId(prefix));
+		return new IterableAdapter(trie.predictiveSearchWithDenseKeyId(prefix));
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void readExternal(ObjectInput in)
 	throws IOException, ClassNotFoundException {
-		trie = (TailLOUDSTrie)in.readObject();
-		values = (SBVIntMap<T>)in.readObject();
+		trie = (DenseKeyIdTrie)in.readObject();
+		values = (Object[])in.readObject();
 	}
 
 	@Override
@@ -203,14 +207,22 @@ implements Externalizable, MapTrie<T>{
 		out.writeObject(values);
 	}
 
-	protected SBVIntMap<T> getValues(){
-		return values;
+	public DenseKeyIdTrie getTrie() {
+		return trie;
 	}
 
-	protected void setIdTrie(IdTrie trie){
+	public void setTrie(DenseKeyIdTrie trie) {
 		this.trie = trie;
 	}
 
-	private IdTrie trie;
-	private SBVIntMap<T> values = new SBVIntMap<T>();
+	protected Object[] getValues(){
+		return values;
+	}
+
+	protected void setValues(Object[] values){
+		this.values = values;
+	}
+
+	protected Object[] values = {};
+	private DenseKeyIdTrie trie;
 }

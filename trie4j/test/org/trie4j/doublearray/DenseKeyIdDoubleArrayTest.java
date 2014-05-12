@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Takao Nakaguchi
+ * Copyright 2012 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,21 @@
  */
 package org.trie4j.doublearray;
 
-import org.trie4j.AbstractMapTrieTest;
-import org.trie4j.MapTrie;
+import org.junit.Assert;
+import org.junit.Test;
+import org.trie4j.AbstractTrieTest;
+import org.trie4j.Trie;
 
-public class MapDoubleArrayTest extends AbstractMapTrieTest{
+public class DenseKeyIdDoubleArrayTest extends AbstractTrieTest{
 	@Override
-	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapDoubleArray2<Integer>(firstTrie);
+	protected DenseKeyIdDoubleArray buildSecondTrie(Trie firstTrie) {
+		return new DenseKeyIdDoubleArray(firstTrie);
+	}
+
+	@Test
+	public void test() throws Exception{
+		DenseKeyIdDoubleArray t = buildSecondTrie(trieWithWords("hello", "world"));
+		Assert.assertEquals(0, t.getDenseKeyIdFor("hello"));
+		Assert.assertEquals(1, t.getDenseKeyIdFor("world"));
 	}
 }

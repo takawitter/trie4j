@@ -29,5 +29,6 @@ public class DoubleArrayWikipediaTest extends AbstractWikipediaTest{
 		super.afterVerification(trie);
 		((DoubleArray)trie).dump(new OutputStreamWriter(System.out));
 		System.out.println("base.length: " + ((DoubleArray)trie).getBase().length);
+		System.out.println("term.size: " + ((DoubleArray)trie).getTerm().size());
 	}
 }

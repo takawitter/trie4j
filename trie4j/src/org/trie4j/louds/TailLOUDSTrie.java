@@ -38,4 +38,8 @@ public class TailLOUDSTrie extends AbstractTailLOUDSTrie implements Trie {
 	public TailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray){
 		super(orig, bvtree, tailArray);
 	}
+
+	public TailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray, NodeListener listener){
+		super(orig, bvtree, tailArray, listener);
+	}
 }

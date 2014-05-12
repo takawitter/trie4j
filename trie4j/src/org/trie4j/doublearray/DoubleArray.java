@@ -36,18 +36,19 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.trie4j.AbstractIdTrie;
-import org.trie4j.IdNode;
-import org.trie4j.IdTrie;
+import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.util.BitSet;
 import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
 
 public class DoubleArray
-extends AbstractIdTrie
-implements IdTrie, Externalizable{
-	private static final int BASE_EMPTY = Integer.MAX_VALUE;
+extends AbstractTrie
+implements Externalizable, Trie{
+	public static interface TermNodeListener{
+		void listen(Node node, int nodeIndex);
+	}
 
 	public DoubleArray() {
 	}
@@ -57,15 +58,23 @@ implements IdTrie, Externalizable{
 	}
 
 	public DoubleArray(Trie trie, int arraySize){
+		this(trie, arraySize, new TermNodeListener(){
+			@Override
+			public void listen(Node node, int nodeIndex) {
+			}
+		});
+	}
+
+	public DoubleArray(Trie trie, int arraySize, TermNodeListener listener){
 		if(arraySize <= 1) arraySize = 2;
 		size = trie.size();
 		base = new int[arraySize];
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[arraySize];
 		Arrays.fill(check, -1);
-		term = new FastBitSet(arraySize);
-
-		build(trie.getRoot(), 0);
+		FastBitSet bs = new FastBitSet();
+		build(trie.getRoot(), 0, bs, listener);
+		term = bs;
 	}
 
 	@Override
@@ -74,15 +83,23 @@ implements IdTrie, Externalizable{
 	}
 
 	@Override
-	public IdNode getRoot() {
-		return new DoubleArrayNode(0);
+	public Node getRoot() {
+		return newDoubleArrayNode(0);
 	}
 
 	public int[] getBase(){
 		return base;
 	}
 
-	private class DoubleArrayNode implements IdNode{
+	public int[] getCheck(){
+		return check;
+	}
+
+	public BitSet getTerm() {
+		return term;
+	}
+
+	protected class DoubleArrayNode implements Node{
 		public DoubleArrayNode(int nodeId){
 			this.nodeId = nodeId;
 		}
@@ -147,15 +164,18 @@ implements IdTrie, Externalizable{
 			int code = charToCode[c];
 			if(code == -1) return null;
 			int nid = base[nodeId] + c;
-			if(nid >= 0 && nid < check.length && check[nid] == nodeId) return new DoubleArrayNode(nid, c);
+			if(nid >= 0 && nid < check.length && check[nid] == nodeId) return newDoubleArrayNode(nid, c);
 			return null;
 		}
 
-		@Override
-		public int getId() {
+		public int getNodeId() {
 			return nodeId;
 		}
 
+		protected DoubleArrayNode[] newNodeArray(int size){
+			return new DoubleArrayNode[size];
+		}
+	
 		private CharSequence listupChildChars(int nodeId){
 			StringBuilder b = new StringBuilder();
 			int bs = base[nodeId];
@@ -170,11 +190,11 @@ implements IdTrie, Externalizable{
 
 		private Node[] listupChildNodes(int base, CharSequence chars){
 			int n = chars.length();
-			Node[] ret = new Node[n];
+			Node[] ret = newNodeArray(n);
 			for(int i = 0; i < n; i++){
 				char c = chars.charAt(i);
 				char code = charToCode[c];
-				ret[i] = new DoubleArrayNode(base + code, c);
+				ret[i] = newDoubleArrayNode(base + code, c);
 			}
 			return ret;
 		}
@@ -213,29 +233,6 @@ implements IdTrie, Externalizable{
 			if(next >= checkLen || check[next] != nodeIndex) return ret;
 			nodeIndex = next;
 			if(term.get(nodeIndex)) ret.add(new String(chars, 0, i + 1));
-		}
-		return ret;
-	}
-
-	@Override
-	public Iterable<Pair<String, Integer>> commonPrefixSearchWithId(String query) {
-		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
-		char[] chars = query.toCharArray();
-		int charsLen = chars.length;
-		int checkLen = check.length;
-		int nodeIndex = 0;
-		for(int i = 0; i < charsLen; i++){
-			int cid = findCharId(chars[i]);
-			if(cid == -1) return ret;
-			int b = base[nodeIndex];
-			if(b == BASE_EMPTY) return ret;
-			int next = b + cid;
-			if(next >= checkLen || check[next] != nodeIndex) return ret;
-			nodeIndex = next;
-			if(term.get(nodeIndex)) ret.add(Pair.create(
-					new String(chars, 0, i + 1),
-					nodeIndex
-					));
 		}
 		return ret;
 	}
@@ -297,46 +294,6 @@ implements IdTrie, Externalizable{
 					String n = new StringBuilder(c).append(v).toString();
 					if(term.get(next)){
 						ret.add(n);
-					}
-					q.push(Pair.create(next, n));
-				}
-			}
-		}
-		return ret;
-	}
-
-	@Override
-	public Iterable<Pair<String, Integer>> predictiveSearchWithId(String prefix) {
-		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
-		char[] chars = prefix.toCharArray();
-		int charsLen = chars.length;
-		int checkLen = check.length;
-		int nodeIndex = 0;
-		for(int i = 0; i < charsLen; i++){
-			int cid = findCharId(chars[i]);
-			if(cid == -1) return ret;
-			int next = base[nodeIndex] + cid;
-			if(next < 0 || next >= checkLen || check[next] != nodeIndex) return ret;
-			nodeIndex = next;
-		}
-		if(term.get(nodeIndex)){
-			ret.add(Pair.create(prefix, nodeIndex));
-		}
-		Deque<Pair<Integer, String>> q = new LinkedList<Pair<Integer, String>>();
-		q.add(Pair.create(nodeIndex, prefix));
-		while(!q.isEmpty()){
-			Pair<Integer, String> p = q.pop();
-			int ni = p.getFirst();
-			int b = base[ni];
-			if(b == BASE_EMPTY) continue;
-			String c = p.getSecond();
-			for(char v : this.chars){
-				int next = b + charToCode[v];
-				if(next < 0 || next >= checkLen) continue;
-				if(check[next] == ni){
-					String n = new StringBuilder(c).append(v).toString();
-					if(term.get(next)){
-						ret.add(Pair.create(n, next));
 					}
 					q.push(Pair.create(next, n));
 				}
@@ -464,8 +421,7 @@ implements IdTrie, Externalizable{
 		}
 	}
 
-	@Override
-	public int getIdFor(String text) {
+	protected int getInternalIdFor(String text) {
 		int nodeIndex = 0; // root
 		int n = text.length();
 		for(int i = 0; i < n; i++){
@@ -478,7 +434,8 @@ implements IdTrie, Externalizable{
 		return nodeIndex;
 	}
 
-	private void build(Node node, int nodeIndex){
+	protected void build(Node node, int nodeIndex,
+			FastBitSet bs, TermNodeListener listener){
 		// letters
 		char[] letters = node.getLetters();
 		int lettersLen = letters.length;
@@ -490,7 +447,8 @@ implements IdTrie, Externalizable{
 			nodeIndex = empty;
 		}
 		if(node.isTerminate()){
-			term.set(nodeIndex);
+			bs.set(nodeIndex);
+			listener.listen(node, nodeIndex);
 		}
 
 		// children
@@ -538,10 +496,24 @@ implements IdTrie, Externalizable{
 		}
 		for(Map.Entry<Integer, List<Pair<Node, Integer>>> e : nodes.entrySet()){
 			for(Pair<Node, Integer> e2 : e.getValue()){
-				build(e2.getFirst(), e2.getSecond() + offset);
+				build(e2.getFirst(), e2.getSecond() + offset, bs, listener);
 			}
 		}
 //*/
+	}
+
+	protected DoubleArrayNode newDoubleArrayNode(int id){
+		return new DoubleArrayNode(id);
+	}
+
+	protected DoubleArrayNode newDoubleArrayNode(int id, char s){
+		return new DoubleArrayNode(id, s);
+	}
+
+	protected int findCharId(char c){
+		char v = charToCode[c];
+		if(v != 0) return v;
+		return -1;
 	}
 
 	private int findInsertOffset(int[] heads, int minHead, int maxHead){
@@ -569,12 +541,6 @@ implements IdTrie, Externalizable{
 		chars.add(c);
 		charToCode[c] = v;
 		return v;
-	}
-
-	private int findCharId(char c){
-		char v = charToCode[c];
-		if(v != 0) return v;
-		return -1;
 	}
 
 	private void extend(int i){
@@ -637,13 +603,14 @@ implements IdTrie, Externalizable{
 		last = Math.max(last, index);
 	}
 
-	private int size;
-	private int[] base;
-	private int[] check;
-	private int firstEmptyCheck = 1;
-	private int last;
-	private FastBitSet term;
-	private Set<Character> chars = new TreeSet<Character>();
-	private char[] charToCode = new char[Character.MAX_VALUE];
-	private static final Node[] emptyNodes = {};
+	protected int size;
+	protected int[] base;
+	protected int[] check;
+	protected int firstEmptyCheck = 1;
+	protected int last;
+	protected BitSet term;
+	protected Set<Character> chars = new TreeSet<Character>();
+	protected char[] charToCode = new char[Character.MAX_VALUE];
+	protected static final int BASE_EMPTY = Integer.MAX_VALUE;
+	protected static final Node[] emptyNodes = {};
 }

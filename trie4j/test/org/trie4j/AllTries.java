@@ -28,7 +28,7 @@ import org.trie4j.util.Pair;
 
 public class AllTries {
 	private static Iterable<String> newWords() throws IOException{
-		return new WikipediaTitles("data/jawiki-20120220-all-titles-in-ns0.gz");
+		return new WikipediaTitles("data/jawiki-20140416-all-titles-in-ns0.gz");
 	}
 
 	private static Object holder;
@@ -106,11 +106,15 @@ public class AllTries {
 			LapTimer lt = new LapTimer();
 			Trie trie = buildFrom(first);
 			b += lt.lap();
+			int i = 0;
 			for(String w : newWords()){
 				lt.lap();
 				boolean r = trie.contains(w);
 				c += lt.lap();
-				if(!r) throw new RuntimeException("verification failed for \"" + w + "\"");
+				i++;
+				if(!r) throw new RuntimeException(String.format(
+						"verification failed for %dth word: \"%s\"",
+						i, w));
 			}
 			holder = trie;
 			return Pair.create(b / 1000000, c / 1000000);
@@ -196,7 +200,7 @@ public class AllTries {
 					return new DoubleArray(trie);
 				}
 			},
-			new MapTrieProcess2("MapDoubleArray"){
+/*			new MapTrieProcess2("MapDoubleArray"){
 				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie){
 					return new MapDoubleArray<Integer>(trie);
 				}
@@ -219,7 +223,7 @@ public class AllTries {
 				}
 			},
 //*/
-			new TrieProcess2("TailLOUDSTrie(suffixTrieTail,arrayTI)"){
+/*			new TrieProcess2("TailLOUDSTrie(suffixTrieTail,arrayTI)"){
 				protected Trie buildFrom(Trie trie){
 					return new TailLOUDSTrie(trie, new SuffixTrieTailArray(trie.size()));
 				}
@@ -259,7 +263,7 @@ public class AllTries {
 					return new InlinedTailLOUDSPPTrie(trie);
 				}
 			},
-		};
+//*/		};
 
 	public static void main(String[] args) throws Exception{
 		MemoryMXBean mb = ManagementFactory.getMemoryMXBean();

@@ -19,10 +19,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.trie4j.bv.BitVectorUtilTest;
 import org.trie4j.doublearray.DoubleArrayTest;
+import org.trie4j.doublearray.MapDoubleArrayTest;
 import org.trie4j.doublearray.OptimizedTailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithSuffixTrieTailBuilderTest;
+import org.trie4j.louds.MapTailLOUDSPPTrieTest;
+import org.trie4j.louds.MapTailLOUDSTrieTest;
 import org.trie4j.louds.TailLOUDSPPTrieWithConcatTailBuilderTest;
 import org.trie4j.louds.TailLOUDSPPTrieWithSuffixTrieTailBuilderTest;
 import org.trie4j.louds.TailLOUDSTrieWithConcatTailBuilderTest;
@@ -58,11 +61,14 @@ import org.trie4j.util.SuccinctBitVectorTest;
 	TailDoubleArrayWithSuffixTrieTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithConcatTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest.class,
+	MapDoubleArrayTest.class,
 	LOUDSTrieTest.class,
 	TailLOUDSTrieWithConcatTailBuilderTest.class,
 	TailLOUDSTrieWithSuffixTrieTailBuilderTest.class,
 	TailLOUDSPPTrieWithConcatTailBuilderTest.class,
 	TailLOUDSPPTrieWithSuffixTrieTailBuilderTest.class,
+	MapTailLOUDSTrieTest.class,
+	MapTailLOUDSPPTrieTest.class,
 })
 public class AllTests {
 }

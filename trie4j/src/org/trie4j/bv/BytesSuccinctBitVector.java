@@ -48,8 +48,17 @@ public class BytesSuccinctBitVector implements Serializable, org.trie4j.bv.Succi
 		return b.toString();
 	}
 
-	public boolean isZero(int index){
-		return (vector[index / 8] & BITS[index % 8]) == 0;
+	@Override
+	public boolean get(int pos) {
+		return isOne(pos);
+	}
+
+	public boolean isZero(int pos){
+		return (vector[pos / 8] & BITS[pos % 8]) == 0;
+	}
+
+	public boolean isOne(int pos){
+		return (vector[pos / 8] & BITS[pos % 8]) != 0;
 	}
 
 	public int size(){

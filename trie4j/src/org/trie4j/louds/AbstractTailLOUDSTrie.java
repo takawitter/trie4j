@@ -30,9 +30,9 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.trie4j.AbstractIdTrie;
-import org.trie4j.IdNode;
-import org.trie4j.IdTrie;
+import org.trie4j.AbstractDenseKeyIdTrie;
+import org.trie4j.DenseKeyIdNode;
+import org.trie4j.DenseKeyIdTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.louds.bvtree.BvTree;
@@ -43,7 +43,11 @@ import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 import org.trie4j.util.Range;
 
-public class AbstractTailLOUDSTrie extends AbstractIdTrie implements IdTrie {
+public class AbstractTailLOUDSTrie extends AbstractDenseKeyIdTrie implements DenseKeyIdTrie {
+	protected static interface NodeListener{
+		void listen(Node node);
+	}
+
 	public AbstractTailLOUDSTrie(){
 	}
 
@@ -51,18 +55,25 @@ public class AbstractTailLOUDSTrie extends AbstractIdTrie implements IdTrie {
 		this(orig, new LOUDSBvTree(orig.size()), new ConcatTailArray(orig.size() * 3));
 	}
 
-	@Override
-	public boolean contains(String word) {
-		int id = getIdFor(word);
-		if(id == -1) return false;
-		return term.get(id);
+	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray){
+		build(orig, bvtree, tailArray,
+				new NodeListener(){ public void listen(Node node){}});
 	}
 
-	static interface NodeListener{
-		void listen(Node node);
+	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray, NodeListener listener){
+		build(orig, bvtree, tailArray, listener);
 	}
-	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray){
-		build(orig, bvtree, tailArray, new NodeListener(){ public void listen(Node node){}});
+
+	@Override
+	public int geteMaxDenseKeyId() {
+		return size() - 1;
+	}
+
+	@Override
+	public boolean contains(String word) {
+		int id = getDenseKeyIdFor(word);
+		if(id == -1) return false;
+		return term.get(id);
 	}
 
 	void build(Trie orig, BvTree bvtree, TailArray tailArray,
@@ -122,7 +133,7 @@ public class AbstractTailLOUDSTrie extends AbstractIdTrie implements IdTrie {
 	}
 
 	@Override
-	public IdNode getRoot(){
+	public DenseKeyIdNode getRoot(){
 		return new LOUDSNode(0);
 	}
 
@@ -140,7 +151,7 @@ public class AbstractTailLOUDSTrie extends AbstractIdTrie implements IdTrie {
 	}
 
 	@Override
-	public int getIdFor(String text){
+	public int getDenseKeyIdFor(String text){
 		int nodeId = 0; // root
 		Range r = new Range();
 		TailCharIterator it = tailArray.newIterator();
@@ -164,7 +175,7 @@ public class AbstractTailLOUDSTrie extends AbstractIdTrie implements IdTrie {
 	}
 
 	@Override
-	public Iterable<Pair<String, Integer>> commonPrefixSearchWithId(String query) {
+	public Iterable<Pair<String, Integer>> commonPrefixSearchWithDenseKeyId(String query) {
 		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
@@ -191,7 +202,7 @@ public class AbstractTailLOUDSTrie extends AbstractIdTrie implements IdTrie {
 	}
 
 	@Override
-	public Iterable<Pair<String, Integer>> predictiveSearchWithId(String query) {
+	public Iterable<Pair<String, Integer>> predictiveSearchWithDenseKeyId(String query) {
 		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
@@ -234,12 +245,12 @@ public class AbstractTailLOUDSTrie extends AbstractIdTrie implements IdTrie {
 		return ret;
 	}
 
-	public class LOUDSNode implements IdNode{
+	public class LOUDSNode implements DenseKeyIdNode{
 		public LOUDSNode(int nodeId) {
 			this.nodeId = nodeId;
 		}
 		@Override
-		public int getId(){
+		public int getDenseKeyId() {
 			return nodeId;
 		}
 		@Override
@@ -262,16 +273,16 @@ public class AbstractTailLOUDSTrie extends AbstractIdTrie implements IdTrie {
 			return term.get(nodeId);
 		}
 		@Override
-		public Node getChild(char c) {
+		public LOUDSNode getChild(char c) {
 			int nid = getChildNode(nodeId, c, new Range());
 			if(nid == -1) return null;
 			else return new LOUDSNode(nid);
 		}
 		@Override
-		public Node[] getChildren() {
+		public LOUDSNode[] getChildren() {
 			Range r = new Range();
 			bvtree.getChildNodeIds(nodeId, r);
-			Node[] children = new Node[r.getLength()];
+			LOUDSNode[] children = new LOUDSNode[r.getLength()];
 			for(int i = r.getStart(); i < r.getEnd(); i++){
 				children[i - r.getStart()] = new LOUDSNode(i);
 			}

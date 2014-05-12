@@ -15,35 +15,16 @@
  */
 package org.trie4j;
 
-public class FilteredNode
-implements Node{
-	public FilteredNode(Node orig) {
-		this.orig = orig;
-	}
+public interface DenseKeyIdNode extends Node{
+	/**
+	 * Returns dense key ID of this node or -1 for non-leaf node.
+	 * @return dense key ID or -1
+	 */
+	int getDenseKeyId();
 
 	@Override
-	public char[] getLetters() {
-		return orig.getLetters();
-	}
+	public DenseKeyIdNode getChild(char c);
 
 	@Override
-	public Node getChild(char c) {
-		return orig.getChild(c);
-	}
-
-	@Override
-	public Node[] getChildren() {
-		return orig.getChildren();
-	}
-
-	@Override
-	public boolean isTerminate() {
-		return orig.isTerminate();
-	}
-
-	protected Node getOrig(){
-		return orig;
-	}
-
-	private Node orig;
+	public DenseKeyIdNode[] getChildren();
 }

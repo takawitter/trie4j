@@ -203,7 +203,7 @@ public abstract class AbstractTrieTest {
 		}
 	}
 
-	private Trie trieWithWords(String... words){
+	protected Trie trieWithWords(String... words){
 		Trie ret = createFirstTrie();
 		for(String w : words) ret.insert(w);
 		return ret;

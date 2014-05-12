@@ -28,7 +28,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
@@ -44,9 +43,17 @@ import org.trie4j.MapNode;
 import org.trie4j.MapTrie;
 import org.trie4j.Node;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
+import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
 import org.trie4j.util.Trio;
 
+/**
+ * TODO protected DoubleArray(.., NodeListener l)を用意して
+ *      MapDoubleArrayから利用する?
+ * @author nakaguchi
+ *
+ * @param <T>
+ */
 public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 
@@ -64,7 +71,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[arraySize];
 		Arrays.fill(check, -1);
-		term = new BitSet(arraySize);
+		term = new Rank0OnlySuccinctBitVector(arraySize);
 		values = new Object[arraySize];
 
 		build(trie.getRoot(), 0);
@@ -72,12 +79,8 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		int c = 0;
 		for(int i = 0; i < values.length; i++){
 			if(term.get(i)){
-				Object v = values[i];
-				values[c] = v;
-				idToValueIndex.append0();
+				values[c] = values[i];
 				c++;
-			} else{
-				idToValueIndex.append1();
 			}
 		}
 		values = Arrays.copyOf(values, c);
@@ -191,12 +194,12 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		@Override
 		@SuppressWarnings("unchecked")
 		public T getValue() {
-			return (T)values[idToValueIndex.rank0(nodeId) - 1];
+			return (T)values[term.rank0(nodeId) - 1];
 		}
 
 		@Override
 		public void setValue(T value) {
-			values[idToValueIndex.rank0(nodeId) - 1] = value;
+			values[term.rank0(nodeId) - 1] = value;
 		}
 
 		private char firstChar = 0;
@@ -208,7 +211,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 	public T get(String word) {
 		int i = getIndex(word);
 		if(i == -1) return null;
-		return (T)values[idToValueIndex.rank0(i) - 1];
+		return (T)values[term.rank0(i) - 1];
 	}
 
 	@Override
@@ -272,13 +275,13 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		@Override
 		@SuppressWarnings("unchecked")
 		public T getValue() {
-			return (T)values[idToValueIndex.rank0(nodeIndex) - 1];
+			return (T)values[term.rank0(nodeIndex) - 1];
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
 		public T setValue(T value) {
-			int i = idToValueIndex.rank0(nodeIndex) - 1;
+			int i = term.rank0(nodeIndex) - 1;
 			Object prev = values[i];
 			values[i] = value;
 			return (T)prev;
@@ -535,7 +538,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		}
 		ObjectInputStream ois = new ObjectInputStream(bis);
 		try{
-			term = (BitSet)ois.readObject();
+			term = (Rank0OnlySuccinctBitVector)ois.readObject();
 		} catch(ClassNotFoundException e){
 			throw new IOException(e);
 		}
@@ -606,6 +609,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 
 	@SuppressWarnings("unchecked")
 	private void build(MapNode<T> node, int nodeIndex){
+		FastBitSet bs = new FastBitSet();
 		// letters
 		char[] letters = node.getLetters();
 		int lettersLen = letters.length;
@@ -617,7 +621,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 			nodeIndex = empty;
 		}
 		if(node.isTerminate()){
-			term.set(nodeIndex);
+			bs.set(nodeIndex);
 			values[nodeIndex] = node.getValue();
 		}
 
@@ -670,6 +674,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 			}
 		}
 //*/
+		term = new Rank0OnlySuccinctBitVector(bs.getBytes(), bs.size());
 	}
 
 	private int findInsertOffset(int[] heads, int minHead, int maxHead){
@@ -771,11 +776,10 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 	private int[] check;
 	private int firstEmptyCheck = 1;
 	private int last;
-	private BitSet term;
+	private Rank0OnlySuccinctBitVector term;
 	private Set<Character> chars = new TreeSet<Character>();
 	private char[] charToCode = new char[Character.MAX_VALUE];
 	private static final Node[] emptyNodes = {};
 
 	private Object[] values;
-	private Rank0OnlySuccinctBitVector idToValueIndex = new Rank0OnlySuccinctBitVector();
 }

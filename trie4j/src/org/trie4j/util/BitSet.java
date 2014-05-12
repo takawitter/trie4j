@@ -13,14 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.doublearray;
+package org.trie4j.util;
 
-import org.trie4j.AbstractMapTrieTest;
-import org.trie4j.MapTrie;
-
-public class MapDoubleArrayTest extends AbstractMapTrieTest{
-	@Override
-	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapDoubleArray2<Integer>(firstTrie);
-	}
+public interface BitSet {
+	int size();
+	boolean get(int pos);
 }

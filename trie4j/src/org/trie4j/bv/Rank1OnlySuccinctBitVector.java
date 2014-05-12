@@ -25,30 +25,31 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
-	public Rank0OnlySuccinctBitVector(){
+public class Rank1OnlySuccinctBitVector
+implements Serializable, SuccinctBitVector{
+	public Rank1OnlySuccinctBitVector(){
 		this(16);
 	}
 
-	public Rank0OnlySuccinctBitVector(int initialCapacity){
+	public Rank1OnlySuccinctBitVector(int initialCapacity){
 		vector = new byte[initialCapacity / 8 + 1];
 		int blockSize = CACHE_WIDTH;
 		int size = initialCapacity / blockSize + 1;
-		countCache0 = new int[size];
+		countCache1 = new int[size];
 	}
 
-	public Rank0OnlySuccinctBitVector(byte[] bytes, int bits){
-		vector = Arrays.copyOf(bytes, bits / 8 + (bits % 8 != 0 ? 1 : 0));
+	public Rank1OnlySuccinctBitVector(byte[] bytes, int bits){
+		this.vector = Arrays.copyOf(bytes, bits / 8 + (bits % 8 != 0 ? 1 : 0));
+		this.size = bits;
 		int blockSize = CACHE_WIDTH;
 		int size = vector.length / blockSize + 1;
-		countCache0 = new int[size];
+		countCache1 = new int[size];
 		int sum = 0;
 		for(int i = 0; i < bytes.length; i++){
-			sum += BITCOUNTS0[bytes[i] & 0xff];
+			sum += BITCOUNTS1[bytes[i] & 0xff];
 			int ci = size / CACHE_WIDTH;
-			countCache0[ci] = sum;
+			countCache1[ci] = sum;
 		}
-		
 	}
 
 	@Override
@@ -66,6 +67,7 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		return isOne(pos);
 	}
 
+	@Override
 	public boolean isZero(int pos){
 		return (vector[pos / 8] & BITS[pos % 8]) == 0;
 	}
@@ -75,6 +77,7 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		return (vector[pos / 8] & BITS[pos % 8]) != 0;
 	}
 
+	@Override
 	public int size(){
 		return this.size;
 	}
@@ -85,7 +88,7 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		int blockSize = CACHE_WIDTH / 8;
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 		int countCacheSize0 = size;
-		countCache0 = Arrays.copyOf(countCache0, Math.min(countCache0.length, countCacheSize0));
+		countCache1 = Arrays.copyOf(countCache1, Math.min(countCache1.length, countCacheSize0));
 	}
 
 	public void append1(){
@@ -95,7 +98,7 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 			extend();
 		}
 		if(size % CACHE_WIDTH == 0 && ci > 0){
-			countCache0[ci] = countCache0[ci - 1];
+			countCache1[ci] = countCache1[ci - 1];
 		}
 		int r = size % 8;
 		vector[i] |= BITS[r];
@@ -109,25 +112,41 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 			extend();
 		}
 		if(size % CACHE_WIDTH == 0 && ci > 0){
-			countCache0[ci] = countCache0[ci - 1];
+			countCache1[ci] = countCache1[ci - 1];
 		}
 //		int r = size % 8;
 //		vector[i] &= ~BITS[r];
-		countCache0[ci]++;
+		countCache1[ci]++;
 		size++;
 	}
 
-	public int rank0(int pos){
+	@Override
+	public int select0(int num) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int select1(int num) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int rank0(int pos) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int rank1(int pos){
 		int ret = 0;
 		int cn = pos / CACHE_WIDTH;
 		if(cn > 0){
-			ret = countCache0[cn - 1];
+			ret = countCache1[cn - 1];
 		}
 		int n = pos / 8;
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
-			ret += BITCOUNTS0[vector[i] & 0xff];
+			ret += BITCOUNTS1[vector[i] & 0xff];
 		}
-		ret += BITCOUNTS0[vector[n] & MASKS[pos % 8]] - 7 + (pos % 8);
+		ret += BITCOUNTS1[vector[n] & MASKS[pos % 8]];
 		return ret;
 	}
 
@@ -137,8 +156,8 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		trimToSize();
 		dos.writeInt(vector.length);
 		dos.write(vector);
-		dos.writeInt(countCache0.length);
-		for(int e : countCache0){
+		dos.writeInt(countCache1.length);
+		for(int e : countCache1){
 			dos.writeInt(e);
 		}
 		dos.flush();
@@ -151,9 +170,9 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		vector = new byte[vectorSize];
 		dis.read(vector, 0, vectorSize);
 		int size = dis.readInt();
-		countCache0 = new int[size];
+		countCache1 = new int[size];
 		for(int i = 0; i < size; i++){
-			countCache0[i] = dis.readInt();
+			countCache1[i] = dis.readInt();
 		}
 	}
 
@@ -164,7 +183,7 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		fields.put("size", size);
 		trimToSize();
 		fields.put("vector", vector);
-		fields.put("countCache0", countCache0);
+		fields.put("countCache0", countCache1);
 		s.writeFields();
     }
 
@@ -173,7 +192,7 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		ObjectInputStream.GetField fields = s.readFields();
 		size = fields.get("size", 0);
 		vector = (byte[])fields.get("vector", null);
-		countCache0 = (int[])fields.get("countCache0", null);
+		countCache1 = (int[])fields.get("countCache0", null);
     }
 
 	private void extend(){
@@ -181,13 +200,13 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		vector = Arrays.copyOf(vector, vectorSize);
 		int blockSize = CACHE_WIDTH / 8;
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
-		countCache0 = Arrays.copyOf(countCache0, size);
+		countCache1 = Arrays.copyOf(countCache1, size);
 	}
 
 	private static final int CACHE_WIDTH = 64;
 	private byte[] vector;
 	private int size;
-	private int[] countCache0;
+	private int[] countCache1;
 
 	private static final int[] MASKS = {
 		0x80, 0xc0, 0xe0, 0xf0
@@ -197,23 +216,23 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		(byte)0x80, (byte)0x40, (byte)0x20, (byte)0x10
 		, (byte)0x08, (byte)0x04, (byte)0x02, (byte)0x01
 	};
-	private static final byte[] BITCOUNTS0 = {
-		8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4, 
-		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
-		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
-		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
-		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
-		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
-		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
-		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
-		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
-		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
-		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
-		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
-		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
-		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
-		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
-		4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0, 
+	private static final byte[] BITCOUNTS1 = {
+		0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
 	};
 
 	private static final long serialVersionUID = -7658605229245494623L;
