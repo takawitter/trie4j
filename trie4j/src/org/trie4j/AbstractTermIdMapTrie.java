@@ -26,12 +26,12 @@ import java.util.Map.Entry;
 
 import org.trie4j.util.Pair;
 
-public abstract class AbstractDenseKeyIdMapTrie<T>
+public abstract class AbstractTermIdMapTrie<T>
 implements Externalizable, MapTrie<T>{
-	protected AbstractDenseKeyIdMapTrie() {
+	protected AbstractTermIdMapTrie() {
 	}
 
-	protected AbstractDenseKeyIdMapTrie(DenseKeyIdTrie trie) {
+	protected AbstractTermIdMapTrie(TermIdTrie trie) {
 		this.trie = trie;
 	}
 
@@ -82,7 +82,7 @@ implements Externalizable, MapTrie<T>{
 	}
 
 	public class MapNodeAdapter implements MapNode<T>{
-		public MapNodeAdapter(DenseKeyIdNode orig){
+		public MapNodeAdapter(TermIdNode orig){
 			this.orig = orig;
 		}
 
@@ -104,7 +104,7 @@ implements Externalizable, MapTrie<T>{
 		@Override
 		@SuppressWarnings("unchecked")
 		public MapNode<T>[] getChildren() {
-			DenseKeyIdNode[] origArray = orig.getChildren();
+			TermIdNode[] origArray = orig.getChildren();
 			MapNode<T>[] ret = new MapNode[origArray.length];
 			for(int i = 0; i < ret.length; i++){
 				ret[i] = new MapNodeAdapter(origArray[i]);
@@ -115,15 +115,15 @@ implements Externalizable, MapTrie<T>{
 		@Override
 		@SuppressWarnings("unchecked")
 		public T getValue() {
-			return (T)values[orig.getDenseKeyId()];
+			return (T)values[orig.getTermId()];
 		}
 
 		@Override
 		public void setValue(T value) {
-			values[orig.getDenseKeyId()] = value;
+			values[orig.getTermId()] = value;
 		}
 
-		private DenseKeyIdNode orig;
+		private TermIdNode orig;
 	}
 	@Override
 	public MapNode<T> getRoot() {
@@ -133,7 +133,7 @@ implements Externalizable, MapTrie<T>{
 	@Override
 	@SuppressWarnings("unchecked")
 	public T get(String text) {
-		int id = trie.getDenseKeyIdFor(text);
+		int id = trie.getTermId(text);
 		if(id < 0) return null;
 		return (T)values[id];
 	}
@@ -186,18 +186,18 @@ implements Externalizable, MapTrie<T>{
 	}
 	@Override
 	public Iterable<Map.Entry<String, T>> commonPrefixSearchEntries(final String query) {
-		return new IterableAdapter(trie.commonPrefixSearchWithDenseKeyId(query));
+		return new IterableAdapter(trie.commonPrefixSearchWithTermId(query));
 	}
 
 	@Override
 	public Iterable<Entry<String, T>> predictiveSearchEntries(String prefix) {
-		return new IterableAdapter(trie.predictiveSearchWithDenseKeyId(prefix));
+		return new IterableAdapter(trie.predictiveSearchWithTermId(prefix));
 	}
 
 	@Override
 	public void readExternal(ObjectInput in)
 	throws IOException, ClassNotFoundException {
-		trie = (DenseKeyIdTrie)in.readObject();
+		trie = (TermIdTrie)in.readObject();
 		values = (Object[])in.readObject();
 	}
 
@@ -207,11 +207,11 @@ implements Externalizable, MapTrie<T>{
 		out.writeObject(values);
 	}
 
-	public DenseKeyIdTrie getTrie() {
+	public TermIdTrie getTrie() {
 		return trie;
 	}
 
-	public void setTrie(DenseKeyIdTrie trie) {
+	public void setTrie(TermIdTrie trie) {
 		this.trie = trie;
 	}
 
@@ -224,5 +224,5 @@ implements Externalizable, MapTrie<T>{
 	}
 
 	protected Object[] values = {};
-	private DenseKeyIdTrie trie;
+	private TermIdTrie trie;
 }

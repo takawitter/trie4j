@@ -223,7 +223,7 @@ public class AllTries {
 				}
 			},
 //*/
-/*			new TrieProcess2("TailLOUDSTrie(suffixTrieTail,arrayTI)"){
+			new TrieProcess2("TailLOUDSTrie(suffixTrieTail,arrayTI)"){
 				protected Trie buildFrom(Trie trie){
 					return new TailLOUDSTrie(trie, new SuffixTrieTailArray(trie.size()));
 				}
@@ -238,7 +238,7 @@ public class AllTries {
 					return new TailLOUDSTrie(trie, new SBVConcatTailArray(trie.size()));
 				}
 			},
-			new TrieProcess2("TailLOUDSPPTrie(suffixTrieTail,arrayTI)"){
+/*			new TrieProcess2("TailLOUDSPPTrie(suffixTrieTail,arrayTI)"){
 				protected Trie buildFrom(Trie trie){
 					return new TailLOUDSPPTrie(trie, new SuffixTrieTailArray(trie.size()));
 				}

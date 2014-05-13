@@ -15,16 +15,18 @@
  */
 package org.trie4j;
 
-public interface DenseKeyIdNode extends Node{
+public interface TermIdNode extends Node{
+	int getNodeId();
+
 	/**
 	 * Returns dense key ID of this node or -1 for non-leaf node.
 	 * @return dense key ID or -1
 	 */
-	int getDenseKeyId();
+	int getTermId();
 
 	@Override
-	public DenseKeyIdNode getChild(char c);
+	public TermIdNode getChild(char c);
 
 	@Override
-	public DenseKeyIdNode[] getChildren();
+	public TermIdNode[] getChildren();
 }

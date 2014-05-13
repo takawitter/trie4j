@@ -5,14 +5,14 @@ import java.io.ByteArrayOutputStream;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.AbstractTrieTest;
+import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.patricia.simple.PatriciaTrie;
 
-public class TailLOUDSPPTrieWithConcatTailBuilderTest extends AbstractTrieTest{
+public class TailLOUDSPPTrieWithConcatTailBuilderTest extends AbstractTermIdTrieTest{
 	@Override
-	protected Trie buildSecondTrie(Trie firstTrie) {
+	protected TailLOUDSPPTrie buildSecondTrie(Trie firstTrie) {
 		return new TailLOUDSPPTrie(firstTrie);
 	}
 

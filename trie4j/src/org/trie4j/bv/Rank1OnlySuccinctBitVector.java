@@ -183,7 +183,7 @@ implements Serializable, SuccinctBitVector{
 		fields.put("size", size);
 		trimToSize();
 		fields.put("vector", vector);
-		fields.put("countCache0", countCache1);
+		fields.put("countCache1", countCache1);
 		s.writeFields();
     }
 
@@ -192,7 +192,7 @@ implements Serializable, SuccinctBitVector{
 		ObjectInputStream.GetField fields = s.readFields();
 		size = fields.get("size", 0);
 		vector = (byte[])fields.get("vector", null);
-		countCache1 = (int[])fields.get("countCache0", null);
+		countCache1 = (int[])fields.get("countCache1", null);
     }
 
 	private void extend(){

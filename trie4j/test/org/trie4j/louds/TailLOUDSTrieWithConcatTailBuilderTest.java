@@ -5,15 +5,15 @@ import java.io.ByteArrayOutputStream;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.AbstractTrieTest;
+import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArray;
 
-public class TailLOUDSTrieWithConcatTailBuilderTest extends AbstractTrieTest{
+public class TailLOUDSTrieWithConcatTailBuilderTest extends AbstractTermIdTrieTest{
 	@Override
-	protected Trie buildSecondTrie(Trie firstTrie) {
+	protected TailLOUDSTrie buildSecondTrie(Trie firstTrie) {
 		return new TailLOUDSTrie(firstTrie, new ConcatTailArray(firstTrie.size()));
 	}
 
@@ -22,7 +22,7 @@ public class TailLOUDSTrieWithConcatTailBuilderTest extends AbstractTrieTest{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		Trie lt = new AbstractTailLOUDSTrie(trie);
+		Trie lt = new TailLOUDSTrie(trie);
 //		System.out.println(lt.getBv());
 //		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){

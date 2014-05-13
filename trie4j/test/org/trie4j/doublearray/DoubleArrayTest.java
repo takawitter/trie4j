@@ -15,24 +15,12 @@
  */
 package org.trie4j.doublearray;
 
+import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Trie;
-import org.trie4j.AbstractTrieTest;
-import org.trie4j.patricia.simple.PatriciaTrie;
 
-public class DoubleArrayTest extends AbstractTrieTest{
+public class DoubleArrayTest extends AbstractTermIdTrieTest{
 	@Override
-	protected Trie buildSecondTrie(Trie firstTrie) {
+	protected DoubleArray buildSecondTrie(Trie firstTrie) {
 		return new DoubleArray(firstTrie);
-	}
-
-	public static void main(String[] args) throws Exception{
-		Trie t = new PatriciaTrie();
-		t.insert("hello");
-//		t.insert("hi");
-		DoubleArray da = new DoubleArray(t);
-		System.out.println("hello: " + da.contains("hello"));
-		System.out.println("hi: " + da.contains("hi"));
-		System.out.println("world: " + da.contains("world"));
-		System.out.println("base.length: " + da.getBase().length);
 	}
 }

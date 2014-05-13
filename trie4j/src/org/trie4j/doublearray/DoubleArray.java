@@ -36,16 +36,20 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.trie4j.AbstractTrie;
+import org.trie4j.AbstractTermIdTrie;
 import org.trie4j.Node;
+import org.trie4j.TermIdNode;
+import org.trie4j.TermIdTrie;
 import org.trie4j.Trie;
+import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.util.BitSet;
 import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
 
 public class DoubleArray
-extends AbstractTrie
-implements Externalizable, Trie{
+extends AbstractTermIdTrie
+implements Externalizable, TermIdTrie{
 	public static interface TermNodeListener{
 		void listen(Node node, int nodeIndex);
 	}
@@ -74,7 +78,7 @@ implements Externalizable, Trie{
 		Arrays.fill(check, -1);
 		FastBitSet bs = new FastBitSet();
 		build(trie.getRoot(), 0, bs, listener);
-		term = bs;
+		term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 	}
 
 	@Override
@@ -83,7 +87,7 @@ implements Externalizable, Trie{
 	}
 
 	@Override
-	public Node getRoot() {
+	public TermIdNode getRoot() {
 		return newDoubleArrayNode(0);
 	}
 
@@ -99,7 +103,7 @@ implements Externalizable, Trie{
 		return term;
 	}
 
-	protected class DoubleArrayNode implements Node{
+	protected class DoubleArrayNode implements TermIdNode{
 		public DoubleArrayNode(int nodeId){
 			this.nodeId = nodeId;
 		}
@@ -145,7 +149,7 @@ implements Externalizable, Trie{
 		}
 
 		@Override
-		public Node[] getChildren() {
+		public DoubleArrayNode[] getChildren() {
 			int nid = nodeId;
 			while(true){
 				CharSequence children = listupChildChars(nid);
@@ -160,20 +164,25 @@ implements Externalizable, Trie{
 		}
 
 		@Override
-		public Node getChild(char c) {
+		public DoubleArrayNode getChild(char c) {
 			int code = charToCode[c];
 			if(code == -1) return null;
 			int nid = base[nodeId] + c;
-			if(nid >= 0 && nid < check.length && check[nid] == nodeId) return newDoubleArrayNode(nid, c);
+			if(nid >= 0 && nid < check.length && check[nid] == nodeId) return new DoubleArrayNode(nid, c);
 			return null;
 		}
 
+		@Override
 		public int getNodeId() {
 			return nodeId;
 		}
 
-		protected DoubleArrayNode[] newNodeArray(int size){
-			return new DoubleArrayNode[size];
+		@Override
+		public int getTermId(){
+			if(!term.get(nodeId)){
+				return -1;
+			}
+			return term.rank1(nodeId) - 1;
 		}
 	
 		private CharSequence listupChildChars(int nodeId){
@@ -188,9 +197,9 @@ implements Externalizable, Trie{
 			return b;
 		}
 
-		private Node[] listupChildNodes(int base, CharSequence chars){
+		private DoubleArrayNode[] listupChildNodes(int base, CharSequence chars){
 			int n = chars.length();
-			Node[] ret = newNodeArray(n);
+			DoubleArrayNode[] ret = new DoubleArrayNode[n];
 			for(int i = 0; i < n; i++){
 				char c = chars.charAt(i);
 				char code = charToCode[c];
@@ -218,6 +227,28 @@ implements Externalizable, Trie{
 	}
 
 	@Override
+	public int getTermId(String text) {
+		int nodeIndex = 0; // root
+		int n = text.length();
+		for(int i = 0; i < n; i++){
+			char cid = charToCode[text.charAt(i)];
+			if(cid == 0) return -1;
+			int next = base[nodeIndex] + cid;
+			if(next < 0 || check[next] != nodeIndex) return -1;
+			nodeIndex = next;
+		}
+		if(!term.get(nodeIndex)){
+			return -1;
+		}
+		return term.rank1(nodeIndex) - 1;
+	}
+
+	@Override
+	public int geteMaxTermId() {
+		return term.rank1(term.size() - 1) - 1;
+	}
+
+	@Override
 	public Iterable<String> commonPrefixSearch(String query) {
 		List<String> ret = new ArrayList<String>();
 		char[] chars = query.toCharArray();
@@ -233,6 +264,32 @@ implements Externalizable, Trie{
 			if(next >= checkLen || check[next] != nodeIndex) return ret;
 			nodeIndex = next;
 			if(term.get(nodeIndex)) ret.add(new String(chars, 0, i + 1));
+		}
+		return ret;
+	}
+
+	@Override
+	public Iterable<Pair<String, Integer>> commonPrefixSearchWithTermId(
+			String query) {
+		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
+		char[] chars = query.toCharArray();
+		int charsLen = chars.length;
+		int checkLen = check.length;
+		int nodeIndex = 0;
+		for(int i = 0; i < charsLen; i++){
+			int cid = findCharId(chars[i]);
+			if(cid == -1) return ret;
+			int b = base[nodeIndex];
+			if(b == BASE_EMPTY) return ret;
+			int next = b + cid;
+			if(next >= checkLen || check[next] != nodeIndex) return ret;
+			nodeIndex = next;
+			if(term.get(nodeIndex)){
+				ret.add(Pair.create(
+					new String(chars, 0, i + 1),
+					term.rank1(nodeIndex) - 1
+					));
+			}
 		}
 		return ret;
 	}
@@ -303,6 +360,50 @@ implements Externalizable, Trie{
 	}
 
 	@Override
+	public Iterable<Pair<String, Integer>> predictiveSearchWithTermId(
+			String prefix) {
+		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
+		char[] chars = prefix.toCharArray();
+		int charsLen = chars.length;
+		int checkLen = check.length;
+		int nodeIndex = 0;
+		for(int i = 0; i < charsLen; i++){
+			int cid = findCharId(chars[i]);
+			if(cid == -1) return ret;
+			int next = base[nodeIndex] + cid;
+			if(next < 0 || next >= checkLen || check[next] != nodeIndex) return ret;
+			nodeIndex = next;
+		}
+		if(term.get(nodeIndex)){
+			ret.add(Pair.create(prefix, nodeIndex));
+		}
+		Deque<Pair<Integer, String>> q = new LinkedList<Pair<Integer, String>>();
+		q.add(Pair.create(nodeIndex, prefix));
+		while(!q.isEmpty()){
+			Pair<Integer, String> p = q.pop();
+			int ni = p.getFirst();
+			int b = base[ni];
+			if(b == BASE_EMPTY) continue;
+			String c = p.getSecond();
+			for(char v : this.chars){
+				int next = b + charToCode[v];
+				if(next < 0 || next >= checkLen) continue;
+				if(check[next] == ni){
+					String n = new StringBuilder(c).append(v).toString();
+					if(term.get(next)){
+						ret.add(Pair.create(
+								n,
+								term.rank1(next) - 1
+								));
+					}
+					q.push(Pair.create(next, n));
+				}
+			}
+		}
+		return ret;
+	}
+
+	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeInt(size);
 		out.writeInt(base.length);
@@ -344,7 +445,7 @@ implements Externalizable, Trie{
 			check[i] = in.readInt();
 		}
 		try{
-			term = (FastBitSet)in.readObject();
+			term = (SuccinctBitVector)in.readObject();
 		} catch(ClassNotFoundException e){
 			throw new IOException(e);
 		}
@@ -608,9 +709,9 @@ implements Externalizable, Trie{
 	protected int[] check;
 	protected int firstEmptyCheck = 1;
 	protected int last;
-	protected BitSet term;
+	protected SuccinctBitVector term;
 	protected Set<Character> chars = new TreeSet<Character>();
 	protected char[] charToCode = new char[Character.MAX_VALUE];
 	protected static final int BASE_EMPTY = Integer.MAX_VALUE;
-	protected static final Node[] emptyNodes = {};
+	protected static final DoubleArrayNode[] emptyNodes = {};
 }

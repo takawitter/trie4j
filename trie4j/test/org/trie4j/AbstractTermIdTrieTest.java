@@ -13,23 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.doublearray;
+package org.trie4j;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.AbstractTrieTest;
-import org.trie4j.Trie;
 
-public class DenseKeyIdDoubleArrayTest extends AbstractTrieTest{
+public abstract class AbstractTermIdTrieTest extends AbstractTrieTest{
 	@Override
-	protected DenseKeyIdDoubleArray buildSecondTrie(Trie firstTrie) {
-		return new DenseKeyIdDoubleArray(firstTrie);
-	}
+	protected abstract TermIdTrie buildSecondTrie(Trie firstTrie);
 
 	@Test
-	public void test() throws Exception{
-		DenseKeyIdDoubleArray t = buildSecondTrie(trieWithWords("hello", "world"));
-		Assert.assertEquals(0, t.getDenseKeyIdFor("hello"));
-		Assert.assertEquals(1, t.getDenseKeyIdFor("world"));
+	public void test_termId() throws Exception{
+		String[] words = {"hello", "world", "apple", "banana", "strawbelly"};
+		TermIdTrie t = buildSecondTrie(trieWithWords(words));
+		Set<Integer> ids = new HashSet<>();
+		for(int i = 0; i < words.length; i++){
+			ids.add(i);
+		}
+		Assert.assertEquals(words.length, ids.size());
+		for(String w : words){
+			ids.remove(t.getTermId(w));
+		}
+		Assert.assertEquals(0, ids.size());
 	}
 }

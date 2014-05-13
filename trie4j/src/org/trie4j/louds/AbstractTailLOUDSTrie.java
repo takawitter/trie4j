@@ -25,25 +25,27 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.trie4j.AbstractDenseKeyIdTrie;
-import org.trie4j.DenseKeyIdNode;
-import org.trie4j.DenseKeyIdTrie;
+import org.trie4j.AbstractTermIdTrie;
+import org.trie4j.TermIdNode;
+import org.trie4j.TermIdTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.tail.TailArray;
 import org.trie4j.tail.TailCharIterator;
+import org.trie4j.util.BitSet;
 import org.trie4j.util.Pair;
 import org.trie4j.util.Range;
 
-public class AbstractTailLOUDSTrie extends AbstractDenseKeyIdTrie implements DenseKeyIdTrie {
+public abstract class AbstractTailLOUDSTrie extends AbstractTermIdTrie implements TermIdTrie {
 	protected static interface NodeListener{
 		void listen(Node node);
 	}
@@ -65,15 +67,51 @@ public class AbstractTailLOUDSTrie extends AbstractDenseKeyIdTrie implements Den
 	}
 
 	@Override
-	public int geteMaxDenseKeyId() {
-		return size() - 1;
+	public int geteMaxTermId() {
+		return term.rank1(term.size() - 1) - 1;
 	}
 
 	@Override
-	public boolean contains(String word) {
-		int id = getDenseKeyIdFor(word);
-		if(id == -1) return false;
-		return term.get(id);
+	public boolean contains(String text) {
+		int nodeId = 0; // root
+		Range r = new Range();
+		TailCharIterator it = tailArray.newIterator();
+		int n = text.length();
+		for(int i = 0; i < n; i++){
+			nodeId = getChildNode(nodeId, text.charAt(i), r);
+			if(nodeId == -1) return false;
+			it.setOffset(tailArray.getIteratorOffset(nodeId));
+			while(it.hasNext()){
+				i++;
+				if(i == n) return false;
+				if(text.charAt(i) != it.next()) return false;
+			}
+		}
+		return term.get(nodeId);
+	}
+
+	@Override
+	public int getTermId(String text){
+		int nodeId = 0; // root
+		Range r = new Range();
+		TailCharIterator it = tailArray.newIterator();
+		int n = text.length();
+		for(int i = 0; i < n; i++){
+			nodeId = getChildNode(nodeId, text.charAt(i), r);
+			if(nodeId == -1) return -1;
+			it.setOffset(tailArray.getIteratorOffset(nodeId));
+			while(it.hasNext()){
+				i++;
+				if(i == n) return -1;
+				if(text.charAt(i) != it.next()) return -1;
+			}
+		}
+		return term.get(nodeId) ? term.rank1(nodeId) - 1 : -1;
+	}
+
+	@Override
+	public int size() {
+		return size;
 	}
 
 	void build(Trie orig, BvTree bvtree, TailArray tailArray,
@@ -82,7 +120,7 @@ public class AbstractTailLOUDSTrie extends AbstractDenseKeyIdTrie implements Den
 		this.bvtree = bvtree;
 		this.size = orig.size();
 		this.labels = new char[size];
-		this.term = new BitSet(size);
+		this.term = new Rank1OnlySuccinctBitVector(size);
 		LinkedList<Node> queue = new LinkedList<Node>();
 		int count = 0;
 		if(orig.getRoot() != null) queue.add(orig.getRoot());
@@ -93,7 +131,11 @@ public class AbstractTailLOUDSTrie extends AbstractDenseKeyIdTrie implements Den
 			if(index >= labels.length){
 				extend();
 			}
-			if(node.isTerminate()) term.set(index);
+			if(node.isTerminate()){
+				term.append1();
+			} else{
+				term.append0();
+			}
 			for(Node c : node.getChildren()){
 				bvtree.appendChild();
 				queue.offerLast(c);
@@ -133,7 +175,7 @@ public class AbstractTailLOUDSTrie extends AbstractDenseKeyIdTrie implements Den
 	}
 
 	@Override
-	public DenseKeyIdNode getRoot(){
+	public TermIdNode getRoot(){
 		return new LOUDSNode(0);
 	}
 
@@ -151,31 +193,7 @@ public class AbstractTailLOUDSTrie extends AbstractDenseKeyIdTrie implements Den
 	}
 
 	@Override
-	public int getDenseKeyIdFor(String text){
-		int nodeId = 0; // root
-		Range r = new Range();
-		TailCharIterator it = tailArray.newIterator();
-		int n = text.length();
-		for(int i = 0; i < n; i++){
-			nodeId = getChildNode(nodeId, text.charAt(i), r);
-			if(nodeId == -1) return -1;
-			it.setOffset(tailArray.getIteratorOffset(nodeId));
-			while(it.hasNext()){
-				i++;
-				if(i == n) return -1;
-				if(text.charAt(i) != it.next()) return -1;
-			}
-		}
-		return term.get(nodeId) ? nodeId : -1;
-	}
-
-	@Override
-	public int size() {
-		return size;
-	}
-
-	@Override
-	public Iterable<Pair<String, Integer>> commonPrefixSearchWithDenseKeyId(String query) {
+	public Iterable<Pair<String, Integer>> commonPrefixSearchWithTermId(String query) {
 		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
@@ -202,7 +220,7 @@ public class AbstractTailLOUDSTrie extends AbstractDenseKeyIdTrie implements Den
 	}
 
 	@Override
-	public Iterable<Pair<String, Integer>> predictiveSearchWithDenseKeyId(String query) {
+	public Iterable<Pair<String, Integer>> predictiveSearchWithTermId(String query) {
 		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
 		char[] chars = query.toCharArray();
 		int charsLen = chars.length;
@@ -245,13 +263,21 @@ public class AbstractTailLOUDSTrie extends AbstractDenseKeyIdTrie implements Den
 		return ret;
 	}
 
-	public class LOUDSNode implements DenseKeyIdNode{
+	public class LOUDSNode implements TermIdNode{
 		public LOUDSNode(int nodeId) {
 			this.nodeId = nodeId;
 		}
 		@Override
-		public int getDenseKeyId() {
+		public int getNodeId() {
 			return nodeId;
+		}
+		@Override
+		public int getTermId() {
+			if(!term.get(nodeId)){
+				return -1;
+			} else{
+				return term.rank1(nodeId) - 1;
+			}
 		}
 		@Override
 		public char[] getLetters() {
@@ -328,7 +354,7 @@ public class AbstractTailLOUDSTrie extends AbstractDenseKeyIdTrie implements Den
 			labels[i] = dis.readChar();
 		}
 		tailArray.load(is);
-		term = (BitSet)ois.readObject();
+		term = (SuccinctBitVector)ois.readObject();
 	}
 
 	private int getChildNode(int nodeId, char c, Range r){
@@ -369,7 +395,7 @@ public class AbstractTailLOUDSTrie extends AbstractDenseKeyIdTrie implements Den
 	private int size;
 	private char[] labels;
 	private TailArray tailArray;
-	private BitSet term;
+	private SuccinctBitVector term;
 	private int nodeSize;
 	private static final long serialVersionUID = 8376289953859608479L;
 }

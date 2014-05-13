@@ -19,7 +19,7 @@ import java.util.Iterator;
 
 import org.trie4j.util.Pair;
 
-public abstract class AbstractDenseKeyIdTrie extends AbstractTrie implements DenseKeyIdTrie{
+public abstract class AbstractTermIdTrie extends AbstractTrie implements TermIdTrie{
 	private static class StringIterableAdapter implements Iterable<String>{
 		public StringIterableAdapter(Iterable<Pair<String, Integer>> iterable) {
 			this.iterable = iterable;
@@ -47,11 +47,11 @@ public abstract class AbstractDenseKeyIdTrie extends AbstractTrie implements Den
 
 	@Override
 	public Iterable<String> commonPrefixSearch(String query) {
-		return new StringIterableAdapter(commonPrefixSearchWithDenseKeyId(query));
+		return new StringIterableAdapter(commonPrefixSearchWithTermId(query));
 	}
 
 	@Override
 	public Iterable<String> predictiveSearch(String prefix) {
-		return new StringIterableAdapter(predictiveSearchWithDenseKeyId(prefix));
+		return new StringIterableAdapter(predictiveSearchWithTermId(prefix));
 	}
 }

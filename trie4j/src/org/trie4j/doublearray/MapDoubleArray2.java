@@ -17,7 +17,7 @@ package org.trie4j.doublearray;
 
 import java.util.Arrays;
 
-import org.trie4j.AbstractDenseKeyIdMapTrie;
+import org.trie4j.AbstractTermIdMapTrie;
 import org.trie4j.MapNode;
 import org.trie4j.MapTrie;
 import org.trie4j.Node;
@@ -30,7 +30,7 @@ import org.trie4j.doublearray.DoubleArray.TermNodeListener;
  *
  * @param <T>
  */
-public class MapDoubleArray2<T> extends AbstractDenseKeyIdMapTrie<T> implements MapTrie<T>{
+public class MapDoubleArray2<T> extends AbstractTermIdMapTrie<T> implements MapTrie<T>{
 	public MapDoubleArray2() {
 	}
 
@@ -39,7 +39,7 @@ public class MapDoubleArray2<T> extends AbstractDenseKeyIdMapTrie<T> implements 
 	}
 
 	public MapDoubleArray2(MapTrie<T> trie, int arraySize){
-		DenseKeyIdDoubleArray da = new DenseKeyIdDoubleArray(trie, arraySize, new TermNodeListener(){
+		DoubleArray da = new DoubleArray(trie, arraySize, new TermNodeListener(){
 			@Override
 			@SuppressWarnings("unchecked")
 			public void listen(Node node, int nodeIndex) {

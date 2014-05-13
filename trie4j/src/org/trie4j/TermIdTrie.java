@@ -18,39 +18,40 @@ package org.trie4j;
 import org.trie4j.util.Pair;
 
 /**
- * Represents the Trie that can manage dense key ID for containing key set.
- * The dense key ID will not be changed through any method call.
- * The "dense key ID" means serial ID and it starts from 0.
+ * Represents the Trie that can manage the ID for containing keys.
+ * The ID will be assigned to terminal node of trie tree and not be changed
+ * through any method call.
+ * The ID must be dense. "dense" means serial ID, it starts from 0 and
+ * no need to be same order to keys.
  * @author Takao Nakaguchi
  */
-public interface DenseKeyIdTrie extends Trie{
+public interface TermIdTrie extends Trie{
 	@Override
-	public DenseKeyIdNode getRoot();
+	public TermIdNode getRoot();
 
 	/**
-	 * Returns the dense key ID for text. If text isn't exists in this Trie, this
+	 * Returns the ID for text. If text doesn't exist in this Trie, this
 	 * method returns -1.
-	 * @param text key to obtain dense key ID.
-	 * @return
+	 * @param text key to obtain key ID.
+	 * @return ID or -1
 	 */
-	int getDenseKeyIdFor(String text);
+	int getTermId(String text);
 
-	int geteMaxDenseKeyId();
+	int geteMaxTermId();
 
 	/**
 	 * Search texts that is part of query and returns found keys with
-	 * dense key id.
+	 * key id.
 	 * @param query
-	 * @return Iterable of found pairs (key and dense key id).
+	 * @return Iterable of found pairs (key and key id).
 	 */
-	Iterable<Pair<String, Integer>> commonPrefixSearchWithDenseKeyId(String query);
+	Iterable<Pair<String, Integer>> commonPrefixSearchWithTermId(String query);
 
-	
 	/**
 	 * Search texts that is begin with prefix and returns found keys with
-	 * dense key id.
+	 * key id.
 	 * @param query
-	 * @return Iterable of found pairs (key and dense key id).
+	 * @return Iterable of found pairs (key and key id).
 	 */
-	Iterable<Pair<String, Integer>> predictiveSearchWithDenseKeyId(String prefix);
+	Iterable<Pair<String, Integer>> predictiveSearchWithTermId(String prefix);
 }

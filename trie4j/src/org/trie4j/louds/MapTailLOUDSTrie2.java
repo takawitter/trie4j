@@ -16,9 +16,10 @@
 package org.trie4j.louds;
 
 import java.io.Externalizable;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.trie4j.AbstractDenseKeyIdMapTrie;
-import org.trie4j.DenseKeyIdTrie;
+import org.trie4j.AbstractTermIdMapTrie;
 import org.trie4j.MapNode;
 import org.trie4j.MapTrie;
 import org.trie4j.Node;
@@ -29,7 +30,7 @@ import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.tail.TailArray;
 
 public class MapTailLOUDSTrie2<T>
-extends AbstractDenseKeyIdMapTrie<T>
+extends AbstractTermIdMapTrie<T>
 implements Externalizable, MapTrie<T>{
 	public MapTailLOUDSTrie2(){
 	}
@@ -43,28 +44,16 @@ implements Externalizable, MapTrie<T>{
 	}
 
 	public MapTailLOUDSTrie2(MapTrie<T> orig, BvTree bvtree, TailArray tailArray){
+		final List<T> values = new ArrayList<T>();
 		setTrie(new TailLOUDSTrie(orig, bvtree, tailArray, new NodeListener(){
 			@Override
+			@SuppressWarnings("unchecked")
 			public void listen(Node node) {
 				if(node.isTerminate()){
-					getValues().addValue(((MapNode<T>)node).getValue());
-				} else{
-					getValues().addNone();
+					values.add(((MapNode<T>)node).getValue());
 				}
 			}
-		});
-	}
-
-	private DenseKeyIdTrie build(MapTrie<T> orig){
-		TailLOUDSTrie trie = new TailLOUDSTrie();
-		trie.build(orig, new LOUDSBvTree(orig.size() * 2),
-				new ConcatTailArray(orig.size() * 3),
-				new AbstractTailLOUDSTrie.NodeListener() {
-					@Override
-					@SuppressWarnings("unchecked")
-					public void listen(Node node) {
-					}
-				});
-		return trie;
+		}));
+		setValues(values.toArray());
 	}
 }
