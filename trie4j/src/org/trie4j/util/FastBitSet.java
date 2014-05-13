@@ -57,7 +57,7 @@ public class FastBitSet implements Serializable, BitSet{
 	}
 
 	public void unsetIfLE(int index){
-		if(size <= index){
+		if(index / 8 >= bytes.length){
 			extend(index);
 		}
 		size = index + 1;
