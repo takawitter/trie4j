@@ -37,8 +37,8 @@ public abstract class AbstractMapTrieTest extends AbstractTrieTest {
 
 	@Test
 	public void test_MapTrie_get_1() throws Exception{
-		String[] words = {"hello", "hi", "world", "happy"};
-		Integer[] values = {0, 1, 2, 3};
+		String[] words = {"hello", "hi", "world", "happy", "haru"};
+		Integer[] values = {0, 1, 2, 3, 4};
 		MapTrie<Integer> trie = newMapTrie(words, values);
 		for(int i = 0; i < words.length; i++){
 			Assert.assertEquals(values[i], trie.get(words[i]));
@@ -47,10 +47,12 @@ public abstract class AbstractMapTrieTest extends AbstractTrieTest {
 
 	@Test
 	public void test_MapTrie_get_2() throws Exception{
-		MapTrie<Integer> mapTrie = new MapPatriciaTrie<Integer>();
-		mapTrie.insert("Test", 1);
-		mapTrie.insert("Tes", 4);
-		Assert.assertEquals(1, mapTrie.get("Test").intValue());
+		String[] words = {"ab", "ac", "ba", "bc", "ca",};
+		Integer[] values = {0, 1, 2, 3, 4};
+		MapTrie<Integer> trie = newMapTrie(words, values);
+		for(int i = 0; i < words.length; i++){
+			Assert.assertEquals(values[i], trie.get(words[i]));
+		}
 	}
 
 	private MapTrie<Integer> newMapTrie(String[] words, Integer[] values){

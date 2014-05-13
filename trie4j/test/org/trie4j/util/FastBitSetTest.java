@@ -25,6 +25,14 @@ public class FastBitSetTest {
 	}
 
 	@Test
+	public void test_set_3() throws Exception{
+		FastBitSet bs = new FastBitSet();
+		bs.set(8);
+		Assert.assertTrue(bs.get(8));
+		Assert.assertEquals(9, bs.size());
+	}
+
+	@Test
 	public void test_unset_1() throws Exception{
 		FastBitSet bs = new FastBitSet();
 		for(int i = 0; i < 1000; i++){
@@ -43,5 +51,23 @@ public class FastBitSetTest {
 			bs.unset(index);
 			Assert.assertFalse(bs.get(index));
 		}
+	}
+
+	@Test
+	public void test_unsetIfLE_1() throws Exception{
+		FastBitSet bs = new FastBitSet();
+		bs.unsetIfLE(0);
+		Assert.assertEquals(1, bs.size());
+		Assert.assertFalse(bs.get(0));
+	}
+
+	@Test
+	public void test_unsetIfLE_2() throws Exception{
+		FastBitSet bs = new FastBitSet();
+		bs.set(0);
+		bs.set(7);
+		bs.unsetIfLE(8);
+		Assert.assertEquals(9, bs.size());
+		Assert.assertFalse(bs.get(8));
 	}
 }

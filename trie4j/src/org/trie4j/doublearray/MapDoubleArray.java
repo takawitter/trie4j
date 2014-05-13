@@ -15,46 +15,50 @@
  */
 package org.trie4j.doublearray;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
-import org.trie4j.AbstractTrie;
+import org.trie4j.AbstractTermIdMapTrie;
 import org.trie4j.MapNode;
 import org.trie4j.MapTrie;
 import org.trie4j.Node;
-import org.trie4j.bv.Rank0OnlySuccinctBitVector;
-import org.trie4j.util.FastBitSet;
-import org.trie4j.util.Pair;
-import org.trie4j.util.Trio;
+import org.trie4j.doublearray.DoubleArray.TermNodeListener;
 
 /**
- * TODO protected DoubleArray(.., NodeListener l)を用意して
- *      MapDoubleArrayから利用する?
- * @author nakaguchi
+ * @author Takao Nakaguchi
  *
  * @param <T>
  */
-public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
+public class MapDoubleArray<T> extends AbstractTermIdMapTrie<T> implements MapTrie<T>{
+	public MapDoubleArray() {
+	}
+
+	public MapDoubleArray(MapTrie<T> trie){
+		this(trie, trie.size() * 2);
+	}
+
+	public MapDoubleArray(MapTrie<T> trie, int arraySize){
+		DoubleArray da = new DoubleArray(trie, arraySize, new TermNodeListener(){
+			@Override
+			@SuppressWarnings("unchecked")
+			public void listen(Node node, int nodeIndex) {
+				if(nodeIndex >= getValues().length){
+					setValues((Object[])Arrays.copyOf(getValues(), nodeIndex + 1));
+				}
+				getValues()[nodeIndex] = ((MapNode<T>)node).getValue();
+			}
+		});
+		setTrie(da);
+		Object[] values = getValues();
+		int n = values.length;
+		int c = 0;
+		for(int i = 0; i < n; i++){
+			if(values[i] != null){
+				values[c++] = values[i];
+			}
+		}
+		setValues(Arrays.copyOf(values, c));
+	}
+/*
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 
 	public MapDoubleArray() {
@@ -647,7 +651,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		for(int i = 0; i < children.length; i++){
 			build(children[i], offset + heads[i]);
 		}
-/*/
+//
 		// sort children by children's children count.
 		Map<Integer, List<Pair<MapNode<T>, Integer>>> nodes = new TreeMap<Integer, List<Pair<MapNode<T>, Integer>>>(new Comparator<Integer>() {
 			@Override
@@ -673,7 +677,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 				build(e2.getFirst(), e2.getSecond() + offset);
 			}
 		}
-//*/
+///
 		term = new Rank0OnlySuccinctBitVector(bs.getBytes(), bs.size());
 	}
 
@@ -737,7 +741,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		}
 		extend(i);
 		return i;
-/*/
+//
 		int d = check[i] * -1;
 		if(d <= 0){
 			throw new RuntimeException();
@@ -760,7 +764,7 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 		extend(i);
 		check[prev] = prev - i;
 		return i;
-//*/
+///
 	}
 
 	private void setCheck(int index, int id){
@@ -782,4 +786,5 @@ public class MapDoubleArray<T> extends AbstractTrie implements MapTrie<T>{
 	private static final Node[] emptyNodes = {};
 
 	private Object[] values;
+*/
 }

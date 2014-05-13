@@ -27,7 +27,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -37,18 +36,26 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.trie4j.AbstractTrie;
+import org.trie4j.AbstractTermIdTrie;
 import org.trie4j.Node;
+import org.trie4j.TermIdNode;
+import org.trie4j.TermIdTrie;
 import org.trie4j.Trie;
+import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.bv.SuccinctBitVector;
+import org.trie4j.doublearray.DoubleArray.TermNodeListener;
 import org.trie4j.tail.FastTailCharIterator;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.TailUtil;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
 
-public class TailDoubleArray extends AbstractTrie implements Trie, Externalizable{
-	private static final int BASE_EMPTY = Integer.MAX_VALUE;
+public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, Externalizable{
+	public static interface TermNodeListener{
+		void listen(Node node, int nodeIndex);
+	}
 
 	public TailDoubleArray(){
 	}
@@ -58,6 +65,14 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 	}
 
 	public TailDoubleArray(Trie orig, TailBuilder tb){
+		this(orig, tb, new TermNodeListener(){
+			@Override
+			public void listen(Node node, int nodeIndex) {
+			}
+		});
+	}
+
+	public TailDoubleArray(Trie orig, TailBuilder tb, TermNodeListener listener){
 		size = orig.size();
 		int as = size;
 		if(as <= 1) as = 2;
@@ -67,10 +82,11 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 		Arrays.fill(check, -1);
 		tail = new int[as];
 		Arrays.fill(tail, -1);
-		term = new BitSet(65536);
 		Arrays.fill(charToCode, (char)0);
 
-		build(orig.getRoot(), 0, tb);
+		FastBitSet bs = new FastBitSet(65536);
+		build(orig.getRoot(), 0, tb, bs, listener);
+		term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 		tails = tb.getTails();
 	}
 
@@ -80,11 +96,11 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 	}
 
 	@Override
-	public Node getRoot() {
+	public TermIdNode getRoot() {
 		return new TailDoubleArrayNode(0);
 	}
 
-	private class TailDoubleArrayNode implements Node{
+	private class TailDoubleArrayNode implements TermIdNode{
 		public TailDoubleArrayNode(int nodeId){
 			this.nodeId = nodeId;
 		}
@@ -100,6 +116,16 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 		}
 
 		@Override
+		public int getNodeId() {
+			return nodeId;
+		}
+
+		@Override
+		public int getTermId() {
+			return term.get(nodeId) ? term.rank1(nodeId) - 1 : -1;
+		}
+
+		@Override
 		public char[] getLetters() {
 			StringBuilder ret = new StringBuilder();
 			ret.append(firstChar);
@@ -108,8 +134,8 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 		}
 
 		@Override
-		public Node[] getChildren() {
-			List<Node> ret = new ArrayList<Node>();
+		public TermIdNode[] getChildren() {
+			List<TermIdNode> ret = new ArrayList<TermIdNode>();
 			int b = base[nodeId];
 			for(char c : chars){
 				int code = charToCode[c];
@@ -122,7 +148,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 		}
 
 		@Override
-		public Node getChild(char c) {
+		public TailDoubleArrayNode getChild(char c) {
 			int code = charToCode[c];
 			if(code == -1) return null;
 			int nid = base[nodeId] + c;
@@ -135,15 +161,20 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 	}
 
 	@Override
-	public boolean contains(String text){
+	public int getMaxTermId() {
+		return term.rank1(term.size() - 1) - 1;
+	}
+
+	@Override
+	public int getTermId(String text) {
 		int nodeIndex = 0; // root
 		FastTailCharIterator it = new FastTailCharIterator(tails, -1);
 		int n = text.length();
 		for(int i = 0; i < n; i++){
 			char cid = charToCode[text.charAt(i)];
-			if(cid == 0) return false;
+			if(cid == 0) return -1;
 			int next = base[nodeIndex] + cid;
-			if(next < 0 || check[next] != nodeIndex) return false;
+			if(next < 0 || check[next] != nodeIndex) return -1;
 			nodeIndex = next;
 			int ti = tail[nodeIndex];
 			if(ti == -1) continue;
@@ -151,16 +182,16 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 			char c;
 			while((c = it.getNext()) != '\0'){
 				i++;
-				if(i == n) return false;
-				if(text.charAt(i) != c) return false;
+				if(i == n) return -1;
+				if(text.charAt(i) != c) return -1;
 			}
 		}
-		return term.get(nodeIndex);
+		return term.get(nodeIndex) ? term.rank1(nodeIndex) - 1 : -1;
 	}
 
 	@Override
-	public Iterable<String> commonPrefixSearch(String query) {
-		List<String> ret = new ArrayList<String>();
+	public Iterable<Pair<String, Integer>> commonPrefixSearchWithTermId(String query) {
+		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
 		int charsLen = query.length();
 		int ci = 0;
 		int ni = 0;
@@ -183,14 +214,25 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 					if(c != query.charAt(ci)) return ret;
 				}
 			}
-			if(term.get(ni)) ret.add(query.substring(0, ci + 1));
+			if(term.get(ni)) ret.add(Pair.create(
+					query.substring(0, ci + 1),
+					term.rank1(ni) - 1
+					));
 		}
 		return ret;
 	}
 
 	@Override
-	public Iterable<String> predictiveSearch(String prefix) {
-		Set<String> ret = new TreeSet<String>();
+	public Iterable<Pair<String, Integer>> predictiveSearchWithTermId(String prefix) {
+		Set<Pair<String, Integer>> ret = new TreeSet<Pair<String, Integer>>(
+				new Comparator<Pair<String, Integer>>() {
+					@Override
+					public int compare(
+							Pair<String, Integer> o1,
+							Pair<String, Integer> o2) {
+						return o1.getFirst().compareTo(o2.getFirst());
+					}
+				});
 		StringBuilder current = new StringBuilder();
 		char[] chars = prefix.toCharArray();
 		int charsLen = chars.length;
@@ -230,7 +272,11 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 					buff.append(it.next());
 				}
 			}
-			if(term.get(ni)) ret.add(buff.toString());
+			if(term.get(ni)){
+				ret.add(Pair.create(
+					buff.toString(),
+					term.rank1(ni) - 1));
+			}
 			int b = base[ni];
 			if(b == BASE_EMPTY) continue;
 			for(char v : this.chars){
@@ -298,7 +344,7 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 			tail[i] = in.readInt();
 		}
 		try{
-			term = (BitSet)in.readObject();
+			term = (SuccinctBitVector)in.readObject();
 		} catch(ClassNotFoundException e){
 			throw new IOException(e);
 		}
@@ -456,14 +502,18 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 		}
 	}
 
-	private void build(Node node, int nodeIndex, TailBuilder tailb){
+	private void build(Node node, int nodeIndex, TailBuilder tailb,
+			FastBitSet bs, TermNodeListener listener){
 		// letters
 		char[] letters = node.getLetters();
 		if(letters.length > 1){
 			tail[nodeIndex] = tailb.insert(letters, 1, letters.length - 1);
 		}
 		if(node.isTerminate()){
-			term.set(nodeIndex);
+			bs.set(nodeIndex);
+			listener.listen(node, nodeIndex);
+		} else if(bs.size() <= nodeIndex){
+			bs.unsetIfLE(nodeIndex);
 		}
 
 		// children
@@ -511,7 +561,8 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 		}
 		for(Map.Entry<Integer, List<Pair<Node, Integer>>> e : nodes.entrySet()){
 			for(Pair<Node, Integer> e2 : e.getValue()){
-				build(e2.getFirst(), e2.getSecond() + offset, tailb);
+				build(e2.getFirst(), e2.getSecond() + offset, tailb,
+						bs, listener);
 			}
 		}
 //*/
@@ -618,9 +669,11 @@ public class TailDoubleArray extends AbstractTrie implements Trie, Externalizabl
 	private int[] tail;
 	private int firstEmptyCheck = 1;
 	private int last;
-	private BitSet term;
+	private SuccinctBitVector term;
 	private CharSequence tails;
 	private Set<Character> chars = new TreeSet<Character>();
 	private char[] charToCode = new char[Character.MAX_VALUE];
-	private static final Node[] emptyNodes = {};
+	private static final TermIdNode[] emptyNodes = {};
+	private static final int BASE_EMPTY = Integer.MAX_VALUE;
+
 }

@@ -41,24 +41,31 @@ public class FastBitSet implements Serializable, BitSet{
 	}
 
 	public void set(int index){
-		if(index >= bytes.length){
+		if(index / 8 >= bytes.length){
 			extend(index);
 		}
 		bytes[index / 8] |= 0x80 >> (index % 8);
-		size = Math.max(size, index);
+		size = Math.max(size, index + 1);
 	}
 
 	public void unset(int index){
-		if(index >= bytes.length){
+		if(index / 8 >= bytes.length){
 			extend(index);
-		} else{
-			bytes[index / 8] &= ~(0x80 >> (index % 8));
 		}
+		bytes[index / 8] &= ~(0x80 >> (index % 8));
+		size = Math.max(size, index + 1);
+	}
+
+	public void unsetIfLE(int index){
+		if(size <= index){
+			extend(index);
+		}
+		size = index + 1;
 	}
 
 	private void extend(int index){
 		bytes = Arrays.copyOf(bytes,
-				Math.max(index + 1, (int)(bytes.length * 1.5))
+				Math.max(index / 8 + 1, (int)(bytes.length * 1.5))
 				);
 	}
 

@@ -67,7 +67,7 @@ public abstract class AbstractTailLOUDSTrie extends AbstractTermIdTrie implement
 	}
 
 	@Override
-	public int geteMaxTermId() {
+	public int getMaxTermId() {
 		return term.rank1(term.size() - 1) - 1;
 	}
 

@@ -18,9 +18,9 @@ package org.trie4j.doublearray;
 import org.trie4j.AbstractMapTrieTest;
 import org.trie4j.MapTrie;
 
-public class MapDoubleArrayTest extends AbstractMapTrieTest{
+public class MapTailDoubleArrayTest extends AbstractMapTrieTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapDoubleArray<Integer>(firstTrie);
+		return new MapTailDoubleArray<Integer>(firstTrie);
 	}
 }

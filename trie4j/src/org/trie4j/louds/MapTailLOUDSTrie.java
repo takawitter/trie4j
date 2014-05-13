@@ -56,29 +56,4 @@ implements Externalizable, MapTrie<T>{
 		}));
 		setValues(values.toArray());
 	}
-/*
-	public MapTailLOUDSTrie(){
-	}
-	public MapTailLOUDSTrie(MapTrie<T> orig){
-		setIdTrie(build(orig));
-	}
-
-	private TermIdTrie build(MapTrie<T> orig){
-		TailLOUDSTrie trie = new TailLOUDSTrie();
-		trie.build(orig, new LOUDSBvTree(orig.size() * 2),
-				new ConcatTailArray(orig.size() * 3),
-				new AbstractTailLOUDSTrie.NodeListener() {
-					@Override
-					@SuppressWarnings("unchecked")
-					public void listen(Node node) {
-						if(node.isTerminate()){
-							getValues().addValue(((MapNode<T>)node).getValue());
-						} else{
-							getValues().addNone();
-						}
-					}
-				});
-		return trie;
-	}
-*/
 }

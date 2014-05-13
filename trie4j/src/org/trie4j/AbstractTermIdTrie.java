@@ -46,6 +46,11 @@ public abstract class AbstractTermIdTrie extends AbstractTrie implements TermIdT
 	}
 
 	@Override
+	public boolean contains(String word) {
+		return getTermId(word) != -1;
+	}
+
+	@Override
 	public Iterable<String> commonPrefixSearch(String query) {
 		return new StringIterableAdapter(commonPrefixSearchWithTermId(query));
 	}
