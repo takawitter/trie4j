@@ -49,6 +49,7 @@ import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.TailUtil;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.util.BitSet;
 import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
 
@@ -98,6 +99,18 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 	@Override
 	public TermIdNode getRoot() {
 		return new TailDoubleArrayNode(0);
+	}
+
+	public int[] getBase(){
+		return base;
+	}
+
+	public int[] getCheck(){
+		return check;
+	}
+
+	public BitSet getTerm() {
+		return term;
 	}
 
 	private class TailDoubleArrayNode implements TermIdNode{

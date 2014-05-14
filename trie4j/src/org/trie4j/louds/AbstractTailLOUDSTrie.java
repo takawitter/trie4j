@@ -30,9 +30,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.trie4j.AbstractTermIdTrie;
+import org.trie4j.Node;
 import org.trie4j.TermIdNode;
 import org.trie4j.TermIdTrie;
-import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
@@ -42,28 +42,31 @@ import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.tail.TailArray;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.BitSet;
+import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
 import org.trie4j.util.Range;
 
 public abstract class AbstractTailLOUDSTrie extends AbstractTermIdTrie implements TermIdTrie {
 	protected static interface NodeListener{
-		void listen(Node node);
+		void listen(Node node, int id);
 	}
 
 	public AbstractTailLOUDSTrie(){
 	}
 
 	public AbstractTailLOUDSTrie(Trie orig){
-		this(orig, new LOUDSBvTree(orig.size()), new ConcatTailArray(orig.size() * 3));
+		this(orig, new LOUDSBvTree(orig.size() * 2), new ConcatTailArray(orig.size() * 3));
 	}
 
 	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray){
-		build(orig, bvtree, tailArray,
-				new NodeListener(){ public void listen(Node node){}});
+		this(orig, bvtree, tailArray,
+				new NodeListener(){ public void listen(Node node, int id){}});
 	}
 
 	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray, NodeListener listener){
-		build(orig, bvtree, tailArray, listener);
+		FastBitSet bs = new FastBitSet(orig.size());
+		build(orig, bvtree, tailArray, bs, listener);
+		this.term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 	}
 
 	@Override
@@ -90,8 +93,7 @@ public abstract class AbstractTailLOUDSTrie extends AbstractTermIdTrie implement
 		return term.get(nodeId);
 	}
 
-	@Override
-	public int getTermId(String text){
+	public int getNodeId(String text){
 		int nodeId = 0; // root
 		Range r = new Range();
 		TailCharIterator it = tailArray.newIterator();
@@ -106,6 +108,13 @@ public abstract class AbstractTailLOUDSTrie extends AbstractTermIdTrie implement
 				if(text.charAt(i) != it.next()) return -1;
 			}
 		}
+		return nodeId;
+	}
+
+	@Override
+	public int getTermId(String text){
+		int nodeId = getNodeId(text);
+		if(nodeId == -1) return -1;
 		return term.get(nodeId) ? term.rank1(nodeId) - 1 : -1;
 	}
 
@@ -114,27 +123,26 @@ public abstract class AbstractTailLOUDSTrie extends AbstractTermIdTrie implement
 		return size;
 	}
 
-	void build(Trie orig, BvTree bvtree, TailArray tailArray,
-			NodeListener listener){
+	private void build(Trie orig, BvTree bvtree, TailArray tailArray,
+			FastBitSet termBs, NodeListener listener){
 		this.tailArray = tailArray;
 		this.bvtree = bvtree;
 		this.size = orig.size();
 		this.labels = new char[size];
-		this.term = new Rank1OnlySuccinctBitVector(size);
 		LinkedList<Node> queue = new LinkedList<Node>();
 		int count = 0;
 		if(orig.getRoot() != null) queue.add(orig.getRoot());
 		while(!queue.isEmpty()){
 			Node node = queue.pollFirst();
-			listener.listen(node);
 			int index = count++;
 			if(index >= labels.length){
 				extend();
 			}
+			listener.listen(node, index);
 			if(node.isTerminate()){
-				term.append1();
-			} else{
-				term.append0();
+				termBs.set(index);
+			} else if(termBs.size() <= index){
+				termBs.ensureCapacity(index);
 			}
 			for(Node c : node.getChildren()){
 				bvtree.appendChild();
@@ -355,6 +363,10 @@ public abstract class AbstractTailLOUDSTrie extends AbstractTermIdTrie implement
 		}
 		tailArray.load(is);
 		term = (SuccinctBitVector)ois.readObject();
+	}
+
+	public void setBvtree(BvTree bvtree) {
+		this.bvtree = bvtree;
 	}
 
 	private int getChildNode(int nodeId, char c, Range r){

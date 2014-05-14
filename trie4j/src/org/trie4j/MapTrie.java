@@ -25,6 +25,13 @@ public interface MapTrie<T> extends Trie{
 	MapNode<T> getRoot();
 
 	/**
+	 * gets the value associated with word.
+	 * @param word word
+	 * @return value. null if word not inserted or inserted with null value.
+	 */
+	T get(String word);
+
+	/**
 	 * insert a word with value.
 	 * @param word word to insert.
 	 * @param value the value associated with word.
@@ -33,11 +40,12 @@ public interface MapTrie<T> extends Trie{
 	T insert(String word, T value);
 
 	/**
-	 * gets the value associated with word.
-	 * @param word word
-	 * @return value. null if word not inserted or inserted with null value.
+	 * Put a value associated with existing word.
+	 * @param word word to be associated with value. word must be exist in trie.
+	 * @param value value
+	 * @return old value for word.
 	 */
-	T get(String word);
+	T put(String word, T value);
 
 	/**
 	 * search trie for words contained in query.

@@ -15,6 +15,7 @@
  */
 package org.trie4j.louds;
 
+import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
@@ -36,7 +37,11 @@ public class TailLOUDSTrie extends AbstractTailLOUDSTrie implements Trie {
 	}
 
 	public TailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray){
-		super(orig, bvtree, tailArray);
+		this(orig, bvtree, tailArray, new NodeListener(){
+			@Override
+			public void listen(Node node, int id) {
+			}
+		});
 	}
 
 	public TailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray, NodeListener listener){

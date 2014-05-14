@@ -48,7 +48,7 @@ implements Externalizable, MapTrie<T>{
 		setTrie(new TailLOUDSTrie(orig, bvtree, tailArray, new NodeListener(){
 			@Override
 			@SuppressWarnings("unchecked")
-			public void listen(Node node) {
+			public void listen(Node node, int id) {
 				if(node.isTerminate()){
 					values.add(((MapNode<T>)node).getValue());
 				}

@@ -32,23 +32,19 @@ implements Serializable, SuccinctBitVector{
 	}
 
 	public Rank1OnlySuccinctBitVector(int initialCapacity){
-		vector = new byte[initialCapacity / 8 + 1];
-		int blockSize = CACHE_WIDTH;
-		int size = initialCapacity / blockSize + 1;
-		countCache1 = new int[size];
+		vector = new byte[containerCount(initialCapacity, 8)];
+		countCache1 = new int[containerCount(vector.length, CACHE_WIDTH / 8)];
 	}
 
 	public Rank1OnlySuccinctBitVector(byte[] bytes, int bits){
-		this.vector = Arrays.copyOf(bytes, bits / 8 + (bits % 8 != 0 ? 1 : 0));
 		this.size = bits;
-		int blockSize = CACHE_WIDTH;
-		int size = vector.length / blockSize + 1;
-		countCache1 = new int[size];
+		this.vector = Arrays.copyOf(bytes, containerCount(bits, 8));
+		this.countCache1 = new int[containerCount(vector.length, 8)];
 		int sum = 0;
-		for(int i = 0; i < bytes.length; i++){
+		int n = vector.length;
+		for(int i = 0; i < n; i++){
 			sum += BITCOUNTS1[bytes[i] & 0xff];
-			int ci = size / CACHE_WIDTH;
-			countCache1[ci] = sum;
+			countCache1[i / 8] = sum;
 		}
 	}
 
@@ -94,12 +90,8 @@ implements Serializable, SuccinctBitVector{
 	public void append1(){
 		int i = size / 8;
 		int ci = size / CACHE_WIDTH;
-		if(i >= vector.length){
-			extend();
-		}
-		if(size % CACHE_WIDTH == 0 && ci > 0){
-			countCache1[ci] = countCache1[ci - 1];
-		}
+		prepareAppend(i, ci);
+		countCache1[ci]++;
 		int r = size % 8;
 		vector[i] |= BITS[r];
 		size++;
@@ -108,18 +100,10 @@ implements Serializable, SuccinctBitVector{
 	public void append0(){
 		int i = size / 8;
 		int ci = size / CACHE_WIDTH;
-		if(i >= vector.length){
-			extend();
-		}
-		if(size % CACHE_WIDTH == 0 && ci > 0){
-			countCache1[ci] = countCache1[ci - 1];
-		}
-//		int r = size % 8;
-//		vector[i] &= ~BITS[r];
-		countCache1[ci]++;
+		prepareAppend(i, ci);
 		size++;
 	}
-
+	
 	@Override
 	public int select0(int num) {
 		throw new UnsupportedOperationException();
@@ -174,6 +158,20 @@ implements Serializable, SuccinctBitVector{
 		for(int i = 0; i < size; i++){
 			countCache1[i] = dis.readInt();
 		}
+	}
+
+	private static int containerCount(int size, int unitSize){
+		return size / unitSize + ((size % unitSize) != 0 ? 1 : 0);
+	}
+
+	private int prepareAppend(int i, int ci){
+		if(i >= vector.length){
+			extend();
+		}
+		if(size % CACHE_WIDTH == 0 && ci > 0){
+			countCache1[ci] = countCache1[ci - 1];
+		}
+		return i;
 	}
 
 	private void writeObject(ObjectOutputStream s)

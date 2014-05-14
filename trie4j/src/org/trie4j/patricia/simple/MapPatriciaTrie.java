@@ -45,6 +45,16 @@ public class MapPatriciaTrie<T> extends AbstractMapTrie<T> implements MapTrie<T>
 		return ((MapNode<T>)node).getValue();
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public T put(String word, T value) {
+		Node node = getNode(word);
+		if(node == null) return null;
+		T ret = ((MapNode<T>)node).getValue();
+		((MapNode<T>)node).setValue(value);
+		return ret;
+	}
+
 	public MapNode<T> getNode(String text) {
 		MapNode<T> node = root;
 		int n = text.length();

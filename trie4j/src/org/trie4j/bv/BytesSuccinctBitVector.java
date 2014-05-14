@@ -31,11 +31,42 @@ public class BytesSuccinctBitVector implements Serializable, org.trie4j.bv.Succi
 	}
 
 	public BytesSuccinctBitVector(int initialCapacity){
-		vector = new byte[initialCapacity / 8 + 1];
+		this.vector = new byte[initialCapacity / 8 + 1];
 		int blockSize = CACHE_WIDTH;
 		int size = initialCapacity / blockSize + 1;
 		countCache0 = new int[size];
 		indexCache0 = new int[size + 1];
+	}
+
+	public BytesSuccinctBitVector(byte[] bytes, int bits){
+		this.vector = Arrays.copyOf(bytes, containerBytesCount(bits));
+		int size = bits / CACHE_WIDTH + 1;
+		countCache0 = new int[size];
+		indexCache0 = new int[size + 1];
+		throw new UnsupportedOperationException();
+		// now implementing...
+/*		if(size % CACHE_WIDTH == 0 && ci > 0){
+			countCache0[ci] = countCache0[ci - 1];
+		}
+//		int r = size % 8;
+//		vector[i] &= ~BITS[r];
+		size0++;
+		switch(size0){
+			case 1:
+				node1pos = size;
+				break;
+			case 2:
+				node2pos = size;
+				break;
+			case 3:
+				node3pos = size;
+				break;
+		}
+		if(size0 % CACHE_WIDTH == 0){
+			indexCache0[size0 / CACHE_WIDTH] = size;
+		}
+		countCache0[ci]++;
+*/
 	}
 
 	@Override
@@ -400,6 +431,10 @@ public class BytesSuccinctBitVector implements Serializable, org.trie4j.bv.Succi
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 		countCache0 = Arrays.copyOf(countCache0, size);
 		indexCache0 = Arrays.copyOf(indexCache0, size + 1);
+	}
+
+	private static int containerBytesCount(int size){
+		return size / 8 + ((size % 8) != 0 ? 1 : 0);
 	}
 
 	private static final int CACHE_WIDTH = 64;

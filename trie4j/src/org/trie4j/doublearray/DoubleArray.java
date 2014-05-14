@@ -226,8 +226,7 @@ implements Externalizable, TermIdTrie{
 		return term.get(nodeIndex);
 	}
 
-	@Override
-	public int getTermId(String text) {
+	public int getNodeId(String text) {
 		int nodeIndex = 0; // root
 		int n = text.length();
 		for(int i = 0; i < n; i++){
@@ -237,7 +236,13 @@ implements Externalizable, TermIdTrie{
 			if(next < 0 || check[next] != nodeIndex) return -1;
 			nodeIndex = next;
 		}
-		return term.get(nodeIndex) ? term.rank1(nodeIndex) - 1 : -1;
+		return nodeIndex;
+	}
+
+	@Override
+	public int getTermId(String text) {
+		int nid = getNodeId(text);
+		return term.get(nid) ? term.rank1(nid) - 1 : -1;
 	}
 
 	@Override

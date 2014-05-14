@@ -18,22 +18,26 @@ package org.trie4j;
 import java.io.PrintWriter;
 
 import org.junit.Test;
-import org.trie4j.Trie;
+import org.trie4j.patricia.simple.MapPatriciaTrie;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 
-public class AbstractWikipediaTest {
-	// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
+public class AbstractMapTrieWikipediaTest extends AbstractWikipediaTest{
 	private static final String wikipediaFilename = "data/jawiki-20140416-all-titles-in-ns0.gz";
-//	private static final String wikipediaFilename = "data/enwiki-20120403-all-titles-in-ns0.gz";
 
-	protected Trie createFirstTrie(){
-//		return new PatriciaTrie();
-		return new org.trie4j.patricia.tail.TailPatriciaTrie(new org.trie4j.tail.builder.ConcatTailBuilder());
+	@Override
+	protected MapTrie<Integer> createFirstTrie(){
+		return new MapPatriciaTrie<Integer>();
 	}
-	
-	protected Trie buildSecondTrie(Trie first) throws Exception{
-		return first;
+
+	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie){
+		return firstTrie;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	protected final MapTrie<Integer> buildSecondTrie(Trie firstTrie){
+		return (MapTrie<Integer>)buildSecondTrie((MapTrie<Integer>)firstTrie);
 	}
 
 	protected void afterVerification(Trie trie) throws Exception{
@@ -41,7 +45,7 @@ public class AbstractWikipediaTest {
 
 	@Test
 	public void test() throws Exception{
-		Trie trie = createFirstTrie();
+		MapTrie<Integer> trie = createFirstTrie();
 		System.out.println("building first trie: " + trie.getClass().getName());
 		int c = 0, chars = 0;
 		long b = 0;
@@ -49,7 +53,7 @@ public class AbstractWikipediaTest {
 		for(String word : new WikipediaTitles(wikipediaFilename)){
 			try{
 				t.lap();
-				trie.insert(word);
+				trie.insert(word, c);
 				b += t.lap();
 			} catch(Exception e){
 				System.out.println("exception at " + c + "th word: " + word);
@@ -62,7 +66,7 @@ public class AbstractWikipediaTest {
 		System.out.println(String.format("done in %d millis with %d words and %d chars."
 				, (b / 1000000), c, chars));
 
-		Trie second = buildSecondTrie(trie);
+		MapTrie<Integer> second = buildSecondTrie(trie);
 		try{
 			getClass().getDeclaredMethod("buildSecondTrie", Trie.class);
 			System.out.print("building second trie: ");
@@ -77,13 +81,14 @@ public class AbstractWikipediaTest {
 		c = 0;
 		for(String word : new WikipediaTitles(wikipediaFilename)){
 			t.lap();
-			boolean found = second.contains(word);
+			boolean found = (int)second.get(word) == c;
 			sum += t.lap();
 			c++;
 			if(!found){
 				System.out.println(String.format(
-						"verification failed.  trie not contains %d th word: [%s]."
-						, c, word));
+						"verification failed.  trie not contains %d th word: [%s]"
+						+ " with id: [%d] actual: [%d]."
+						, c, word, c, second.get(word)));
 				break;
 			}
 		}

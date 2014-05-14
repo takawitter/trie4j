@@ -31,24 +31,20 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 	}
 
 	public Rank0OnlySuccinctBitVector(int initialCapacity){
-		vector = new byte[initialCapacity / 8 + 1];
-		int blockSize = CACHE_WIDTH;
-		int size = initialCapacity / blockSize + 1;
-		countCache0 = new int[size];
+		vector = new byte[containerCount(initialCapacity, 8)];
+		countCache0 = new int[containerCount(vector.length, CACHE_WIDTH / 8)];
 	}
 
 	public Rank0OnlySuccinctBitVector(byte[] bytes, int bits){
-		vector = Arrays.copyOf(bytes, bits / 8 + (bits % 8 != 0 ? 1 : 0));
-		int blockSize = CACHE_WIDTH;
-		int size = vector.length / blockSize + 1;
-		countCache0 = new int[size];
+		this.size = bits;
+		this.vector = Arrays.copyOf(bytes, containerCount(bits, 8));
+		this.countCache0 = new int[containerCount(vector.length, 8)];
 		int sum = 0;
-		for(int i = 0; i < bytes.length; i++){
+		int n = vector.length;
+		for(int i = 0; i < n; i++){
 			sum += BITCOUNTS0[bytes[i] & 0xff];
-			int ci = size / CACHE_WIDTH;
-			countCache0[ci] = sum;
+			countCache0[i / 8] = sum;
 		}
-		
 	}
 
 	@Override
@@ -155,6 +151,10 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		for(int i = 0; i < size; i++){
 			countCache0[i] = dis.readInt();
 		}
+	}
+
+	private static int containerCount(int size, int unitSize){
+		return size / unitSize + ((size % unitSize) != 0 ? 1 : 0);
 	}
 
 	private void writeObject(ObjectOutputStream s)

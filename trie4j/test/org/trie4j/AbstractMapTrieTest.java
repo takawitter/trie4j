@@ -32,7 +32,7 @@ public abstract class AbstractMapTrieTest extends AbstractTrieTest {
 	@Override
 	@SuppressWarnings("unchecked")
 	protected final MapTrie<Integer> buildSecondTrie(Trie firstTrie){
-		return (MapTrie<Integer>)buildSecondTrie((MapTrie<Integer>)firstTrie);
+		return buildSecondTrie((MapTrie<Integer>)firstTrie);
 	}
 
 	@Test
@@ -55,10 +55,10 @@ public abstract class AbstractMapTrieTest extends AbstractTrieTest {
 		}
 	}
 
-	private MapTrie<Integer> newMapTrie(String[] words, Integer[] values){
+	protected MapTrie<Integer> newMapTrie(String[] words, Integer[] values){
 		Assert.assertEquals(words.length, values.length);
 		int n = words.length;
-		MapTrie<Integer> trie = createFirstTrie();
+		MapTrie<Integer> trie = (MapTrie<Integer>)createFirstTrie();
 		for(int i = 0; i < n; i++){
 			trie.insert(words[i], values[i]);
 		}

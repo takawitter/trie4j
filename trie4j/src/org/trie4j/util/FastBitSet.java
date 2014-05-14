@@ -63,6 +63,12 @@ public class FastBitSet implements Serializable, BitSet{
 		size = index + 1;
 	}
 
+	public void ensureCapacity(int index){
+		if(index / 8 >= bytes.length){
+			extend(index);
+		}
+	}
+
 	private void extend(int index){
 		bytes = Arrays.copyOf(bytes,
 				Math.max(index / 8 + 1, (int)(bytes.length * 1.5))

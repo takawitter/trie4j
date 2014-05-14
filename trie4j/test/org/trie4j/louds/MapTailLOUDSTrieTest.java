@@ -15,12 +15,73 @@
  */
 package org.trie4j.louds;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.trie4j.AbstractMapTrieTest;
 import org.trie4j.MapTrie;
+import org.trie4j.TermIdTrie;
+import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.doublearray.DoubleArray;
+import org.trie4j.patricia.simple.MapPatriciaTrie;
+import org.trie4j.test.WikipediaTitles;
 
 public class MapTailLOUDSTrieTest extends AbstractMapTrieTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
 		return new MapTailLOUDSTrie<Integer>(firstTrie);
+	}
+
+	public void investigate1() throws Exception{
+		String wikipediaFilename = "data/jawiki-20140416-all-titles-in-ns0.gz";
+		int start = 0;
+		int end = 2000000;
+		int i = 0;
+		MapTrie<Integer> trie = new MapPatriciaTrie<Integer>();
+		for(String s : new WikipediaTitles(wikipediaFilename)){
+			if(i >= end){
+				break;
+			} else if(i >= start){
+				trie.insert(s, i);
+			}
+			i++;
+		}
+		i = 0;
+		MapTailLOUDSTrie<Integer> v = new MapTailLOUDSTrie<Integer>(trie);
+//		TailLOUDSTrie tlt = (TailLOUDSTrie)v.getTrie();
+		for(String s : new WikipediaTitles(wikipediaFilename)){
+			if(i >= end){
+				break;
+			} else if(i >= start){
+/*				System.out.println(String.format(
+						"%s, nid: %d, tid: %d, ev: %d, av: %d",
+						s, tlt.getNodeId(s), tlt.getTermId(s), i, v.get(s)));
+*/				Assert.assertEquals(i + "th word: " + s, i, (int)v.get(s));
+			}
+			i++;
+		}
+	}
+
+	public void investigate2() throws Exception{
+		String[] words = {
+				"!SHOUT!",
+				"!_-attention-",
+				"!wagero!",
+				"!［ai-ou］",
+				"\"74ers\"_LIVE_IN_OSAKA-JO_HALL_2003"
+		};
+		Integer[] values = {1, 3, 2, 6, 100};
+
+		MapTailLOUDSTrie<Integer> trie = (MapTailLOUDSTrie<Integer>)newMapTrie(words, values);
+		DoubleArray da = (DoubleArray)trie.getTrie();
+		int n = words.length;
+		Rank1OnlySuccinctBitVector bv = (Rank1OnlySuccinctBitVector)da.getTerm();
+		System.out.println(bv.rank1(67));
+		for(int i = 0; i < n; i++){
+			String s = words[i];
+			System.out.println(String.format(
+					"%s, nid: %d, tid: %d, ev: %d, av: %d",
+					s, da.getNodeId(s), da.getTermId(s), values[i], trie.get(s)));
+			Assert.assertEquals(values[i], trie.get(words[i]));
+		}
 	}
 }

@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import org.trie4j.util.Pair;
 
@@ -136,6 +137,18 @@ implements Externalizable, MapTrie<T>{
 		int id = trie.getTermId(text);
 		if(id < 0) return null;
 		return (T)values[id];
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public T put(String text, T value){
+		int id = trie.getTermId(text);
+		if(id < 0){
+			throw new NoSuchElementException();
+		}
+		T ret = (T)values[id];
+		values[id] = value;
+		return ret;
 	}
 
 	@Override

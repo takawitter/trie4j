@@ -17,18 +17,19 @@ package org.trie4j.patricia.simple;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.trie4j.AbstractWikipediaTest;
+import org.trie4j.AbstractMapTrieWikipediaTest;
 import org.trie4j.Algorithms;
+import org.trie4j.MapTrie;
 import org.trie4j.Node;
 import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
 
-public class MapPatriciaTrieWikipediaTest extends AbstractWikipediaTest{
+public class MapPatriciaTrieWikipediaTest extends AbstractMapTrieWikipediaTest{
 	@Override
-	protected Trie createFirstTrie() {
-		return new MapPatriciaTrie<Object>();
+	protected MapTrie<Integer> createFirstTrie() {
+		return new MapPatriciaTrie<Integer>();
 	}
-	
+
 	@Override
 	protected void afterVerification(Trie trie) throws Exception {
 		final AtomicInteger nodes = new AtomicInteger();
@@ -45,6 +46,5 @@ public class MapPatriciaTrieWikipediaTest extends AbstractWikipediaTest{
 				"%d nodes and %d leaves", nodes.intValue(), leaves.intValue()
 				));
 		super.afterVerification(trie);
-		Thread.sleep(20000);
 	}
 }
