@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ public abstract class AbstractTermIdTrieTest extends AbstractTrieTest{
 	public void test_termId() throws Exception{
 		String[] words = {"hello", "world", "apple", "banana", "strawbelly"};
 		TermIdTrie t = buildSecondTrie(trieWithWords(words));
-		Set<Integer> ids = new HashSet<>();
+		Set<Integer> ids = new HashSet<Integer>();
 		for(int i = 0; i < words.length; i++){
 			ids.add(i);
 		}
