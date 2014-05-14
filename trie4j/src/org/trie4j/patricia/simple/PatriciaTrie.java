@@ -23,6 +23,7 @@ import java.util.List;
 import org.trie4j.AbstractTrie;
 import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
+import org.trie4j.util.Pair;
 
 public class PatriciaTrie extends AbstractTrie implements Trie{
 	@Override
@@ -91,6 +92,30 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 		return ret;
 	}
 
+	public Iterable<Pair<String, Node>> commonPrefixSearchWithNode(String query) {
+		List<Pair<String, Node>> ret = new ArrayList<Pair<String, Node>>();
+		char[] queryChars = query.toCharArray();
+		int cur = 0;
+		Node node = root;
+		while(node != null){
+			char[] letters = node.getLetters();
+			if(letters.length > (queryChars.length - cur)) return ret;
+			for(int i = 0; i < letters.length; i++){
+				if(letters[i] != queryChars[cur + i]) return ret;
+			}
+			if(node.isTerminate()){
+				ret.add(Pair.create(
+						new String(queryChars, 0 , cur + letters.length),
+						node));
+			}
+			cur += letters.length;
+			if(queryChars.length == cur) return ret;
+			node = node.getChild(queryChars[cur]);
+		}
+		return ret;
+	}
+
+	@Override
 	public Iterable<String> predictiveSearch(String prefix) {
 		char[] queryChars = prefix.toCharArray();
 		int cur = 0;
@@ -119,6 +144,34 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 		return Collections.emptyList();
 	}
 
+	public Iterable<Pair<String, Node>> predictiveSearchWithNode(String prefix) {
+		char[] queryChars = prefix.toCharArray();
+		int cur = 0;
+		Node node = root;
+		while(node != null){
+			char[] letters = node.getLetters();
+			int n = Math.min(letters.length, queryChars.length - cur);
+			for(int i = 0; i < n; i++){
+				if(letters[i] != queryChars[cur + i]){
+					return Collections.emptyList();
+				}
+			}
+			cur += n;
+			if(queryChars.length == cur){
+				List<Pair<String, Node>> ret = new ArrayList<Pair<String, Node>>();
+				int rest = letters.length - n;
+				if(rest > 0){
+					prefix += new String(letters, n, rest);
+				}
+				if(node.isTerminate()) ret.add(Pair.create(prefix, node));
+				enumLettersWithNode(node, prefix, ret);
+				return ret;
+			}
+			node = node.getChild(queryChars[cur]);
+		}
+		return Collections.emptyList();
+	}
+
 	public void insert(String text){
 		insert(root, text, 0);
 	}
@@ -133,7 +186,7 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 			if(i != n){
 				Node child1 = newNode(
 						Arrays.copyOfRange(node.getLetters(), i, node.getLetters().length)
-						, node.isTerminate(), node.getChildren());
+						, node);
 				Node child2 = newNode(
 						letters.substring(i + offset).toCharArray()
 						, true);
@@ -153,7 +206,7 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 			} else if(lettersRest < thisLettersLength){
 				Node newChild = newNode(
 						Arrays.copyOfRange(node.getLetters(), lettersRest, thisLettersLength)
-						, node.isTerminate(), node.getChildren());
+						, node);
 				node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
 				node.setTerminate(true);
 				node.setChildren(newNodeArray(newChild));
@@ -220,6 +273,10 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 		return new Node();
 	}
 
+	protected Node newNode(char[] letters, Node source){
+		return new Node(letters, source.isTerminate(), source.getChildren());
+	}
+
 	protected Node newNode(char[] letters, boolean terminated) {
 		return new Node(letters, terminated);
 	}
@@ -237,6 +294,14 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 			String text = prefix + new String(child.getLetters());
 			if(child.isTerminate()) letters.add(text);
 			enumLetters(child, text, letters);
+		}
+	}
+
+	private static void enumLettersWithNode(Node node, String prefix, List<Pair<String, Node>> letters){
+		for(Node child : node.getChildren()){
+			String text = prefix + new String(child.getLetters());
+			if(child.isTerminate()) letters.add(Pair.create(text, node));
+			enumLettersWithNode(child, text, letters);
 		}
 	}
 

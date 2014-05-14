@@ -15,62 +15,88 @@
  */
 package org.trie4j.patricia.simple;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
-import org.trie4j.AbstractMapTrie;
 import org.trie4j.MapTrie;
-import org.trie4j.NodeVisitor;
+import org.trie4j.util.Pair;
 
-public class MapPatriciaTrie<T> extends AbstractMapTrie<T> implements MapTrie<T>{
+public class MapPatriciaTrie<T> extends PatriciaTrie implements MapTrie<T>{
 	@Override
-	public int size() {
-		return size;
-	}
-
-	@Override
-	public boolean contains(String text) {
-		Node node = getNode(text);
-		return node != null && node.isTerminate();
+	@SuppressWarnings("unchecked")
+	public MapNode<T> getRoot(){
+		return (MapNode<T>)super.getRoot();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public T get(String word) {
-		Node node = getNode(word);
-		if(node == null) return null;
-		return ((MapNode<T>)node).getValue();
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public T put(String word, T value) {
-		Node node = getNode(word);
-		if(node == null) return null;
-		T ret = ((MapNode<T>)node).getValue();
-		((MapNode<T>)node).setValue(value);
+	public T insert(String text, T value){
+		MapNode<T> node = (MapNode<T>)insert(getRoot(), text, 0);
+		T ret = node.getValue();
+		node.setValue(value);
 		return ret;
 	}
 
-	public MapNode<T> getNode(String text) {
-		MapNode<T> node = root;
-		int n = text.length();
-		for(int i = 0; i < n; i++){
-			node = node.getChild(text.charAt(i));
-			if(node == null) return null;
-			char[] letters = node.getLetters();
-			int lettersLen = letters.length;
-			for(int j = 1; j < lettersLen; j++){
-				i++;
-				if(i == n) return null;
-				if(text.charAt(i) != letters[j]) return null;
-			}
-		}
-		return node;
+	@Override
+	public T get(String word) {
+		MapNode<T> node = getNode(word);
+		if(node == null) return null;
+		return node.getValue();
 	}
+
+	@Override
+	public T put(String word, T value) {
+		MapNode<T> node = getNode(word);
+		if(node == null) return null;
+		T ret = node.getValue();
+		node.setValue(value);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public MapNode<T> getNode(String text) {
+		return (MapNode<T>)super.getNode(text);
+	}
+
+	@Override
+	public Iterable<Map.Entry<String, T>> commonPrefixSearchEntries(String query){
+		return new IterableAdapter(commonPrefixSearchWithNode(query));
+	}
+
+	@Override
+	public Iterable<Map.Entry<String, T>> predictiveSearchEntries(String prefix) {
+		return new IterableAdapter(predictiveSearchWithNode(prefix));
+	}
+
+	@Override
+	protected MapNode<T> newNode() {
+		return new MapNode<T>();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	protected Node newNode(char[] letters, Node source) {
+		return new MapNode<T>(letters, source.isTerminate(),
+				(MapNode<T>[])source.getChildren(), ((MapNode<T>)source).getValue());
+	}
+
+	@Override
+	protected MapNode<T> newNode(char[] letters, boolean terminated) {
+		return new MapNode<T>(letters, terminated);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	protected MapNode<T> newNode(char[] letters, boolean terminated, Node[] children) {
+		return new MapNode<T>(letters, terminated, (MapNode<T>[])children);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	protected MapNode<T>[] newNodeArray(Node... nodes){
+		MapNode<T>[] ret = new MapNode[nodes.length];
+		System.arraycopy(nodes, 0, ret, 0, nodes.length);
+		return ret;
+	};
 
 	private class Entry implements Map.Entry<String, T>{
 		public Entry(String key, MapNode<T> node) {
@@ -95,175 +121,14 @@ public class MapPatriciaTrie<T> extends AbstractMapTrie<T> implements MapTrie<T>
 		private MapNode<T> node;
 	}
 
-	@Override
-	public Iterable<Map.Entry<String, T>> commonPrefixSearchEntries(String query){
-		List<Map.Entry<String, T>> ret = new ArrayList<Map.Entry<String, T>>();
-		char[] queryChars = query.toCharArray();
-		int cur = 0;
-		MapNode<T> node = root;
-		while(node != null){
-			char[] letters = node.getLetters();
-			if(letters.length > (queryChars.length - cur)) return ret;
-			for(int i = 0; i < letters.length; i++){
-				if(letters[i] != queryChars[cur + i]) return ret;
-			}
-			if(node.isTerminate()){
-				ret.add(new Entry(
-						new String(queryChars, 0 , cur + letters.length),
-						node
-						));
-			}
-			cur += letters.length;
-			if(queryChars.length == cur) return ret;
-			node = node.getChild(queryChars[cur]);
+	private class IterableAdapter extends org.trie4j.util.IterableAdapter<Pair<String, Node>, Map.Entry<String, T>>{
+		public IterableAdapter(Iterable<Pair<String, Node>> orig){
+			super(orig);
 		}
-		return ret;
-	}
-
-	private void enumLetters(MapNode<T> node, String prefix, List<Map.Entry<String, T>> letters){
-		for(MapNode<T> child : node.getChildren()){
-			String text = prefix + new String(child.getLetters());
-			if(child.isTerminate()) letters.add(new Entry(text, child));
-			enumLetters(child, text, letters);
+		@Override
+		@SuppressWarnings("unchecked")
+		protected Map.Entry<String, T> convert(Pair<String, Node> value) {
+			return new Entry(value.getFirst(), (MapNode<T>)value.getSecond());
 		}
 	}
-
-	@Override
-	public Iterable<Map.Entry<String, T>> predictiveSearchEntries(String prefix) {
-		char[] queryChars = prefix.toCharArray();
-		int cur = 0;
-		MapNode<T> node = root;
-		while(node != null){
-			char[] letters = node.getLetters();
-			int n = Math.min(letters.length, queryChars.length - cur);
-			for(int i = 0; i < n; i++){
-				if(letters[i] != queryChars[cur + i]){
-					return Collections.emptyList();
-				}
-			}
-			cur += n;
-			if(queryChars.length == cur){
-				List<Map.Entry<String, T>> ret = new ArrayList<Map.Entry<String, T>>();
-				int rest = letters.length - n;
-				if(rest > 0){
-					prefix += new String(letters, n, rest);
-				}
-				if(node.isTerminate()) ret.add(new Entry(prefix, node));
-				enumLetters(node, prefix, ret);
-				return ret;
-			}
-			node = node.getChild(queryChars[cur]);
-		}
-		return Collections.emptyList();
-	}
-
-	public void insert(String text){
-		insert(text, null);
-	}
-
-	public T insert(String text, T value){
-		return insert(root, text.toCharArray(), 0, value);
-	}
-
-	@SuppressWarnings("unchecked")
-	private T insert(MapNode<T> node, char[] letters, int offset, T value){
-		int lettersRest = letters.length - offset;
-		while(true){
-			int thisLettersLength = node.getLetters().length;
-			int n = Math.min(lettersRest, thisLettersLength);
-			int i = 0;
-			while(i < n && (letters[i + offset] - node.getLetters()[i]) == 0) i++;
-			if(i != n){
-				MapNode<T> child1 = new MapNode<T>(
-						Arrays.copyOfRange(node.getLetters(), i, node.getLetters().length)
-						, node.isTerminate(), node.getChildren(), ((MapNode<T>)node).getValue());
-				MapNode<T> child2 = new MapNode<T>(
-						Arrays.copyOfRange(letters, i + offset, letters.length)
-						, true, value);
-				node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
-				node.setTerminate(false);
-				node.setChildren(
-						(child1.getLetters()[0] < child2.getLetters()[0]) ?
-						new MapNode[]{child1, child2} : new MapNode[]{child2, child1});
-				node.setValue(null);
-				size++;
-			} else if(lettersRest == thisLettersLength){
-				if(!node.isTerminate()){
-					node.setTerminate(true);
-					size++;
-				}
-				T old = node.getValue();
-				node.setValue(value);
-				return old;
-			} else if(lettersRest < thisLettersLength){
-				MapNode<T> newChild = new MapNode<T>(
-						Arrays.copyOfRange(node.getLetters(), lettersRest, thisLettersLength)
-						, node.isTerminate(), node.getChildren());
-				newChild.setValue(node.getValue());
-				node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
-				node.setTerminate(true);
-				node.setChildren(new MapNode[]{newChild});
-				node.setValue(value);
-				size++;
-			} else{
-				int index = 0;
-				int end = node.getChildren().length;
-				boolean cont = false;
-				if(end > 16){
-					int start = 0;
-					while(start < end){
-						index = (start + end) / 2;
-						MapNode<T> child = node.getChildren()[index];
-						int c = letters[i + offset] - child.getLetters()[0];
-						if(c == 0){
-							node = child;
-							offset += i;
-							lettersRest -= i;
-							cont = true;
-							break;
-						}
-						if(c < 0){
-							end = index;
-						} else if(start == index){
-							index = end;
-							break;
-						} else{
-							start = index;
-						}
-					}
-				} else{
-					for(; index < end; index++){
-						MapNode<T> child = node.getChildren()[index];
-						int c = letters[i + offset] - child.getLetters()[0];
-						if(c < 0) break;
-						if(c == 0){
-							node = child;
-							offset += i;
-							lettersRest -= i;
-							cont = true;
-							break;
-						}
-					}
-				}
-				if(cont) continue;
-				node.addChild(index, new MapNode<T>(
-						Arrays.copyOfRange(letters, i + offset, letters.length)
-						, true, value));
-				size++;
-			}
-			break;
-		}
-		return null;
-	}
-
-	public void visit(NodeVisitor visitor){
-		root.visit(visitor, 0);
-	}
-
-	public MapNode<T> getRoot(){
-		return root;
-	}
-
-	private int size;
-	private MapNode<T> root = new MapNode<T>();
 }
