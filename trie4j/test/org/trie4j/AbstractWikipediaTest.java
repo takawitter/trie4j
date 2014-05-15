@@ -48,9 +48,9 @@ public class AbstractWikipediaTest {
 		LapTimer t = new LapTimer();
 		for(String word : new WikipediaTitles(wikipediaFilename)){
 			try{
-				t.lap();
+				t.reset();
 				trie.insert(word);
-				b += t.lap();
+				b += t.lapNanos();
 			} catch(Exception e){
 				System.out.println("exception at " + c + "th word: " + word);
 				trie.dump(new PrintWriter(System.out));
@@ -66,19 +66,20 @@ public class AbstractWikipediaTest {
 		try{
 			getClass().getDeclaredMethod("buildSecondTrie", Trie.class);
 			System.out.print("building second trie: ");
-			t.lap();
+			t.reset();
 			second = buildSecondTrie(trie);
 			System.out.println(second.getClass().getName());
-			System.out.println("done in " + (t.lap() / 1000000) + "millis.");
-		} catch(NoSuchMethodException e){}
+			System.out.println("done in " + t.lapMillis() + "millis.");
+		} catch(NoSuchMethodException e){
+		}
 
 		System.out.println("verifying trie.");
 		long sum = 0;
 		c = 0;
 		for(String word : new WikipediaTitles(wikipediaFilename)){
-			t.lap();
+			t.reset();
 			boolean found = second.contains(word);
-			sum += t.lap();
+			sum += t.lapNanos();
 			c++;
 			if(!found){
 				System.out.println(String.format(

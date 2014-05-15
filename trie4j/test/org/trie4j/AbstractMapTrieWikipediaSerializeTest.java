@@ -22,6 +22,7 @@ import java.io.ObjectOutputStream;
 
 import org.junit.Test;
 import org.trie4j.patricia.simple.MapPatriciaTrie;
+import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 
 public abstract class AbstractMapTrieWikipediaSerializeTest
@@ -36,18 +37,27 @@ extends AbstractWikipediaSerializeTest{
 
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void test() throws Exception{
 		WikipediaTitles wt = new WikipediaTitles();
 		MapTrie<Integer> trie = wt.insertTo(newTrie());
 		trie = buildSecondTrie(trie);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(baos);
+		LapTimer lt = new LapTimer();
 		oos.writeObject(trie);
 		oos.flush();
+		long wd = lt.lapMillis();
 		byte[] serialized = baos.toByteArray();
-		System.out.println("size: " + serialized.length);
-		Trie t = (Trie)new ObjectInputStream(new ByteArrayInputStream(serialized))
+		lt.reset();
+		MapTrie<Integer> t = (MapTrie<Integer>)new ObjectInputStream(
+				new ByteArrayInputStream(serialized))
 				.readObject();
+		long rd = lt.lapMillis();
 		wt.assertAllContains(t);
+		System.out.println(String.format(
+				"%s, size: %d, write(ms): %d, read(ms): %d, verified.",
+				trie.getClass().getSimpleName(), serialized.length, wd, rd
+				));
 	}
 }

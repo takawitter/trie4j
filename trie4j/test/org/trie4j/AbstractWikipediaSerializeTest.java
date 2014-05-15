@@ -22,6 +22,7 @@ import java.io.ObjectOutputStream;
 
 import org.junit.Test;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
+import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 
 public abstract class AbstractWikipediaSerializeTest{
@@ -40,12 +41,19 @@ public abstract class AbstractWikipediaSerializeTest{
 		trie = secondTrie(trie);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(baos);
+		LapTimer lt = new LapTimer();
 		oos.writeObject(trie);
 		oos.flush();
+		long wd = lt.lapMillis();
 		byte[] serialized = baos.toByteArray();
-		System.out.println("size: " + serialized.length);
+		lt.reset();
 		Trie t = (Trie)new ObjectInputStream(new ByteArrayInputStream(serialized))
 				.readObject();
+		long rd = lt.lapMillis();
 		wt.assertAllContains(t);
+		System.out.println(String.format(
+				"%s, size: %d, write(ms): %d, read(ms): %d, verified.",
+				trie.getClass().getSimpleName(), serialized.length, wd, rd
+				));
 	}
 }

@@ -27,14 +27,11 @@ import org.trie4j.test.WikipediaTitles;
 
 public class TestWikipedia {
 	private static final int maxCount = 20000000;
-	// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
-	private static final String wikipediaFile = "data/jawiki-20120220-all-titles-in-ns0.gz";
-//	private static final String wikipediaFile = "data/enwiki-20120403-all-titles-in-ns0.gz";
 
 	public static void main2(String[] args) throws Exception{
 		int base = 137320;
 		int c = 0;
-		for(String word : new WikipediaTitles(wikipediaFile)){
+		for(String word : new WikipediaTitles()){
 			if(c > base) System.out.println(word);
 			c++;
 			if(c == (base + 100)) break;
@@ -52,10 +49,10 @@ public class TestWikipedia {
 			int c = 0;
 			int charCount = 0;
 			long sum = 0;
-			for(String word : new WikipediaTitles(wikipediaFile)){
-				t.lap();
+			for(String word : new WikipediaTitles()){
+				t.reset();
 				trie.insert(word);
-				sum += t.lap();
+				sum += t.lapMillis();
 				charCount += word.length();
 				c++;
 				if(c == maxCount) break;
@@ -68,14 +65,14 @@ public class TestWikipedia {
 
 		{
 			System.out.println("-- building second trie.");
-			t.lap();
+			t.reset();
 			trie = new org.trie4j.doublearray.DoubleArray(trie, 65536);
 //			trie = new org.trie4j.doublearray.TailDoubleArray(trie, 65536, new ConcatTailBuilder());
 //			trie = new org.trie4j.louds.LOUDSTrie(trie, 65536, new ConcatTailBuilder());
 //			trie = new org.trie4j.louds.LOUDSTrie(trie, 65536, new SuffixTrieTailBuilder());
 			trie.trimToSize();
 			System.out.println(String.format(
-					"-- done in %d millis.", t.lap() / 1000000
+					"-- done in %d millis.", t.lapMillis() / 1000000
 					));
 			System.gc();
 			System.gc();
@@ -119,6 +116,7 @@ public class TestWikipedia {
 //*/
 	}
 
+	@SuppressWarnings("unused")
 	private static void investigate(Trie trie)
 	throws Exception{
 		System.out.println("-- dump root children.");
@@ -176,7 +174,7 @@ public class TestWikipedia {
 		long lap = System.currentTimeMillis();
 		int c = 0;
 		int sum = 0;
-		for(String word : new WikipediaTitles(wikipediaFile)){
+		for(String word : new WikipediaTitles()){
 			if(c == maxCount) break;
 			long d = System.currentTimeMillis();
 			boolean found = Algorithms.contains(trie.getRoot(), word);//trie.contains(word);

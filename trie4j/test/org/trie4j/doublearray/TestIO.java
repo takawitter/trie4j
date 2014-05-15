@@ -15,10 +15,8 @@
  */
 package org.trie4j.doublearray;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.zip.GZIPInputStream;
@@ -27,48 +25,37 @@ import java.util.zip.GZIPOutputStream;
 import org.junit.Test;
 import org.trie4j.Trie;
 import org.trie4j.test.LapTimer;
-import org.trie4j.util.CharsetUtil;
+import org.trie4j.test.WikipediaTitles;
 
 public class TestIO {
-	private static final String file =
-			"data/jawiki-20140416-all-titles-in-ns0.gz"
-			//"data/enwiki-20120403-all-titles-in-ns0.gz"
-			;
-	
 	private static final int maxCount = 2000000;
 	
 	@Test
 	public void testSave() throws Exception{
-		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
-		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream(file))
-				, CharsetUtil.newUTF8Decoder()));
 		System.out.println("--- building patricia trie ---");
 		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie();
 		int c = 0;
-		String word = null;
 		LapTimer t1 = new LapTimer();
-		while((word = r.readLine()) != null){
+		for(String word : new WikipediaTitles()){
 			trie.insert(word);
 			c++;
 			if(c == maxCount) break;
 		}
-		r.close();
-		System.out.println("done in " + t1.lap() + " millis.");
+		System.out.println("done in " + t1.lapMillis() + " millis.");
 		System.out.println(c + "entries in ja wikipedia titles.");
 
 		System.out.println("-- building double array.");
-		t1.lap();
+		t1.reset();
 		TailDoubleArray da = new TailDoubleArray(trie);
 		trie = null;
-		System.out.println("done in " + t1.lap() + " millis.");
+		System.out.println("done in " + t1.lapMillis() + " millis.");
 
 		OutputStream os = new GZIPOutputStream(new FileOutputStream("da.dat"));
 		try{
 			System.out.println("-- saving double array.");
-			t1.lap();
+			t1.reset();
 			da.save(os);
-			System.out.println("done in " + t1.lap() + " millis.");
+			System.out.println("done in " + t1.lapMillis() + " millis.");
 			da.dump(new PrintWriter(System.out));
 		} finally{
 			os.close();
@@ -81,7 +68,7 @@ public class TestIO {
 		LapTimer t = new LapTimer();
 		System.out.println("-- loading double array.");
 		da.load(new GZIPInputStream(new FileInputStream("da.dat")));
-		System.out.println("done in " + t.lap() + " millis.");
+		System.out.println("done in " + t.lapMillis() + " millis.");
 		da.dump(new PrintWriter(System.out));
 		verify(da);
 		System.out.println("---- common prefix search ----");
@@ -104,27 +91,22 @@ public class TestIO {
 
 	private static void verify(Trie da) throws Exception{
 		System.out.println("verifying double array...");
-		BufferedReader r = new BufferedReader(new InputStreamReader(
-				new GZIPInputStream(new FileInputStream(file))
-				, CharsetUtil.newUTF8Decoder()));
 		int c = 0;
 		int sum = 0;
-		String word = null;
 		LapTimer t1 = new LapTimer();
 		LapTimer t = new LapTimer();
-		while((word = r.readLine()) != null){
+		for(String word : new WikipediaTitles()){
 			if(c == maxCount) break;
-			t.lap();
+			t.reset();
 			boolean found = da.contains(word);
-			sum += t.lap();
+			sum += t.lapMillis();
 			c++;
 			if(!found){
 				System.out.println("verification failed.  trie not contains " + c + " th word: [" + word + "]");
 				break;
 			}
 		}
-		r.close();
-		System.out.println("done " + c + "words in " + t1.lap() + " millis.");
+		System.out.println("done " + c + "words in " + t1.lapMillis() + " millis.");
 		System.out.println("contains time: " + sum + " millis.");
 	}
 }

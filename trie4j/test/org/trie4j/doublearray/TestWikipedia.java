@@ -28,9 +28,6 @@ import org.trie4j.test.WikipediaTitles;
 
 public class TestWikipedia {
 	private static final int maxCount = 20000000;
-	// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
-	private static final String wikipediaFilename = "data/jawiki-20140416-all-titles-in-ns0.gz";
-//	private static final String wikipediaFilename = "data/enwiki-20120403-all-titles-in-ns0.gz";
 
 	public static void main(String[] args) throws Exception{
 		System.out.println("--- building patricia trie ---");
@@ -38,21 +35,21 @@ public class TestWikipedia {
 //		Trie trie = new TailPatriciaTrie(new ConcatTailBuilder());
 		int c = 0;
 		LapTimer t1 = new LapTimer();
-		for(String word : new WikipediaTitles(wikipediaFilename)){
+		for(String word : new WikipediaTitles()){
 			trie.insert(word);
 			c++;
 			if(c == maxCount) break;
 		}
-		System.out.println("done in " + t1.lap() + " millis.");
+		System.out.println("done in " + t1.lapMillis() + " millis.");
 		System.out.println(c + "entries in ja wikipedia titles.");
 
 		System.out.println("-- building double array.");
-		t1.lap();
+		t1.reset();
 //		Trie da = new TailDoubleArray(trie, 65536, new ConcatTailBuilder());
 //		Trie da = new DoubleArray(trie, 65536);
 		Trie da = trie;
 		trie = null;
-		System.out.println("done in " + t1.lap() + " millis.");
+		System.out.println("done in " + t1.lapMillis() + " millis.");
 		final AtomicInteger count = new AtomicInteger();
 		Algorithms.traverseByBreadth(da.getRoot(), new NodeVisitor() {
 			@Override
@@ -91,18 +88,18 @@ public class TestWikipedia {
 		int sum = 0;
 		LapTimer t1 = new LapTimer();
 		LapTimer t = new LapTimer();
-		for(String word : new WikipediaTitles(wikipediaFilename)){
+		for(String word : new WikipediaTitles()){
 			if(c == maxCount) break;
-			t.lap();
+			t.reset();
 			boolean found = da.contains(word);
-			sum += t.lap();
+			sum += t.lapMillis();
 			c++;
 			if(!found){
 				System.out.println("verification failed.  trie not contains " + c + " th word: [" + word + "]");
 				break;
 			}
 		}
-		System.out.println("done " + c + "words in " + t1.lap() + " millis.");
+		System.out.println("done " + c + "words in " + t1.lapMillis() + " millis.");
 		System.out.println("contains time: " + sum + " millis.");
 	}
 }

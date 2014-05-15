@@ -8,11 +8,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.trie4j.doublearray.DoubleArray;
-import org.trie4j.doublearray.MapDoubleArray;
-import org.trie4j.doublearray.TailDoubleArray;
-import org.trie4j.louds.InlinedTailLOUDSPPTrie;
-import org.trie4j.louds.InlinedTailLOUDSTrie;
-import org.trie4j.louds.TailLOUDSPPTrie;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.patricia.simple.MapPatriciaTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
@@ -28,7 +23,7 @@ import org.trie4j.util.Pair;
 
 public class AllTries {
 	private static Iterable<String> newWords() throws IOException{
-		return new WikipediaTitles("data/jawiki-20140416-all-titles-in-ns0.gz");
+		return new WikipediaTitles();
 	}
 
 	private static Object holder;
@@ -59,11 +54,11 @@ public class AllTries {
 		protected Pair<Long, Long> runForSet(Set<String> set) throws IOException{
 			long b = 0, c = 0;
 			LapTimer lt = new LapTimer();
-			for(String w : newWords()){ lt.lap(); set.add(w); b += lt.lap();}
+			for(String w : newWords()){ lt.reset(); set.add(w); b += lt.lapNanos();}
 			for(String w : newWords()){
-				lt.lap();
+				lt.reset();
 				boolean r = set.contains(w);
-				c += lt.lap();
+				c += lt.lapNanos();
 				if(!r) throw new RuntimeException("verification failed for \"" + w + "\"");
 			}
 			holder = set;
@@ -79,13 +74,13 @@ public class AllTries {
 		protected Pair<Long, Long> runForTrie(Trie trie) throws IOException{
 			long b = 0, c = 0;
 			LapTimer lt = new LapTimer();
-			for(String w : newWords()){ lt.lap(); trie.insert(w); b += lt.lap();}
+			for(String w : newWords()){ lt.reset(); trie.insert(w); b += lt.lapNanos();}
 			afterBuildTrie(trie);
-			b += lt.lap();
+			b += lt.lapNanos();
 			for(String w : newWords()){
-				lt.lap();
+				lt.reset();
 				boolean r = trie.contains(w);
-				c += lt.lap();
+				c += lt.lapNanos();
 				if(!r) throw new RuntimeException("verification failed for \"" + w + "\"");
 				}
 			holder = trie;
@@ -105,12 +100,12 @@ public class AllTries {
 			long b = 0, c = 0;
 			LapTimer lt = new LapTimer();
 			Trie trie = buildFrom(first);
-			b += lt.lap();
+			b += lt.lapNanos();
 			int i = 0;
 			for(String w : newWords()){
-				lt.lap();
+				lt.reset();
 				boolean r = trie.contains(w);
-				c += lt.lap();
+				c += lt.lapNanos();
 				i++;
 				if(!r) throw new RuntimeException(String.format(
 						"verification failed for %dth word: \"%s\"",
@@ -133,12 +128,12 @@ public class AllTries {
 			long b = 0, c = 0;
 			LapTimer lt = new LapTimer();
 			MapTrie<Integer> trie = buildFrom(first);
-			b += lt.lap();
+			b += lt.lapNanos();
 			i = 0;
 			for(String w : newWords()){
-				lt.lap();
+				lt.reset();
 				Integer r = trie.get(w);
-				c += lt.lap();
+				c += lt.lapNanos();
 				if(r != i++) throw new RuntimeException("verification failed for \"" + w + "\"");
 			}
 			holder = trie;

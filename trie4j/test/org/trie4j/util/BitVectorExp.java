@@ -19,15 +19,12 @@ public class BitVectorExp {
 		int c = 0;
 		// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
 		LapTimer t = new LapTimer();
-		for(String word : new WikipediaTitles(
-				"data/jawiki-20120220-all-titles-in-ns0.gz"
-				//"enwiki-20120403-all-titles-in-ns0.gz"
-				)){
+		for(String word : new WikipediaTitles()){
 			trie.insert(word);
 			c++;
 			if(c == maxCount) break;
 		}
-		t.lap("trie building done. %d words.", c);
+		t.lapMillis("trie building done. %d words.", c);
 		final BytesSuccinctBitVector bv = new BytesSuccinctBitVector(5000000);
 		final AtomicInteger nodeCount = new AtomicInteger();
 		Algorithms.traverseByDepth(trie.getRoot(), new NodeVisitor() {
@@ -46,12 +43,12 @@ public class BitVectorExp {
 			}
 		});
 		trie = null;
-		t.lap("done. %d nodes inserted. do rank and select", nodeCount.intValue());
+		t.lapMillis("done. %d nodes inserted. do rank and select", nodeCount.intValue());
 		for(int i = 0; i < c; i += 100){
 			int count = bv.rank(i, true);
 			bv.select(count, true);
 		}
-		t.lap("done.");
+		t.lapMillis("done.");
 		Thread.sleep(10000);
 	}
 }

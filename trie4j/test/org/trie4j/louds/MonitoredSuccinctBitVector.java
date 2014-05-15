@@ -57,51 +57,51 @@ public class MonitoredSuccinctBitVector extends BytesSuccinctBitVector{
 	@Override
 	public int select0(int count) {
 		select0Count++;
-		t.lap();
+		t.reset();
 		try{
 			return super.select0(count);
 		} finally{
-			select0Time += t.lap();
+			select0Time += t.lapMillis();
 		}
 	}
 	@Override
 	public int select1(int count) {
 		select1Count++;
-		t.lap();
+		t.reset();
 		try{
 			return super.select1(count);
 		} finally{
-			select1Time += t.lap();
+			select1Time += t.lapMillis();
 		}
 	}
 	@Override
 	public int next0(int pos) {
 		next0Count++;
-		t.lap();
+		t.reset();
 		try{
 			return super.next0(pos);
 		} finally{
-			next0Time += t.lap();
+			next0Time += t.lapMillis();
 		}
 	}
 	@Override
 	public int rank0(int pos) {
 		rank0Count++;
-		t.lap();
+		t.reset();
 		try{
 			return super.rank0(pos);
 		} finally{
-			rank0Time += t.lap();
+			rank0Time += t.lapMillis();
 		}
 	}
 	@Override
 	public int rank1(int pos) {
 		rank1Count++;
-		t.lap();
+		t.reset();
 		try{
 			return super.rank1(pos);
 		} finally{
-			rank1Time += t.lap();
+			rank1Time += t.lapMillis();
 		}
 	}
 
