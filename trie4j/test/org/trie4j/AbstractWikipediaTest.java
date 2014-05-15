@@ -18,18 +18,14 @@ package org.trie4j;
 import java.io.PrintWriter;
 
 import org.junit.Test;
-import org.trie4j.Trie;
+import org.trie4j.patricia.tail.TailPatriciaTrie;
+import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 
 public class AbstractWikipediaTest {
-	// You can download archive from http://dumps.wikimedia.org/jawiki/latest/
-	private static final String wikipediaFilename = "data/jawiki-20140416-all-titles-in-ns0.gz";
-//	private static final String wikipediaFilename = "data/enwiki-20120403-all-titles-in-ns0.gz";
-
 	protected Trie createFirstTrie(){
-//		return new PatriciaTrie();
-		return new org.trie4j.patricia.tail.TailPatriciaTrie(new org.trie4j.tail.builder.ConcatTailBuilder());
+		return new TailPatriciaTrie(new ConcatTailBuilder());
 	}
 	
 	protected Trie buildSecondTrie(Trie first) throws Exception{
@@ -46,7 +42,7 @@ public class AbstractWikipediaTest {
 		int c = 0, chars = 0;
 		long b = 0;
 		LapTimer t = new LapTimer();
-		for(String word : new WikipediaTitles(wikipediaFilename)){
+		for(String word : new WikipediaTitles()){
 			try{
 				t.reset();
 				trie.insert(word);
@@ -76,7 +72,7 @@ public class AbstractWikipediaTest {
 		System.out.println("verifying trie.");
 		long sum = 0;
 		c = 0;
-		for(String word : new WikipediaTitles(wikipediaFilename)){
+		for(String word : new WikipediaTitles()){
 			t.reset();
 			boolean found = second.contains(word);
 			sum += t.lapNanos();

@@ -17,7 +17,6 @@ package org.trie4j.tail.builder;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 
 public class SuffixTrieTailBuilderTest {
 	@Test
@@ -62,4 +61,31 @@ public class SuffixTrieTailBuilderTest {
 		Assert.assertEquals("world\0hell\1\1\0bold\0", tb.getTails().toString());
 	}
 
+	@Test
+	public void test_tailtrie_4() throws Exception{
+		SuffixTrieTailBuilder tb = new SuffixTrieTailBuilder();
+		int[] index = {0, 11, 13, 16, 21};
+		int i = 0;
+		for(String s : new String[]{
+				"page_title",
+				"!",
+				"!!",
+				"!!!",
+				"!!!hello!!!"
+				}){
+			Assert.assertEquals(index[i++], tb.insert(s));
+		}
+		SuffixTrieTailBuilder.Node root = tb.getRoot();
+		Assert.assertEquals("", root.getLetters(tb.getTails()));
+		Assert.assertEquals("!", root.getChildren()[0]
+				.getLetters(tb.getTails()));
+		Assert.assertEquals("!", root.getChildren()[0]
+				.getChildren()[0].getLetters(tb.getTails()));
+		Assert.assertEquals("!", root.getChildren()[0]
+				.getChildren()[0].getChildren()[0].getLetters(tb.getTails()));
+		Assert.assertEquals("!!!hello", root.getChildren()[0]
+				.getChildren()[0].getChildren()[0]
+				.getChildren()[0].getLetters(tb.getTails()));
+		Assert.assertEquals("page_title", root.getChildren()[1].getLetters(tb.getTails()));
+	}
 }

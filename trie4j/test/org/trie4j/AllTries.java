@@ -8,6 +8,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.trie4j.doublearray.DoubleArray;
+import org.trie4j.doublearray.MapDoubleArray;
+import org.trie4j.doublearray.TailDoubleArray;
+import org.trie4j.louds.InlinedTailLOUDSPPTrie;
+import org.trie4j.louds.InlinedTailLOUDSTrie;
+import org.trie4j.louds.MapTailLOUDSPPTrie;
+import org.trie4j.louds.MapTailLOUDSTrie;
+import org.trie4j.louds.TailLOUDSPPTrie;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.patricia.simple.MapPatriciaTrie;
 import org.trie4j.patricia.simple.PatriciaTrie;
@@ -195,7 +202,7 @@ public class AllTries {
 					return new DoubleArray(trie);
 				}
 			},
-/*			new MapTrieProcess2("MapDoubleArray"){
+			new MapTrieProcess2("MapDoubleArray"){
 				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie){
 					return new MapDoubleArray<Integer>(trie);
 				}
@@ -233,7 +240,12 @@ public class AllTries {
 					return new TailLOUDSTrie(trie, new SBVConcatTailArray(trie.size()));
 				}
 			},
-/*			new TrieProcess2("TailLOUDSPPTrie(suffixTrieTail,arrayTI)"){
+			new MapTrieProcess2("MapTailLOUDSTrie(concatTail,arrayTI") {
+				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
+					return new MapTailLOUDSTrie<Integer>(trie, new ConcatTailArray(trie.size()));
+				}
+			},
+			new TrieProcess2("TailLOUDSPPTrie(suffixTrieTail,arrayTI)"){
 				protected Trie buildFrom(Trie trie){
 					return new TailLOUDSPPTrie(trie, new SuffixTrieTailArray(trie.size()));
 				}
@@ -248,6 +260,11 @@ public class AllTries {
 					return new TailLOUDSPPTrie(trie, new SBVConcatTailArray(trie.size()));
 				}
 			},
+			new MapTrieProcess2("MapTailLOUDSPPTrie(concatTail,arrayTI") {
+				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
+					return new MapTailLOUDSPPTrie<Integer>(trie, new ConcatTailArray(trie.size()));
+				}
+			},
 			new TrieProcess2("InlinedTailLOUDSTrie(concatTail,arrayTI)"){
 				protected Trie buildFrom(Trie trie){
 					return new InlinedTailLOUDSTrie(trie, new ConcatTailBuilder());
@@ -258,7 +275,8 @@ public class AllTries {
 					return new InlinedTailLOUDSPPTrie(trie);
 				}
 			},
-//*/		};
+//*/
+			};
 
 	public static void main(String[] args) throws Exception{
 		MemoryMXBean mb = ManagementFactory.getMemoryMXBean();

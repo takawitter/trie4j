@@ -41,6 +41,28 @@ implements Serializable, TailBuilder{
 	}
 
 	@Override
+	public int insert(CharSequence letters) {
+		return insert(letters, 0, letters.length());
+	}
+
+	@Override
+	public int insert(CharSequence letters, int offset, int len){
+//		letters = Arrays.copyOfRange(letters, offset, offset + len);
+		if(root == null){
+			tails.append(letters, offset, offset + len).append('\0');
+			root = new Node(0, len - 1);
+			return 0;
+		}
+//		Node responsibleNode = root.insertChild(tails, 0, letters, letters.length - 1);
+		letters = letters.subSequence(offset, offset + len);
+		Node responsibleNode = root.insertChild(tails, 0, letters, letters.length() - 1);
+		if(root.getParent() != null){
+			root = root.getParent();
+		}
+		return responsibleNode.getFirst();
+	}
+
+	@Override
 	public int insert(char[] letters) {
 		return insert(letters, 0, letters.length);
 	}
@@ -53,7 +75,7 @@ implements Serializable, TailBuilder{
 			root = new Node(0, letters.length - 1);
 			return 0;
 		}
-		Node responsibleNode = root.insertChild(tails, 0,  letters, letters.length - 1);
+		Node responsibleNode = root.insertChild(tails, 0, new StringBuilder().append(letters), letters.length - 1);
 		if(root.getParent() != null){
 			root = root.getParent();
 		}
@@ -117,13 +139,13 @@ implements Serializable, TailBuilder{
 		 * @param offset
 		 * @return
 		 */
-		public Node insertChild(StringBuilder tails, int childIndex, char[] letters, int offset){
+		public Node insertChild(StringBuilder tails, int childIndex, CharSequence letters, int offset){
 			int matchedCount = 0;
 			int lettersRest = offset + 1;
 			int thisLettersLength = this.last - this.first + 1;
 			int n = Math.min(lettersRest, thisLettersLength);
 			int c = 0;
-			while(matchedCount < n && (c = letters[offset - matchedCount] - tails.charAt(this.last - matchedCount)) == 0) matchedCount++;
+			while(matchedCount < n && (c = letters.charAt(offset - matchedCount) - tails.charAt(this.last - matchedCount)) == 0) matchedCount++;
 			if(matchedCount == n){
 				if(matchedCount != 0 && lettersRest == thisLettersLength){
 					return this;
@@ -148,7 +170,7 @@ implements Serializable, TailBuilder{
 						while(start < end){
 							index = (start + end) / 2;
 							Node child = children[index];
-							c = letters[offset - matchedCount] - tails.charAt(child.last);
+							c = letters.charAt(offset - matchedCount) - tails.charAt(child.last);
 							if(c == 0){
 								return child.insertChild(tails, index, letters, offset - matchedCount);
 							}
@@ -168,7 +190,7 @@ implements Serializable, TailBuilder{
 							if(idx < 0){
 								throw new RuntimeException("???");
 							}
-							c = letters[offset - matchedCount] - tails.charAt(child.last);
+							c = letters.charAt(offset - matchedCount) - tails.charAt(child.last);
 							if(c < 0) break;
 							if(c == 0){
 								return child.insertChild(tails, index, letters, offset - matchedCount);
@@ -193,7 +215,7 @@ implements Serializable, TailBuilder{
 	//*
 			} else if(matchedCount < 3){
 				// make the copy of matched characters because those are too short to share.
-				tails.append(letters, lettersRest - matchedCount, matchedCount);
+				tails.append(letters, lettersRest - matchedCount, lettersRest);
 				int cont = this.last + 1;
 				if(tails.charAt(cont) == '\0'){
 					tails.append('\0');
@@ -216,7 +238,7 @@ implements Serializable, TailBuilder{
 			Node newChild = new Node(
 					newChildFirst, newChildLast, newParent, null
 					);
-			if(tails.charAt(this.last - matchedCount) < letters[lettersRest - matchedCount - 1]){
+			if(tails.charAt(this.last - matchedCount) < letters.charAt(lettersRest - matchedCount - 1)){
 				newParentsChildren[0] = this;
 				newParentsChildren[1] = newChild;
 			} else{
@@ -239,7 +261,7 @@ implements Serializable, TailBuilder{
 			this.children = children;
 		}
 
-		private Node addChild(StringBuilder tails, int index, char[] letters, int offset, int matchedCount){
+		private Node addChild(StringBuilder tails, int index, CharSequence letters, int offset, int matchedCount){
 			int newFirst = tails.length();
 			tails.append(letters, 0, offset - matchedCount + 1);
 			int newLast = tails.length() - 1;
@@ -248,7 +270,7 @@ implements Serializable, TailBuilder{
 	//*
 			} else if(matchedCount < 3){
 				// make the copy of matched characters because those are too short to share.
-				tails.append(letters, offset - matchedCount + 1, matchedCount);
+				tails.append(letters, offset - matchedCount + 1, offset + 1);
 				int cont = this.last + 1;
 				if(tails.charAt(cont) == '\0'){
 					tails.append('\0');

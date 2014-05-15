@@ -34,6 +34,18 @@ implements Serializable, TailBuilder{
 	}
 
 	@Override
+	public int insert(CharSequence letters) {
+		return insert(letters, 0, letters.length());
+	}
+
+	@Override
+	public int insert(CharSequence letters, int offset, int len){
+		int ret = tails.length();
+		tails.append(letters, offset, offset + len).append('\0');
+		return ret;
+	}
+
+	@Override
 	public int insert(char[] letters) {
 		return insert(letters, 0, letters.length);
 	}

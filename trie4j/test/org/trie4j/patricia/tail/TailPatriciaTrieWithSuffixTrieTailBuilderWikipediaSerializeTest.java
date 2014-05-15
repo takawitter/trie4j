@@ -19,7 +19,7 @@ import org.trie4j.AbstractWikipediaSerializeTest;
 import org.trie4j.Trie;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 
-public class TailPatriciaTrieWithSuffixTailBuilderWikipediaSerializeTest
+public class TailPatriciaTrieWithSuffixTrieTailBuilderWikipediaSerializeTest
 extends AbstractWikipediaSerializeTest{
 	@Override
 	protected Trie firstTrie() {

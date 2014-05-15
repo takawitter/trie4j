@@ -26,15 +26,15 @@ import org.trie4j.louds.TailLOUDSTrieWikipediaSerializeTest;
 import org.trie4j.patricia.simple.MapPatriciaTrieWikipediaSerializeTest;
 import org.trie4j.patricia.simple.PatriciaTrieWikipediaSerializeTest;
 import org.trie4j.patricia.tail.TailPatriciaTrieWithConcatTailBuilderWikipediaSerializeTest;
-import org.trie4j.patricia.tail.TailPatriciaTrieWithSuffixTailBuilderWikipediaSerializeTest;
+import org.trie4j.patricia.tail.TailPatriciaTrieWithSuffixTrieTailBuilderWikipediaSerializeTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	PatriciaTrieWikipediaSerializeTest.class,
 	MapPatriciaTrieWikipediaSerializeTest.class,
 	TailPatriciaTrieWithConcatTailBuilderWikipediaSerializeTest.class,
-	TailPatriciaTrieWithSuffixTailBuilderWikipediaSerializeTest.class,
 //	MapTailPatriciaTrieWithConcatTailBuilderWikipediaSerializeTest.class,
+	TailPatriciaTrieWithSuffixTrieTailBuilderWikipediaSerializeTest.class,
 //	MapTailPatriciaTrieWithSuffixTailBuilderWikipediaSerializeTest.class,
 	DoubleArrayWikipediaSerializeTest.class,
 	MapDoubleArrayWikipediaSerializeTest.class,

@@ -39,6 +39,13 @@ implements Externalizable, TailArray{
 	}
 
 	@Override
+	public int append(CharSequence letters, int offset, int len) {
+		int ret = builder.insert(letters, offset, len);
+		index.add(ret, tails.length());
+		return ret;
+	}
+
+	@Override
 	public int append(char[] letters, int offset, int len) {
 		int ret = builder.insert(letters, offset, len);
 		index.add(ret, tails.length());

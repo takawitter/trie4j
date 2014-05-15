@@ -16,6 +16,7 @@
 package org.trie4j.tail;
 
 public interface TailArray {
+	int append(CharSequence letters, int offset, int len);
 	int append(char[] letters, int offset, int len);
 	int appendEmpty();
 	TailCharIterator newIterator(int offset);

@@ -17,7 +17,6 @@ package org.trie4j.patricia.tail;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -115,10 +114,6 @@ implements Serializable, Trie{
 	public Iterable<String> commonPrefixSearch(final String query) {
 		if(query.length() == 0) return new ArrayList<String>(0);
 		return new Iterable<String>(){
-			{
-				this.queryChars = query.toCharArray();
-			}
-			private char[] queryChars;
 			@Override
 			public Iterator<String> iterator() {
 				return new Iterator<String>() {
@@ -133,19 +128,19 @@ implements Serializable, Trie{
 					private void findNext(){
 						next = null;
 						while(next == null){
-							if(queryChars.length <= cur) return;
-							Node child = current.getChild(queryChars[cur]);
+							if(query.length() <= cur) return;
+							Node child = current.getChild(query.charAt(cur));
 							if(child == null) return;
-							int rest = queryChars.length - cur;
+							int rest = query.length() - cur;
 							char[] letters = child.getLetters(tails);
 							int len = letters.length;
 							if(rest < len) return;
 							for(int i = 1; i < len; i++){
-								int c = letters[i] - queryChars[cur + i];
+								int c = letters[i] - query.charAt(cur + i);
 								if(c != 0) return;
 							}
 
-							String b = new String(queryChars, cur, len);
+							String b = query.substring(cur, cur + len);
 							if(child.isTerminate()){
 								next = currentChars + b;
 							}
@@ -217,7 +212,7 @@ implements Serializable, Trie{
 		if(tailBuilder == null){
 			throw new UnsupportedOperationException("insert isn't permitted for freezed trie");
 		}
-		insert(root, text.toCharArray(), 0);
+		insert(root, text, 0);
 /*		char[] letters = text.toCharArray();
 		if(letters.length == 0){
 			root.setTerminate(true);
@@ -227,19 +222,20 @@ implements Serializable, Trie{
 */
 	}
 
-	private void insert(Node node, char[] letters, int offset){
+	private void insert(Node node, String letters, int offset){
 		TailCharIterator it = new TailCharIterator(tails, node.getTailIndex());
 		int count = 0;
 		boolean matchComplete = true;
-		while(it.hasNext() && offset < letters.length){
-			if(letters[offset] != it.next()){
+		int lettersLength = letters.length();
+		while(it.hasNext() && offset < lettersLength){
+			if(letters.charAt(offset) != it.next()){
 				matchComplete = false;
 				break;
 			}
 			offset++;
 			count++;
 		}
-		if(offset == letters.length){
+		if(offset == lettersLength){
 			if(it.hasNext()){
 				// n: abcde
 				// l: abc
@@ -250,7 +246,7 @@ implements Serializable, Trie{
 				}
 				Node newChild = new Node(c, idx, node.isTerminate(), node.getChildren());
 				node.setTailIndex(
-						(count > 0) ? tailBuilder.insert(Arrays.copyOfRange(letters, offset - count, offset))
+						(count > 0) ? tailBuilder.insert(letters, offset - count, count)
 								: -1
 						);
 				node.setChildren(new Node[]{newChild});
@@ -275,9 +271,9 @@ implements Serializable, Trie{
 					n1Idx = -1;
 				}
 				Node n1 = new Node(n1Fc, n1Idx, node.isTerminate(), node.getChildren());
-				char n2Fc = letters[offset++];
-				int n2Idx = (offset < letters.length) ?
-						tailBuilder.insert(Arrays.copyOfRange(letters, offset, letters.length)) :
+				char n2Fc = letters.charAt(offset++);
+				int n2Idx = (offset < lettersLength) ?
+						tailBuilder.insert(letters, offset, lettersLength - offset) :
 						-1;
 				Node n2 = new Node(n2Fc, n2Idx, true);
 				if(count > 0){
@@ -293,10 +289,10 @@ implements Serializable, Trie{
 			} else{
 				// n: abc
 				// l: abcde
-				char fc = letters[offset++];
+				char fc = letters.charAt(offset++);
 				if(node.getChildren() == null){
-					int idx = (offset < letters.length) ?
-							tailBuilder.insert(Arrays.copyOfRange(letters, offset, letters.length)) :
+					int idx = (offset < lettersLength) ?
+							tailBuilder.insert(letters, offset, lettersLength - offset) :
 							-1;
 					node.setChildren(new Node[]{new Node(fc, idx, true)});
 					size++;
@@ -307,8 +303,8 @@ implements Serializable, Trie{
 					if(child != null){
 						insert(child, letters, offset);
 					} else{
-						int idx = (offset < letters.length) ?
-							tailBuilder.insert(letters, offset, letters.length - offset) :
+						int idx = (offset < lettersLength) ?
+							tailBuilder.insert(letters, offset, lettersLength - offset) :
 							-1;
 						node.addChild(ret.getSecond(), new Node(fc, idx, true));
 						size++;
