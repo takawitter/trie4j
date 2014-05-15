@@ -43,7 +43,6 @@ import org.trie4j.TermIdTrie;
 import org.trie4j.Trie;
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
-import org.trie4j.doublearray.DoubleArray.TermNodeListener;
 import org.trie4j.tail.FastTailCharIterator;
 import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
@@ -126,10 +125,6 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		@Override
 		public boolean isTerminate() {
 			return term.get(nodeId);
-		}
-
-		public int getNodeId() {
-			return nodeId;
 		}
 
 		@Override
