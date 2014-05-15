@@ -5,8 +5,6 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -14,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.trie4j.test.LapTimer;
-import org.trie4j.test.WikipediaTitles;
 
 public class LZ77 {
 	public static void main(String[] args) throws Exception{
@@ -27,9 +24,9 @@ public class LZ77 {
 //		src = readTitles("data/jawiki-20120220-all-titles-in-ns0.gz");
 		int windowSize = 8192;
 		StringBuilder dest = new StringBuilder();
-		lt.lap();
+		lt.reset();
 		compress2(src, dest, windowSize);
-		lt.lap("compress done.");
+		lt.lapMillis("compress done.");
 		int l = 0;
 		for(int i = 0; i < dest.length() / 3; i++){
 			l = Math.max(dest.charAt(i * 3 + 1), l);
@@ -38,9 +35,9 @@ public class LZ77 {
 		dump(dest);
 
 		StringBuilder b = new StringBuilder();
-		lt.lap();
+		lt.reset();
 		decompress(dest, b);
-		lt.lap("decompress done.");
+		lt.lapMillis("decompress done.");
 		
 		boolean eq = src.equals(b.toString());
 		System.out.println(String.format(
@@ -68,13 +65,13 @@ public class LZ77 {
 		System.out.println("total " + src.length() + " chars. windowSize: " + windowSize);
 
 		StringBuilder dest1 = new StringBuilder();
-		lt.lap();
+		lt.reset();
 		compress1(src, dest1, windowSize);
-		lt.lap("compress1 done.");
+		lt.lapMillis("compress1 done.");
 		StringBuilder dest2 = new StringBuilder();
-		lt.lap();
+		lt.reset();
 		compress2(src, dest2, windowSize);
-		lt.lap("compress2 done.");
+		lt.lapMillis("compress2 done.");
 		System.out.println(String.format(
 				"src: %d, comp1: %d(%02.1f%%)",
 				src.length(), dest1.length(), 1.0 *  dest1.length() / src.length() * 100));
@@ -114,15 +111,6 @@ public class LZ77 {
 		} finally{
 			is.close();
 		}
-	}
-
-	private static String readTitles(String filename)
-	throws IOException{
-		StringBuilder b = new StringBuilder();
-		for(String s : new WikipediaTitles(filename)){
-			b.append(s).append("\n");
-		}
-		return b.toString();
 	}
 
 	private static void dump(CharSequence... src){

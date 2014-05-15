@@ -5,8 +5,6 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,16 +20,16 @@ public class LZSS {
 		String src = "abcabdrz";
 		src = read("data/jawiki-20120220-tail");
 		int windowSize = 8192;
-		lt.lap();
+		lt.reset();
 		LZSSData ret = compress(src, windowSize);
-		lt.lap("compress done. %d elements, %d chars", ret.match.length(), ret.dest.length());
+		lt.lapMillis("compress done. %d elements, %d chars", ret.match.length(), ret.dest.length());
 
 		dump(ret);
 
 		StringBuilder b = new StringBuilder();
-		lt.lap();
+		lt.reset();
 		decompress(ret, b);
-		lt.lap("decompress done.");
+		lt.lapMillis("decompress done.");
 		StringBuilder dest = ret.dest;
 
 		int sz = dest.length();

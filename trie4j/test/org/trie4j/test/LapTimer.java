@@ -17,24 +17,42 @@ package org.trie4j.test;
 
 public class LapTimer {
 	public LapTimer(){
+		reset();
+	}
+
+	public void reset(){
 		prev = System.nanoTime();
 	}
 
-	public long lap(){
+	public long lapMillis(){
 		long c = System.nanoTime();
 		long ret = c - prev;
 		prev = c;
-		return ret;// / 1000000;
+		return ret / 1000000;
 	}
-	
-	public long lap(String format, Object... args){
+
+	public long lapNanos(){
 		long c = System.nanoTime();
 		long ret = c - prev;
 		prev = c;
-		System.out.print(String.format("[%s]: ", ret / 1000000));
-		System.out.println(String.format(format, args));
 		return ret;
 	}
-	
+
+	public long lapMillis(String format, Object... args){
+		long ret = lapMillis();
+		println("[" + ret + "ms]: " + format, args);
+		return ret;
+	}
+
+	public long lapNanos(String format, Object... args){
+		long ret = lapNanos();
+		println("[" + ret + "ns]: " + format, args);
+		return ret;
+	}
+
+	private void println(String format, Object... args){
+		System.out.println(String.format(format, args));
+	}
+
 	private long prev;
 }
