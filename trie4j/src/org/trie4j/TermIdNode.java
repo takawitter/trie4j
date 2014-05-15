@@ -22,9 +22,18 @@ public interface TermIdNode extends Node{
 	 */
 	int getTermId();
 
+	/**
+	 * Returns the child of this node that has same first char of its letter to parameter c.
+	 * @param c the first letter of child node.
+	 * @return child node or null if no child has c as first letter
+	 */
 	@Override
 	public TermIdNode getChild(char c);
 
+	/**
+	 * Returns children.
+	 * @return children
+	 */
 	@Override
 	public TermIdNode[] getChildren();
 }

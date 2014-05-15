@@ -15,6 +15,11 @@
  */
 package org.trie4j;
 
+/**
+ * Represents the node of MapTrie.
+ * @author Takao Nakaguchi
+ * @param <T> the type of value the MapNode has.
+ */
 public interface MapNode<T> extends Node{
 	T getValue();
 	void setValue(T value);

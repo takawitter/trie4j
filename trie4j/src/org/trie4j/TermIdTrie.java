@@ -26,6 +26,10 @@ import org.trie4j.util.Pair;
  * @author Takao Nakaguchi
  */
 public interface TermIdTrie extends Trie{
+	/**
+	 * Get the root node of this trie.
+	 * @return root node.
+	 */
 	@Override
 	public TermIdNode getRoot();
 

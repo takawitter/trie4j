@@ -17,6 +17,11 @@ package org.trie4j;
 
 import java.util.Map;
 
+/**
+ * Represents the Trie that can keep values binded to the key.
+ * @author Takao Nakaguchi
+ * @param <T> type of the value
+ */
 public interface MapTrie<T> extends Trie{
 	/**
 	 * retuns root node.
