@@ -15,6 +15,7 @@
  */
 package org.trie4j.doublearray;
 
+import java.io.Externalizable;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -29,7 +30,9 @@ import org.trie4j.doublearray.DoubleArray.TermNodeListener;
  *
  * @param <T>
  */
-public class MapDoubleArray<T> extends AbstractTermIdMapTrie<T> implements MapTrie<T>{
+public class MapDoubleArray<T>
+extends AbstractTermIdMapTrie<T>
+implements Externalizable, MapTrie<T>{
 	public MapDoubleArray() {
 	}
 

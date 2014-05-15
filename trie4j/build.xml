@@ -23,7 +23,7 @@
 
 	<target name="compile" depends="clean,init">
 		<javac destdir="build/classes" srcdir="src" includeantruntime="false" debug="true" encoding="UTF-8" source="1.6" target="1.6" />
-		<javac destdir="build/test-classes" includeantruntime="false" debug="true" encoding="UTF-8" source="1.6" target="1.6">
+		<javac destdir="build/test-classes" includeantruntime="false" debug="true" encoding="UTF-8" source="1.7" target="1.7">
 			<src path="src.kitchensink" />
 			<src path="test" />
 			<classpath path="build/classes" />

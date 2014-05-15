@@ -128,7 +128,6 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 			return term.get(nodeId);
 		}
 
-		@Override
 		public int getNodeId() {
 			return nodeId;
 		}
@@ -171,11 +170,6 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 
 		private char firstChar = 0;
 		private int nodeId;
-	}
-
-	@Override
-	public int getMaxTermId() {
-		return term.rank1(term.size() - 1) - 1;
 	}
 
 	@Override

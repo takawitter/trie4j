@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j;
+package org.trie4j.test;
 
-public interface TermIdNode extends Node{
-	/**
-	 * Returns dense key ID of this node or -1 for non-leaf node.
-	 * @return dense key ID or -1
-	 */
-	int getTermId();
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
-	@Override
-	public TermIdNode getChild(char c);
-
-	@Override
-	public TermIdNode[] getChildren();
+public class IOUtil {
+	public static String readLine(String path)
+	throws FileNotFoundException, IOException{
+		InputStream is = new FileInputStream(path);
+		try{
+			byte line[] = new byte[1026];
+			int n = is.read(line);
+			if(n == -1) throw new IOException("failed to read " + path);
+			return new String(line, 0, n, "UTF-8");
+		} finally{
+			is.close();
+		}
+	}
 }

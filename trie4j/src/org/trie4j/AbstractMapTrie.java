@@ -15,33 +15,19 @@
  */
 package org.trie4j;
 
-import java.util.Iterator;
 import java.util.Map;
 
+import org.trie4j.util.IterableAdapter;
+
 public abstract class AbstractMapTrie<T> extends AbstractTrie implements MapTrie<T>{
-	class StringIterableAdapter implements Iterable<String>{
+	private class StringIterableAdapter extends IterableAdapter<Map.Entry<String, T>, String>{
 		public StringIterableAdapter(Iterable<Map.Entry<String, T>> iterable) {
-			this.iterable = iterable;
+			super(iterable);
 		}
 		@Override
-		public Iterator<String> iterator() {
-			final Iterator<Map.Entry<String, T>> it = iterable.iterator();
-			return new Iterator<String>(){
-				@Override
-				public boolean hasNext() {
-					return it.hasNext();
-				}
-				@Override
-				public String next() {
-					return it.next().getKey();
-				}
-				@Override
-				public void remove() {
-					it.remove();
-				}
-			};
+		protected String convert(Map.Entry<String, T> value) {
+			return value.getKey();
 		}
-		private Iterable<Map.Entry<String, T>> iterable;
 	}
 
 	@Override

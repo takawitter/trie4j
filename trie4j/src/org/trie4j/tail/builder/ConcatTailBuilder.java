@@ -15,9 +15,12 @@
  */
 package org.trie4j.tail.builder;
 
+import java.io.Serializable;
+
 import org.trie4j.tail.TailBuilder;
 
-public class ConcatTailBuilder implements TailBuilder{
+public class ConcatTailBuilder
+implements Serializable, TailBuilder{
 	public ConcatTailBuilder() {
 		tails = new StringBuilder();
 	}
@@ -43,4 +46,5 @@ public class ConcatTailBuilder implements TailBuilder{
 	}
 
 	private StringBuilder tails;
+	private static final long serialVersionUID = -2965476329952753114L;
 }

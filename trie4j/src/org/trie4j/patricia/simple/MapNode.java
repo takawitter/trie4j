@@ -15,7 +15,11 @@
  */
 package org.trie4j.patricia.simple;
 
-public class MapNode<T> extends Node implements org.trie4j.MapNode<T>{
+import java.io.Serializable;
+
+public class MapNode<T>
+extends Node
+implements Serializable, org.trie4j.MapNode<T>{
 	public MapNode() {
 		super(new char[]{}, false, emptyChildren);
 	}
@@ -68,6 +72,7 @@ public class MapNode<T> extends Node implements org.trie4j.MapNode<T>{
 	}
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	public Node addChild(int index, Node n){
 		MapNode[] newc = new MapNode[getChildren().length + 1];
 		System.arraycopy(getChildren(), 0, newc, 0, index);
@@ -80,4 +85,5 @@ public class MapNode<T> extends Node implements org.trie4j.MapNode<T>{
 	private T value;
 	@SuppressWarnings("rawtypes")
 	private static MapNode[] emptyChildren = {};
+	private static final long serialVersionUID = 8611758181642617230L;
 }

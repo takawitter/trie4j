@@ -23,7 +23,9 @@ import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.tail.TailArray;
 
-public class TailLOUDSTrie extends AbstractTailLOUDSTrie implements Trie {
+public class TailLOUDSTrie
+extends AbstractTailLOUDSTrie
+implements Trie {
 	public TailLOUDSTrie(){
 		this(new PatriciaTrie());
 	}

@@ -15,10 +15,6 @@
  */
 package org.trie4j.louds.bvtree;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Range;
 
@@ -47,16 +43,6 @@ public class FastBitSetBvTree implements BvTree{
 
 	@Override
 	public void getChildNodeIds(int selfNodeId, Range range) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void load(InputStream is) throws IOException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void save(OutputStream os) throws IOException {
 		throw new UnsupportedOperationException();
 	}
 

@@ -15,7 +15,6 @@
  */
 package org.trie4j;
 
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicInteger;
 

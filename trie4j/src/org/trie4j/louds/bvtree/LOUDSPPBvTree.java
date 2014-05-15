@@ -1,15 +1,36 @@
+/*
+ * Copyright 2012 Takao Nakaguchi
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.trie4j.louds.bvtree;
 
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import org.trie4j.bv.BitVector01Devider;
 import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
 import org.trie4j.util.Range;
 
-public class LOUDSPPBvTree implements BvTree{
+public class LOUDSPPBvTree
+implements Externalizable, BvTree{
+	public LOUDSPPBvTree() {
+		this(0);
+	}
+
 	public LOUDSPPBvTree(int initialCapacity) {
 		r0 = new Rank0OnlySuccinctBitVector(initialCapacity);
 		r1 = new BytesSuccinctBitVector(initialCapacity);
@@ -48,17 +69,17 @@ public class LOUDSPPBvTree implements BvTree{
 	}
 
 	@Override
-	public void load(InputStream is) throws IOException {
-		divider.load(is);
-		r0.load(is);
-		r1.load(is);
+	public void readExternal(ObjectInput in) throws IOException {
+		divider.readExternal(in);
+		r0.readExternal(in);
+		r1.readExternal(in);
 	}
-	
+
 	@Override
-	public void save(OutputStream os) throws IOException {
-		divider.save(os);
-		r0.save(os);
-		r1.save(os);
+	public void writeExternal(ObjectOutput out) throws IOException {
+		divider.writeExternal(out);
+		r0.writeExternal(out);
+		r1.writeExternal(out);
 	}
 
 	private BitVector01Devider divider;

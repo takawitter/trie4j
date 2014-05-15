@@ -16,10 +16,8 @@
 package org.trie4j.louds;
 
 import org.junit.Assert;
-import org.junit.Test;
 import org.trie4j.AbstractMapTrieTest;
 import org.trie4j.MapTrie;
-import org.trie4j.TermIdTrie;
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.patricia.simple.MapPatriciaTrie;

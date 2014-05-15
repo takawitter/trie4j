@@ -2,6 +2,8 @@ package org.trie4j.louds;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,9 +48,11 @@ public class TailLOUDSTrieWithConcatTailBuilderTest extends AbstractTermIdTrieTe
 		for(String w : words) trie.insert(w);
 		TailLOUDSTrie lt = new TailLOUDSTrie(trie);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		lt.save(baos);
+		ObjectOutputStream oos = new ObjectOutputStream(baos);
+		lt.writeExternal(oos);
+		oos.flush();
 		lt = new TailLOUDSTrie();
-		lt.load(new ByteArrayInputStream(baos.toByteArray()));
+		lt.readExternal(new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())));
 		for(String w : words){
 			Assert.assertTrue(lt.contains(w));
 		}

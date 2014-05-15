@@ -172,7 +172,6 @@ implements Externalizable, TermIdTrie{
 			return null;
 		}
 
-		@Override
 		public int getNodeId() {
 			return nodeId;
 		}
@@ -243,11 +242,6 @@ implements Externalizable, TermIdTrie{
 	public int getTermId(String text) {
 		int nid = getNodeId(text);
 		return term.get(nid) ? term.rank1(nid) - 1 : -1;
-	}
-
-	@Override
-	public int getMaxTermId() {
-		return term.rank1(term.size() - 1) - 1;
 	}
 
 	@Override
@@ -427,7 +421,7 @@ implements Externalizable, TermIdTrie{
 	public void save(OutputStream os) throws IOException{
 		ObjectOutputStream out = new ObjectOutputStream(os);
 		try{
-			writeExternal(new ObjectOutputStream(os));
+			writeExternal(out);
 		} finally{
 			out.flush();
 		}

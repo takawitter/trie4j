@@ -1,12 +1,27 @@
+/*
+ * Copyright 2012 Takao Nakaguchi
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.trie4j.tail;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-public abstract class AbstractTailArray implements TailArray{
+public abstract class AbstractTailArray
+implements Externalizable, TailArray{
 	protected abstract TailBuilder newTailBuilder(StringBuilder tails);
 	protected abstract TailIndex newTailIndex(int initialCapacity);
 
@@ -63,31 +78,25 @@ public abstract class AbstractTailArray implements TailArray{
 	}
 
 	@Override
-	public void load(InputStream is) throws IOException {
-		DataInputStream dis = new DataInputStream(is);
-		int n = dis.readInt();
+	public void readExternal(ObjectInput in)
+	throws IOException, ClassNotFoundException {
+		int n = in.readInt();
 		tails = new StringBuilder(n);
 		for(int i = 0; i < n; i++){
-			tails.append(dis.readChar());
+			tails.append(in.readChar());
 		}
 		builder = newTailBuilder(tails);
-		index = newTailIndex(0);
-		index.load(is);
+		index = (TailIndex)in.readObject();
 	}
 
 	@Override
-	public void save(OutputStream os) throws IOException {
-		DataOutputStream dos = new DataOutputStream(os);
-		try{
-			int n = tails.length();
-			dos.writeInt(n);
-			for(int i = 0; i < n; i++){
-				dos.writeChar(tails.charAt(i));
-			}
-		} finally{
-			dos.flush();
+	public void writeExternal(ObjectOutput out) throws IOException {
+		int n = tails.length();
+		out.writeInt(n);
+		for(int i = 0; i < n; i++){
+			out.writeChar(tails.charAt(i));
 		}
-		index.save(os);
+		out.writeObject(index);
 	}
 
 	private StringBuilder tails = new StringBuilder();

@@ -2,6 +2,8 @@ package org.trie4j.louds;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,14 +49,18 @@ public class TailLOUDSPPTrieWithConcatTailBuilderTest extends AbstractTermIdTrie
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
 		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		lt.save(baos);
-		lt = new TailLOUDSPPTrie();
-		lt.load(new ByteArrayInputStream(baos.toByteArray()));
-		for(String w : words){
-			Assert.assertTrue(lt.contains(w));
+		try(
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ObjectOutputStream oos = new ObjectOutputStream(baos)){
+			lt.writeExternal(oos);
+			oos.flush();
+			lt = new TailLOUDSPPTrie();
+			lt.readExternal(new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())));
+			for(String w : words){
+				Assert.assertTrue(lt.contains(w));
+			}
+			Assert.assertFalse(lt.contains("おやすみなさい"));
 		}
-		Assert.assertFalse(lt.contains("おやすみなさい"));
 
 		StringBuilder b = new StringBuilder();
 		Node[] children = lt.getRoot().getChildren();

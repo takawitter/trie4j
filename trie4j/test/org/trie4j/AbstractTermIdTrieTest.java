@@ -39,11 +39,4 @@ public abstract class AbstractTermIdTrieTest extends AbstractTrieTest{
 		}
 		Assert.assertEquals(0, ids.size());
 	}
-
-	@Test
-	public void test_maxtermId() throws Exception{
-		String[] words = {"hello", "world", "apple", "banana", "strawbelly"};
-		TermIdTrie t = buildSecondTrie(trieWithWords(words));
-		Assert.assertEquals(4, t.getMaxTermId());
-	}
 }

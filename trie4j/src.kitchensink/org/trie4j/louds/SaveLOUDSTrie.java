@@ -40,14 +40,18 @@ public class SaveLOUDSTrie {
 
 		OutputStream os = new FileOutputStream("louds.dat");
 		try{
-			trie.save(os);
+			ObjectOutputStream oos = new ObjectOutputStream(os);
+			trie.writeExternal(oos);
+			oos.flush();
 		} finally{
 			os.close();
 		}
 
 		os = new FileOutputStream("louds-bv.dat");
 		try{
-			trie.getBvTree().save(os);
+			ObjectOutputStream oos = new ObjectOutputStream(os);
+			oos.writeObject(trie.getBvTree());
+			oos.flush();
 		} finally{
 			os.close();
 		}
@@ -74,7 +78,9 @@ public class SaveLOUDSTrie {
 
 		os = new FileOutputStream("louds-tailIndex.dat");
 		try{
-			tailArray.getTailIndex().save(os);
+			ObjectOutputStream oos = new ObjectOutputStream(os);
+			oos.writeObject(tailArray.getTailIndex());
+			oos.flush();
 		} finally{
 			os.close();
 		}

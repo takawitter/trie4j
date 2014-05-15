@@ -15,13 +15,10 @@
  */
 package org.trie4j.louds;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,9 +38,13 @@ import org.trie4j.tail.TailArray;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 
-public class InlinedTailLOUDSPPTrie extends AbstractTrie implements Trie {
+public class InlinedTailLOUDSPPTrie
+extends AbstractTrie
+implements Externalizable, Trie {
 	public InlinedTailLOUDSPPTrie(){
 		tailArray = newTailArray(0);
+		r0 = new Rank0OnlySuccinctBitVector();
+		r1 = new BytesSuccinctBitVector();
 	}
 
 	public InlinedTailLOUDSPPTrie(Trie orig){
@@ -273,39 +274,33 @@ public class InlinedTailLOUDSPPTrie extends AbstractTrie implements Trie {
 		r1.trimToSize();
 	}
 
-	public void save(OutputStream os) throws IOException{
-		DataOutputStream dos = new DataOutputStream(os);
-		ObjectOutputStream oos = new ObjectOutputStream(os);
-		dos.writeInt(size);
-		dos.writeInt(nodeSize);
-		trimToSize();
-		for(char c : labels){
-			dos.writeChar(c);
-		}
-		dos.flush();
-		tailArray.save(os);
-		oos.writeObject(term);
-		oos.flush();
-		r0.save(os);
-		r1.save(os);
-	}
-
-	public void load(InputStream is) throws ClassNotFoundException, IOException{
-		DataInputStream dis = new DataInputStream(is);
-		ObjectInputStream ois = new ObjectInputStream(dis);
-		size = dis.readInt();
-		nodeSize = dis.readInt();
+	@Override
+	public void readExternal(ObjectInput in)
+	throws IOException, ClassNotFoundException {
+		size = in.readInt();
+		nodeSize = in.readInt();
 		labels = new char[nodeSize];
 		for(int i = 0; i < nodeSize; i++){
-			labels[i] = dis.readChar();
+			labels[i] = in.readChar();
 		}
-		tailArray = new ConcatTailArray(0);
-		tailArray.load(is);
-		term = (BitSet)ois.readObject();
-		r0 = new Rank0OnlySuccinctBitVector();
-		r0.load(is);
-		r1 = new BytesSuccinctBitVector();
-		r1.load(is);
+		tailArray = (TailArray)in.readObject();
+		term = (BitSet)in.readObject();
+		r0.readExternal(in);
+		r1.readExternal(in);
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(size);
+		out.writeInt(nodeSize);
+		trimToSize();
+		for(char c : labels){
+			out.writeChar(c);
+		}
+		out.writeObject(tailArray);
+		out.writeObject(term);
+		r0.writeExternal(out);
+		r1.writeExternal(out);
 	}
 
 	private int getChildNode(int nodeId, char c){

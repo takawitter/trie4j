@@ -15,11 +15,12 @@
  */
 package org.trie4j.louds;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -37,7 +38,9 @@ import org.trie4j.Trie;
 import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.util.Pair;
 
-public class LOUDSTrie extends AbstractTrie implements Trie {
+public class LOUDSTrie
+extends AbstractTrie
+implements Externalizable, Trie {
 	public LOUDSTrie(){
 	}
 
@@ -258,47 +261,61 @@ public class LOUDSTrie extends AbstractTrie implements Trie {
 	}
 
 	public void save(OutputStream os) throws IOException{
-		DataOutputStream dos = new DataOutputStream(os);
-		ObjectOutputStream oos = new ObjectOutputStream(os);
-		dos.writeInt(size);
-		dos.writeInt(nodeSize);
-		trimToSize();
-		for(char c : labels){
-			dos.writeChar(c);
+		ObjectOutputStream out = new ObjectOutputStream(os);
+		try{
+			writeExternal(out);
+		} finally{
+			out.flush();
 		}
-		for(char[] t : tail){
-			dos.writeInt(t.length);
-			for(char c : t){
-				dos.writeChar(c);
-			}
-		}
-		dos.flush();
-		oos.writeObject(term);
-		oos.flush();
-		bv.save(os);
 	}
 
-	public void load(InputStream is) throws ClassNotFoundException, IOException{
-		DataInputStream dis = new DataInputStream(is);
-		ObjectInputStream ois = new ObjectInputStream(is);
-		size = dis.readInt();
-		nodeSize = dis.readInt();
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(size);
+		out.writeInt(nodeSize);
+		trimToSize();
+		for(char c : labels){
+			out.writeChar(c);
+		}
+		for(char[] t : tail){
+			out.writeInt(t.length);
+			for(char c : t){
+				out.writeChar(c);
+			}
+		}
+		out.writeObject(term);
+		bv.writeExternal(out);
+	}
+
+	public void load(InputStream is) throws IOException{
+		try{
+			readExternal(new ObjectInputStream(is));
+		} catch(ClassNotFoundException e){
+			throw new IOException(e);
+		}
+	}
+
+	@Override
+	public void readExternal(ObjectInput in)
+	throws IOException, ClassNotFoundException {
+		size = in.readInt();
+		nodeSize = in.readInt();
 		labels = new char[nodeSize];
 		for(int i = 0; i < nodeSize; i++){
-			labels[i] = dis.readChar();
+			labels[i] = in.readChar();
 		}
 		tail = new char[nodeSize][];
 		for(int i = 0; i < nodeSize; i++){
-			int n = dis.readInt();
+			int n = in.readInt();
 			StringBuilder b = new StringBuilder(n);
 			for(int j = 0; j < n; j++){
-				b.append(dis.readChar());
+				b.append(in.readChar());
 			}
 			tail[i] = b.toString().toCharArray();
 		}
-		term = (BitSet)ois.readObject();
+		term = (BitSet)in.readObject();
 		bv = new BytesSuccinctBitVector();
-		bv.load(is);
+		bv.readExternal(in);
 	}
 
 	private int getChildNode(int nodeId, char c){

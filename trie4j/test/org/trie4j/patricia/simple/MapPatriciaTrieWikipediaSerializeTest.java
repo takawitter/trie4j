@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.tail;
+package org.trie4j.patricia.simple;
 
-import org.trie4j.tail.builder.ConcatTailBuilder;
-import org.trie4j.tail.index.ArrayTailIndex;
+import org.trie4j.AbstractMapTrieWikipediaSerializeTest;
+import org.trie4j.MapTrie;
 
-public class ConcatTailArray extends AbstractTailArray implements TailArray{
-	public ConcatTailArray() {
-		this(0);
-	}
-
-	public ConcatTailArray(int initialCapacity) {
-		super(initialCapacity);
-	}
-
+public class MapPatriciaTrieWikipediaSerializeTest
+extends AbstractMapTrieWikipediaSerializeTest{
 	@Override
-	protected TailBuilder newTailBuilder(StringBuilder tails) {
-		return new ConcatTailBuilder(tails);
-	}
-
-	@Override
-	protected TailIndex newTailIndex(int initialCapacity) {
-		return new ArrayTailIndex(initialCapacity);
+	protected MapTrie<Integer> newTrie() {
+		return new MapPatriciaTrie<Integer>();
 	}
 }

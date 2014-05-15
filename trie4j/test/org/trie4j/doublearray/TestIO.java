@@ -123,6 +123,7 @@ public class TestIO {
 				break;
 			}
 		}
+		r.close();
 		System.out.println("done " + c + "words in " + t1.lap() + " millis.");
 		System.out.println("contains time: " + sum + " millis.");
 	}

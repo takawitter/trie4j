@@ -15,34 +15,18 @@
  */
 package org.trie4j;
 
-import java.util.Iterator;
-
+import org.trie4j.util.IterableAdapter;
 import org.trie4j.util.Pair;
 
 public abstract class AbstractTermIdTrie extends AbstractTrie implements TermIdTrie{
-	private static class StringIterableAdapter implements Iterable<String>{
+	private static class StringIterableAdapter extends IterableAdapter<Pair<String, Integer>, String>{
 		public StringIterableAdapter(Iterable<Pair<String, Integer>> iterable) {
-			this.iterable = iterable;
+			super(iterable);
 		}
 		@Override
-		public Iterator<String> iterator() {
-			final Iterator<Pair<String, Integer>> it = iterable.iterator();
-			return new Iterator<String>(){
-				@Override
-				public boolean hasNext() {
-					return it.hasNext();
-				}
-				@Override
-				public String next() {
-					return it.next().getFirst();
-				}
-				@Override
-				public void remove() {
-					it.remove();
-				}
-			};
+		protected String convert(Pair<String, Integer> value) {
+			return value.getFirst();
 		}
-		private Iterable<Pair<String, Integer>> iterable;
 	}
 
 	@Override

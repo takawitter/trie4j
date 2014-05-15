@@ -1,15 +1,30 @@
+/*
+ * Copyright 2012 Takao Nakaguchi
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.trie4j.tail.index;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Arrays;
 
 import org.trie4j.tail.TailIndex;
 
-public class ArrayTailIndex implements TailIndex{
+public class ArrayTailIndex
+implements Externalizable, TailIndex{
 	public ArrayTailIndex() {
 	}
 
@@ -39,33 +54,28 @@ public class ArrayTailIndex implements TailIndex{
 		tail = Arrays.copyOf(tail, current);
 	}
 
-	@Override
-	public void load(InputStream is) throws IOException {
-		DataInputStream dis = new DataInputStream(is);
-		int sz = dis.readInt();
-		tail = new int[sz];
-		for(int i = 0; i < sz; i++){
-			tail[i] = dis.readInt();
-		}
-		current = sz;
-	}
-
-	@Override
-	public void save(OutputStream os) throws IOException {
-		DataOutputStream dos = new DataOutputStream(os);
-		try{
-			dos.writeInt(current);
-			for(int i = 0; i < current; i++){
-				dos.writeInt(tail[i]);
-			}
-		} finally{
-			dos.flush();
-		}
-	}
-
 	private void ensureCapacity(){
 		if(current == tail.length){
 			tail = Arrays.copyOf(tail, (int)((current + 1) * 1.2));
+		}
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException{
+		int n = in.readInt();
+		current = n;
+		tail = new int[n];
+		for(int i = 0; i < n; i++){
+			tail[i] = in.readInt();
+		}
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		int n = current;
+		out.writeInt(n);
+		for(int i = 0; i < n; i++){
+			out.writeInt(tail[i]);
 		}
 	}
 

@@ -15,17 +15,14 @@
  */
 package org.trie4j.bv;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Arrays;
 
-public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
+public class Rank0OnlySuccinctBitVector
+implements Externalizable, BitVector{
 	public Rank0OnlySuccinctBitVector(){
 		this(16);
 	}
@@ -127,54 +124,34 @@ public class Rank0OnlySuccinctBitVector implements Serializable, BitVector{
 		return ret;
 	}
 
-	public void save(OutputStream os) throws IOException{
-		DataOutputStream dos = new DataOutputStream(os);
-		dos.writeInt(size);
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(size);
 		trimToSize();
-		dos.writeInt(vector.length);
-		dos.write(vector);
-		dos.writeInt(countCache0.length);
+		out.writeInt(vector.length);
+		out.write(vector);
+		out.writeInt(countCache0.length);
 		for(int e : countCache0){
-			dos.writeInt(e);
+			out.writeInt(e);
 		}
-		dos.flush();
 	}
 
-	public void load(InputStream is) throws IOException{
-		DataInputStream dis = new DataInputStream(is);
-		size = dis.readInt();
-		int vectorSize = dis.readInt();
+	@Override
+	public void readExternal(ObjectInput in) throws IOException{
+		size = in.readInt();
+		int vectorSize = in.readInt();
 		vector = new byte[vectorSize];
-		dis.read(vector, 0, vectorSize);
-		int size = dis.readInt();
+		in.readFully(vector, 0, vectorSize);
+		int size = in.readInt();
 		countCache0 = new int[size];
 		for(int i = 0; i < size; i++){
-			countCache0[i] = dis.readInt();
+			countCache0[i] = in.readInt();
 		}
 	}
 
 	private static int containerCount(int size, int unitSize){
 		return size / unitSize + ((size % unitSize) != 0 ? 1 : 0);
 	}
-
-	private void writeObject(ObjectOutputStream s)
-	throws IOException {
-		trimToSize();
-		ObjectOutputStream.PutField fields = s.putFields();
-		fields.put("size", size);
-		trimToSize();
-		fields.put("vector", vector);
-		fields.put("countCache0", countCache0);
-		s.writeFields();
-    }
-
-	private void readObject(ObjectInputStream s)
-	throws IOException, ClassNotFoundException {
-		ObjectInputStream.GetField fields = s.readFields();
-		size = fields.get("size", 0);
-		vector = (byte[])fields.get("vector", null);
-		countCache0 = (int[])fields.get("countCache0", null);
-    }
 
 	private void extend(){
 		int vectorSize = (int)(vector.length * 1.2) + 1;

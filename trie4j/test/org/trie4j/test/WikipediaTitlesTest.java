@@ -1,7 +1,6 @@
 package org.trie4j.test;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 public class WikipediaTitlesTest {

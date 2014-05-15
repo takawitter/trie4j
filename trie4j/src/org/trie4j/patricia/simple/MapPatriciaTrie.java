@@ -15,12 +15,15 @@
  */
 package org.trie4j.patricia.simple;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.trie4j.MapTrie;
 import org.trie4j.util.Pair;
 
-public class MapPatriciaTrie<T> extends PatriciaTrie implements MapTrie<T>{
+public class MapPatriciaTrie<T>
+extends PatriciaTrie
+implements Serializable, MapTrie<T>{
 	@Override
 	@SuppressWarnings("unchecked")
 	public MapNode<T> getRoot(){
@@ -131,4 +134,6 @@ public class MapPatriciaTrie<T> extends PatriciaTrie implements MapTrie<T>{
 			return new Entry(value.getFirst(), (MapNode<T>)value.getSecond());
 		}
 	}
+
+	private static final long serialVersionUID = 2165079531157534766L;
 }

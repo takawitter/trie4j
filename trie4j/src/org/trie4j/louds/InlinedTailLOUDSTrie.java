@@ -15,13 +15,10 @@
  */
 package org.trie4j.louds;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,8 +37,11 @@ import org.trie4j.tail.TailUtil;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.util.Pair;
 
-public class InlinedTailLOUDSTrie extends AbstractTrie implements Trie {
+public class InlinedTailLOUDSTrie
+extends AbstractTrie
+implements Externalizable, Trie {
 	public InlinedTailLOUDSTrie(){
+		bv = new BytesSuccinctBitVector(0);
 	}
 
 	public InlinedTailLOUDSTrie(Trie orig){
@@ -267,50 +267,46 @@ public class InlinedTailLOUDSTrie extends AbstractTrie implements Trie {
 		bv.trimToSize();
 	}
 
-	public void save(OutputStream os) throws IOException{
-		DataOutputStream dos = new DataOutputStream(os);
-		ObjectOutputStream oos = new ObjectOutputStream(os);
-		dos.writeInt(size);
-		dos.writeInt(nodeSize);
-		trimToSize();
-		for(char c : labels){
-			dos.writeChar(c);
-		}
-		for(int i : tail){
-			dos.writeInt(i);
-		}
-		dos.writeInt(tails.length());
-		for(int i = 0; i < tails.length(); i++){
-			dos.writeChar(tails.charAt(i));
-		}
-		dos.flush();
-		oos.writeObject(term);
-		oos.flush();
-		bv.save(os);
-	}
-
-	public void load(InputStream is) throws ClassNotFoundException, IOException{
-		DataInputStream dis = new DataInputStream(is);
-		ObjectInputStream ois = new ObjectInputStream(is);
-		size = dis.readInt();
-		nodeSize = dis.readInt();
+	@Override
+	public void readExternal(ObjectInput in)
+	throws IOException, ClassNotFoundException {
+		size = in.readInt();
+		nodeSize = in.readInt();
 		labels = new char[nodeSize];
 		for(int i = 0; i < nodeSize; i++){
-			labels[i] = dis.readChar();
+			labels[i] = in.readChar();
 		}
 		tail = new int[nodeSize];
 		for(int i = 0; i < nodeSize; i++){
-			tail[i] = dis.readInt();
+			tail[i] = in.readInt();
 		}
-		int ts = dis.readInt();
+		int ts = in.readInt();
 		StringBuilder b = new StringBuilder(ts);
 		for(int i = 0; i < ts; i++){
-			b.append(dis.readChar());
+			b.append(in.readChar());
 		}
 		tails = b;
-		term = (BitSet)ois.readObject();
-		bv = new BytesSuccinctBitVector();
-		bv.load(is);
+		term = (BitSet)in.readObject();
+		bv.readExternal(in);
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(size);
+		out.writeInt(nodeSize);
+		trimToSize();
+		for(char c : labels){
+			out.writeChar(c);
+		}
+		for(int i : tail){
+			out.writeInt(i);
+		}
+		out.writeInt(tails.length());
+		for(int i = 0; i < tails.length(); i++){
+			out.writeChar(tails.charAt(i));
+		}
+		out.writeObject(term);
+		bv.writeExternal(out);
 	}
 
 	private int getChildNode(int nodeId, char c){

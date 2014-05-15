@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Writer;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
@@ -156,47 +155,32 @@ implements Externalizable, MapTrie<T>{
 		throw new UnsupportedOperationException();
 	}
 
-	class IterableAdapter implements Iterable<Map.Entry<String, T>>{
+	private class IterableAdapter extends org.trie4j.util.IterableAdapter<Pair<String, Integer>, Map.Entry<String, T>>{
 		public IterableAdapter(Iterable<Pair<String, Integer>> iterable) {
-			this.iterable = iterable;
+			super(iterable);
 		}
 		@Override
-		public Iterator<Map.Entry<String, T>> iterator(){
-			final Iterator<Pair<String, Integer>> it = iterable.iterator();
-			return new Iterator<Map.Entry<String, T>>(){
+		protected Entry<String, T> convert(final Pair<String, Integer> value) {
+			return new Map.Entry<String, T>() {
 				@Override
-				public boolean hasNext() {
-					return it.hasNext();
+				public String getKey() {
+					return value.getFirst();
 				}
 				@Override
-				public Map.Entry<String, T> next() {
-					final Pair<String, Integer> e = it.next();
-					return new Map.Entry<String, T>() {
-						@Override
-						public String getKey() {
-							return e.getFirst();
-						}
-						@Override
-						@SuppressWarnings("unchecked")
-						public T getValue() {
-							return (T)values[e.getSecond()];
-						}
-						@Override
-						public T setValue(T value) {
-							T ret = getValue();
-							values[e.getSecond()] = value;
-							return ret;
-						}
-					};
+				@SuppressWarnings("unchecked")
+				public T getValue() {
+					return (T)values[value.getSecond()];
 				}
 				@Override
-				public void remove() {
-					it.remove();
+				public T setValue(T v) {
+					T ret = getValue();
+					values[value.getSecond()] = v;
+					return ret;
 				}
 			};
 		}
-		private Iterable<Pair<String, Integer>> iterable;
 	}
+
 	@Override
 	public Iterable<Map.Entry<String, T>> commonPrefixSearchEntries(final String query) {
 		return new IterableAdapter(trie.commonPrefixSearchWithTermId(query));
@@ -224,11 +208,11 @@ implements Externalizable, MapTrie<T>{
 		return trie;
 	}
 
-	public void setTrie(TermIdTrie trie) {
+	protected void setTrie(TermIdTrie trie) {
 		this.trie = trie;
 	}
 
-	protected Object[] getValues(){
+	public Object[] getValues(){
 		return values;
 	}
 
@@ -236,6 +220,6 @@ implements Externalizable, MapTrie<T>{
 		this.values = values;
 	}
 
-	protected Object[] values = {};
 	private TermIdTrie trie;
+	private Object[] values = {};
 }
