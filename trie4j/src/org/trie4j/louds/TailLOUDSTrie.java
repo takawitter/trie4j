@@ -15,6 +15,8 @@
  */
 package org.trie4j.louds;
 
+import java.io.Serializable;
+
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.louds.bvtree.BvTree;
@@ -25,7 +27,7 @@ import org.trie4j.tail.TailArray;
 
 public class TailLOUDSTrie
 extends AbstractTailLOUDSTrie
-implements Trie {
+implements Serializable, Trie {
 	public TailLOUDSTrie(){
 		this(new PatriciaTrie());
 	}

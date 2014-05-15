@@ -15,6 +15,7 @@
  */
 package org.trie4j.doublearray;
 
+import java.io.Externalizable;
 import java.util.Arrays;
 
 import org.trie4j.AbstractTermIdMapTrie;
@@ -30,7 +31,9 @@ import org.trie4j.tail.builder.SuffixTrieTailBuilder;
  *
  * @param <T>
  */
-public class MapTailDoubleArray<T> extends AbstractTermIdMapTrie<T> implements MapTrie<T>{
+public class MapTailDoubleArray<T>
+extends AbstractTermIdMapTrie<T>
+implements Externalizable, MapTrie<T>{
 	public MapTailDoubleArray() {
 	}
 

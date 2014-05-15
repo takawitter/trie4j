@@ -15,13 +15,17 @@
  */
 package org.trie4j.louds;
 
+import java.io.Serializable;
+
 import org.trie4j.Trie;
 import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.tail.TailArray;
 
-public class TailLOUDSPPTrie extends AbstractTailLOUDSTrie implements Trie {
+public class TailLOUDSPPTrie
+extends AbstractTailLOUDSTrie
+implements Serializable, Trie {
 	public TailLOUDSPPTrie(){
 		this(new PatriciaTrie());
 	}
