@@ -329,6 +329,26 @@ implements Serializable, Trie{
 		return tailBuilder;
 	}
 
+	protected Node newNode(){
+		return new Node();
+	}
+
+	protected Node newNode(char firstChar, Node source){
+		return new Node(firstChar, source.getTailIndex(), source.isTerminate(), source.getChildren());
+	}
+
+	protected Node newNode(char firstChar, int tailIndex, boolean terminated) {
+		return new Node(firstChar, tailIndex, terminated);
+	}
+
+	protected Node newNode(char firstChar, int tailIndex, boolean terminated, Node[] children) {
+		return new Node(firstChar, tailIndex, terminated, children);
+	}
+
+	protected Node[] newNodeArray(Node... nodes){
+		return nodes;
+	}
+
 	private int size;
 	private Node root = new Node();
 	private TailBuilder tailBuilder;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.tail;
+package org.trie4j.doublearray;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.trie4j.AbstractWikipediaTest;
+import org.trie4j.Trie;
+import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 
-public class ConcatTailArrayTest {
-	@Test
-	public void test_tailtrie_1() throws Exception{
-		TailArray tb = new ConcatTailArray(0);
-		tb.append("hello", 0, 5);
-		tb.append("mello", 0, 5);
-		TailCharIterator it = tb.newIterator();
-		it.setOffset(tb.getIteratorOffset(0));
-		Assert.assertEquals("hello", TailUtil.readAll(it));
-		it.setOffset(tb.getIteratorOffset(1));
-		Assert.assertEquals("mello", TailUtil.readAll(it));
+public class TailDoubleArrayWithSuffixTrieTailBuilderWikipediaTest extends AbstractWikipediaTest{
+	@Override
+	protected Trie buildSecondTrie(Trie first) {
+		return new TailDoubleArray(first, new SuffixTrieTailBuilder());
 	}
 }

@@ -16,9 +16,9 @@
 package org.trie4j.tail.builder;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import org.trie4j.tail.TailBuilder;
+import org.trie4j.util.CharsCharSequence;
 
 
 public class SuffixTrieTailBuilder
@@ -47,15 +47,12 @@ implements Serializable, TailBuilder{
 
 	@Override
 	public int insert(CharSequence letters, int offset, int len){
-//		letters = Arrays.copyOfRange(letters, offset, offset + len);
 		if(root == null){
 			tails.append(letters, offset, offset + len).append('\0');
 			root = new Node(0, len - 1);
 			return 0;
 		}
-//		Node responsibleNode = root.insertChild(tails, 0, letters, letters.length - 1);
-		letters = letters.subSequence(offset, offset + len);
-		Node responsibleNode = root.insertChild(tails, 0, letters, letters.length() - 1);
+		Node responsibleNode = root.insertChild(tails, 0, letters, offset, offset + len - 1);
 		if(root.getParent() != null){
 			root = root.getParent();
 		}
@@ -69,13 +66,13 @@ implements Serializable, TailBuilder{
 
 	@Override
 	public int insert(char[] letters, int offset, int len){
-		letters = Arrays.copyOfRange(letters, offset, offset + len);
+		CharSequence lettersSeq = new CharsCharSequence(letters, offset, offset + len);
 		if(root == null){
-			tails.append(letters).append('\0');
-			root = new Node(0, letters.length - 1);
+			tails.append(lettersSeq).append('\0');
+			root = new Node(0, lettersSeq.length() - 1);
 			return 0;
 		}
-		Node responsibleNode = root.insertChild(tails, 0, new StringBuilder().append(letters), letters.length - 1);
+		Node responsibleNode = root.insertChild(tails, 0, lettersSeq, 0, lettersSeq.length() - 1);
 		if(root.getParent() != null){
 			root = root.getParent();
 		}
@@ -139,9 +136,9 @@ implements Serializable, TailBuilder{
 		 * @param offset
 		 * @return
 		 */
-		public Node insertChild(StringBuilder tails, int childIndex, CharSequence letters, int offset){
+		public Node insertChild(StringBuilder tails, int childIndex, CharSequence letters, int begin, int offset){
 			int matchedCount = 0;
-			int lettersRest = offset + 1;
+			int lettersRest = offset + 1 - begin;
 			int thisLettersLength = this.last - this.first + 1;
 			int n = Math.min(lettersRest, thisLettersLength);
 			int c = 0;
@@ -172,7 +169,7 @@ implements Serializable, TailBuilder{
 							Node child = children[index];
 							c = letters.charAt(offset - matchedCount) - tails.charAt(child.last);
 							if(c == 0){
-								return child.insertChild(tails, index, letters, offset - matchedCount);
+								return child.insertChild(tails, index, letters, begin, offset - matchedCount);
 							}
 							if(c < 0){
 								end = index;
@@ -193,13 +190,13 @@ implements Serializable, TailBuilder{
 							c = letters.charAt(offset - matchedCount) - tails.charAt(child.last);
 							if(c < 0) break;
 							if(c == 0){
-								return child.insertChild(tails, index, letters, offset - matchedCount);
+								return child.insertChild(tails, index, letters, begin, offset - matchedCount);
 							}
 						}
 					}
-					return addChild(tails, index, letters, offset, matchedCount);
+					return addChild(tails, index, letters, begin, offset, matchedCount);
 				} else{
-					return addChild(tails, 0, letters, offset, matchedCount);
+					return addChild(tails, 0, letters, begin, offset, matchedCount);
 				}
 			}
 
@@ -208,14 +205,14 @@ implements Serializable, TailBuilder{
 					this.last - matchedCount + 1, this.last, this.parent, newParentsChildren
 					);
 			int newChildFirst = tails.length();
-			tails.append(letters, 0, lettersRest - matchedCount);
+			tails.append(letters, begin, begin + lettersRest - matchedCount);
 			int newChildLast = tails.length() - 1;
 			if(matchedCount == 0){
 				tails.append('\0');
 	//*
 			} else if(matchedCount < 3){
 				// make the copy of matched characters because those are too short to share.
-				tails.append(letters, lettersRest - matchedCount, lettersRest);
+				tails.append(letters, begin + lettersRest - matchedCount, begin + lettersRest);
 				int cont = this.last + 1;
 				if(tails.charAt(cont) == '\0'){
 					tails.append('\0');
@@ -261,9 +258,9 @@ implements Serializable, TailBuilder{
 			this.children = children;
 		}
 
-		private Node addChild(StringBuilder tails, int index, CharSequence letters, int offset, int matchedCount){
+		private Node addChild(StringBuilder tails, int index, CharSequence letters, int min, int offset, int matchedCount){
 			int newFirst = tails.length();
-			tails.append(letters, 0, offset - matchedCount + 1);
+			tails.append(letters, min, offset - matchedCount + 1);
 			int newLast = tails.length() - 1;
 			if(matchedCount == 0){
 				tails.append('\0');

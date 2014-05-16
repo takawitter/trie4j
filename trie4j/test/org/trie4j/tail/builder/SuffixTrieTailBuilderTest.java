@@ -22,8 +22,8 @@ public class SuffixTrieTailBuilderTest {
 	@Test
 	public void test_tailtrie_1() throws Exception{
 		SuffixTrieTailBuilder tb = new SuffixTrieTailBuilder();
-		tb.insert("hello".toCharArray());
-		tb.insert("mello".toCharArray());
+		tb.insert("hello");
+		tb.insert("mello");
 		SuffixTrieTailBuilder.Node root = tb.getRoot();
 		Assert.assertNotNull(root);
 		Assert.assertNotNull(root.getChildren());
@@ -35,8 +35,8 @@ public class SuffixTrieTailBuilderTest {
 	@Test
 	public void test_tailtrie_2() throws Exception{
 		SuffixTrieTailBuilder tb = new SuffixTrieTailBuilder();
-		tb.insert("world".toCharArray());
-		tb.insert("helloworld".toCharArray());
+		tb.insert("world");
+		tb.insert("helloworld");
 		SuffixTrieTailBuilder.Node root = tb.getRoot();
 		Assert.assertNotNull(root);
 		Assert.assertNotNull(root.getChildren());
@@ -47,9 +47,9 @@ public class SuffixTrieTailBuilderTest {
 	@Test
 	public void test_tailtrie_3() throws Exception{
 		SuffixTrieTailBuilder tb = new SuffixTrieTailBuilder();
-		tb.insert("world".toCharArray());
-		tb.insert("hellorld".toCharArray());
-		tb.insert("bold".toCharArray());
+		tb.insert("world");
+		tb.insert("hellorld");
+		tb.insert("bold");
 		SuffixTrieTailBuilder.Node root = tb.getRoot();
 		Assert.assertNotNull(root);
 		Assert.assertNotNull(root.getChildren());

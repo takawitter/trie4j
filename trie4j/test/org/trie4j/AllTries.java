@@ -9,6 +9,7 @@ import java.util.TreeSet;
 
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.MapDoubleArray;
+import org.trie4j.doublearray.MapTailDoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.InlinedTailLOUDSPPTrie;
 import org.trie4j.louds.InlinedTailLOUDSTrie;
@@ -217,6 +218,16 @@ public class AllTries {
 					return new TailDoubleArray(trie, new ConcatTailBuilder());
 				}
 			},
+			new MapTrieProcess2("MapTailDoubleArray(suffixTrieTail)") {
+				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
+					return new MapTailDoubleArray<Integer>(trie, new SuffixTrieTailBuilder());
+				}
+			},
+			new MapTrieProcess2("MapTailDoubleArray(concatTail)") {
+				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
+					return new MapTailDoubleArray<Integer>(trie, new ConcatTailBuilder());
+				}
+			},
 //*/
 /*
 			new TrieProcess2("LOUDSTrie"){
@@ -240,7 +251,7 @@ public class AllTries {
 					return new TailLOUDSTrie(trie, new SBVConcatTailArray(trie.size()));
 				}
 			},
-			new MapTrieProcess2("MapTailLOUDSTrie(concatTail,arrayTI") {
+			new MapTrieProcess2("MapTailLOUDSTrie(concatTail,arrayTI)") {
 				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
 					return new MapTailLOUDSTrie<Integer>(trie, new ConcatTailArray(trie.size()));
 				}
@@ -260,7 +271,7 @@ public class AllTries {
 					return new TailLOUDSPPTrie(trie, new SBVConcatTailArray(trie.size()));
 				}
 			},
-			new MapTrieProcess2("MapTailLOUDSPPTrie(concatTail,arrayTI") {
+			new MapTrieProcess2("MapTailLOUDSPPTrie(concatTail,arrayTI)") {
 				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
 					return new MapTailLOUDSPPTrie<Integer>(trie, new ConcatTailArray(trie.size()));
 				}

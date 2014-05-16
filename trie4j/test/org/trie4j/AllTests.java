@@ -18,6 +18,8 @@ package org.trie4j;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.trie4j.bv.BitVectorUtilTest;
+import org.trie4j.bv.Rank0OnlySuccinctBitVectorTest;
+import org.trie4j.bv.Rank1OnlySuccinctBitVectorTest;
 import org.trie4j.doublearray.DoubleArrayTest;
 import org.trie4j.doublearray.MapDoubleArrayTest;
 import org.trie4j.doublearray.MapTailDoubleArrayTest;
@@ -40,19 +42,23 @@ import org.trie4j.tail.ConcatTailArrayTest;
 import org.trie4j.tail.builder.SuffixTrieTailBuilderTest;
 import org.trie4j.tail.index.ArrayTailIndexTest;
 import org.trie4j.tail.index.SBVTailIndexTest;
+import org.trie4j.util.CharsCharSequenceTest;
 import org.trie4j.util.FastBitSetTest;
 import org.trie4j.util.SuccinctBitVectorTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	FastBitSetTest.class,
-	SuffixTrieTailBuilderTest.class,
-	ArrayTailIndexTest.class,
-	SBVTailIndexTest.class,
-	ConcatTailArrayTest.class,
-	SuccinctBitVectorTest.class,
-	BitVectorUtilTest.class,
 	AlgorithmsTest.class,
+	ArrayTailIndexTest.class,
+	BitVectorUtilTest.class,
+	ConcatTailArrayTest.class,
+	CharsCharSequenceTest.class,
+	FastBitSetTest.class,
+	Rank0OnlySuccinctBitVectorTest.class,
+	Rank1OnlySuccinctBitVectorTest.class,
+	SBVTailIndexTest.class,
+	SuccinctBitVectorTest.class,
+	SuffixTrieTailBuilderTest.class,
 	PatriciaTrieTest.class,
 	MapPatriciaTrieTest.class,
 	TailPatriciaTrieWithConcatTailBuilderTest.class,
