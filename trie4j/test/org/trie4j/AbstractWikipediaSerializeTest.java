@@ -21,6 +21,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.junit.Test;
+import org.trie4j.doublearray.TailDoubleArray;
+import org.trie4j.louds.AbstractTailLOUDSTrie;
 import org.trie4j.patricia.tail.TailPatriciaTrie;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
@@ -32,7 +34,6 @@ public abstract class AbstractWikipediaSerializeTest{
 	protected Trie secondTrie(Trie first){
 		return first;
 	}
-	
 
 	@Test
 	public void test() throws Exception{
@@ -52,8 +53,22 @@ public abstract class AbstractWikipediaSerializeTest{
 		long rd = lt.lapMillis();
 		wt.assertAllContains(t);
 		System.out.println(String.format(
-				"%s, size: %d, write(ms): %d, read(ms): %d, verified.",
-				trie.getClass().getSimpleName(), serialized.length, wd, rd
+				"%s%s, size: %d, write(ms): %d, read(ms): %d, verified.",
+				trie.getClass().getSimpleName(),
+				getTailClassName(trie),
+				serialized.length, wd, rd
 				));
+	}
+
+	static String getTailClassName(Trie trie){
+		if(trie instanceof TailPatriciaTrie){
+			return "(" + ((TailPatriciaTrie) trie).getTailBuilder().getClass().getSimpleName() + ")";
+		} else if(trie instanceof TailDoubleArray){
+			return "(unknown)";
+		} else if(trie instanceof AbstractTailLOUDSTrie){
+			return "(" + ((AbstractTailLOUDSTrie) trie).getTailArray().getClass().getSimpleName() + ")";
+		} else{
+			return "";
+		}
 	}
 }

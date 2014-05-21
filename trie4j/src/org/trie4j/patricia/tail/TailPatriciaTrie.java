@@ -15,6 +15,8 @@
  */
 package org.trie4j.patricia.tail;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,10 +45,22 @@ implements Serializable, Trie{
 	}
 
 	public TailPatriciaTrie(Trie orig, TailBuilder builder){
-		this(builder);
-		for(String s : orig.predictiveSearch("")){
-			insert(s);
+		this.tailBuilder = builder;
+		this.tails = builder.getTails();
+		this.root = cloneNode(orig.getRoot());
+		trimToSize();
+	}
+
+	private Node cloneNode(org.trie4j.Node node){
+		char[] letters = node.getLetters();
+		char fc = letters.length == 0 ? (char)0xffff : letters[0];
+		int ti = letters.length < 2 ? -1 : tailBuilder.insert(letters, 1, letters.length - 1);
+		org.trie4j.Node[] orgChildren = node.getChildren();
+		Node[] children = newNodeArray(orgChildren.length);
+		for(int i = 0; i < children.length; i++){
+			children[i] = cloneNode(orgChildren[i]);
 		}
+		return new Node(fc, ti, node.isTerminate(), children);
 	}
 
 	@Override
@@ -425,7 +439,9 @@ implements Serializable, Trie{
 
 	@Override
 	public void trimToSize() {
-		((StringBuilder)tails).trimToSize();
+		if(tails instanceof StringBuilder){
+			((StringBuilder)tails).trimToSize();
+		}
 	}
 
 	@Override
@@ -436,6 +452,12 @@ implements Serializable, Trie{
 
 	public TailBuilder getTailBuilder(){
 		return tailBuilder;
+	}
+
+	private void writeObject(ObjectOutputStream out)
+	throws IOException{
+		trimToSize();
+		out.defaultWriteObject();
 	}
 
 	protected Node newNode(){
@@ -452,6 +474,10 @@ implements Serializable, Trie{
 
 	protected Node[] newNodeArray(Node... nodes){
 		return nodes;
+	}
+
+	protected Node[] newNodeArray(int size){
+		return new Node[size];
 	}
 
 	private int size;

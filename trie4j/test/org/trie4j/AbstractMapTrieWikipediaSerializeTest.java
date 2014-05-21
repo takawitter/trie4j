@@ -21,7 +21,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.junit.Test;
+import org.trie4j.doublearray.MapTailDoubleArray;
 import org.trie4j.patricia.simple.MapPatriciaTrie;
+import org.trie4j.patricia.tail.MapTailPatriciaTrie;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 
@@ -56,8 +58,24 @@ extends AbstractWikipediaSerializeTest{
 		long rd = lt.lapMillis();
 		wt.assertAllContains(t);
 		System.out.println(String.format(
-				"%s, size: %d, write(ms): %d, read(ms): %d, verified.",
-				trie.getClass().getSimpleName(), serialized.length, wd, rd
+				"%s%s, size: %d, write(ms): %d, read(ms): %d, verified.",
+				trie.getClass().getSimpleName(),
+				getTailClassName(trie),
+				serialized.length, wd, rd
 				));
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static String getTailClassName(MapTrie<?> trie){
+		if(trie instanceof MapTailPatriciaTrie){
+			return "(" + ((MapTailPatriciaTrie) trie).getTailBuilder().getClass().getSimpleName() + ")";
+		} else if(trie instanceof MapTailDoubleArray){
+			return "(unknown)";
+		} else if(trie instanceof AbstractTermIdMapTrie){
+			Trie orig = ((AbstractTermIdMapTrie) trie).getTrie();
+			return getTailClassName(orig);
+		} else{
+			return "";
+		}
 	}
 }

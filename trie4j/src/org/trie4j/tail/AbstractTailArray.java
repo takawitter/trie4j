@@ -85,6 +85,7 @@ implements Externalizable, TailArray{
 
 	@Override
 	public void freeze() {
+		trimToSize();
 		builder = null;
 	}
 
