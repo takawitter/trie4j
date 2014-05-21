@@ -25,14 +25,6 @@ import org.trie4j.util.Pair;
 
 public class Node
 implements Serializable{
-	public Node() {
-		this((char)0xffff, -1, false);
-	}
-
-	public Node(char firstChar, int tailIndex, boolean terminate) {
-		this(firstChar, tailIndex, terminate, emptyChildren);
-	}
-
 	public Node(char firstChar, int tailIndex, boolean terminate, Node[] children) {
 		this.firstChar = firstChar;
 		this.tailIndex = tailIndex;
@@ -182,6 +174,5 @@ implements Serializable{
 	private int tailIndex;
 	private boolean terminate;
 	private Node[] children;
-	private static Node[] emptyChildren = {};
 	private static final long serialVersionUID = -4622654571874519425L;
 }

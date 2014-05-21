@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.louds;
+package org.trie4j.doublearray;
 
 import org.trie4j.AbstractMapTrieWikipediaSerializeTest;
 import org.trie4j.MapTrie;
+import org.trie4j.tail.builder.ConcatTailBuilder;
 
-public class MapTailLOUDSTrieWikipediaSerializeTest
+public class MapTailDoubleArrayWithConcatTailBuilderWikipediaSerializeTest
 extends AbstractMapTrieWikipediaSerializeTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailLOUDSTrie<Integer>(firstTrie);
+		return new MapTailDoubleArray<Integer>(firstTrie, new ConcatTailBuilder());
 	}
 }

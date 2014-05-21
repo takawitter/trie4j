@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.tail;
+package org.trie4j.patricia.tail;
 
+import org.trie4j.AbstractMapTrieTest;
+import org.trie4j.MapTrie;
 import org.trie4j.tail.builder.ConcatTailBuilder;
-import org.trie4j.tail.index.SBVTailIndex;
 
-public class SBVConcatTailArray extends AbstractTailArray implements TailArray{
-	public SBVConcatTailArray() {
-		super();
-	}
-
-	public SBVConcatTailArray(int initialCapacity) {
-		super(initialCapacity);
-	}
-
+public class MapTailPatriciaTrieWithConcatTailBuilderTest extends AbstractMapTrieTest{
 	@Override
-	protected TailBuilder newTailBuilder(StringBuilder tails) {
-		return new ConcatTailBuilder(tails);
-	}
-	@Override
-	protected TailIndex newTailIndex(int initialCapacity) {
-		return new SBVTailIndex(initialCapacity);
+	protected MapTrie<Integer> createFirstTrie() {
+		return new MapTailPatriciaTrie<Integer>(new ConcatTailBuilder());
 	}
 }

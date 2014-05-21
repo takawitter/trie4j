@@ -22,20 +22,29 @@ import org.trie4j.bv.Rank0OnlySuccinctBitVectorTest;
 import org.trie4j.bv.Rank1OnlySuccinctBitVectorTest;
 import org.trie4j.doublearray.DoubleArrayTest;
 import org.trie4j.doublearray.MapDoubleArrayTest;
-import org.trie4j.doublearray.MapTailDoubleArrayTest;
+import org.trie4j.doublearray.MapTailDoubleArrayWithConcatTailBuilderTest;
+import org.trie4j.doublearray.MapTailDoubleArrayWithSuffixTrieTailBuilderTest;
 import org.trie4j.doublearray.OptimizedTailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithSuffixTrieTailBuilderTest;
 import org.trie4j.louds.LOUDSTrieTest;
-import org.trie4j.louds.MapTailLOUDSPPTrieTest;
-import org.trie4j.louds.MapTailLOUDSTrieTest;
-import org.trie4j.louds.TailLOUDSPPTrieWithConcatTailBuilderTest;
-import org.trie4j.louds.TailLOUDSPPTrieWithSuffixTrieTailBuilderTest;
-import org.trie4j.louds.TailLOUDSTrieWithConcatTailBuilderTest;
-import org.trie4j.louds.TailLOUDSTrieWithSuffixTrieTailBuilderTest;
+import org.trie4j.louds.MapTailLOUDSPPTrieWithConcatTailArrayTest;
+import org.trie4j.louds.MapTailLOUDSPPTrieWithSBVConcatTailArrayTest;
+import org.trie4j.louds.MapTailLOUDSPPTrieWithSuffixTrieTailArrayTest;
+import org.trie4j.louds.MapTailLOUDSTrieWithConcatTailArrayTest;
+import org.trie4j.louds.MapTailLOUDSTrieWithSBVConcatTailArrayTest;
+import org.trie4j.louds.MapTailLOUDSTrieWithSuffixTrieTailArrayTest;
+import org.trie4j.louds.TailLOUDSPPTrieWithConcatTailArrayTest;
+import org.trie4j.louds.TailLOUDSPPTrieWithSBVConcatTailArrayTest;
+import org.trie4j.louds.TailLOUDSPPTrieWithSuffixTrieTailArrayTest;
+import org.trie4j.louds.TailLOUDSTrieWithConcatTailArrayTest;
+import org.trie4j.louds.TailLOUDSTrieWithSBVConcatTailArrayTest;
+import org.trie4j.louds.TailLOUDSTrieWithSuffixTrieTailArrayTest;
 import org.trie4j.patricia.simple.MapPatriciaTrieTest;
 import org.trie4j.patricia.simple.PatriciaTrieTest;
+import org.trie4j.patricia.tail.MapTailPatriciaTrieWithConcatTailBuilderTest;
+import org.trie4j.patricia.tail.MapTailPatriciaTrieWithSuffixTrieTailBuilderTest;
 import org.trie4j.patricia.tail.TailPatriciaTrieWithConcatTailBuilderTest;
 import org.trie4j.patricia.tail.TailPatriciaTrieWithSuffixTrieTailBuilderTest;
 import org.trie4j.tail.ConcatTailArrayTest;
@@ -63,20 +72,29 @@ import org.trie4j.util.SuccinctBitVectorTest;
 	MapPatriciaTrieTest.class,
 	TailPatriciaTrieWithConcatTailBuilderTest.class,
 	TailPatriciaTrieWithSuffixTrieTailBuilderTest.class,
+	MapTailPatriciaTrieWithConcatTailBuilderTest.class,
+	MapTailPatriciaTrieWithSuffixTrieTailBuilderTest.class,
 	DoubleArrayTest.class,
+	MapDoubleArrayTest.class,
 	TailDoubleArrayWithConcatTailBuilderTest.class,
 	TailDoubleArrayWithSuffixTrieTailBuilderTest.class,
+	MapTailDoubleArrayWithConcatTailBuilderTest.class,
+	MapTailDoubleArrayWithSuffixTrieTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithConcatTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest.class,
-	MapDoubleArrayTest.class,
-	MapTailDoubleArrayTest.class,
 	LOUDSTrieTest.class,
-	TailLOUDSTrieWithConcatTailBuilderTest.class,
-	TailLOUDSTrieWithSuffixTrieTailBuilderTest.class,
-	TailLOUDSPPTrieWithConcatTailBuilderTest.class,
-	TailLOUDSPPTrieWithSuffixTrieTailBuilderTest.class,
-	MapTailLOUDSTrieTest.class,
-	MapTailLOUDSPPTrieTest.class,
+	TailLOUDSTrieWithConcatTailArrayTest.class,
+	TailLOUDSTrieWithSBVConcatTailArrayTest.class,
+	TailLOUDSTrieWithSuffixTrieTailArrayTest.class,
+	MapTailLOUDSTrieWithConcatTailArrayTest.class,
+	MapTailLOUDSTrieWithSBVConcatTailArrayTest.class,
+	MapTailLOUDSTrieWithSuffixTrieTailArrayTest.class,
+	TailLOUDSPPTrieWithConcatTailArrayTest.class,
+	TailLOUDSPPTrieWithSBVConcatTailArrayTest.class,
+	TailLOUDSPPTrieWithSuffixTrieTailArrayTest.class,
+	MapTailLOUDSPPTrieWithConcatTailArrayTest.class,
+	MapTailLOUDSPPTrieWithSBVConcatTailArrayTest.class,
+	MapTailLOUDSPPTrieWithSuffixTrieTailArrayTest.class,
 })
 public class AllTests {
 }

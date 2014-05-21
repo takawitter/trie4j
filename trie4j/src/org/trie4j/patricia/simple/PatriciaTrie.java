@@ -284,10 +284,6 @@ implements Serializable, Trie{
 		return new Node(letters, terminated);
 	}
 
-	protected Node newNode(char[] letters, boolean terminated, Node[] children) {
-		return new Node(letters, terminated, children);
-	}
-
 	protected Node[] newNodeArray(Node... nodes){
 		return nodes;
 	}

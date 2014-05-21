@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.doublearray;
+package org.trie4j.louds;
 
-import org.trie4j.AbstractMapTrieTest;
-import org.trie4j.MapTrie;
+import org.trie4j.AbstractWikipediaTest;
+import org.trie4j.Trie;
+import org.trie4j.tail.SuffixTrieTailArray;
 
-public class MapTailDoubleArrayTest extends AbstractMapTrieTest{
+public class TailLOUDSPPTrieWithSuffixTrieTailArrayWikipediaTest extends AbstractWikipediaTest{
 	@Override
-	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailDoubleArray<Integer>(firstTrie);
+	protected Trie buildSecondTrie(Trie first) {
+		return new TailLOUDSPPTrie(first, new SuffixTrieTailArray(first.size()));
 	}
 }

@@ -21,21 +21,21 @@ import org.trie4j.MapTrie;
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.patricia.simple.MapPatriciaTrie;
+import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.test.WikipediaTitles;
 
-public class MapTailLOUDSTrieTest extends AbstractMapTrieTest{
+public class MapTailLOUDSTrieWithConcatTailArrayTest extends AbstractMapTrieTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailLOUDSTrie<Integer>(firstTrie);
+		return new MapTailLOUDSTrie<Integer>(firstTrie, new ConcatTailArray());
 	}
 
 	public void investigate1() throws Exception{
-		String wikipediaFilename = "data/jawiki-20140416-all-titles-in-ns0.gz";
 		int start = 0;
 		int end = 2000000;
 		int i = 0;
 		MapTrie<Integer> trie = new MapPatriciaTrie<Integer>();
-		for(String s : new WikipediaTitles(wikipediaFilename)){
+		for(String s : new WikipediaTitles()){
 			if(i >= end){
 				break;
 			} else if(i >= start){
@@ -46,7 +46,7 @@ public class MapTailLOUDSTrieTest extends AbstractMapTrieTest{
 		i = 0;
 		MapTailLOUDSTrie<Integer> v = new MapTailLOUDSTrie<Integer>(trie);
 //		TailLOUDSTrie tlt = (TailLOUDSTrie)v.getTrie();
-		for(String s : new WikipediaTitles(wikipediaFilename)){
+		for(String s : new WikipediaTitles()){
 			if(i >= end){
 				break;
 			} else if(i >= start){

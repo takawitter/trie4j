@@ -25,7 +25,11 @@ implements Externalizable, TailArray{
 	protected abstract TailBuilder newTailBuilder(StringBuilder tails);
 	protected abstract TailIndex newTailIndex(int initialCapacity);
 
-	public AbstractTailArray(int initialCapacity) {
+	public AbstractTailArray(){
+		this(1024);
+	}
+
+	public AbstractTailArray(int initialCapacity){
 		builder = newTailBuilder(tails);
 		index = newTailIndex(initialCapacity);
 	}

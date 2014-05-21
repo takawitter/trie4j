@@ -15,13 +15,13 @@
  */
 package org.trie4j.louds;
 
-import org.trie4j.AbstractWikipediaSerializeTest;
-import org.trie4j.Trie;
+import org.trie4j.AbstractMapTrieWikipediaTest;
+import org.trie4j.MapTrie;
+import org.trie4j.tail.SuffixTrieTailArray;
 
-public class TailLOUDSPPTrieWikipediaSerializeTest
-extends AbstractWikipediaSerializeTest{
+public class MapTailLOUDSTrieWithSuffixTrieTailArrayWikipediaTest extends AbstractMapTrieWikipediaTest{
 	@Override
-	protected Trie secondTrie(Trie orig) {
-		return new TailLOUDSPPTrie(orig);
+	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
+		return new MapTailLOUDSPPTrie<Integer>(firstTrie, new SuffixTrieTailArray());
 	}
 }

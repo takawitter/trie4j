@@ -89,12 +89,6 @@ implements Serializable, MapTrie<T>{
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected MapNode<T> newNode(char[] letters, boolean terminated, Node[] children) {
-		return new MapNode<T>(letters, terminated, (MapNode<T>[])children);
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
 	protected MapNode<T>[] newNodeArray(Node... nodes){
 		MapNode<T>[] ret = new MapNode[nodes.length];
 		System.arraycopy(nodes, 0, ret, 0, nodes.length);

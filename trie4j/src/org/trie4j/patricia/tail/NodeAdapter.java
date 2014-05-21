@@ -20,6 +20,11 @@ public class NodeAdapter implements org.trie4j.Node{
 		this.node = node;
 		this.tails = tails;
 	}
+
+	public Node getNode() {
+		return node;
+	}
+
 	@Override
 	public org.trie4j.Node getChild(char c) {
 		Node n = node.getChild(c);

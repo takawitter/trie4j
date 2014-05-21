@@ -80,6 +80,30 @@ implements Serializable, Trie{
 		return node.isTerminate();
 	}
 
+	public Node getNode(String text) {
+		Node node = root;
+		FastTailCharIterator it = new FastTailCharIterator(tails, -1);
+		int n = text.length();
+		for(int i = 0; i < n; i++){
+			node = node.getChild(text.charAt(i));
+			if(node == null) return null;
+			int ti = node.getTailIndex();
+			if(ti == -1) continue;
+			it.setIndex(node.getTailIndex());
+			char c;
+			while((c = it.getNext()) != '\0'){
+				i++;
+				if(i == n) return null;
+				if(text.charAt(i) != c) return null;
+			}
+		}
+		return node;
+	}
+
+	public CharSequence getTails() {
+		return tails;
+	}
+
 	@Override
 	public int findWord(CharSequence chars, int start, int end, StringBuilder word){
 		TailCharIterator it = new TailCharIterator(tails, -1);
@@ -171,14 +195,64 @@ implements Serializable, Trie{
 		};
 	}
 
-	private void enumLetters(Node node, String prefix, List<String> letters){
-		Node[] children = node.getChildren();
-		if(children == null) return;
-		for(Node child : children){
-			String text = prefix + new String(child.getLetters(tails));
-			if(child.isTerminate()) letters.add(text);
-			enumLetters(child, text, letters);
-		}
+	public Iterable<Pair<String, Node>> commonPrefixSearchWithNode(final String query) {
+		if(query.length() == 0) return new ArrayList<Pair<String, Node>>(0);
+		return new Iterable<Pair<String, Node>>(){
+			@Override
+			public Iterator<Pair<String, Node>> iterator() {
+				return new Iterator<Pair<String, Node>>() {
+					private int cur;
+					private StringBuilder currentChars = new StringBuilder();
+					private Node current = root;
+					private Pair<String, Node> next;
+					{
+						cur = 0;
+						findNext();
+					}
+					private void findNext(){
+						next = null;
+						while(next == null){
+							if(query.length() <= cur) return;
+							Node child = current.getChild(query.charAt(cur));
+							if(child == null) return;
+							int rest = query.length() - cur;
+							char[] letters = child.getLetters(tails);
+							int len = letters.length;
+							if(rest < len) return;
+							for(int i = 1; i < len; i++){
+								int c = letters[i] - query.charAt(cur + i);
+								if(c != 0) return;
+							}
+
+							String b = query.substring(cur, cur + len);
+							cur += len;
+							currentChars.append(b);
+							if(child.isTerminate()){
+								next = Pair.create(currentChars.toString(), child);
+							}
+							current = child;
+						}
+					}
+					@Override
+					public boolean hasNext() {
+						return next != null;
+					}
+					@Override
+					public Pair<String, Node> next() {
+						Pair<String, Node> ret = next;
+						if(ret == null){
+							throw new NoSuchElementException();
+						}
+						findNext();
+						return ret;
+					}
+					@Override
+					public void remove() {
+						throw new UnsupportedOperationException();
+					}
+				};
+			}
+		};
 	}
 
 	@Override
@@ -207,22 +281,60 @@ implements Serializable, Trie{
 		return Collections.emptyList();
 	}
 
+	public Iterable<Pair<String, Node>> predictiveSearchWithNode(String prefix) {
+		char[] queryChars = prefix.toCharArray();
+		int cur = 0;
+		Node node = root;
+		while(node != null){
+			char[] letters = node.getLetters(tails);
+			int n = Math.min(letters.length, queryChars.length - cur);
+			for(int i = 0; i < n; i++){
+				if(letters[i] != queryChars[cur + i]){
+					return Collections.emptyList();
+				}
+			}
+			cur += n;
+			if(queryChars.length == cur){
+				List<Pair<String, Node>> ret = new ArrayList<Pair<String, Node>>();
+				prefix += new String(letters, n, letters.length - n);
+				if(node.isTerminate()) ret.add(Pair.create(prefix, node));
+				enumLettersWithNode(node, prefix, ret);
+				return ret;
+			}
+			node = node.getChild(queryChars[cur]);
+		}
+		return Collections.emptyList();
+	}
+
+	private void enumLetters(Node node, String prefix, List<String> letters){
+		Node[] children = node.getChildren();
+		if(children == null) return;
+		for(Node child : children){
+			String text = prefix + new String(child.getLetters(tails));
+			if(child.isTerminate()) letters.add(text);
+			enumLetters(child, text, letters);
+		}
+	}
+
+	private void enumLettersWithNode(Node node, String prefix, List<Pair<String, Node>> letters){
+		Node[] children = node.getChildren();
+		if(children == null) return;
+		for(Node child : children){
+			String text = prefix + new String(child.getLetters(tails));
+			if(child.isTerminate()) letters.add(Pair.create(text, child));
+			enumLettersWithNode(child, text, letters);
+		}
+	}
+
 	@Override
 	public void insert(String text){
 		if(tailBuilder == null){
 			throw new UnsupportedOperationException("insert isn't permitted for freezed trie");
 		}
 		insert(root, text, 0);
-/*		char[] letters = text.toCharArray();
-		if(letters.length == 0){
-			root.setTerminate(true);
-		} else{
-			root = root.insertChild(letters,  0, tails, tailBuilder);
-		}
-*/
 	}
 
-	private void insert(Node node, String letters, int offset){
+	protected Node insert(Node node, String letters, int offset){
 		TailCharIterator it = new TailCharIterator(tails, node.getTailIndex());
 		int count = 0;
 		boolean matchComplete = true;
@@ -244,14 +356,15 @@ implements Serializable, Trie{
 				if(!it.hasNext()){
 					idx = -1;
 				}
-				Node newChild = new Node(c, idx, node.isTerminate(), node.getChildren());
+				Node newChild = newNode(c, idx, node);
 				node.setTailIndex(
 						(count > 0) ? tailBuilder.insert(letters, offset - count, count)
 								: -1
 						);
-				node.setChildren(new Node[]{newChild});
+				node.setChildren(newNodeArray(newChild));
 				node.setTerminate(true);
 				size++;
+				return node;
 			} else{
 				// n: abc
 				// l: abc
@@ -259,6 +372,7 @@ implements Serializable, Trie{
 					node.setTerminate(true);
 					size++;
 				}
+				return node;
 			}
 		} else{
 			if(!matchComplete){
@@ -270,12 +384,12 @@ implements Serializable, Trie{
 				if(!it.hasNext()){
 					n1Idx = -1;
 				}
-				Node n1 = new Node(n1Fc, n1Idx, node.isTerminate(), node.getChildren());
+				Node n1 = newNode(n1Fc, n1Idx, node);
 				char n2Fc = letters.charAt(offset++);
 				int n2Idx = (offset < lettersLength) ?
 						tailBuilder.insert(letters, offset, lettersLength - offset) :
 						-1;
-				Node n2 = new Node(n2Fc, n2Idx, true);
+				Node n2 = newNode(n2Fc, n2Idx, true);
 				if(count > 0){
 					node.setTailIndex(tailBuilder.insert(letters, firstOffset, count));
 				} else{
@@ -284,31 +398,26 @@ implements Serializable, Trie{
 				node.setTerminate(false);
 				node.setChildren(
 						(n1.getFirstLetter() < n2.getFirstLetter()) ?
-								new Node[]{n1, n2} : new Node[]{n2, n1});
+								newNodeArray(n1, n2) : newNodeArray(n2, n1));
 				size++;
+				return n2;
 			} else{
 				// n: abc
 				// l: abcde
 				char fc = letters.charAt(offset++);
-				if(node.getChildren() == null){
-					int idx = (offset < lettersLength) ?
-							tailBuilder.insert(letters, offset, lettersLength - offset) :
-							-1;
-					node.setChildren(new Node[]{new Node(fc, idx, true)});
-					size++;
+				// find node
+				Pair<Node, Integer> ret = node.findNode(fc);
+				Node child = ret.getFirst();
+				if(child != null){
+					return insert(child, letters, offset);
 				} else{
-					// find node
-					Pair<Node, Integer> ret = node.findNode(fc);
-					Node child = ret.getFirst();
-					if(child != null){
-						insert(child, letters, offset);
-					} else{
-						int idx = (offset < lettersLength) ?
-							tailBuilder.insert(letters, offset, lettersLength - offset) :
-							-1;
-						node.addChild(ret.getSecond(), new Node(fc, idx, true));
-						size++;
-					}
+					int idx = (offset < lettersLength) ?
+						tailBuilder.insert(letters, offset, lettersLength - offset) :
+						-1;
+					Node newNode = newNode(fc, idx, true);
+					node.addChild(ret.getSecond(), newNode);
+					size++;
+					return newNode;
 				}
 			}
 		}
@@ -330,19 +439,15 @@ implements Serializable, Trie{
 	}
 
 	protected Node newNode(){
-		return new Node();
+		return new Node((char)0xffff, -1, false, newNodeArray());
 	}
 
-	protected Node newNode(char firstChar, Node source){
-		return new Node(firstChar, source.getTailIndex(), source.isTerminate(), source.getChildren());
+	protected Node newNode(char firstChar, int tailIndex, Node source){
+		return new Node(firstChar, tailIndex, source.isTerminate(), source.getChildren());
 	}
 
 	protected Node newNode(char firstChar, int tailIndex, boolean terminated) {
-		return new Node(firstChar, tailIndex, terminated);
-	}
-
-	protected Node newNode(char firstChar, int tailIndex, boolean terminated, Node[] children) {
-		return new Node(firstChar, tailIndex, terminated, children);
+		return new Node(firstChar, tailIndex, terminated, newNodeArray());
 	}
 
 	protected Node[] newNodeArray(Node... nodes){
@@ -350,7 +455,7 @@ implements Serializable, Trie{
 	}
 
 	private int size;
-	private Node root = new Node();
+	private Node root = newNode();
 	private TailBuilder tailBuilder;
 	private CharSequence tails;
 	private static final long serialVersionUID = -2084269385978925271L;

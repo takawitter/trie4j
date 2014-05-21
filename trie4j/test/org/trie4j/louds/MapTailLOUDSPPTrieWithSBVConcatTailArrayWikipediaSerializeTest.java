@@ -17,11 +17,12 @@ package org.trie4j.louds;
 
 import org.trie4j.AbstractMapTrieWikipediaSerializeTest;
 import org.trie4j.MapTrie;
+import org.trie4j.tail.SBVConcatTailArray;
 
-public class MapTailLOUDSPPTrieWikipediaSerializeTest
+public class MapTailLOUDSPPTrieWithSBVConcatTailArrayWikipediaSerializeTest
 extends AbstractMapTrieWikipediaSerializeTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailLOUDSPPTrie<Integer>(firstTrie);
+		return new MapTailLOUDSPPTrie<Integer>(firstTrie, new SBVConcatTailArray());
 	}
 }

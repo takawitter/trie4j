@@ -11,12 +11,12 @@ import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.SuffixTrieTailArray;
 
-public class TailLOUDSTrieWithConcatTailBuilderTest extends AbstractTermIdTrieTest{
+public class TailLOUDSPPTrieWithSuffixTrieTailArrayTest extends AbstractTermIdTrieTest{
 	@Override
-	protected TailLOUDSTrie buildSecondTrie(Trie firstTrie) {
-		return new TailLOUDSTrie(firstTrie, new ConcatTailArray(firstTrie.size()));
+	protected TailLOUDSPPTrie buildSecondTrie(Trie firstTrie) {
+		return new TailLOUDSPPTrie(firstTrie, new SuffixTrieTailArray(firstTrie.size()));
 	}
 
 	@Test
@@ -24,8 +24,8 @@ public class TailLOUDSTrieWithConcatTailBuilderTest extends AbstractTermIdTrieTe
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		Trie lt = new TailLOUDSTrie(trie);
-//		System.out.println(lt.getBv());
+		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
+//		System.out.println(lt.getBvTree());
 //		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));
@@ -46,17 +46,19 @@ public class TailLOUDSTrieWithConcatTailBuilderTest extends AbstractTermIdTrieTe
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie();
 		for(String w : words) trie.insert(w);
-		TailLOUDSTrie lt = new TailLOUDSTrie(trie);
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(baos);
-		lt.writeExternal(oos);
-		oos.flush();
-		lt = new TailLOUDSTrie();
-		lt.readExternal(new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())));
-		for(String w : words){
-			Assert.assertTrue(lt.contains(w));
+		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
+		try(
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ObjectOutputStream oos = new ObjectOutputStream(baos)){
+			lt.writeExternal(oos);
+			oos.flush();
+			lt = new TailLOUDSPPTrie();
+			lt.readExternal(new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())));
+			for(String w : words){
+				Assert.assertTrue(lt.contains(w));
+			}
+			Assert.assertFalse(lt.contains("おやすみなさい"));
 		}
-		Assert.assertFalse(lt.contains("おやすみなさい"));
 
 		StringBuilder b = new StringBuilder();
 		Node[] children = lt.getRoot().getChildren();

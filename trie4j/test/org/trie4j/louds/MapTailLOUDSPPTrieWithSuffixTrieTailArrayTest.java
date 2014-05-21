@@ -13,27 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.doublearray;
+package org.trie4j.louds;
 
-import java.io.OutputStreamWriter;
-
-import org.trie4j.AbstractMapTrieWikipediaTest;
+import org.trie4j.AbstractMapTrieTest;
 import org.trie4j.MapTrie;
-import org.trie4j.Trie;
+import org.trie4j.tail.SuffixTrieTailArray;
 
-public class MapTailDoubleArrayWikipediaTest extends AbstractMapTrieWikipediaTest{
+public class MapTailLOUDSPPTrieWithSuffixTrieTailArrayTest extends AbstractMapTrieTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailDoubleArray<Integer>(firstTrie);
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	protected void afterVerification(Trie trie) throws Exception {
-		super.afterVerification(trie);
-		trie.dump(new OutputStreamWriter(System.out));
-		TailDoubleArray da = (TailDoubleArray)((MapTailDoubleArray<Integer>)trie).getTrie();
-		System.out.println("base.length: " + da.getBase().length);
-		System.out.println("term.size: " + da.getTerm().size());
+		return new MapTailLOUDSPPTrie<Integer>(firstTrie, new SuffixTrieTailArray());
 	}
 }
