@@ -136,16 +136,7 @@ implements Externalizable, TermIdTrie{
 		public char[] getLetters() {
 			StringBuilder ret = new StringBuilder();
 			if(firstChar != 0) ret.append(firstChar);
-			int nid = nodeId;
-			while(true){
-				if(term.get(nid)) return ret.toString().toCharArray();
-				CharSequence children = listupChildChars(nid);
-				int n = children.length();
-				if(n == 0 || n > 1) return ret.toString().toCharArray();
-				char c = children.charAt(0);
-				ret.append(c);
-				nid = base[nid] + charToCode[c]; 
-			}
+			return ret.toString().toCharArray();
 		}
 
 		@Override
@@ -524,6 +515,7 @@ implements Externalizable, TermIdTrie{
 		char[] letters = node.getLetters();
 		int lettersLen = letters.length;
 		for(int i = 1; i < lettersLen; i++){
+			bs.unsetIfLE(nodeIndex);
 			int cid = getCharId(letters[i]);
 			int empty = findFirstEmptyCheck();
 			setCheck(empty, nodeIndex);
