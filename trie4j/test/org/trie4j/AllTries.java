@@ -199,7 +199,7 @@ public class AllTries {
 					}
 					for(Constructor<?> c : secondTrieClass.getConstructors()){
 						try{
-							if(c.getParameterCount() == args.length){
+							if(c.getParameterTypes().length == args.length){
 								LapTimer lt = new LapTimer();
 								Object ret = c.newInstance(args);
 								long ms = lt.lapMillis();
@@ -228,7 +228,7 @@ public class AllTries {
 			}
 			for(Constructor<?> c : trieClass.getConstructors()){
 				try{
-					if(c.getParameterCount() == params.length){
+					if(c.getParameterTypes().length == params.length){
 						Trie trie = (Trie)c.newInstance(params);
 						long b = 0;
 						LapTimer lt = new LapTimer();
@@ -297,7 +297,7 @@ public class AllTries {
 					}
 					for(Constructor<?> c : secondTrieClass.getConstructors()){
 						try{
-							if(c.getParameterCount() == args.length){
+							if(c.getParameterTypes().length == args.length){
 								LapTimer lt = new LapTimer();
 								Object ret = c.newInstance(args);
 								long ms = lt.lapMillis();
@@ -328,7 +328,7 @@ public class AllTries {
 			}
 			for(Constructor<?> c : trieClass.getConstructors()){
 				try{
-					if(c.getParameterCount() == params.length){
+					if(c.getParameterTypes().length == params.length){
 						MapTrie<Integer> trie = (MapTrie<Integer>)c.newInstance(params);
 						long b = 0;
 						LapTimer lt = new LapTimer();
