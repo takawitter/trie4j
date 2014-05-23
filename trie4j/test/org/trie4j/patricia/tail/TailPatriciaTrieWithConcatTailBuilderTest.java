@@ -17,6 +17,7 @@ package org.trie4j.patricia.tail;
 
 import org.trie4j.AbstractTrieTest;
 import org.trie4j.Trie;
+import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 
 public class TailPatriciaTrieWithConcatTailBuilderTest extends AbstractTrieTest {

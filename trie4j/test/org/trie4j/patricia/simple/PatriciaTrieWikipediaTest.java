@@ -22,6 +22,7 @@ import org.trie4j.Algorithms;
 import org.trie4j.Node;
 import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
+import org.trie4j.patricia.PatriciaTrie;
 
 public class PatriciaTrieWikipediaTest extends AbstractWikipediaTest{
 	@Override

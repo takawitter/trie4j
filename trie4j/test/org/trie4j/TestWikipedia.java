@@ -18,9 +18,9 @@ package org.trie4j;
 import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 import org.trie4j.patricia.multilayer.node.LabelTrieNode;
-import org.trie4j.patricia.tail.TailPatriciaTrie;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
@@ -41,7 +41,7 @@ public class TestWikipedia {
 	public static void main(String[] args) throws Exception{
 //		Trie trie = new org.trie4j.patricia.simple.PatriciaTrie();
 //		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
-		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie(new ConcatTailBuilder());
+		Trie trie = new org.trie4j.patricia.TailPatriciaTrie(new ConcatTailBuilder());
 		LapTimer t = new LapTimer();
 
 		{

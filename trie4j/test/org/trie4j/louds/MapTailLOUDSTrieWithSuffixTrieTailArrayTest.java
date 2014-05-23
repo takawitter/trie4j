@@ -20,7 +20,7 @@ import org.trie4j.AbstractMapTrieTest;
 import org.trie4j.MapTrie;
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
-import org.trie4j.patricia.simple.MapPatriciaTrie;
+import org.trie4j.patricia.MapPatriciaTrie;
 import org.trie4j.tail.SuffixTrieTailArray;
 import org.trie4j.test.WikipediaTitles;
 

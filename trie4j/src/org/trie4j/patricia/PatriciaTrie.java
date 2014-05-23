@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.simple;
+package org.trie4j.patricia;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ implements Serializable, Trie{
 
 	@Override
 	public boolean contains(String text) {
-		Node node = root;
+		PatriciaTrieNode node = root;
 		int n = text.length();
 		for(int i = 0; i < n; i++){
 			node = node.getChild(text.charAt(i));
@@ -52,8 +52,8 @@ implements Serializable, Trie{
 		return node.isTerminate();
 	}
 
-	public Node getNode(String text){
-		Node node = root;
+	public PatriciaTrieNode getNode(String text){
+		PatriciaTrieNode node = root;
 		int n = text.length();
 		for(int i = 0; i < n; i++){
 			node = node.getChild(text.charAt(i));
@@ -78,7 +78,7 @@ implements Serializable, Trie{
 		List<String> ret = new ArrayList<String>();
 		char[] queryChars = query.toCharArray();
 		int cur = 0;
-		Node node = root;
+		PatriciaTrieNode node = root;
 		while(node != null){
 			char[] letters = node.getLetters();
 			if(letters.length > (queryChars.length - cur)) return ret;
@@ -95,11 +95,11 @@ implements Serializable, Trie{
 		return ret;
 	}
 
-	public Iterable<Pair<String, Node>> commonPrefixSearchWithNode(String query) {
-		List<Pair<String, Node>> ret = new ArrayList<Pair<String, Node>>();
+	public Iterable<Pair<String, PatriciaTrieNode>> commonPrefixSearchWithNode(String query) {
+		List<Pair<String, PatriciaTrieNode>> ret = new ArrayList<Pair<String, PatriciaTrieNode>>();
 		char[] queryChars = query.toCharArray();
 		int cur = 0;
-		Node node = root;
+		PatriciaTrieNode node = root;
 		while(node != null){
 			char[] letters = node.getLetters();
 			if(letters.length > (queryChars.length - cur)) return ret;
@@ -122,7 +122,7 @@ implements Serializable, Trie{
 	public Iterable<String> predictiveSearch(String prefix) {
 		char[] queryChars = prefix.toCharArray();
 		int cur = 0;
-		Node node = root;
+		PatriciaTrieNode node = root;
 		while(node != null){
 			char[] letters = node.getLetters();
 			int n = Math.min(letters.length, queryChars.length - cur);
@@ -147,10 +147,10 @@ implements Serializable, Trie{
 		return Collections.emptyList();
 	}
 
-	public Iterable<Pair<String, Node>> predictiveSearchWithNode(String prefix) {
+	public Iterable<Pair<String, PatriciaTrieNode>> predictiveSearchWithNode(String prefix) {
 		char[] queryChars = prefix.toCharArray();
 		int cur = 0;
-		Node node = root;
+		PatriciaTrieNode node = root;
 		while(node != null){
 			char[] letters = node.getLetters();
 			int n = Math.min(letters.length, queryChars.length - cur);
@@ -161,7 +161,7 @@ implements Serializable, Trie{
 			}
 			cur += n;
 			if(queryChars.length == cur){
-				List<Pair<String, Node>> ret = new ArrayList<Pair<String, Node>>();
+				List<Pair<String, PatriciaTrieNode>> ret = new ArrayList<Pair<String, PatriciaTrieNode>>();
 				int rest = letters.length - n;
 				if(rest > 0){
 					prefix += new String(letters, n, rest);
@@ -179,7 +179,7 @@ implements Serializable, Trie{
 		insert(root, text, 0);
 	}
 
-	protected Node insert(Node node, String letters, int offset){
+	protected PatriciaTrieNode insert(PatriciaTrieNode node, String letters, int offset){
 		int lettersRest = letters.length() - offset;
 		while(true){
 			int thisLettersLength = node.getLetters().length;
@@ -187,10 +187,10 @@ implements Serializable, Trie{
 			int i = 0;
 			while(i < n && (letters.charAt(i + offset) - node.getLetters()[i]) == 0) i++;
 			if(i != n){
-				Node child1 = newNode(
+				PatriciaTrieNode child1 = newNode(
 						Arrays.copyOfRange(node.getLetters(), i, node.getLetters().length)
 						, node);
-				Node child2 = newNode(
+				PatriciaTrieNode child2 = newNode(
 						letters.substring(i + offset).toCharArray()
 						, true);
 				node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
@@ -207,7 +207,7 @@ implements Serializable, Trie{
 				}
 				return node;
 			} else if(lettersRest < thisLettersLength){
-				Node newChild = newNode(
+				PatriciaTrieNode newChild = newNode(
 						Arrays.copyOfRange(node.getLetters(), lettersRest, thisLettersLength)
 						, node);
 				node.setLetters(Arrays.copyOfRange(node.getLetters(), 0, i));
@@ -223,7 +223,7 @@ implements Serializable, Trie{
 					int start = 0;
 					while(start < end){
 						index = (start + end) / 2;
-						Node child = node.getChildren()[index];
+						PatriciaTrieNode child = node.getChildren()[index];
 						int c = letters.charAt(i + offset) - child.getLetters()[0];
 						if(c == 0){
 							node = child;
@@ -243,7 +243,7 @@ implements Serializable, Trie{
 					}
 				} else{
 					for(; index < end; index++){
-						Node child = node.getChildren()[index];
+						PatriciaTrieNode child = node.getChildren()[index];
 						int c = letters.charAt(i + offset) - child.getLetters()[0];
 						if(c < 0) break;
 						if(c == 0){
@@ -256,7 +256,7 @@ implements Serializable, Trie{
 					}
 				}
 				if(cont) continue;
-				Node child = newNode(letters.substring(i + offset).toCharArray(), true);
+				PatriciaTrieNode child = newNode(letters.substring(i + offset).toCharArray(), true);
 				node.addChild(index, child);
 				size++;
 				return child;
@@ -268,36 +268,36 @@ implements Serializable, Trie{
 		root.visit(visitor, 0);
 	}
 
-	public Node getRoot(){
+	public PatriciaTrieNode getRoot(){
 		return root;
 	}
 
-	protected Node newNode(){
-		return new Node();
+	protected PatriciaTrieNode newNode(){
+		return new PatriciaTrieNode();
 	}
 
-	protected Node newNode(char[] letters, Node source){
-		return new Node(letters, source.isTerminate(), source.getChildren());
+	protected PatriciaTrieNode newNode(char[] letters, PatriciaTrieNode source){
+		return new PatriciaTrieNode(letters, source.isTerminate(), source.getChildren());
 	}
 
-	protected Node newNode(char[] letters, boolean terminated) {
-		return new Node(letters, terminated);
+	protected PatriciaTrieNode newNode(char[] letters, boolean terminated) {
+		return new PatriciaTrieNode(letters, terminated);
 	}
 
-	protected Node[] newNodeArray(Node... nodes){
+	protected PatriciaTrieNode[] newNodeArray(PatriciaTrieNode... nodes){
 		return nodes;
 	}
 
-	private static void enumLetters(Node node, String prefix, List<String> letters){
-		for(Node child : node.getChildren()){
+	private static void enumLetters(PatriciaTrieNode node, String prefix, List<String> letters){
+		for(PatriciaTrieNode child : node.getChildren()){
 			String text = prefix + new String(child.getLetters());
 			if(child.isTerminate()) letters.add(text);
 			enumLetters(child, text, letters);
 		}
 	}
 
-	private static void enumLettersWithNode(Node node, String prefix, List<Pair<String, Node>> letters){
-		for(Node child : node.getChildren()){
+	private static void enumLettersWithNode(PatriciaTrieNode node, String prefix, List<Pair<String, PatriciaTrieNode>> letters){
+		for(PatriciaTrieNode child : node.getChildren()){
 			String text = prefix + new String(child.getLetters());
 			if(child.isTerminate()) letters.add(Pair.create(text, node));
 			enumLettersWithNode(child, text, letters);
@@ -305,6 +305,6 @@ implements Serializable, Trie{
 	}
 
 	private int size;
-	private Node root = newNode();
+	private PatriciaTrieNode root = newNode();
 	private static final long serialVersionUID = -7611399538600722195L;
 }

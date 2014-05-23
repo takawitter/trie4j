@@ -17,6 +17,7 @@ package org.trie4j.patricia.simple;
 
 import org.trie4j.AbstractWikipediaSerializeTest;
 import org.trie4j.Trie;
+import org.trie4j.patricia.PatriciaTrie;
 
 public class PatriciaTrieWikipediaSerializeTest
 extends AbstractWikipediaSerializeTest{

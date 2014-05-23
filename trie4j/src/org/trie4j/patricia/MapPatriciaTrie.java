@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.simple;
+package org.trie4j.patricia;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -26,14 +26,14 @@ extends PatriciaTrie
 implements Serializable, MapTrie<T>{
 	@Override
 	@SuppressWarnings("unchecked")
-	public MapNode<T> getRoot(){
-		return (MapNode<T>)super.getRoot();
+	public MapPatriciaTrieNode<T> getRoot(){
+		return (MapPatriciaTrieNode<T>)super.getRoot();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public T insert(String text, T value){
-		MapNode<T> node = (MapNode<T>)insert(getRoot(), text, 0);
+		MapPatriciaTrieNode<T> node = (MapPatriciaTrieNode<T>)insert(getRoot(), text, 0);
 		T ret = node.getValue();
 		node.setValue(value);
 		return ret;
@@ -41,14 +41,14 @@ implements Serializable, MapTrie<T>{
 
 	@Override
 	public T get(String word) {
-		MapNode<T> node = getNode(word);
+		MapPatriciaTrieNode<T> node = getNode(word);
 		if(node == null) return null;
 		return node.getValue();
 	}
 
 	@Override
 	public T put(String word, T value) {
-		MapNode<T> node = getNode(word);
+		MapPatriciaTrieNode<T> node = getNode(word);
 		if(node == null) return null;
 		T ret = node.getValue();
 		node.setValue(value);
@@ -56,8 +56,8 @@ implements Serializable, MapTrie<T>{
 	}
 
 	@SuppressWarnings("unchecked")
-	public MapNode<T> getNode(String text) {
-		return (MapNode<T>)super.getNode(text);
+	public MapPatriciaTrieNode<T> getNode(String text) {
+		return (MapPatriciaTrieNode<T>)super.getNode(text);
 	}
 
 	@Override
@@ -71,32 +71,32 @@ implements Serializable, MapTrie<T>{
 	}
 
 	@Override
-	protected MapNode<T> newNode() {
-		return new MapNode<T>();
+	protected MapPatriciaTrieNode<T> newNode() {
+		return new MapPatriciaTrieNode<T>();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected Node newNode(char[] letters, Node source) {
-		return new MapNode<T>(letters, source.isTerminate(),
-				(MapNode<T>[])source.getChildren(), ((MapNode<T>)source).getValue());
+	protected PatriciaTrieNode newNode(char[] letters, PatriciaTrieNode source) {
+		return new MapPatriciaTrieNode<T>(letters, source.isTerminate(),
+				(MapPatriciaTrieNode<T>[])source.getChildren(), ((MapPatriciaTrieNode<T>)source).getValue());
 	}
 
 	@Override
-	protected MapNode<T> newNode(char[] letters, boolean terminated) {
-		return new MapNode<T>(letters, terminated);
+	protected MapPatriciaTrieNode<T> newNode(char[] letters, boolean terminated) {
+		return new MapPatriciaTrieNode<T>(letters, terminated);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected MapNode<T>[] newNodeArray(Node... nodes){
-		MapNode<T>[] ret = new MapNode[nodes.length];
+	protected MapPatriciaTrieNode<T>[] newNodeArray(PatriciaTrieNode... nodes){
+		MapPatriciaTrieNode<T>[] ret = new MapPatriciaTrieNode[nodes.length];
 		System.arraycopy(nodes, 0, ret, 0, nodes.length);
 		return ret;
 	};
 
 	private class Entry implements Map.Entry<String, T>{
-		public Entry(String key, MapNode<T> node) {
+		public Entry(String key, MapPatriciaTrieNode<T> node) {
 			this.key = key;
 			this.node = node;
 		}
@@ -115,17 +115,17 @@ implements Serializable, MapTrie<T>{
 			return ret;
 		}
 		private String key;
-		private MapNode<T> node;
+		private MapPatriciaTrieNode<T> node;
 	}
 
-	private class IterableAdapter extends org.trie4j.util.IterableAdapter<Pair<String, Node>, Map.Entry<String, T>>{
-		public IterableAdapter(Iterable<Pair<String, Node>> orig){
+	private class IterableAdapter extends org.trie4j.util.IterableAdapter<Pair<String, PatriciaTrieNode>, Map.Entry<String, T>>{
+		public IterableAdapter(Iterable<Pair<String, PatriciaTrieNode>> orig){
 			super(orig);
 		}
 		@Override
 		@SuppressWarnings("unchecked")
-		protected Map.Entry<String, T> convert(Pair<String, Node> value) {
-			return new Entry(value.getFirst(), (MapNode<T>)value.getSecond());
+		protected Map.Entry<String, T> convert(Pair<String, PatriciaTrieNode> value) {
+			return new Entry(value.getFirst(), (MapPatriciaTrieNode<T>)value.getSecond());
 		}
 	}
 

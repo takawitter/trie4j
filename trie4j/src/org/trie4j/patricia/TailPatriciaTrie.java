@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.tail;
+package org.trie4j.patricia;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.trie4j.AbstractTrie;
+import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.tail.FastTailCharIterator;
 import org.trie4j.tail.TailBuilder;
@@ -51,16 +52,16 @@ implements Serializable, Trie{
 		trimToSize();
 	}
 
-	private Node cloneNode(org.trie4j.Node node){
+	private TailPatriciaTrieNode cloneNode(Node node){
 		char[] letters = node.getLetters();
 		char fc = letters.length == 0 ? (char)0xffff : letters[0];
 		int ti = letters.length < 2 ? -1 : tailBuilder.insert(letters, 1, letters.length - 1);
-		org.trie4j.Node[] orgChildren = node.getChildren();
-		Node[] children = newNodeArray(orgChildren.length);
+		Node[] orgChildren = node.getChildren();
+		TailPatriciaTrieNode[] children = newNodeArray(orgChildren.length);
 		for(int i = 0; i < children.length; i++){
 			children[i] = cloneNode(orgChildren[i]);
 		}
-		return new Node(fc, ti, node.isTerminate(), children);
+		return new TailPatriciaTrieNode(fc, ti, node.isTerminate(), children);
 	}
 
 	@Override
@@ -69,13 +70,13 @@ implements Serializable, Trie{
 	}
 
 	@Override
-	public org.trie4j.Node getRoot() {
-		return new NodeAdapter(root, tails);
+	public Node getRoot() {
+		return new TailPatriciaTrieNodeAdapter(root, tails);
 	}
 
 	@Override
 	public boolean contains(String text) {
-		Node node = root;
+		TailPatriciaTrieNode node = root;
 		FastTailCharIterator it = new FastTailCharIterator(tails, -1);
 		int n = text.length();
 		for(int i = 0; i < n; i++){
@@ -94,8 +95,8 @@ implements Serializable, Trie{
 		return node.isTerminate();
 	}
 
-	public Node getNode(String text) {
-		Node node = root;
+	public TailPatriciaTrieNode getNode(String text) {
+		TailPatriciaTrieNode node = root;
 		FastTailCharIterator it = new FastTailCharIterator(tails, -1);
 		int n = text.length();
 		for(int i = 0; i < n; i++){
@@ -122,7 +123,7 @@ implements Serializable, Trie{
 	public int findWord(CharSequence chars, int start, int end, StringBuilder word){
 		TailCharIterator it = new TailCharIterator(tails, -1);
 		for(int i = start; i < end; i++){
-			Node node = root;
+			TailPatriciaTrieNode node = root;
 			for(int j = i; j < end; j++){
 				node = node.getChild(chars.charAt(j));
 				if(node == null) break;
@@ -157,7 +158,7 @@ implements Serializable, Trie{
 				return new Iterator<String>() {
 					private int cur;
 					private StringBuilder currentChars = new StringBuilder();
-					private Node current = root;
+					private TailPatriciaTrieNode current = root;
 					private String next;
 					{
 						cur = 0;
@@ -167,7 +168,7 @@ implements Serializable, Trie{
 						next = null;
 						while(next == null){
 							if(query.length() <= cur) return;
-							Node child = current.getChild(query.charAt(cur));
+							TailPatriciaTrieNode child = current.getChild(query.charAt(cur));
 							if(child == null) return;
 							int rest = query.length() - cur;
 							char[] letters = child.getLetters(tails);
@@ -209,16 +210,16 @@ implements Serializable, Trie{
 		};
 	}
 
-	public Iterable<Pair<String, Node>> commonPrefixSearchWithNode(final String query) {
-		if(query.length() == 0) return new ArrayList<Pair<String, Node>>(0);
-		return new Iterable<Pair<String, Node>>(){
+	public Iterable<Pair<String, TailPatriciaTrieNode>> commonPrefixSearchWithNode(final String query) {
+		if(query.length() == 0) return new ArrayList<Pair<String, TailPatriciaTrieNode>>(0);
+		return new Iterable<Pair<String, TailPatriciaTrieNode>>(){
 			@Override
-			public Iterator<Pair<String, Node>> iterator() {
-				return new Iterator<Pair<String, Node>>() {
+			public Iterator<Pair<String, TailPatriciaTrieNode>> iterator() {
+				return new Iterator<Pair<String, TailPatriciaTrieNode>>() {
 					private int cur;
 					private StringBuilder currentChars = new StringBuilder();
-					private Node current = root;
-					private Pair<String, Node> next;
+					private TailPatriciaTrieNode current = root;
+					private Pair<String, TailPatriciaTrieNode> next;
 					{
 						cur = 0;
 						findNext();
@@ -227,7 +228,7 @@ implements Serializable, Trie{
 						next = null;
 						while(next == null){
 							if(query.length() <= cur) return;
-							Node child = current.getChild(query.charAt(cur));
+							TailPatriciaTrieNode child = current.getChild(query.charAt(cur));
 							if(child == null) return;
 							int rest = query.length() - cur;
 							char[] letters = child.getLetters(tails);
@@ -252,8 +253,8 @@ implements Serializable, Trie{
 						return next != null;
 					}
 					@Override
-					public Pair<String, Node> next() {
-						Pair<String, Node> ret = next;
+					public Pair<String, TailPatriciaTrieNode> next() {
+						Pair<String, TailPatriciaTrieNode> ret = next;
 						if(ret == null){
 							throw new NoSuchElementException();
 						}
@@ -273,7 +274,7 @@ implements Serializable, Trie{
 	public Iterable<String> predictiveSearch(String prefix) {
 		char[] queryChars = prefix.toCharArray();
 		int cur = 0;
-		Node node = root;
+		TailPatriciaTrieNode node = root;
 		while(node != null){
 			char[] letters = node.getLetters(tails);
 			int n = Math.min(letters.length, queryChars.length - cur);
@@ -295,10 +296,10 @@ implements Serializable, Trie{
 		return Collections.emptyList();
 	}
 
-	public Iterable<Pair<String, Node>> predictiveSearchWithNode(String prefix) {
+	public Iterable<Pair<String, TailPatriciaTrieNode>> predictiveSearchWithNode(String prefix) {
 		char[] queryChars = prefix.toCharArray();
 		int cur = 0;
-		Node node = root;
+		TailPatriciaTrieNode node = root;
 		while(node != null){
 			char[] letters = node.getLetters(tails);
 			int n = Math.min(letters.length, queryChars.length - cur);
@@ -309,7 +310,7 @@ implements Serializable, Trie{
 			}
 			cur += n;
 			if(queryChars.length == cur){
-				List<Pair<String, Node>> ret = new ArrayList<Pair<String, Node>>();
+				List<Pair<String, TailPatriciaTrieNode>> ret = new ArrayList<Pair<String, TailPatriciaTrieNode>>();
 				prefix += new String(letters, n, letters.length - n);
 				if(node.isTerminate()) ret.add(Pair.create(prefix, node));
 				enumLettersWithNode(node, prefix, ret);
@@ -320,20 +321,20 @@ implements Serializable, Trie{
 		return Collections.emptyList();
 	}
 
-	private void enumLetters(Node node, String prefix, List<String> letters){
-		Node[] children = node.getChildren();
+	private void enumLetters(TailPatriciaTrieNode node, String prefix, List<String> letters){
+		TailPatriciaTrieNode[] children = node.getChildren();
 		if(children == null) return;
-		for(Node child : children){
+		for(TailPatriciaTrieNode child : children){
 			String text = prefix + new String(child.getLetters(tails));
 			if(child.isTerminate()) letters.add(text);
 			enumLetters(child, text, letters);
 		}
 	}
 
-	private void enumLettersWithNode(Node node, String prefix, List<Pair<String, Node>> letters){
-		Node[] children = node.getChildren();
+	private void enumLettersWithNode(TailPatriciaTrieNode node, String prefix, List<Pair<String, TailPatriciaTrieNode>> letters){
+		TailPatriciaTrieNode[] children = node.getChildren();
 		if(children == null) return;
-		for(Node child : children){
+		for(TailPatriciaTrieNode child : children){
 			String text = prefix + new String(child.getLetters(tails));
 			if(child.isTerminate()) letters.add(Pair.create(text, child));
 			enumLettersWithNode(child, text, letters);
@@ -348,7 +349,7 @@ implements Serializable, Trie{
 		insert(root, text, 0);
 	}
 
-	protected Node insert(Node node, String letters, int offset){
+	protected TailPatriciaTrieNode insert(TailPatriciaTrieNode node, String letters, int offset){
 		TailCharIterator it = new TailCharIterator(tails, node.getTailIndex());
 		int count = 0;
 		boolean matchComplete = true;
@@ -370,7 +371,7 @@ implements Serializable, Trie{
 				if(!it.hasNext()){
 					idx = -1;
 				}
-				Node newChild = newNode(c, idx, node);
+				TailPatriciaTrieNode newChild = newNode(c, idx, node);
 				node.setTailIndex(
 						(count > 0) ? tailBuilder.insert(letters, offset - count, count)
 								: -1
@@ -398,12 +399,12 @@ implements Serializable, Trie{
 				if(!it.hasNext()){
 					n1Idx = -1;
 				}
-				Node n1 = newNode(n1Fc, n1Idx, node);
+				TailPatriciaTrieNode n1 = newNode(n1Fc, n1Idx, node);
 				char n2Fc = letters.charAt(offset++);
 				int n2Idx = (offset < lettersLength) ?
 						tailBuilder.insert(letters, offset, lettersLength - offset) :
 						-1;
-				Node n2 = newNode(n2Fc, n2Idx, true);
+				TailPatriciaTrieNode n2 = newNode(n2Fc, n2Idx, true);
 				if(count > 0){
 					node.setTailIndex(tailBuilder.insert(letters, firstOffset, count));
 				} else{
@@ -420,15 +421,15 @@ implements Serializable, Trie{
 				// l: abcde
 				char fc = letters.charAt(offset++);
 				// find node
-				Pair<Node, Integer> ret = node.findNode(fc);
-				Node child = ret.getFirst();
+				Pair<TailPatriciaTrieNode, Integer> ret = node.findNode(fc);
+				TailPatriciaTrieNode child = ret.getFirst();
 				if(child != null){
 					return insert(child, letters, offset);
 				} else{
 					int idx = (offset < lettersLength) ?
 						tailBuilder.insert(letters, offset, lettersLength - offset) :
 						-1;
-					Node newNode = newNode(fc, idx, true);
+					TailPatriciaTrieNode newNode = newNode(fc, idx, true);
 					node.addChild(ret.getSecond(), newNode);
 					size++;
 					return newNode;
@@ -460,28 +461,28 @@ implements Serializable, Trie{
 		out.defaultWriteObject();
 	}
 
-	protected Node newNode(){
-		return new Node((char)0xffff, -1, false, newNodeArray());
+	protected TailPatriciaTrieNode newNode(){
+		return new TailPatriciaTrieNode((char)0xffff, -1, false, newNodeArray());
 	}
 
-	protected Node newNode(char firstChar, int tailIndex, Node source){
-		return new Node(firstChar, tailIndex, source.isTerminate(), source.getChildren());
+	protected TailPatriciaTrieNode newNode(char firstChar, int tailIndex, TailPatriciaTrieNode source){
+		return new TailPatriciaTrieNode(firstChar, tailIndex, source.isTerminate(), source.getChildren());
 	}
 
-	protected Node newNode(char firstChar, int tailIndex, boolean terminated) {
-		return new Node(firstChar, tailIndex, terminated, newNodeArray());
+	protected TailPatriciaTrieNode newNode(char firstChar, int tailIndex, boolean terminated) {
+		return new TailPatriciaTrieNode(firstChar, tailIndex, terminated, newNodeArray());
 	}
 
-	protected Node[] newNodeArray(Node... nodes){
+	protected TailPatriciaTrieNode[] newNodeArray(TailPatriciaTrieNode... nodes){
 		return nodes;
 	}
 
-	protected Node[] newNodeArray(int size){
-		return new Node[size];
+	protected TailPatriciaTrieNode[] newNodeArray(int size){
+		return new TailPatriciaTrieNode[size];
 	}
 
 	private int size;
-	private Node root = newNode();
+	private TailPatriciaTrieNode root = newNode();
 	private TailBuilder tailBuilder;
 	private CharSequence tails;
 	private static final long serialVersionUID = -2084269385978925271L;

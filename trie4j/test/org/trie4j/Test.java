@@ -17,9 +17,9 @@ package org.trie4j;
 
 import java.util.Arrays;
 
+import org.trie4j.patricia.TailPatriciaTrieNodeAdapter;
+import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
-import org.trie4j.patricia.tail.NodeAdapter;
-import org.trie4j.patricia.tail.TailPatriciaTrie;
 
 public class Test {
 	public static void main(String[] args) throws Exception{
@@ -52,8 +52,8 @@ public class Test {
 					if(letters == null || letters.length == 0){
 						System.out.print("<empty>");
 					} else{
-						if(node instanceof NodeAdapter){
-							NodeAdapter na = (NodeAdapter)node;
+						if(node instanceof TailPatriciaTrieNodeAdapter){
+							TailPatriciaTrieNodeAdapter na = (TailPatriciaTrieNodeAdapter)node;
 							System.out.print("[" + na.getFirstLetter() + "]");
 							if(letters.length > 0){
 								System.out.print(Arrays.copyOfRange(letters, 1, letters.length));

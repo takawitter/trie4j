@@ -22,7 +22,7 @@ import org.trie4j.Algorithms;
 import org.trie4j.Node;
 import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
-import org.trie4j.patricia.simple.PatriciaTrie;
+import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 

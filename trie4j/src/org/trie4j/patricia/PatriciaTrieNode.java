@@ -13,33 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.simple;
+package org.trie4j.patricia;
 
 import java.io.Serializable;
 
 import org.trie4j.NodeVisitor;
 
-public class Node
+public class PatriciaTrieNode
 implements Serializable, org.trie4j.Node{
-	public Node() {
+	public PatriciaTrieNode() {
 		this(new char[]{}, false);
 	}
 
-	public Node(char[] letters, boolean terminated) {
+	public PatriciaTrieNode(char[] letters, boolean terminated) {
 		this(letters, terminated, emptyChildren);
 	}
 
-	public Node(char[] letters, boolean terminated, Node[] children) {
+	public PatriciaTrieNode(char[] letters, boolean terminated, PatriciaTrieNode[] children) {
 		this.letters = letters;
 		this.terminate = terminated;
 		this.children = children;
 	}
 
-	public Node[] getChildren() {
+	public PatriciaTrieNode[] getChildren() {
 		return children;
 	}
 	
-	public void setChildren(Node[] children){
+	public void setChildren(PatriciaTrieNode[] children){
 		this.children = children;
 	}
 
@@ -59,13 +59,13 @@ implements Serializable, org.trie4j.Node{
 		this.terminate = terminate;
 	}
 
-	public Node getChild(char c){
+	public PatriciaTrieNode getChild(char c){
 		int end = children.length;
 		if(end > 16){
 			int start = 0;
 			while(start < end){
 				int i = (start + end) / 2;
-				Node n = children[i];
+				PatriciaTrieNode n = children[i];
 				int d = c - n.letters[0];
 				if(d == 0) return n;
 				if(d < 0){
@@ -78,7 +78,7 @@ implements Serializable, org.trie4j.Node{
 			}
 		} else{
 			for(int i = 0; i < end; i++){
-				Node n = children[i];
+				PatriciaTrieNode n = children[i];
 				if(n.letters[0] == c) return n;
 			}
 		}
@@ -88,13 +88,13 @@ implements Serializable, org.trie4j.Node{
 	public void visit(NodeVisitor visitor, int nest){
 		if(!visitor.visit(this, nest)) return;
 		nest++;
-		for(Node n : children){
+		for(PatriciaTrieNode n : children){
 			n.visit(visitor, nest);
 		}
 	}
 
-	public Node addChild(int index, Node n){
-		Node[] newc = new Node[children.length + 1];
+	public PatriciaTrieNode addChild(int index, PatriciaTrieNode n){
+		PatriciaTrieNode[] newc = new PatriciaTrieNode[children.length + 1];
 		System.arraycopy(children,  0, newc, 0, index);
 		newc[index] = n;
 		System.arraycopy(children,  index, newc, index + 1, children.length - index);
@@ -104,7 +104,7 @@ implements Serializable, org.trie4j.Node{
 
 	private char[] letters;
 	private boolean terminate;
-	private Node[] children;
-	private static Node[] emptyChildren = {};
+	private PatriciaTrieNode[] children;
+	private static PatriciaTrieNode[] emptyChildren = {};
 	private static final long serialVersionUID = -1625115329685564809L;
 }

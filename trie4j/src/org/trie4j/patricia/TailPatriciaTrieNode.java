@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.tail;
+package org.trie4j.patricia;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,9 +23,9 @@ import org.trie4j.NodeVisitor;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 
-public class Node
+public class TailPatriciaTrieNode
 implements Serializable{
-	public Node(char firstChar, int tailIndex, boolean terminate, Node[] children) {
+	public TailPatriciaTrieNode(char firstChar, int tailIndex, boolean terminate, TailPatriciaTrieNode[] children) {
 		this.firstChar = firstChar;
 		this.tailIndex = tailIndex;
 		this.terminate = terminate;
@@ -72,33 +72,33 @@ implements Serializable{
 		return new TailCharIterator(tails, tailIndex);
 	}
 
-	public Node getChild(char c) {
+	public TailPatriciaTrieNode getChild(char c) {
 		if(children == null){
 			return null;
 		}
 		return findNodeOnly(c);
 	}
 
-	public Node[] getChildren() {
+	public TailPatriciaTrieNode[] getChildren() {
 		return children;
 	}
 
-	public void setChildren(Node[] children) {
+	public void setChildren(TailPatriciaTrieNode[] children) {
 		this.children = children;
 	}
 
 	public void visit(NodeVisitor visitor, int nest, CharSequence tails) {
-		visitor.visit(new NodeAdapter(this, tails), nest);
+		visitor.visit(new TailPatriciaTrieNodeAdapter(this, tails), nest);
 		if(children != null){
 			nest++;
-			for(Node n : children){
+			for(TailPatriciaTrieNode n : children){
 				n.visit(visitor, nest, tails);
 			}
 		}
 	}
 
-	public Node addChild(int index, Node n) {
-		Node[] newc = new Node[children.length + 1];
+	public TailPatriciaTrieNode addChild(int index, TailPatriciaTrieNode n) {
+		TailPatriciaTrieNode[] newc = new TailPatriciaTrieNode[children.length + 1];
 		System.arraycopy(children,  0, newc, 0, index);
 		newc[index] = n;
 		System.arraycopy(children,  index, newc, index + 1, children.length - index);
@@ -106,13 +106,13 @@ implements Serializable{
 		return this;
 	}
 
-	public Pair<Node, Integer> findNode(char firstChar){
+	public Pair<TailPatriciaTrieNode, Integer> findNode(char firstChar){
 		int end = children.length;
 		if(end > 16){
 			int start = 0;
 			while(start < end){
 				int i = (start + end) / 2;
-				Node child = children[i];
+				TailPatriciaTrieNode child = children[i];
 				int d = firstChar - child.getFirstLetter();
 				if(d == 0){
 					return Pair.create(child, i);
@@ -126,7 +126,7 @@ implements Serializable{
 			}
 		} else{
 			for(int i = 0; i < end; i++){
-				Node child = children[i];
+				TailPatriciaTrieNode child = children[i];
 				int c = firstChar - child.getFirstLetter();
 				if(c < 0){
 					return Pair.create(null, i);
@@ -138,13 +138,13 @@ implements Serializable{
 		return Pair.create(null, end);
 	}
 
-	private Node findNodeOnly(char firstChar){
+	private TailPatriciaTrieNode findNodeOnly(char firstChar){
 		int end = children.length;
 		if(end > 16){
 			int start = 0;
 			while(start < end){
 				int i = (start + end) / 2;
-				Node child = children[i];
+				TailPatriciaTrieNode child = children[i];
 				int d = firstChar - child.getFirstLetter();
 				if(d == 0){
 					return child;
@@ -158,7 +158,7 @@ implements Serializable{
 			}
 		} else{
 			for(int i = 0; i < end; i++){
-				Node child = children[i];
+				TailPatriciaTrieNode child = children[i];
 				int c = firstChar - child.getFirstLetter();
 				if(c < 0){
 					return null;
@@ -173,6 +173,6 @@ implements Serializable{
 	private char firstChar;
 	private int tailIndex;
 	private boolean terminate;
-	private Node[] children;
+	private TailPatriciaTrieNode[] children;
 	private static final long serialVersionUID = -4622654571874519425L;
 }
