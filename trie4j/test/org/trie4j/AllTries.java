@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.MapDoubleArray;
 import org.trie4j.doublearray.MapTailDoubleArray;
+import org.trie4j.doublearray.PackedTailDoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.InlinedTailLOUDSPPTrie;
 import org.trie4j.louds.InlinedTailLOUDSTrie;
@@ -226,6 +227,16 @@ public class AllTries {
 			new MapTrieProcess2("MapTailDoubleArray(concatTail)") {
 				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
 					return new MapTailDoubleArray<Integer>(trie, new ConcatTailBuilder());
+				}
+			},
+			new TrieProcess2("PackedTailDoubleArray(suffixTrieTail)"){
+				protected Trie buildFrom(Trie trie){
+					return new PackedTailDoubleArray(trie, new SuffixTrieTailBuilder());
+				}
+			},
+			new TrieProcess2("PackedTailDoubleArray(concatTail)"){
+				protected Trie buildFrom(Trie trie){
+					return new PackedTailDoubleArray(trie, new ConcatTailBuilder());
 				}
 			},
 //*/
