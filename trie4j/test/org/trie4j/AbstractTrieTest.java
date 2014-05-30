@@ -19,7 +19,7 @@ import java.util.Iterator;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.patricia.tail.TailPatriciaTrie;
+import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 
 public abstract class AbstractTrieTest {

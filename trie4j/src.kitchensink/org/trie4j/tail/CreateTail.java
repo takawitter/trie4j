@@ -4,7 +4,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 
 import org.trie4j.louds.TailLOUDSTrie;
-import org.trie4j.patricia.tail.TailPatriciaTrie;
+import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.test.WikipediaTitles;
 
 public class CreateTail {

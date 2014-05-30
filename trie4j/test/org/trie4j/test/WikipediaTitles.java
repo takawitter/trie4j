@@ -52,7 +52,8 @@ public class WikipediaTitles implements Iterable<String>{
 	public void assertAllContains(MapTrie<Integer> trie){
 		int i = 0;
 		for(String s : this){
-			Assert.assertEquals(i + "th entry: ." + s, (Integer)(i++), trie.get(s));
+			Assert.assertEquals(i + "th entry: ." + s, (Integer)(i), trie.get(s));
+			i++;
 		}
 	}
 

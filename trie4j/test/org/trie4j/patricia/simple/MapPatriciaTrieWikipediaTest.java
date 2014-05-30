@@ -23,6 +23,7 @@ import org.trie4j.MapTrie;
 import org.trie4j.Node;
 import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
+import org.trie4j.patricia.MapPatriciaTrie;
 
 public class MapPatriciaTrieWikipediaTest extends AbstractMapTrieWikipediaTest{
 	@Override

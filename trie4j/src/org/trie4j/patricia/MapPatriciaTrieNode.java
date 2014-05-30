@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.simple;
+package org.trie4j.patricia;
 
 import java.io.Serializable;
 
-public class MapNode<T>
-extends Node
+public class MapPatriciaTrieNode<T>
+extends PatriciaTrieNode
 implements Serializable, org.trie4j.MapNode<T>{
-	public MapNode() {
+	public MapPatriciaTrieNode() {
 		super(new char[]{}, false, emptyChildren);
 	}
 
-	public MapNode(char[] letters, boolean terminated) {
+	public MapPatriciaTrieNode(char[] letters, boolean terminated) {
 		super(letters, terminated, emptyChildren);
 	}
 
-	public MapNode(char[] letters, boolean terminated, T value) {
+	public MapPatriciaTrieNode(char[] letters, boolean terminated, T value) {
 		super(letters, terminated, emptyChildren);
 		this.value = value;
 	}
 
-	public MapNode(char[] letters, boolean terminated, MapNode<T>[] children) {
+	public MapPatriciaTrieNode(char[] letters, boolean terminated, MapPatriciaTrieNode<T>[] children) {
 		super(letters, terminated, children);
 	}
 	
-	public MapNode(char[] letters, boolean terminated, MapNode<T>[] children, T value) {
+	public MapPatriciaTrieNode(char[] letters, boolean terminated, MapPatriciaTrieNode<T>[] children, T value) {
 		super(letters, terminated, children);
 		this.value = value;
 	}
@@ -52,31 +52,31 @@ implements Serializable, org.trie4j.MapNode<T>{
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public MapNode<T> getChild(char c) {
-		return (MapNode<T>)super.getChild(c);
+	public MapPatriciaTrieNode<T> getChild(char c) {
+		return (MapPatriciaTrieNode<T>)super.getChild(c);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public MapNode<T>[] getChildren() {
-		return (MapNode<T>[])super.getChildren();
+	public MapPatriciaTrieNode<T>[] getChildren() {
+		return (MapPatriciaTrieNode<T>[])super.getChildren();
 	}
 
 	@Override
-	public void setChildren(Node[] children) {
+	public void setChildren(PatriciaTrieNode[] children) {
 		super.setChildren(children);
 	}
 
-	public void setChildren(MapNode<T>[] children) {
+	public void setChildren(MapPatriciaTrieNode<T>[] children) {
 		super.setChildren(children);
 	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	public Node addChild(int index, Node n){
-		MapNode[] newc = new MapNode[getChildren().length + 1];
+	public PatriciaTrieNode addChild(int index, PatriciaTrieNode n){
+		MapPatriciaTrieNode[] newc = new MapPatriciaTrieNode[getChildren().length + 1];
 		System.arraycopy(getChildren(), 0, newc, 0, index);
-		newc[index] = (MapNode)n;
+		newc[index] = (MapPatriciaTrieNode)n;
 		System.arraycopy(getChildren(), index, newc, index + 1, getChildren().length - index);
 		super.setChildren(newc);
 		return this;
@@ -84,6 +84,6 @@ implements Serializable, org.trie4j.MapNode<T>{
 
 	private T value;
 	@SuppressWarnings("rawtypes")
-	private static MapNode[] emptyChildren = {};
+	private static MapPatriciaTrieNode[] emptyChildren = {};
 	private static final long serialVersionUID = 8611758181642617230L;
 }

@@ -19,7 +19,7 @@ import java.io.Serializable;
 
 import org.trie4j.Trie;
 import org.trie4j.louds.bvtree.LOUDSPPBvTree;
-import org.trie4j.patricia.simple.PatriciaTrie;
+import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.tail.TailArrayBuilder;
 

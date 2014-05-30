@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.patricia.simple.PatriciaTrie;
+import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArray;
 
 public class TailLOUDSTrieWithConcatTailArrayTest extends AbstractTermIdTrieTest{

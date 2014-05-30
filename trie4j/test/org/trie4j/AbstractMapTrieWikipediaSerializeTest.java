@@ -22,8 +22,8 @@ import java.io.ObjectOutputStream;
 
 import org.junit.Test;
 import org.trie4j.doublearray.MapTailDoubleArray;
-import org.trie4j.patricia.simple.MapPatriciaTrie;
-import org.trie4j.patricia.tail.MapTailPatriciaTrie;
+import org.trie4j.patricia.MapPatriciaTrie;
+import org.trie4j.patricia.MapTailPatriciaTrie;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 

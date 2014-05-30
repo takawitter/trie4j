@@ -33,7 +33,7 @@ public class TestIO {
 	@Test
 	public void testSave() throws Exception{
 		System.out.println("--- building patricia trie ---");
-		Trie trie = new org.trie4j.patricia.tail.TailPatriciaTrie();
+		Trie trie = new org.trie4j.patricia.TailPatriciaTrie();
 		int c = 0;
 		LapTimer t1 = new LapTimer();
 		for(String word : new WikipediaTitles()){

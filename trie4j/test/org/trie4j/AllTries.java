@@ -3,188 +3,383 @@ package org.trie4j;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.MapDoubleArray;
 import org.trie4j.doublearray.MapTailDoubleArray;
-import org.trie4j.doublearray.PackedTailDoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
-import org.trie4j.louds.InlinedTailLOUDSPPTrie;
-import org.trie4j.louds.InlinedTailLOUDSTrie;
 import org.trie4j.louds.MapTailLOUDSPPTrie;
 import org.trie4j.louds.MapTailLOUDSTrie;
 import org.trie4j.louds.TailLOUDSPPTrie;
 import org.trie4j.louds.TailLOUDSTrie;
-import org.trie4j.patricia.simple.MapPatriciaTrie;
-import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.patricia.tail.TailPatriciaTrie;
+import org.trie4j.patricia.MapPatriciaTrie;
+import org.trie4j.patricia.MapTailPatriciaTrie;
+import org.trie4j.patricia.PatriciaTrie;
+import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.tail.SBVConcatTailArray;
+import org.trie4j.tail.SuffixTrieDenseTailArray;
 import org.trie4j.tail.SuffixTrieTailArray;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 import org.trie4j.util.Pair;
+import org.trie4j.util.Trio;
 
 public class AllTries {
 	private static Iterable<String> newWords() throws IOException{
 		return new WikipediaTitles();
 	}
 
-	private static Object holder;
-	private static abstract class Process{
-		public Process(String name){
+	private static String createName(Class<?> trieClass, Class<?>... ctorParamClasses){
+		StringBuilder b = new StringBuilder(trieClass.getSimpleName());
+		if(ctorParamClasses.length > 0){
+			b.append("(");
+			boolean first = true;
+			for(Class<?> c : ctorParamClasses){
+				if(first) first = false;
+				else b.append(",");
+				b.append(c.getSimpleName());
+			}
+			b.append(")");
+		}
+		return b.toString();
+	}
+
+	private static interface Process{
+		String getName();
+		Trio<Object, Long, Long> run() throws Throwable;
+	}
+
+	private static abstract class AbstractProcess implements Process{
+		private String name;
+		public AbstractProcess(String name){
 			this.name = name;
 		}
 		public String getName() {
 			return name;
 		}
-		private String name;
-		public abstract Pair<Long, Long> run() throws IOException;
+		public void setName(String name){
+			this.name = name;
+		}
+		/**
+		 * Do process and returns container and construction and verification time.
+		 * @return The pair of construction and verification time in ms.
+		 * @throws Throwable
+		 */
+		public abstract Trio<Object, Long, Long> run() throws Throwable;
 	}
-	private static class SetProcess extends Process{
+
+	private static class SetProcess extends AbstractProcess{
 		@SuppressWarnings("rawtypes")
-		public SetProcess(String name, Class<? extends Set> set){
-			super(name);
+		public SetProcess(Class<? extends Set> set){
+			super(set.getSimpleName());
 			this.clazz = set;
 		}
 		@SuppressWarnings("unchecked")
-		public Pair<Long, Long> run() throws IOException{
-			try{
-				return runForSet(clazz.newInstance());
-			} catch(Exception e){
-				throw new IOException(e);
-			}
-		}
-		protected Pair<Long, Long> runForSet(Set<String> set) throws IOException{
+		public Trio<Object, Long, Long> run() throws Throwable{
+			Set<String> set = (Set<String>)clazz.newInstance();
 			long b = 0, c = 0;
 			LapTimer lt = new LapTimer();
-			for(String w : newWords()){ lt.reset(); set.add(w); b += lt.lapNanos();}
+			for(String w : newWords()){
+				lt.reset(); set.add(w); b += lt.lapNanos();
+			}
 			for(String w : newWords()){
 				lt.reset();
 				boolean r = set.contains(w);
 				c += lt.lapNanos();
 				if(!r) throw new RuntimeException("verification failed for \"" + w + "\"");
 			}
-			holder = set;
-			return Pair.create(b / 1000000, c / 1000000);
+			return Trio.create((Object)set, b / 1000000, c / 1000000);
 		}
 		@SuppressWarnings("rawtypes")
 		private Class<? extends Set> clazz;
 	}
-	private static abstract class TrieProcess extends Process{
-		public TrieProcess(String name){
-			super(name);
+
+	private static class MapProcess extends AbstractProcess{
+		@SuppressWarnings("rawtypes")
+		public MapProcess(Class<? extends Map> map){
+			super(map.getSimpleName());
+			this.clazz = map;
 		}
-		protected Pair<Long, Long> runForTrie(Trie trie) throws IOException{
+		@SuppressWarnings("unchecked")
+		public Trio<Object, Long, Long> run() throws Throwable{
+			Map<String, Integer> map = (Map<String, Integer>)clazz.newInstance();
 			long b = 0, c = 0;
+			int i = 0;
 			LapTimer lt = new LapTimer();
-			for(String w : newWords()){ lt.reset(); trie.insert(w); b += lt.lapNanos();}
-			afterBuildTrie(trie);
-			b += lt.lapNanos();
+			for(String w : newWords()){
+				lt.reset(); map.put(w, i); b += lt.lapNanos();
+				i++;
+			}
+			i = 0;
+			for(String w : newWords()){
+				lt.reset();
+				Integer r = map.get(w);
+				c += lt.lapNanos();
+				if((int)r != i) throw new RuntimeException("verification failed for \"" + w + "\"");
+				i++;
+			}
+			return Trio.create((Object)map, b / 1000000, c / 1000000);
+		}
+		@SuppressWarnings("rawtypes")
+		private Class<? extends Map> clazz;
+	}
+
+	private static interface TrieConsumer{
+		String name();
+		void consume(Trie trie);
+	}
+
+	private static abstract class AbstractTrieConsumer implements TrieConsumer{
+		private String name;
+		public AbstractTrieConsumer(String name) {
+			this.name = name;
+		}
+		@Override
+		public String name() {
+			return name;
+		}
+	}
+
+	private static class TrieFreezer extends AbstractTrieConsumer implements TrieConsumer{
+		public TrieFreezer() {
+			super("freezed");
+		}
+		@Override
+		public void consume(Trie trie) {
+			trie.freeze();
+		}
+	}
+
+	private static class TrieProcess extends AbstractProcess{
+		private Class<?> trieClass;
+		private Class<?>[] ctorParamClasses;
+		private TrieConsumer consumer;
+		public TrieProcess(){
+			this(TailPatriciaTrie.class, ConcatTailBuilder.class);
+		}
+		public TrieProcess(Class<? extends Trie> clazz, Class<?>... ctorParamClasses){
+			super(createName(clazz, ctorParamClasses));
+			this.trieClass = clazz;
+			this.ctorParamClasses = ctorParamClasses;
+		}
+		public AbstractProcess afterBuild(TrieConsumer consumer){
+			this.consumer = consumer;
+			setName(getName() + ":" + consumer.name());
+			return this;
+		}
+		public AbstractProcess second(final Class<? extends Trie> secondTrieClass, final Class<?>... ctorParamClasses){
+			return new AbstractProcess(createName(secondTrieClass, ctorParamClasses)){
+				@Override
+				public Trio<Object, Long, Long> run() throws Throwable {
+					Trie first = buildFirstTrie().getFirst();
+					Pair<Trie, Long> tries = buildSecondTrie(first);
+					Trie second = tries.getFirst();
+					first = null;
+					System.gc();
+					System.gc();
+					long c = verifyTrie(second);
+					return Trio.create((Object)second, tries.getSecond(), c);
+				}
+				private Pair<Trie, Long> buildSecondTrie(Trie firstTrie)
+				throws InstantiationException, IllegalAccessException{
+					Object[] args = new Object[1 + ctorParamClasses.length];
+					args[0] = firstTrie;
+					for(int i = 0; i < ctorParamClasses.length; i++){
+						args[i + 1] = ctorParamClasses[i].newInstance();
+					}
+					for(Constructor<?> c : secondTrieClass.getConstructors()){
+						try{
+							if(c.getParameterTypes().length == args.length){
+								LapTimer lt = new LapTimer();
+								Object ret = c.newInstance(args);
+								long ms = lt.lapMillis();
+								return Pair.create((Trie)ret, ms);
+							}
+						} catch(InstantiationException | IllegalAccessException |
+								SecurityException |
+								IllegalArgumentException | InvocationTargetException e){
+						}
+					}
+					throw new RuntimeException("no suitable constructor.");
+				}
+			};
+		}
+		@Override
+		public Trio<Object, Long, Long> run() throws Throwable {
+			Pair<Trie, Long> tries = buildFirstTrie();
+			Trie trie = tries.getFirst();
+			return Trio.create((Object)trie, tries.getSecond(), verifyTrie(trie));
+		}
+		private Pair<Trie, Long> buildFirstTrie()
+		throws InstantiationException, IllegalAccessException, IOException{
+			Object[] params = new Object[ctorParamClasses.length];
+			for(int i = 0; i < ctorParamClasses.length; i++){
+				params[i] = ctorParamClasses[i].newInstance();
+			}
+			for(Constructor<?> c : trieClass.getConstructors()){
+				try{
+					if(c.getParameterTypes().length == params.length){
+						Trie trie = (Trie)c.newInstance(params);
+						long b = 0;
+						LapTimer lt = new LapTimer();
+						for(String w : newWords()){ lt.reset(); trie.insert(w); b += lt.lapNanos();}
+						b += lt.lapNanos();
+						if(consumer != null) consumer.consume(trie);
+						return Pair.create(trie, b / 1000000);
+					}
+				} catch(InstantiationException | IllegalAccessException |
+						IllegalArgumentException | InvocationTargetException e){
+				}
+			}
+			throw new RuntimeException("no suitable constructor.");
+		}
+		private long verifyTrie(Trie trie) throws IOException{
+			long c = 0;
+			LapTimer lt = new LapTimer();
 			for(String w : newWords()){
 				lt.reset();
 				boolean r = trie.contains(w);
 				c += lt.lapNanos();
 				if(!r) throw new RuntimeException("verification failed for \"" + w + "\"");
-				}
-			holder = trie;
-			return Pair.create(b / 1000000, c / 1000000);
-		}
-		protected void afterBuildTrie(Trie trie){}
-	}
-	private static abstract class TrieProcess2 extends Process{
-		public TrieProcess2(String name){
-			super(name);
-		}
-		protected abstract Trie buildFrom(Trie trie);
-		@Override
-		public Pair<Long, Long> run() throws IOException {
-			PatriciaTrie first = new PatriciaTrie();
-			for(String w : newWords()){ first.insert(w);}
-			long b = 0, c = 0;
-			LapTimer lt = new LapTimer();
-			Trie trie = buildFrom(first);
-			b += lt.lapNanos();
-			int i = 0;
-			for(String w : newWords()){
-				lt.reset();
-				boolean r = trie.contains(w);
-				c += lt.lapNanos();
-				i++;
-				if(!r) throw new RuntimeException(String.format(
-						"verification failed for %dth word: \"%s\"",
-						i, w));
 			}
-			holder = trie;
-			return Pair.create(b / 1000000, c / 1000000);
+			return c / 1000000;
 		}
 	}
-	private static abstract class MapTrieProcess2 extends Process{
-		public MapTrieProcess2(String name){
-			super(name);
+
+	private static class MapTrieProcess extends AbstractProcess{
+		private Class<?> trieClass;
+		private Class<?>[] ctorParamClasses;
+		private TrieConsumer consumer;
+		public MapTrieProcess(){
+			this(MapTailPatriciaTrie.class, ConcatTailBuilder.class);
 		}
-		protected abstract MapTrie<Integer> buildFrom(MapTrie<Integer> trie);
-		@Override
-		public Pair<Long, Long> run() throws IOException {
-			MapPatriciaTrie<Integer> first = new MapPatriciaTrie<Integer>();
-			int i = 0;
-			for(String w : newWords()){ first.insert(w, i++);}
-			long b = 0, c = 0;
-			LapTimer lt = new LapTimer();
-			MapTrie<Integer> trie = buildFrom(first);
-			b += lt.lapNanos();
-			i = 0;
-			for(String w : newWords()){
-				lt.reset();
-				Integer r = trie.get(w);
-				c += lt.lapNanos();
-				if(r != i++) throw new RuntimeException("verification failed for \"" + w + "\"");
-			}
-			holder = trie;
-			return Pair.create(b / 1000000, c / 1000000);
+		@SuppressWarnings("rawtypes")
+		public MapTrieProcess(Class<? extends MapTrie> clazz, Class<?>... ctorParamClasses){
+			super(createName(clazz, ctorParamClasses));
+			this.trieClass = clazz;
+			this.ctorParamClasses = ctorParamClasses;
 		}
-	}
-	private static Process[] procs = {
-//*
-			new SetProcess("HashSet", HashSet.class),
-			new SetProcess("TreeSet", TreeSet.class),
-			new TrieProcess("PatriciaTrie"){
-				public Pair<Long, Long> run() throws IOException {
-					return runForTrie(new PatriciaTrie());
-				}
-			},
-			new TrieProcess("MapPatriciaTrie"){
-				public Pair<Long, Long> run() throws IOException {
-					return runForTrie(new MapPatriciaTrie<Object>());
-				}
-			},
-			new TrieProcess("TailPatriciaTrie(suffixTrieTail)"){
-				public Pair<Long, Long> run() throws IOException {
-					return runForTrie(new TailPatriciaTrie(new SuffixTrieTailBuilder()));
-				}
-			},
-			new TrieProcess("TailPatriciaTrie(suffixTrieTail,freezed)"){
-				public Pair<Long, Long> run() throws IOException {
-					return runForTrie(new TailPatriciaTrie(new SuffixTrieTailBuilder()));
-				}
+		public AbstractProcess afterBuild(TrieConsumer consumer){
+			this.consumer = consumer;
+			setName(getName() + ":" + consumer.name());
+			return this;
+		}
+		@SuppressWarnings("rawtypes")
+		public AbstractProcess second(final Class<? extends Trie> secondTrieClass, final Class<?>... ctorParamClasses){
+			return new AbstractProcess(createName(secondTrieClass, ctorParamClasses)){
 				@Override
-				protected void afterBuildTrie(Trie trie) {
-					super.afterBuildTrie(trie);
-					trie.freeze();
+				public Trio<Object, Long, Long> run() throws Throwable {
+					MapTrie first = buildFirstTrie().getFirst();
+					Pair<MapTrie, Long> tries = buildSecondTrie(first);
+					MapTrie second = tries.getFirst();
+					first = null;
+					System.gc();
+					System.gc();
+					long c = verifyTrie(second);
+					return Trio.create((Object)second, tries.getSecond(), c);
 				}
-			},
-			new TrieProcess("TailPatriciaTrie(concatTail)"){
-				public Pair<Long, Long> run() throws IOException {
-					return runForTrie(new TailPatriciaTrie(new ConcatTailBuilder()));
+				private Pair<MapTrie, Long> buildSecondTrie(MapTrie firstTrie)
+				throws InstantiationException, IllegalAccessException{
+					Object[] args = new Object[1 + ctorParamClasses.length];
+					args[0] = firstTrie;
+					for(int i = 0; i < ctorParamClasses.length; i++){
+						args[i + 1] = ctorParamClasses[i].newInstance();
+					}
+					for(Constructor<?> c : secondTrieClass.getConstructors()){
+						try{
+							if(c.getParameterTypes().length == args.length){
+								LapTimer lt = new LapTimer();
+								Object ret = c.newInstance(args);
+								long ms = lt.lapMillis();
+								return Pair.create((MapTrie)ret, ms);
+							}
+						} catch(InstantiationException | IllegalAccessException |
+								SecurityException |
+								IllegalArgumentException | InvocationTargetException e){
+						}
+					}
+					throw new RuntimeException("no suitable constructor.");
 				}
-			},
+			};
+		}
+		@Override
+		@SuppressWarnings("rawtypes")
+		public Trio<Object, Long, Long> run() throws Throwable {
+			Pair<MapTrie, Long> tries = buildFirstTrie();
+			MapTrie trie = tries.getFirst();
+			return Trio.create((Object)trie, tries.getSecond(), verifyTrie(trie));
+		}
+		@SuppressWarnings({"rawtypes", "unchecked"})
+		private Pair<MapTrie, Long> buildFirstTrie()
+		throws InstantiationException, IllegalAccessException, IOException{
+			Object[] params = new Object[ctorParamClasses.length];
+			for(int i = 0; i < ctorParamClasses.length; i++){
+				params[i] = ctorParamClasses[i].newInstance();
+			}
+			for(Constructor<?> c : trieClass.getConstructors()){
+				try{
+					if(c.getParameterTypes().length == params.length){
+						MapTrie<Integer> trie = (MapTrie<Integer>)c.newInstance(params);
+						long b = 0;
+						LapTimer lt = new LapTimer();
+						int i = 0;
+						for(String w : newWords()){
+							lt.reset(); trie.insert(w, i); b += lt.lapNanos(); i++;
+						}
+						b += lt.lapNanos();
+						if(consumer != null) consumer.consume(trie);
+						return Pair.create((MapTrie)trie, b / 1000000);
+					}
+				} catch(InstantiationException | IllegalAccessException |
+						IllegalArgumentException | InvocationTargetException e){
+				}
+			}
+			throw new RuntimeException("no suitable constructor.");
+		}
+		@SuppressWarnings("rawtypes")
+		private long verifyTrie(MapTrie trie) throws IOException{
+			long c = 0;
+			int i = 0;
+			LapTimer lt = new LapTimer();
+			for(String w : newWords()){
+				lt.reset();
+				Integer r = (Integer)trie.get(w);
+				c += lt.lapNanos();
+				if((int)r != i) throw new RuntimeException("verification failed for \"" + w + "\"");
+				i++;
+			}
+			return c / 1000000;
+		}
+	}
+
+	private static AbstractProcess[] procs = {
+//*
+		new SetProcess(HashSet.class),
+		new SetProcess(TreeSet.class),
+		new MapProcess(HashMap.class),
+		new MapProcess(TreeMap.class),
+		new TrieProcess(PatriciaTrie.class),
+		new MapTrieProcess(MapPatriciaTrie.class),
+		new TrieProcess(TailPatriciaTrie.class, SuffixTrieTailBuilder.class),
+		new TrieProcess(TailPatriciaTrie.class, SuffixTrieTailBuilder.class).afterBuild(new TrieFreezer()),
+		new TrieProcess(TailPatriciaTrie.class, ConcatTailBuilder.class),
+		new MapTrieProcess(MapTailPatriciaTrie.class, SuffixTrieTailBuilder.class),
+		new MapTrieProcess(MapTailPatriciaTrie.class, SuffixTrieTailBuilder.class).afterBuild(new TrieFreezer()),
+		new MapTrieProcess(MapTailPatriciaTrie.class, ConcatTailBuilder.class),
 //*/
-/*				new TrieProcess("MultilayerPatriciaTrie(no pack)"){
+/*
+			new TrieProcess("MultilayerPatriciaTrie(no pack)"){
 				public Pair<Long, Long> run() throws IOException {
 					return runForTrie(new MultilayerPatriciaTrie());
 				}
@@ -199,46 +394,14 @@ public class AllTries {
 			},
 //*/
 //*
-			new TrieProcess2("DoubleArray"){
-				protected Trie buildFrom(Trie trie){
-					return new DoubleArray(trie);
-				}
-			},
-			new MapTrieProcess2("MapDoubleArray"){
-				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie){
-					return new MapDoubleArray<Integer>(trie);
-				}
-			},
-			new TrieProcess2("TailDoubleArray(suffixTrieTail)"){
-				protected Trie buildFrom(Trie trie){
-					return new TailDoubleArray(trie, new SuffixTrieTailArray());
-				}
-			},
-			new TrieProcess2("TailDoubleArray(concatTail)"){
-				protected Trie buildFrom(Trie trie){
-					return new TailDoubleArray(trie, new ConcatTailArray());
-				}
-			},
-			new MapTrieProcess2("MapTailDoubleArray(suffixTrieTail)") {
-				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
-					return new MapTailDoubleArray<Integer>(trie, new SuffixTrieTailArray());
-				}
-			},
-			new MapTrieProcess2("MapTailDoubleArray(concatTail)") {
-				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
-					return new MapTailDoubleArray<Integer>(trie, new ConcatTailArray());
-				}
-			},
-			new TrieProcess2("PackedTailDoubleArray(suffixTrieTail)"){
-				protected Trie buildFrom(Trie trie){
-					return new PackedTailDoubleArray(trie, new SuffixTrieTailBuilder());
-				}
-			},
-			new TrieProcess2("PackedTailDoubleArray(concatTail)"){
-				protected Trie buildFrom(Trie trie){
-					return new PackedTailDoubleArray(trie, new ConcatTailBuilder());
-				}
-			},
+			new TrieProcess().second(DoubleArray.class),
+			new MapTrieProcess().second(MapDoubleArray.class),
+			new TrieProcess().second(TailDoubleArray.class, SuffixTrieTailArray.class),
+			new TrieProcess().second(TailDoubleArray.class, ConcatTailArray.class),
+			new MapTrieProcess().second(MapTailDoubleArray.class, SuffixTrieTailArray.class),
+			new MapTrieProcess().second(MapTailDoubleArray.class, ConcatTailArray.class),
+//			new TrieProcess().second(TailDoubleArray.class, SuffixTrieTailBuilder.class),
+//			new TrieProcess().second(TailDoubleArray.class, ConcatTailBuilder.class),
 //*/
 /*
 			new TrieProcess2("LOUDSTrie"){
@@ -247,87 +410,57 @@ public class AllTries {
 				}
 			},
 //*/
-			new TrieProcess2("TailLOUDSTrie(suffixTrieTail,arrayTI)"){
-				protected Trie buildFrom(Trie trie){
-					return new TailLOUDSTrie(trie, new SuffixTrieTailArray(trie.size()));
-				}
-			},
-			new TrieProcess2("TailLOUDSTrie(concatTail,arrayTI)"){
-				protected Trie buildFrom(Trie trie){
-					return new TailLOUDSTrie(trie, new ConcatTailArray(trie.size()));
-				}
-			},
-			new TrieProcess2("TailLOUDSTrie(concatTail,sbvTI)"){
-				protected Trie buildFrom(Trie trie){
-					return new TailLOUDSTrie(trie, new SBVConcatTailArray(trie.size()));
-				}
-			},
-			new MapTrieProcess2("MapTailLOUDSTrie(concatTail,arrayTI)") {
-				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
-					return new MapTailLOUDSTrie<Integer>(trie, new ConcatTailArray(trie.size()));
-				}
-			},
-			new TrieProcess2("TailLOUDSPPTrie(suffixTrieTail,arrayTI)"){
-				protected Trie buildFrom(Trie trie){
-					return new TailLOUDSPPTrie(trie, new SuffixTrieTailArray(trie.size()));
-				}
-			},
-			new TrieProcess2("TailLOUDSPPTrie(concatTail,arrayTI)"){
-				protected Trie buildFrom(Trie trie){
-					return new TailLOUDSPPTrie(trie, new ConcatTailArray(trie.size()));
-				}
-			},
-			new TrieProcess2("TailLOUDSPPTrie(concatTail,sbvTI)"){
-				protected Trie buildFrom(Trie trie){
-					return new TailLOUDSPPTrie(trie, new SBVConcatTailArray(trie.size()));
-				}
-			},
-			new MapTrieProcess2("MapTailLOUDSPPTrie(concatTail,arrayTI)") {
-				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
-					return new MapTailLOUDSPPTrie<Integer>(trie, new ConcatTailArray(trie.size()));
-				}
-			},
-			new TrieProcess2("InlinedTailLOUDSTrie(concatTail,arrayTI)"){
-				protected Trie buildFrom(Trie trie){
-					return new InlinedTailLOUDSTrie(trie, new ConcatTailBuilder());
-				}
-			},
-			new TrieProcess2("InlinedTailLOUDSPPTrie(concatTail,arrayTI)"){
-				protected Trie buildFrom(Trie trie){
-					return new InlinedTailLOUDSPPTrie(trie);
-				}
-			},
+//*
+			new TrieProcess().second(TailLOUDSTrie.class, ConcatTailArray.class),
+			new TrieProcess().second(TailLOUDSTrie.class, SBVConcatTailArray.class),
+			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieTailArray.class),
+			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieDenseTailArray.class),
+			new TrieProcess().second(TailLOUDSPPTrie.class, ConcatTailArray.class),
+			new TrieProcess().second(TailLOUDSPPTrie.class, SBVConcatTailArray.class),
+			new TrieProcess().second(TailLOUDSPPTrie.class, SuffixTrieTailArray.class),
+			new TrieProcess().second(TailLOUDSPPTrie.class, SuffixTrieDenseTailArray.class),
+			new MapTrieProcess().second(MapTailLOUDSTrie.class, SuffixTrieTailArray.class),
+			new MapTrieProcess().second(MapTailLOUDSTrie.class, ConcatTailArray.class),
+			new MapTrieProcess().second(MapTailLOUDSTrie.class, SBVConcatTailArray.class),
+			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, SuffixTrieTailArray.class),
+			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, ConcatTailArray.class),
+			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, SBVConcatTailArray.class),
 //*/
 			};
 
-	public static void main(String[] args) throws Exception{
+	public static void main(String[] args) throws Throwable{
 		MemoryMXBean mb = ManagementFactory.getMemoryMXBean();
 		int n = 3;
 		System.out.println("run each process " + n + " times.");
 		System.out.println("warming up... running all trie once");
-		for(Process p : procs){
+		for(AbstractProcess p : procs){
 			System.out.print(p.getName() + " ");
 			p.run();
 			System.gc();
 		}
 		System.out.println("warming up... done");
-		for(Process p : procs){
+		for(AbstractProcess p : procs){
 			System.out.print(p.getName());
 			p.run();
 			mb.gc();
 			mb.gc();
 			long b = 0, c = 0;
+			Object trie = null;
 			for(int i = 0; i < n; i++){
-				Pair<Long, Long> r = p.run();
-				b += r.getFirst();
-				c += r.getSecond();
+				Trio<Object, Long, Long> r = p.run();
+				b += r.getSecond();
+				c += r.getThird();
+				trie = r.getFirst();
 				mb.gc();
 				mb.gc();
 			}
-			System.out.println(String.format(", %d, %d, %d", b / n, c / n, mb.getHeapMemoryUsage().getUsed()));
+			System.out.println(String.format(
+					", %d, %d, %d",
+					b / n, c / n, mb.getHeapMemoryUsage().getUsed()));
+//			System.out.println("sleeping...");
 //			Thread.sleep(10000);
-			holder.hashCode();
-			holder = null;
+			trie.hashCode();
+			trie = null;
 		}
 //*
 //*/

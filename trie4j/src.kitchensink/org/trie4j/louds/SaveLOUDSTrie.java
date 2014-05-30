@@ -20,7 +20,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
-import org.trie4j.patricia.tail.TailPatriciaTrie;
+import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.tail.SBVConcatTailArray;
 import org.trie4j.test.WikipediaTitles;

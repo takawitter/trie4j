@@ -17,7 +17,7 @@ package org.trie4j.doublearray;
 
 import org.trie4j.AbstractTrieTest;
 import org.trie4j.Trie;
-import org.trie4j.patricia.simple.PatriciaTrie;
+import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArray;
 
 public class TailDoubleArrayWithConcatTailBuilderTest extends AbstractTrieTest{

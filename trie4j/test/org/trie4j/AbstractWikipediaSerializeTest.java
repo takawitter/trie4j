@@ -23,7 +23,7 @@ import java.io.ObjectOutputStream;
 import org.junit.Test;
 import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.AbstractTailLOUDSTrie;
-import org.trie4j.patricia.tail.TailPatriciaTrie;
+import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 

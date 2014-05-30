@@ -17,6 +17,7 @@ package org.trie4j.patricia.simple;
 
 import org.trie4j.AbstractMapTrieWikipediaSerializeTest;
 import org.trie4j.MapTrie;
+import org.trie4j.patricia.MapPatriciaTrie;
 
 public class MapPatriciaTrieWikipediaSerializeTest
 extends AbstractMapTrieWikipediaSerializeTest{
