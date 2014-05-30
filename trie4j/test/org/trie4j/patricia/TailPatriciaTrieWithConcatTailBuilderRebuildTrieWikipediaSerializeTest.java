@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.simple;
+package org.trie4j.patricia;
 
-import org.trie4j.AbstractMapTrieTest;
-import org.trie4j.MapTrie;
-import org.trie4j.patricia.MapPatriciaTrie;
+import org.trie4j.AbstractWikipediaSerializeTest;
+import org.trie4j.Trie;
+import org.trie4j.patricia.TailPatriciaTrie;
+import org.trie4j.tail.builder.ConcatTailBuilder;
 
-public class MapPatriciaTrieTest extends AbstractMapTrieTest{
+public class TailPatriciaTrieWithConcatTailBuilderRebuildTrieWikipediaSerializeTest
+extends AbstractWikipediaSerializeTest{
 	@Override
-	protected MapTrie<Integer> createFirstTrie() {
-		return new MapPatriciaTrie<Integer>();
+	protected Trie firstTrie() {
+		return new TailPatriciaTrie(new ConcatTailBuilder());
+	}
+
+	@Override
+	protected Trie secondTrie(Trie first) {
+		return new TailPatriciaTrie(first, new ConcatTailBuilder());
 	}
 }

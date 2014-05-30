@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.tail;
+package org.trie4j.patricia;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,7 +26,7 @@ import org.trie4j.Trie;
 import org.trie4j.patricia.MapTailPatriciaTrie;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 
-public class MapTailPatriciaTrieWithSuffixTrieTailBuilderWikipediaTest extends AbstractMapTrieWikipediaTest{
+public class MapTailPatriciaTrieWithConcatTailBuilderWikipediaTest extends AbstractMapTrieWikipediaTest{
 	@Override
 	protected MapTrie<Integer> createFirstTrie() {
 		return new MapTailPatriciaTrie<Integer>(new ConcatTailBuilder());

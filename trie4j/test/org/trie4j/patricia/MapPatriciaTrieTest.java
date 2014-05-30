@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.tail;
+package org.trie4j.patricia;
 
-import org.trie4j.AbstractTrieTest;
-import org.trie4j.Trie;
-import org.trie4j.patricia.TailPatriciaTrie;
-import org.trie4j.tail.builder.ConcatTailBuilder;
+import org.trie4j.AbstractMapTrieTest;
+import org.trie4j.MapTrie;
+import org.trie4j.patricia.MapPatriciaTrie;
 
-public class TailPatriciaTrieWithConcatTailBuilderTest extends AbstractTrieTest {
+public class MapPatriciaTrieTest extends AbstractMapTrieTest{
 	@Override
-	protected Trie createFirstTrie() {
-		return new TailPatriciaTrie(new ConcatTailBuilder());
+	protected MapTrie<Integer> createFirstTrie() {
+		return new MapPatriciaTrie<Integer>();
 	}
 }

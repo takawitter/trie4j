@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.patricia.tail;
+package org.trie4j.patricia;
 
 import org.trie4j.AbstractWikipediaTest;
 import org.trie4j.Trie;
 import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 
-public class TailPatriciaTrieWithConcatTailBuilderWikipediaTest extends AbstractWikipediaTest {
+public class TailPatriciaTrieWithConcatTailBuilderRebuildTrieWikipediaTest extends AbstractWikipediaTest {
 	@Override
 	protected Trie createFirstTrie() {
 		return new TailPatriciaTrie(new ConcatTailBuilder());
+	}
+	@Override
+	protected Trie buildSecondTrie(Trie first) throws Exception {
+		return new TailPatriciaTrie(first, new ConcatTailBuilder());
 	}
 }
