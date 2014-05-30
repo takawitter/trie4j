@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.tail;
+package org.trie4j.louds;
 
-public interface TailArray {
-	TailCharIterator newIterator(int offset);
-	TailCharIterator newIterator();
-	int getIteratorOffset(int nodeId);
-	void getChars(StringBuilder builder, int nodeId);
+import org.trie4j.AbstractWikipediaSerializeTest;
+import org.trie4j.Trie;
+import org.trie4j.tail.SuffixTrieDenseTailArray;
+
+public class TailLOUDSTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest
+extends AbstractWikipediaSerializeTest{
+	@Override
+	protected Trie secondTrie(Trie orig) {
+		return new TailLOUDSTrie(orig, new SuffixTrieDenseTailArray());
+	}
 }

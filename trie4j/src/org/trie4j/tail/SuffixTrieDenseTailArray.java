@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,23 @@
  */
 package org.trie4j.tail;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.index.DenseArrayTailIndex;
 
-public class ConcatTailArrayTest {
-	@Test
-	public void test_tailtrie_1() throws Exception{
-		TailArrayBuilder tab = new ConcatTailArray(0);
-		tab.append(0, "hello", 0, 5);
-		tab.append(1, "mello", 0, 5);
-		TailArray ta = tab.build();
-		TailCharIterator it = ta.newIterator();
-		it.setOffset(ta.getIteratorOffset(0));
-		Assert.assertEquals("hello", TailUtil.readAll(it));
-		it.setOffset(ta.getIteratorOffset(1));
-		Assert.assertEquals("mello", TailUtil.readAll(it));
+public class SuffixTrieDenseTailArray extends AbstractTailArray implements TailArray{
+	public SuffixTrieDenseTailArray() {
+	}
+
+	public SuffixTrieDenseTailArray(int initialCapacity) {
+		super(initialCapacity);
+	}
+
+	@Override
+	protected TailBuilder newTailBuilder(StringBuilder tails) {
+		return new SuffixTrieTailBuilder(tails);
+	}
+	@Override
+	protected TailIndex newTailIndex(int initialCapacity) {
+		return new DenseArrayTailIndex(initialCapacity);
 	}
 }

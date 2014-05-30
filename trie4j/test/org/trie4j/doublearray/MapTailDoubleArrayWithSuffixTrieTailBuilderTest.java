@@ -17,11 +17,11 @@ package org.trie4j.doublearray;
 
 import org.trie4j.AbstractMapTrieTest;
 import org.trie4j.MapTrie;
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.SuffixTrieTailArray;
 
 public class MapTailDoubleArrayWithSuffixTrieTailBuilderTest extends AbstractMapTrieTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailDoubleArray<Integer>(firstTrie, new SuffixTrieTailBuilder());
+		return new MapTailDoubleArray<Integer>(firstTrie, new SuffixTrieTailArray());
 	}
 }

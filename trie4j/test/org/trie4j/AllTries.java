@@ -211,22 +211,22 @@ public class AllTries {
 			},
 			new TrieProcess2("TailDoubleArray(suffixTrieTail)"){
 				protected Trie buildFrom(Trie trie){
-					return new TailDoubleArray(trie, new SuffixTrieTailBuilder());
+					return new TailDoubleArray(trie, new SuffixTrieTailArray());
 				}
 			},
 			new TrieProcess2("TailDoubleArray(concatTail)"){
 				protected Trie buildFrom(Trie trie){
-					return new TailDoubleArray(trie, new ConcatTailBuilder());
+					return new TailDoubleArray(trie, new ConcatTailArray());
 				}
 			},
 			new MapTrieProcess2("MapTailDoubleArray(suffixTrieTail)") {
 				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
-					return new MapTailDoubleArray<Integer>(trie, new SuffixTrieTailBuilder());
+					return new MapTailDoubleArray<Integer>(trie, new SuffixTrieTailArray());
 				}
 			},
 			new MapTrieProcess2("MapTailDoubleArray(concatTail)") {
 				protected MapTrie<Integer> buildFrom(MapTrie<Integer> trie) {
-					return new MapTailDoubleArray<Integer>(trie, new ConcatTailBuilder());
+					return new MapTailDoubleArray<Integer>(trie, new ConcatTailArray());
 				}
 			},
 			new TrieProcess2("PackedTailDoubleArray(suffixTrieTail)"){

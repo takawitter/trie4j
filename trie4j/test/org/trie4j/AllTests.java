@@ -50,6 +50,7 @@ import org.trie4j.patricia.tail.TailPatriciaTrieWithSuffixTrieTailBuilderTest;
 import org.trie4j.tail.ConcatTailArrayTest;
 import org.trie4j.tail.builder.SuffixTrieTailBuilderTest;
 import org.trie4j.tail.index.ArrayTailIndexTest;
+import org.trie4j.tail.index.DenseArrayTailIndexTest;
 import org.trie4j.tail.index.SBVTailIndexTest;
 import org.trie4j.util.CharsCharSequenceTest;
 import org.trie4j.util.FastBitSetTest;
@@ -58,13 +59,14 @@ import org.trie4j.util.SuccinctBitVectorTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	AlgorithmsTest.class,
-	ArrayTailIndexTest.class,
 	BitVectorUtilTest.class,
 	ConcatTailArrayTest.class,
 	CharsCharSequenceTest.class,
 	FastBitSetTest.class,
 	Rank0OnlySuccinctBitVectorTest.class,
 	Rank1OnlySuccinctBitVectorTest.class,
+	ArrayTailIndexTest.class,
+	DenseArrayTailIndexTest.class,
 	SBVTailIndexTest.class,
 	SuccinctBitVectorTest.class,
 	SuffixTrieTailBuilderTest.class,

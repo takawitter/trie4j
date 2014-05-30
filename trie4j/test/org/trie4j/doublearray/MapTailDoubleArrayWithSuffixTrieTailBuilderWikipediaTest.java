@@ -20,12 +20,12 @@ import java.io.OutputStreamWriter;
 import org.trie4j.AbstractMapTrieWikipediaTest;
 import org.trie4j.MapTrie;
 import org.trie4j.Trie;
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.SuffixTrieTailArray;
 
 public class MapTailDoubleArrayWithSuffixTrieTailBuilderWikipediaTest extends AbstractMapTrieWikipediaTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailDoubleArray<Integer>(firstTrie, new SuffixTrieTailBuilder());
+		return new MapTailDoubleArray<Integer>(firstTrie, new SuffixTrieTailArray());
 	}
 
 	@Override

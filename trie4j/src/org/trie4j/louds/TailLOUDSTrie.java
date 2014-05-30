@@ -23,7 +23,7 @@ import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.patricia.simple.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArray;
-import org.trie4j.tail.TailArray;
+import org.trie4j.tail.TailArrayBuilder;
 
 public class TailLOUDSTrie
 extends AbstractTailLOUDSTrie
@@ -36,19 +36,19 @@ implements Serializable, Trie {
 		this(orig, new ConcatTailArray(orig.size()));
 	}
 
-	public TailLOUDSTrie(Trie orig, TailArray tailArray){
-		this(orig, new LOUDSBvTree(orig.size() * 2), tailArray);
+	public TailLOUDSTrie(Trie orig, TailArrayBuilder tailArrayBuilder){
+		this(orig, new LOUDSBvTree(orig.size() * 2), tailArrayBuilder);
 	}
 
-	public TailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray){
-		this(orig, bvtree, tailArray, new NodeListener(){
+	public TailLOUDSTrie(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder){
+		this(orig, bvtree, tailArrayBuilder, new NodeListener(){
 			@Override
 			public void listen(Node node, int id) {
 			}
 		});
 	}
 
-	public TailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray, NodeListener listener){
-		super(orig, bvtree, tailArray, listener);
+	public TailLOUDSTrie(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder, NodeListener listener){
+		super(orig, bvtree, tailArrayBuilder, listener);
 	}
 }

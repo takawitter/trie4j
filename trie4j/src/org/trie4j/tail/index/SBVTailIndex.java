@@ -38,16 +38,24 @@ implements Externalizable, TailIndex{
 	}
 
 	@Override
-	public void add(int start, int end) {
+	public void add(int nodeId, int start, int end) {
+		if(nodeId != current){
+			throw new IllegalArgumentException("nodeId must be a monoinc.");
+		}
 		for(int i = start; i < end; i++){
 			bv.append1();
 		}
 		bv.append0();
+		current++;
 	}
 	
 	@Override
-	public void addEmpty() {
+	public void addEmpty(int nodeId) {
+		if(nodeId != current){
+			throw new IllegalArgumentException("nodeId must be a monoinc.");
+		}
 		bv.append0();
+		current++;
 	}
 
 	@Override
@@ -76,6 +84,7 @@ implements Externalizable, TailIndex{
 		bv.writeExternal(out);
 	}
 
+	private int current;
 	private BytesSuccinctBitVector bv;
 	private static final long serialVersionUID = 8843853578097509573L;
 }

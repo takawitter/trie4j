@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.tail.TailIndex;
 
-public class SBVTailIndexTest {
+public class DenseArrayTailIndexTest {
 	@Test
 	public void test() throws Exception{
-		SBVTailIndex ti = new SBVTailIndex();
+		TailIndex ti = new DenseArrayTailIndex();
 		ti.add(0, 0, 10);
 		ti.add(1, 10, 15);
 		Assert.assertEquals(0, ti.get(0));
@@ -31,13 +31,13 @@ public class SBVTailIndexTest {
 
 	@Test
 	public void test2() throws Exception{
-		TailIndex ti = new SBVTailIndex();
+		TailIndex ti = new DenseArrayTailIndex();
 		Assert.assertEquals(-1, ti.get(0));
 	}
 
 	@Test
 	public void test3() throws Exception{
-		SBVTailIndex ti = new SBVTailIndex();
+		TailIndex ti = new DenseArrayTailIndex();
 		ti.add(0, 0, 10);
 		ti.add(1, -1, -1);
 		ti.add(2, 10, 15);
@@ -48,22 +48,13 @@ public class SBVTailIndexTest {
 
 	@Test
 	public void test4() throws Exception{
-		TailIndex ti = new SBVTailIndex();
-		ti.add(0, -1, -1);
-		ti.add(1, -1, -1);
-		ti.add(2, 0, 5);
-		ti.add(3, 5, 9);
-		ti.add(4, -1, -1);
-		ti.add(5, 9, 12);
-		ti.add(6, 12, 16);
-		ti.add(7, 16, 20);
-		Assert.assertEquals(-1, ti.get(0));
-		Assert.assertEquals(-1, ti.get(1));
-		Assert.assertEquals(0, ti.get(2));
-		Assert.assertEquals(5, ti.get(3));
-		Assert.assertEquals(-1, ti.get(4));
-		Assert.assertEquals(9, ti.get(5));
-		Assert.assertEquals(12, ti.get(6));
-		Assert.assertEquals(16, ti.get(7));
+		TailIndex ti = new DenseArrayTailIndex();
+		ti.add(0, 0, 10);
+		ti.addEmpty(1);
+		ti.add(2, 11, 14);
+		ti.add(3, 15, 16);
+		Assert.assertEquals(0, ti.get(0));
+		Assert.assertEquals(11, ti.get(2));
+		Assert.assertEquals(15, ti.get(3));
 	}
 }

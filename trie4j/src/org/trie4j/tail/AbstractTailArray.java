@@ -21,7 +21,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 public abstract class AbstractTailArray
-implements Externalizable, TailArray{
+implements Externalizable, TailArray, TailArrayBuilder{
 	protected abstract TailBuilder newTailBuilder(StringBuilder tails);
 	protected abstract TailIndex newTailIndex(int initialCapacity);
 
@@ -43,23 +43,24 @@ implements Externalizable, TailArray{
 	}
 
 	@Override
-	public int append(CharSequence letters, int offset, int len) {
+	public void append(int nodeId, CharSequence letters, int offset, int len) {
 		int ret = builder.insert(letters, offset, len);
-		index.add(ret, tails.length());
-		return ret;
+		index.add(nodeId, ret, tails.length());
 	}
 
 	@Override
-	public int append(char[] letters, int offset, int len) {
+	public void append(int nodeId, char[] letters, int offset, int len) {
 		int ret = builder.insert(letters, offset, len);
-		index.add(ret, tails.length());
-		return ret;
+		index.add(nodeId, ret, tails.length());
 	}
 
 	@Override
-	public int appendEmpty() {
-		index.addEmpty();
-		return -1;
+	public void appendEmpty(int nodeId) {
+		index.addEmpty(nodeId);
+	}
+
+	public TailCharIterator newIte(int nodeId){
+		return new TailCharIterator(tails, index.get(nodeId));
 	}
 
 	@Override
@@ -77,6 +78,12 @@ implements Externalizable, TailArray{
 		return this.index.get(index);
 	}
 
+	public void getChars(StringBuilder builder, int nodeId){
+		int offset = index.get(nodeId);
+		if(offset == -1) return;
+		TailUtil.appendChars(tails, offset, builder);
+	}
+
 	@Override
 	public void trimToSize() {
 		tails.trimToSize();
@@ -87,6 +94,11 @@ implements Externalizable, TailArray{
 	public void freeze() {
 		trimToSize();
 		builder = null;
+	}
+
+	@Override
+	public TailArray build() {
+		return this;
 	}
 
 	@Override

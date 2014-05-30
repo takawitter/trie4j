@@ -17,11 +17,11 @@ package org.trie4j.doublearray;
 
 import org.trie4j.AbstractWikipediaTest;
 import org.trie4j.Trie;
-import org.trie4j.tail.builder.ConcatTailBuilder;
+import org.trie4j.tail.ConcatTailArray;
 
 public class TailDoubleArrayWithConcatTailBuilderWikipediaTest extends AbstractWikipediaTest{
 	@Override
 	protected Trie buildSecondTrie(Trie first) {
-		return new TailDoubleArray(first, new ConcatTailBuilder());
+		return new TailDoubleArray(first, new ConcatTailArray());
 	}
 }

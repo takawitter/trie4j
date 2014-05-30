@@ -64,7 +64,7 @@ public abstract class AbstractWikipediaSerializeTest{
 		if(trie instanceof TailPatriciaTrie){
 			return "(" + ((TailPatriciaTrie) trie).getTailBuilder().getClass().getSimpleName() + ")";
 		} else if(trie instanceof TailDoubleArray){
-			return "(unknown)";
+			return "(" + ((TailDoubleArray) trie).getTailArray().getClass().getSimpleName() + ")";
 		} else if(trie instanceof AbstractTailLOUDSTrie){
 			return "(" + ((AbstractTailLOUDSTrie) trie).getTailArray().getClass().getSimpleName() + ")";
 		} else{

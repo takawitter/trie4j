@@ -27,7 +27,7 @@ import org.trie4j.louds.AbstractTailLOUDSTrie.NodeListener;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.tail.ConcatTailArray;
-import org.trie4j.tail.TailArray;
+import org.trie4j.tail.TailArrayBuilder;
 
 public class MapTailLOUDSTrie<T>
 extends AbstractTermIdMapTrie<T>
@@ -39,13 +39,13 @@ implements Externalizable, MapTrie<T>{
 		this(orig, new ConcatTailArray(orig.size()));
 	}
 
-	public MapTailLOUDSTrie(MapTrie<T> orig, TailArray tailArray){
-		this(orig, new LOUDSBvTree(orig.size() * 2), tailArray);
+	public MapTailLOUDSTrie(MapTrie<T> orig, TailArrayBuilder tailArrayBuilder){
+		this(orig, new LOUDSBvTree(orig.size() * 2), tailArrayBuilder);
 	}
 
-	public MapTailLOUDSTrie(MapTrie<T> orig, BvTree bvtree, TailArray tailArray){
+	public MapTailLOUDSTrie(MapTrie<T> orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder){
 		final List<T> values = new ArrayList<T>();
-		setTrie(new TailLOUDSTrie(orig, bvtree, tailArray, new NodeListener(){
+		setTrie(new TailLOUDSTrie(orig, bvtree, tailArrayBuilder, new NodeListener(){
 			@Override
 			@SuppressWarnings("unchecked")
 			public void listen(Node node, int id) {

@@ -43,11 +43,11 @@ import org.trie4j.TermIdTrie;
 import org.trie4j.Trie;
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
-import org.trie4j.tail.FastTailCharIterator;
-import org.trie4j.tail.TailBuilder;
+import org.trie4j.tail.SuffixTrieTailArray;
+import org.trie4j.tail.TailArray;
+import org.trie4j.tail.TailArrayBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.TailUtil;
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.util.BitSet;
 import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
@@ -61,18 +61,18 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 	}
 
 	public TailDoubleArray(Trie orig){
-		this(orig, new SuffixTrieTailBuilder());
+		this(orig, new SuffixTrieTailArray());
 	}
 
-	public TailDoubleArray(Trie orig, TailBuilder tb){
-		this(orig, tb, new TermNodeListener(){
+	public TailDoubleArray(Trie orig, TailArrayBuilder tab){
+		this(orig, tab, new TermNodeListener(){
 			@Override
 			public void listen(Node node, int nodeIndex) {
 			}
 		});
 	}
 
-	public TailDoubleArray(Trie orig, TailBuilder tb, TermNodeListener listener){
+	public TailDoubleArray(Trie orig, TailArrayBuilder tab, TermNodeListener listener){
 		size = orig.size();
 		int as = size;
 		if(as <= 1) as = 2;
@@ -80,14 +80,12 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[as];
 		Arrays.fill(check, -1);
-		tail = new int[as];
-		Arrays.fill(tail, -1);
 		Arrays.fill(charToCode, (char)0);
 
 		FastBitSet bs = new FastBitSet(65536);
-		build(orig.getRoot(), 0, tb, bs, listener);
+		build(orig.getRoot(), 0, tab, bs, listener);
 		term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
-		tails = tb.getTails();
+		tailArray = tab.build();
 	}
 
 	@Override
@@ -110,6 +108,10 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 
 	public BitSet getTerm() {
 		return term;
+	}
+
+	public TailArray getTailArray(){
+		return tailArray;
 	}
 
 	private class TailDoubleArrayNode implements TermIdNode{
@@ -136,7 +138,9 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		public char[] getLetters() {
 			StringBuilder ret = new StringBuilder();
 			ret.append(firstChar);
-			TailUtil.appendChars(tails, tail[nodeId],ret);
+			TailUtil.appendChars(
+					tailArray.newIterator(tailArray.getIteratorOffset(nodeId)),
+					ret);
 			return ret.toString().toCharArray();
 		}
 
@@ -170,7 +174,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 	@Override
 	public int getTermId(String text) {
 		int nodeIndex = 0; // root
-		FastTailCharIterator it = new FastTailCharIterator(tails, -1);
+		TailCharIterator it = tailArray.newIterator();
 		int n = text.length();
 		for(int i = 0; i < n; i++){
 			char cid = charToCode[text.charAt(i)];
@@ -178,14 +182,13 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 			int next = base[nodeIndex] + cid;
 			if(next < 0 || check[next] != nodeIndex) return -1;
 			nodeIndex = next;
-			int ti = tail[nodeIndex];
+			int ti = tailArray.getIteratorOffset(nodeIndex);
 			if(ti == -1) continue;
 			it.setIndex(ti);
-			char c;
-			while((c = it.getNext()) != '\0'){
+			while(it.hasNext()){
 				i++;
 				if(i == n) return -1;
-				if(text.charAt(i) != c) return -1;
+				if(text.charAt(i) != it.next()) return -1;
 			}
 		}
 		return term.get(nodeIndex) ? term.rank1(nodeIndex) - 1 : -1;
@@ -197,7 +200,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		int charsLen = query.length();
 		int ci = 0;
 		int ni = 0;
-		FastTailCharIterator it = new FastTailCharIterator(tails, -1);
+		TailCharIterator it = tailArray.newIterator();
 		for(; ci < charsLen; ci++){
 			int cid = findCharId(query.charAt(ci));
 			if(cid == -1) return ret;
@@ -206,11 +209,11 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 			int next = b + cid;
 			if(check.length <= next || check[next] != ni) return ret;
 			ni = next;
-			int ti = tail[ni];
+			int ti = tailArray.getIteratorOffset(ni);
 			if(ti != -1){
 				it.setIndex(ti);
 				char c;
-				while((c = it.getNext()) != '\0'){
+				while((c = it.next()) != '\0'){
 					ci++;
 					if(ci >= charsLen) return ret;
 					if(c != query.charAt(ci)) return ret;
@@ -240,9 +243,9 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		int charsLen = chars.length;
 		int checkLen = check.length;
 		int nodeIndex = 0;
-		TailCharIterator it = new TailCharIterator(tails,  -1);
+		TailCharIterator it = tailArray.newIterator();
 		for(int i = 0; i < chars.length; i++){
-			int ti = tail[nodeIndex];
+			int ti = tailArray.getIteratorOffset(nodeIndex);
 			if(ti != -1){
 				int first = i;
 				it.setIndex(ti);
@@ -267,13 +270,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 			Pair<Integer, char[]> p = q.pop();
 			int ni = p.getFirst();
 			StringBuilder buff = new StringBuilder().append(p.getSecond());
-			int ti = tail[ni];
-			if(ti != -1){
-				it.setIndex(ti);
-				while(it.hasNext()){
-					buff.append(it.next());
-				}
-			}
+			tailArray.getChars(buff, ni);
 			if(term.get(ni)){
 				ret.add(Pair.create(
 					buff.toString(),
@@ -304,14 +301,9 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		for(int v : check){
 			out.writeInt(v);
 		}
-		for(int v : tail){
-			out.writeInt(v);
-		}
 		out.writeObject(term);
-		out.flush();
+		out.writeObject(tailArray);
 		out.writeInt(firstEmptyCheck);
-		out.writeInt(tails.length());
-		out.writeChars(tails.toString());
 		out.writeInt(chars.size());
 		for(char c : chars){
 			out.writeChar(c);
@@ -329,8 +321,8 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 	}
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
+	public void readExternal(ObjectInput in)
+	throws ClassNotFoundException, IOException{
 		size = in.readInt();
 		int len = in.readInt();
 		base = new int[len];
@@ -341,23 +333,10 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		for(int i = 0; i < len; i++){
 			check[i] = in.readInt();
 		}
-		tail = new int[len];
-		for(int i = 0; i < len; i++){
-			tail[i] = in.readInt();
-		}
-		try{
-			term = (SuccinctBitVector)in.readObject();
-		} catch(ClassNotFoundException e){
-			throw new IOException(e);
-		}
+		term = (SuccinctBitVector)in.readObject();
+		tailArray = (TailArray)in.readObject();
 		firstEmptyCheck = in.readInt();
 		int n = in.readInt();
-		StringBuilder b = new StringBuilder(n);
-		for(int i = 0; i < n; i++){
-			b.append(in.readChar());
-		}
-		tails = b;
-		n = in.readInt();
 		for(int i = 0; i < n; i++){
 			char c = in.readChar();
 			char v = in.readChar();
@@ -409,21 +388,21 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 				}
 			}
 			writer.println();
-			writer.print("|tail |");
+/*			writer.print("|tail |");
 			for(int i = 0; i < 16; i++){
-				if(tail[i] < 0){
+				if(tailArray.[i] < 0){
 					writer.print("N/A|");
 				} else{
 					writer.print(String.format("%3d|", tail[i]));
 				}
 			}
 			writer.println();
-			writer.print("|term |");
+*/			writer.print("|term |");
 			for(int i = 0; i < 16; i++){
 				writer.print(String.format("%3d|", term.get(i) ? 1 : 0));
 			}
 			writer.println();
-			int count = 0;
+/*			int count = 0;
 			for(int i : tail){
 				if(i != -1) count++;
 			}
@@ -451,7 +430,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 				writer.print("(capacity: " + ((StringBuilder)tails).capacity() + ")");
 			}
 			writer.println();
-			{
+*/			{
 				writer.print("chars: ");
 				int c = 0;
 				for(char e : chars){
@@ -498,18 +477,14 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		int sz = last + 1 + 0xFFFF;
 		base = Arrays.copyOf(base, sz);
 		check = Arrays.copyOf(check, sz);
-		tail = Arrays.copyOf(tail, sz);
-		if(tails instanceof StringBuilder){
-			((StringBuilder)tails).trimToSize();
-		}
 	}
 
-	private void build(Node node, int nodeIndex, TailBuilder tailb,
+	private void build(Node node, int nodeIndex, TailArrayBuilder tailArrayBuilder,
 			FastBitSet bs, TermNodeListener listener){
 		// letters
 		char[] letters = node.getLetters();
 		if(letters.length > 1){
-			tail[nodeIndex] = tailb.insert(letters, 1, letters.length - 1);
+			tailArrayBuilder.append(nodeIndex, letters, 1, letters.length - 1);
 		}
 		if(node.isTerminate()){
 			bs.set(nodeIndex);
@@ -563,7 +538,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		}
 		for(Map.Entry<Integer, List<Pair<Node, Integer>>> e : nodes.entrySet()){
 			for(Pair<Node, Integer> e2 : e.getValue()){
-				build(e2.getFirst(), e2.getSecond() + offset, tailb,
+				build(e2.getFirst(), e2.getSecond() + offset, tailArrayBuilder,
 						bs, listener);
 			}
 		}
@@ -611,8 +586,6 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		Arrays.fill(base, sz, nsz, BASE_EMPTY);
 		check = Arrays.copyOf(check, nsz);
 		Arrays.fill(check, sz, nsz, -1);
-		tail = Arrays.copyOf(tail, nsz);
-		Arrays.fill(tail, sz, nsz, -1);
 	}
 
 	private int findFirstEmptyCheck(){
@@ -668,11 +641,10 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 	private int size;
 	private int[] base;
 	private int[] check;
-	private int[] tail;
 	private int firstEmptyCheck = 1;
 	private int last;
 	private SuccinctBitVector term;
-	private CharSequence tails;
+	private TailArray tailArray;
 	private Set<Character> chars = new TreeSet<Character>();
 	private char[] charToCode = new char[Character.MAX_VALUE];
 	private static final TermIdNode[] emptyNodes = {};

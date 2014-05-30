@@ -35,6 +35,7 @@ import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
 import org.trie4j.tail.ConcatTailArray;
 import org.trie4j.tail.TailArray;
+import org.trie4j.tail.TailArrayBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.Pair;
 
@@ -42,7 +43,7 @@ public class InlinedTailLOUDSPPTrie
 extends AbstractTrie
 implements Externalizable, Trie {
 	public InlinedTailLOUDSPPTrie(){
-		tailArray = newTailArray(0);
+		tailArray = newTailArrayBuilder(0).build();
 		r0 = new Rank0OnlySuccinctBitVector();
 		r1 = new BytesSuccinctBitVector();
 	}
@@ -55,7 +56,7 @@ implements Externalizable, Trie {
 		this.r0 = r0;
 		this.r1 = r1;
 		size = orig.size();
-		this.tailArray = newTailArray(size);
+		TailArrayBuilder tailArrayBuilder = newTailArrayBuilder(size);
 		labels = new char[size];
 		term = new BitSet(size);
 		LinkedList<Node> queue = new LinkedList<Node>();
@@ -77,18 +78,18 @@ implements Externalizable, Trie {
 			char[] letters = node.getLetters();
 			if(letters.length == 0){
 				labels[index] = 0xffff;
-				tailArray.appendEmpty();
+				tailArrayBuilder.appendEmpty(index);
 			} else{
 				labels[index] = letters[0];
 				if(letters.length >= 2){
-					tailArray.append(letters, 1, letters.length - 1);
+					tailArrayBuilder.append(index, letters, 1, letters.length - 1);
 				} else{
-					tailArray.appendEmpty();
+					tailArrayBuilder.appendEmpty(index);
 				}
 			}
 		}
 		nodeSize = count;
-		tailArray.freeze();
+		this.tailArray = tailArrayBuilder.build();
 	}
 
 	public Rank0OnlySuccinctBitVector getR0() {
@@ -269,7 +270,6 @@ implements Externalizable, Trie {
 		if(labels.length > nodeSize){
 			labels = Arrays.copyOf(labels, nodeSize);
 		}
-		tailArray.trimToSize();
 		r0.trimToSize();
 		r1.trimToSize();
 	}
@@ -339,7 +339,7 @@ implements Externalizable, Trie {
 		labels = Arrays.copyOf(labels, nsz);
 	}
 
-	protected TailArray newTailArray(int initialCapacity){
+	protected TailArrayBuilder newTailArrayBuilder(int initialCapacity){
 		return new ConcatTailArray(initialCapacity);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.tail;
+package org.trie4j.util;
 
-public interface TailArray {
-	TailCharIterator newIterator(int offset);
-	TailCharIterator newIterator();
-	int getIteratorOffset(int nodeId);
-	void getChars(StringBuilder builder, int nodeId);
+public class ArrayUtil {
+	public static int[] unbox(Integer[] array){
+		int[] ret = new int[array.length];
+		for(int i = 0; i < array.length; i++){
+			ret[i] = array[i];
+		}
+		return ret;
+	}
 }

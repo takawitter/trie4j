@@ -44,7 +44,8 @@ public class WikipediaTitles implements Iterable<String>{
 	public void assertAllContains(Trie trie){
 		int i = 0;
 		for(String s : this){
-			Assert.assertTrue(i + "th entry: ." + s, trie.contains(s));
+			Assert.assertTrue(String.format("%dth entry: %s", i, s), trie.contains(s));
+			i++;
 		}
 	}
 
