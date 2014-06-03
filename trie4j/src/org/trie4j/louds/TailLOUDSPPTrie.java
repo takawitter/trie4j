@@ -20,7 +20,7 @@ import java.io.Serializable;
 import org.trie4j.Trie;
 import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.patricia.PatriciaTrie;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.tail.TailArrayBuilder;
 
 public class TailLOUDSPPTrie
@@ -31,7 +31,7 @@ implements Serializable, Trie {
 	}
 
 	public TailLOUDSPPTrie(Trie orig){
-		this(orig, new ConcatTailArray(orig.size()));
+		this(orig, new ConcatTailArrayBuilder(orig.size()));
 	}
 
 	public TailLOUDSPPTrie(Trie orig, TailArrayBuilder tailArrayBuilder){

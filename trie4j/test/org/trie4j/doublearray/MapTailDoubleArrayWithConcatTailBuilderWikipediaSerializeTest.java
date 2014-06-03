@@ -17,12 +17,12 @@ package org.trie4j.doublearray;
 
 import org.trie4j.AbstractMapTrieWikipediaSerializeTest;
 import org.trie4j.MapTrie;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 
 public class MapTailDoubleArrayWithConcatTailBuilderWikipediaSerializeTest
 extends AbstractMapTrieWikipediaSerializeTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailDoubleArray<Integer>(firstTrie, new ConcatTailArray());
+		return new MapTailDoubleArray<Integer>(firstTrie, new ConcatTailArrayBuilder());
 	}
 }

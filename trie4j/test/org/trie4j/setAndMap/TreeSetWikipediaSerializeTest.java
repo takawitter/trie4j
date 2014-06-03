@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.tail;
+package org.trie4j.setAndMap;
 
-public interface TailBuilder {
-	int insert(CharSequence letters);
-	int insert(CharSequence letters, int offset, int len);
-	int insert(char[] letters);
-	int insert(char[] letters, int offset, int len);
-	CharSequence getTails();
+import java.util.Set;
+import java.util.TreeSet;
+
+public class TreeSetWikipediaSerializeTest
+extends AbstractSetWikipediaSerializeTest{
+	protected Set<String> set(){
+		return new TreeSet<String>();
+	}
 }

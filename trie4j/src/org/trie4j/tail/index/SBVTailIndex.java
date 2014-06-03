@@ -21,7 +21,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.trie4j.bv.BytesSuccinctBitVector;
-import org.trie4j.tail.TailIndex;
 
 public class SBVTailIndex
 implements Externalizable, TailIndex{
@@ -29,8 +28,9 @@ implements Externalizable, TailIndex{
 		bv = new BytesSuccinctBitVector();
 	}
 
-	public SBVTailIndex(int initialCapacity) {
-		bv = new BytesSuccinctBitVector(initialCapacity);
+	public SBVTailIndex(byte[] bits, int bitSize, int size) {
+		this.size = size;
+		this.bv = new BytesSuccinctBitVector(bits, bitSize);
 	}
 
 	public BytesSuccinctBitVector getSBV(){
@@ -38,24 +38,8 @@ implements Externalizable, TailIndex{
 	}
 
 	@Override
-	public void add(int nodeId, int start, int end) {
-		if(nodeId != current){
-			throw new IllegalArgumentException("nodeId must be a monoinc.");
-		}
-		for(int i = start; i < end; i++){
-			bv.append1();
-		}
-		bv.append0();
-		current++;
-	}
-	
-	@Override
-	public void addEmpty(int nodeId) {
-		if(nodeId != current){
-			throw new IllegalArgumentException("nodeId must be a monoinc.");
-		}
-		bv.append0();
-		current++;
+	public int size() {
+		return size;
 	}
 
 	@Override
@@ -70,21 +54,18 @@ implements Externalizable, TailIndex{
 	}
 
 	@Override
-	public void trimToSize() {
-		bv.trimToSize();
-	}
-
-	@Override
 	public void readExternal(ObjectInput in) throws IOException{
+		size = in.readInt();
 		bv.readExternal(in);
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException{
+		out.writeInt(size);
 		bv.writeExternal(out);
 	}
 
-	private int current;
+	private int size;
 	private BytesSuccinctBitVector bv;
 	private static final long serialVersionUID = 8843853578097509573L;
 }

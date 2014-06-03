@@ -35,7 +35,7 @@ import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.tail.TailArray;
 import org.trie4j.tail.TailArrayBuilder;
 import org.trie4j.tail.TailCharIterator;
@@ -55,7 +55,7 @@ implements Externalizable, TermIdTrie{
 	}
 
 	public AbstractTailLOUDSTrie(Trie orig){
-		this(orig, new LOUDSBvTree(orig.size() * 2), new ConcatTailArray(orig.size() * 3));
+		this(orig, new LOUDSBvTree(orig.size() * 2), new ConcatTailArrayBuilder(orig.size() * 3));
 	}
 
 	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder){

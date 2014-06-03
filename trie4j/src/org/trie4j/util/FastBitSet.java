@@ -22,8 +22,8 @@ public class FastBitSet implements Serializable, BitSet{
 	public FastBitSet() {
 	}
 
-	public FastBitSet(int byteSize){
-		bytes = new byte[byteSize];
+	public FastBitSet(int bitSize){
+		bytes = new byte[bitSize / 8 + 1];
 	}
 
 	@Override
@@ -66,6 +66,13 @@ public class FastBitSet implements Serializable, BitSet{
 	public void ensureCapacity(int index){
 		if((index / 8 + 1) >= bytes.length){
 			extend(index);
+		}
+	}
+
+	public void trimToSize(){
+		int sz = size / 8 + 1;
+		if(bytes.length > sz){
+			bytes = Arrays.copyOf(bytes, sz);
 		}
 	}
 

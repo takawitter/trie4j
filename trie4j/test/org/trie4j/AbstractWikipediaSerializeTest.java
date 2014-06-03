@@ -51,12 +51,12 @@ public abstract class AbstractWikipediaSerializeTest{
 		Trie t = (Trie)new ObjectInputStream(new ByteArrayInputStream(serialized))
 				.readObject();
 		long rd = lt.lapMillis();
-		wt.assertAllContains(t);
+		long vd = wt.assertAllContains(t);
 		System.out.println(String.format(
-				"%s%s, size: %d, write(ms): %d, read(ms): %d, verified.",
+				"%s%s, size: %d, write(ms): %d, read(ms): %d, verify(ms): %d.",
 				trie.getClass().getSimpleName(),
 				getTailClassName(trie),
-				serialized.length, wd, rd
+				serialized.length, wd, rd, vd
 				));
 	}
 

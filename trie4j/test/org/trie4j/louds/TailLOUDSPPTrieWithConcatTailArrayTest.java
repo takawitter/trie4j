@@ -26,12 +26,12 @@ import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.patricia.PatriciaTrie;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 
 public class TailLOUDSPPTrieWithConcatTailArrayTest extends AbstractTermIdTrieTest{
 	@Override
 	protected TailLOUDSPPTrie buildSecondTrie(Trie firstTrie) {
-		return new TailLOUDSPPTrie(firstTrie, new ConcatTailArray());
+		return new TailLOUDSPPTrie(firstTrie, new ConcatTailArrayBuilder());
 	}
 
 	@Test

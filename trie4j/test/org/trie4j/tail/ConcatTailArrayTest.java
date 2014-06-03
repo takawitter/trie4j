@@ -21,7 +21,7 @@ import org.junit.Test;
 public class ConcatTailArrayTest {
 	@Test
 	public void test_tailtrie_1() throws Exception{
-		TailArrayBuilder tab = new ConcatTailArray(0);
+		TailArrayBuilder tab = new ConcatTailArrayBuilder(0);
 		tab.append(0, "hello", 0, 5);
 		tab.append(1, "mello", 0, 5);
 		TailArray ta = tab.build();

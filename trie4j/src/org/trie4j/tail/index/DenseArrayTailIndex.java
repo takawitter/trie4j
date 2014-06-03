@@ -19,46 +19,23 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Arrays;
 
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
-import org.trie4j.tail.TailIndex;
 
 public class DenseArrayTailIndex
 implements Externalizable, TailIndex{
-	public DenseArrayTailIndex(int[] tail, byte[] bits, int bitsSize) {
-		this.sbv = new Rank1OnlySuccinctBitVector(bits, bitsSize);
-		this.tail = tail;
-		current = bitsSize;
-		currentIndex = tail.length;
-	}
-
-	public DenseArrayTailIndex(int initialCapacity) {
-		tail = new int[initialCapacity];
-	}
-
 	public DenseArrayTailIndex() {
 	}
 
-	@Override
-	public void add(int nodeId, int start, int end) {
-		if(nodeId != current){
-			throw new IllegalArgumentException("nodeId must be a monoinc.");
-		}
-		ensureCapacity();
-		tail[currentIndex++] = start;
-		current++;
-		sbv.append1();
+	public DenseArrayTailIndex(int[] tail, byte[] bits, int bitsSize) {
+		this.sbv = new Rank1OnlySuccinctBitVector(bits, bitsSize);
+		this.tail = tail;
 	}
 
 	@Override
-	public void addEmpty(int nodeId) {
-		if(nodeId != current){
-			throw new IllegalArgumentException("nodeId must be a monoinc.");
-		}
-		current++;
-		sbv.append0();
+	public int size() {
+		return sbv.size();
 	}
 
 	@Override
@@ -68,36 +45,18 @@ implements Externalizable, TailIndex{
 	}
 
 	@Override
-	public void trimToSize() {
-		tail = Arrays.copyOf(tail, currentIndex);
-	}
-
-	private void ensureCapacity(){
-		if(currentIndex == tail.length){
-			tail = Arrays.copyOf(tail, (int)((current + 1) * 1.2));
-		}
-	}
-
-	@Override
 	public void readExternal(ObjectInput in)
 	throws ClassNotFoundException, IOException{
-		current = in.readInt();
-		currentIndex = in.readInt();
-		tail = (int[])in.readObject();
 		sbv = (SuccinctBitVector)in.readObject();
+		tail = (int[])in.readObject();
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		trimToSize();
-		out.writeInt(current);
-		out.writeInt(currentIndex);
-		out.writeObject(tail);
 		out.writeObject(sbv);
+		out.writeObject(tail);
 	}
 
 	private SuccinctBitVector sbv = new Rank1OnlySuccinctBitVector();
 	private int[] tail = {};
-	private int current;
-	private int currentIndex;
 }

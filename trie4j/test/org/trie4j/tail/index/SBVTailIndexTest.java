@@ -17,30 +17,32 @@ package org.trie4j.tail.index;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.tail.TailIndex;
 
 public class SBVTailIndexTest {
 	@Test
 	public void test() throws Exception{
-		SBVTailIndex ti = new SBVTailIndex();
-		ti.add(0, 0, 10);
-		ti.add(1, 10, 15);
+		SBVTailIndexBuilder tib = new SBVTailIndexBuilder();
+		tib.add(0, 0, 10);
+		tib.add(1, 10, 15);
+		TailIndex ti = tib.build();
 		Assert.assertEquals(0, ti.get(0));
 		Assert.assertEquals(10, ti.get(1));
 	}
 
 	@Test
 	public void test2() throws Exception{
-		TailIndex ti = new SBVTailIndex();
-		Assert.assertEquals(-1, ti.get(0));
+		TailIndexBuilder tib = new SBVTailIndexBuilder();
+		TailIndex ti = tib.build();
+		Assert.assertEquals(0, ti.size());
 	}
 
 	@Test
 	public void test3() throws Exception{
-		SBVTailIndex ti = new SBVTailIndex();
-		ti.add(0, 0, 10);
-		ti.add(1, -1, -1);
-		ti.add(2, 10, 15);
+		SBVTailIndexBuilder tib = new SBVTailIndexBuilder();
+		tib.add(0, 0, 10);
+		tib.add(1, -1, -1);
+		tib.add(2, 10, 15);
+		TailIndex ti = tib.build();
 		Assert.assertEquals(0, ti.get(0));
 		Assert.assertEquals(-1, ti.get(1));
 		Assert.assertEquals(10, ti.get(2));
@@ -48,15 +50,16 @@ public class SBVTailIndexTest {
 
 	@Test
 	public void test4() throws Exception{
-		TailIndex ti = new SBVTailIndex();
-		ti.add(0, -1, -1);
-		ti.add(1, -1, -1);
-		ti.add(2, 0, 5);
-		ti.add(3, 5, 9);
-		ti.add(4, -1, -1);
-		ti.add(5, 9, 12);
-		ti.add(6, 12, 16);
-		ti.add(7, 16, 20);
+		TailIndexBuilder tib = new SBVTailIndexBuilder();
+		tib.addEmpty(0);
+		tib.addEmpty(1);
+		tib.add(2, 0, 5);
+		tib.add(3, 5, 9);
+		tib.addEmpty(4);
+		tib.add(5, 9, 12);
+		tib.add(6, 12, 16);
+		tib.add(7, 16, 20);
+		TailIndex ti = tib.build();
 		Assert.assertEquals(-1, ti.get(0));
 		Assert.assertEquals(-1, ti.get(1));
 		Assert.assertEquals(0, ti.get(2));

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.trie4j.MapNode;
 import org.trie4j.MapTrie;
-import org.trie4j.tail.TailBuilder;
+import org.trie4j.tail.builder.TailBuilder;
 import org.trie4j.util.Pair;
 
 public class MapTailPatriciaTrie<T>

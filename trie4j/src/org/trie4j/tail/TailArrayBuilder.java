@@ -20,6 +20,5 @@ public interface TailArrayBuilder {
 	void append(int nodeId, char[] letters, int offset, int len);
 	void appendEmpty(int nodeId);
 	void trimToSize();
-	void freeze();
 	TailArray build();
 }

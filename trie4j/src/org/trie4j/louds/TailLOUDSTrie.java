@@ -22,7 +22,7 @@ import org.trie4j.Trie;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.patricia.PatriciaTrie;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.tail.TailArrayBuilder;
 
 public class TailLOUDSTrie
@@ -33,7 +33,7 @@ implements Serializable, Trie {
 	}
 
 	public TailLOUDSTrie(Trie orig){
-		this(orig, new ConcatTailArray(orig.size()));
+		this(orig, new ConcatTailArrayBuilder(orig.size()));
 	}
 
 	public TailLOUDSTrie(Trie orig, TailArrayBuilder tailArrayBuilder){

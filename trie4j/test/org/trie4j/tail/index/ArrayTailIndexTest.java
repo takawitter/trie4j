@@ -17,30 +17,32 @@ package org.trie4j.tail.index;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.tail.TailIndex;
 
 public class ArrayTailIndexTest {
 	@Test
 	public void test() throws Exception{
-		TailIndex ti = new ArrayTailIndex();
-		ti.add(0, 0, 10);
-		ti.add(1, 10, 15);
+		TailIndexBuilder tib = new ArrayTailIndexBuilder();
+		tib.add(0, 0, 10);
+		tib.add(1, 10, 15);
+		TailIndex ti = tib.build();
 		Assert.assertEquals(0, ti.get(0));
 		Assert.assertEquals(10, ti.get(1));
 	}
 
 	@Test
 	public void test2() throws Exception{
-		TailIndex ti = new ArrayTailIndex();
+		TailIndexBuilder tib = new ArrayTailIndexBuilder();
+		TailIndex ti = tib.build();
 		Assert.assertEquals(-1, ti.get(0));
 	}
 
 	@Test
 	public void test3() throws Exception{
-		TailIndex ti = new ArrayTailIndex();
-		ti.add(0, 0, 10);
-		ti.add(1, -1, -1);
-		ti.add(2, 10, 15);
+		TailIndexBuilder tib = new ArrayTailIndexBuilder();
+		tib.add(0, 0, 10);
+		tib.add(1, -1, -1);
+		tib.add(2, 10, 15);
+		TailIndex ti = tib.build();
 		Assert.assertEquals(0, ti.get(0));
 		Assert.assertEquals(-1, ti.get(1));
 		Assert.assertEquals(10, ti.get(2));

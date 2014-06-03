@@ -17,7 +17,6 @@ package org.trie4j.tail.builder;
 
 import java.io.Serializable;
 
-import org.trie4j.tail.TailBuilder;
 import org.trie4j.util.CharsCharSequence;
 
 

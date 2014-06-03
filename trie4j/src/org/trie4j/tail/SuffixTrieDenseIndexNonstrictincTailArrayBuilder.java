@@ -19,11 +19,12 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.builder.TailBuilder;
 import org.trie4j.tail.index.DenseArrayTailIndex;
 import org.trie4j.util.ArrayUtil;
 import org.trie4j.util.FastBitSet;
 
-public class SuffixTrieNonmonoincBuilder implements TailArrayBuilder {
+public class SuffixTrieDenseIndexNonstrictincTailArrayBuilder implements TailArrayBuilder {
 
 	@Override
 	public void append(int nodeId, CharSequence letters, int offset, int len) {
@@ -46,10 +47,6 @@ public class SuffixTrieNonmonoincBuilder implements TailArrayBuilder {
 
 	@Override
 	public void trimToSize() {
-	}
-
-	@Override
-	public void freeze() {
 	}
 
 	@Override

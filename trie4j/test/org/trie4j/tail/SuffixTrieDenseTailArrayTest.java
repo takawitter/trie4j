@@ -21,7 +21,7 @@ import org.junit.Test;
 public class SuffixTrieDenseTailArrayTest {
 	@Test
 	public void test_tailtrie_1() throws Exception{
-		TailArrayBuilder tab = new SuffixTrieDenseTailArray(0);
+		TailArrayBuilder tab = new SuffixTrieDenseTailArrayBuilder(0);
 		tab.append(0, "hello", 0, 5);
 		tab.appendEmpty(1);
 		tab.appendEmpty(2);

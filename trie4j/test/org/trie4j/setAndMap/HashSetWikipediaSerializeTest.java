@@ -13,25 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.tail;
+package org.trie4j.setAndMap;
 
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
-import org.trie4j.tail.index.DenseArrayTailIndex;
+import java.util.HashSet;
+import java.util.Set;
 
-public class SuffixTrieDenseTailArray extends AbstractTailArray implements TailArray{
-	public SuffixTrieDenseTailArray() {
-	}
-
-	public SuffixTrieDenseTailArray(int initialCapacity) {
-		super(initialCapacity);
-	}
-
-	@Override
-	protected TailBuilder newTailBuilder(StringBuilder tails) {
-		return new SuffixTrieTailBuilder(tails);
-	}
-	@Override
-	protected TailIndex newTailIndex(int initialCapacity) {
-		return new DenseArrayTailIndex(initialCapacity);
+public class HashSetWikipediaSerializeTest
+extends AbstractSetWikipediaSerializeTest{
+	protected Set<String> set(){
+		return new HashSet<String>();
 	}
 }

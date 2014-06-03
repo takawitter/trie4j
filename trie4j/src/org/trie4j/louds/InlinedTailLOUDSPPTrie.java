@@ -33,7 +33,7 @@ import org.trie4j.Trie;
 import org.trie4j.bv.BitVector01Devider;
 import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.tail.TailArray;
 import org.trie4j.tail.TailArrayBuilder;
 import org.trie4j.tail.TailCharIterator;
@@ -340,7 +340,7 @@ implements Externalizable, Trie {
 	}
 
 	protected TailArrayBuilder newTailArrayBuilder(int initialCapacity){
-		return new ConcatTailArray(initialCapacity);
+		return new ConcatTailArrayBuilder(initialCapacity);
 	}
 
 	private Rank0OnlySuccinctBitVector r0;

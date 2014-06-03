@@ -21,13 +21,13 @@ import org.trie4j.MapTrie;
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.patricia.MapPatriciaTrie;
-import org.trie4j.tail.SBVConcatTailArray;
+import org.trie4j.tail.SBVConcatTailArrayBuilder;
 import org.trie4j.test.WikipediaTitles;
 
 public class MapTailLOUDSTrieWithSBVConcatTailArrayTest extends AbstractMapTrieTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailLOUDSTrie<Integer>(firstTrie, new SBVConcatTailArray());
+		return new MapTailLOUDSTrie<Integer>(firstTrie, new SBVConcatTailArrayBuilder());
 	}
 
 	public void investigate1() throws Exception{

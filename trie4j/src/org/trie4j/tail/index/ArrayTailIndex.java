@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,68 +19,37 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Arrays;
-
-import org.trie4j.tail.TailIndex;
 
 public class ArrayTailIndex
 implements Externalizable, TailIndex{
 	public ArrayTailIndex() {
 	}
 
-	public ArrayTailIndex(int initialCapacity) {
-		tail = new int[initialCapacity];
-		Arrays.fill(tail, -1);
+	public ArrayTailIndex(int[] indexes) {
+		this.indexes = indexes;
 	}
 
 	@Override
-	public void add(int nodeId, int start, int end) {
-		ensureCapacity(nodeId);
-		tail[nodeId] = start;
-	}
-	
-	@Override
-	public void addEmpty(int nodeId) {
-		ensureCapacity(nodeId);
-		tail[nodeId] = -1;
+	public int size() {
+		return indexes.length;
 	}
 
 	@Override
 	public int get(int nodeId) {
-		if(nodeId >= size) return -1;
-		return tail[nodeId];
-	}
-
-	@Override
-	public void trimToSize() {
-		tail = Arrays.copyOf(tail, size);
-	}
-
-	private void ensureCapacity(int nodeId){
-		if(nodeId < size){
-			return;
-		}
-		if(nodeId >= tail.length){
-			tail = Arrays.copyOf(tail, (int)((nodeId + 1) * 1.2));
-			Arrays.fill(tail, size, tail.length, -1);
-		}
-		size = nodeId + 1;
+		if(nodeId >= indexes.length) return -1;
+		return indexes[nodeId];
 	}
 
 	@Override
 	public void readExternal(ObjectInput in)
 	throws ClassNotFoundException, IOException{
-		size = in.readInt();
-		tail = (int[])in.readObject();
+		indexes = (int[])in.readObject();
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		trimToSize();
-		out.writeInt(size);
-		out.writeObject(tail);
+		out.writeObject(indexes);
 	}
 
-	private int[] tail = new int[]{};
-	private int size;
+	private int[] indexes = new int[]{};
 }

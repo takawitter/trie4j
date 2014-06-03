@@ -17,12 +17,12 @@ package org.trie4j.louds;
 
 import org.trie4j.AbstractWikipediaSerializeTest;
 import org.trie4j.Trie;
-import org.trie4j.tail.SuffixTrieDenseTailArray;
+import org.trie4j.tail.SuffixTrieDenseTailArrayBuilder;
 
 public class TailLOUDSTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest
 extends AbstractWikipediaSerializeTest{
 	@Override
 	protected Trie secondTrie(Trie orig) {
-		return new TailLOUDSTrie(orig, new SuffixTrieDenseTailArray());
+		return new TailLOUDSTrie(orig, new SuffixTrieDenseTailArrayBuilder());
 	}
 }

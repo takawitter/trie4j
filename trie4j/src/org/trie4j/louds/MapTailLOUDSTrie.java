@@ -26,7 +26,7 @@ import org.trie4j.Node;
 import org.trie4j.louds.AbstractTailLOUDSTrie.NodeListener;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.tail.TailArrayBuilder;
 
 public class MapTailLOUDSTrie<T>
@@ -36,7 +36,7 @@ implements Externalizable, MapTrie<T>{
 	}
 
 	public MapTailLOUDSTrie(MapTrie<T> orig){
-		this(orig, new ConcatTailArray(orig.size()));
+		this(orig, new ConcatTailArrayBuilder(orig.size()));
 	}
 
 	public MapTailLOUDSTrie(MapTrie<T> orig, TailArrayBuilder tailArrayBuilder){

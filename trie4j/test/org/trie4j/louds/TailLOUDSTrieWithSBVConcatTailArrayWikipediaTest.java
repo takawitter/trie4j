@@ -17,13 +17,13 @@ package org.trie4j.louds;
 
 import org.trie4j.AbstractWikipediaTest;
 import org.trie4j.Trie;
-import org.trie4j.tail.SBVConcatTailArray;
+import org.trie4j.tail.SBVConcatTailArrayBuilder;
 
 public class TailLOUDSTrieWithSBVConcatTailArrayWikipediaTest extends AbstractWikipediaTest{
 	@Override
 	protected Trie buildSecondTrie(Trie first) {
 		TailLOUDSTrie t = new TailLOUDSTrie(
-				first, new SBVConcatTailArray(first.size()));
+				first, new SBVConcatTailArrayBuilder(first.size()));
 		return t;
 	}
 }

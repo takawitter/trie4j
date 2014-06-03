@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,84 +15,54 @@
  */
 package org.trie4j.tail;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-abstract class AbstractTailArray
-{}
-/*implements Externalizable, TailArrayBuilder{
+import org.trie4j.tail.builder.TailBuilder;
+import org.trie4j.tail.index.TailIndexBuilder;
 
+public abstract class AbstractTailArrayBuilder
+implements Externalizable, TailArrayBuilder{
 	protected abstract TailBuilder newTailBuilder(StringBuilder tails);
 	protected abstract TailIndexBuilder newTailIndexBuilder(int initialCapacity);
 
-	public AbstractTailArray(){
+	public AbstractTailArrayBuilder(){
 		this(1024);
 	}
 
-	public AbstractTailArray(int initialCapacity){
+	public AbstractTailArrayBuilder(int initialCapacity){
 		builder = newTailBuilder(tails);
-		index = newTailIndex(initialCapacity);
-	}
-
-	public CharSequence getTails(){
-		return tails;
-	}
-
-	public TailIndex getTailIndex(){
-		return index;
+		indexBuilder = newTailIndexBuilder(initialCapacity);
 	}
 
 	@Override
 	public void append(int nodeId, CharSequence letters, int offset, int len) {
 		int ret = builder.insert(letters, offset, len);
-		index.add(nodeId, ret, tails.length());
+		indexBuilder.add(nodeId, ret, tails.length());
 	}
 
 	@Override
 	public void append(int nodeId, char[] letters, int offset, int len) {
 		int ret = builder.insert(letters, offset, len);
-		index.add(nodeId, ret, tails.length());
+		indexBuilder.add(nodeId, ret, tails.length());
 	}
 
 	@Override
 	public void appendEmpty(int nodeId) {
-		index.addEmpty(nodeId);
-	}
-
-	public TailCharIterator newIte(int nodeId){
-		return new TailCharIterator(tails, index.get(nodeId));
-	}
-
-	@Override
-	public TailCharIterator newIterator() {
-		return new TailCharIterator(tails, -1);
-	}
-
-	@Override
-	public TailCharIterator newIterator(int offset) {
-		return new TailCharIterator(tails, offset);
-	}
-	
-	@Override
-	public int getIteratorOffset(int index) {
-		return this.index.get(index);
-	}
-
-	public void getChars(StringBuilder builder, int nodeId){
-		int offset = index.get(nodeId);
-		if(offset == -1) return;
-		TailUtil.appendChars(tails, offset, builder);
+		indexBuilder.addEmpty(nodeId);
 	}
 
 	@Override
 	public void trimToSize() {
 		tails.trimToSize();
-		index.trimToSize();
+		indexBuilder.trimToSize();
 	}
 
 	@Override
 	public TailArray build() {
-		trimToSize();
-		builder = null;
-		return this;
+		return new DefaultTailArray(tails, indexBuilder.build());
 	}
 
 	@Override
@@ -104,7 +74,7 @@ abstract class AbstractTailArray
 			tails.append(in.readChar());
 		}
 		builder = newTailBuilder(tails);
-		index = (TailIndex)in.readObject();
+		indexBuilder = (TailIndexBuilder)in.readObject();
 	}
 
 	@Override
@@ -114,10 +84,10 @@ abstract class AbstractTailArray
 		for(int i = 0; i < n; i++){
 			out.writeChar(tails.charAt(i));
 		}
-		out.writeObject(index);
+		out.writeObject(indexBuilder);
 	}
 
 	private StringBuilder tails = new StringBuilder();
 	private TailBuilder builder;
-	private TailIndex index;
-}*/
+	private TailIndexBuilder indexBuilder;
+}

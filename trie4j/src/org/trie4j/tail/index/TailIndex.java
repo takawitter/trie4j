@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.tail;
+package org.trie4j.tail.index;
 
 public interface TailIndex {
-	void add(int nodeId, int start, int end);
-	void addEmpty(int nodeId);
+	int size();
 	int get(int nodeId);
-	void trimToSize();
 }

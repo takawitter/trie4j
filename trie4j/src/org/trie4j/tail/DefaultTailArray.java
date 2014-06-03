@@ -22,40 +22,14 @@ import java.io.ObjectOutput;
 
 import org.trie4j.tail.index.TailIndex;
 
-public class ImmutableTailArray
+public class DefaultTailArray
 implements Externalizable, TailArray{
-	public ImmutableTailArray() {
+	public DefaultTailArray() {
 	}
 
-	public ImmutableTailArray(CharSequence tail, TailIndex tailIndex) {
+	public DefaultTailArray(CharSequence tail, TailIndex tailIndex){
 		this.tail = tail;
 		this.tailIndex = tailIndex;
-	}
-
-	public TailIndex getTailIndex(){
-		return tailIndex;
-	}
-
-	@Override
-	public TailCharIterator newIterator(int offset) {
-		return new TailCharIterator(tail, offset);
-	}
-
-	@Override
-	public TailCharIterator newIterator() {
-		return new TailCharIterator(tail, -1);
-	}
-
-	@Override
-	public int getIteratorOffset(int nodeId) {
-		return tailIndex.get(nodeId);
-	}
-
-	@Override
-	public void getChars(StringBuilder builder, int nodeId) {
-		int offset = tailIndex.get(nodeId);
-		if(offset == -1) return;
-		TailUtil.appendChars(tail, offset, builder);
 	}
 
 	@Override
@@ -69,6 +43,24 @@ implements Externalizable, TailArray{
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(tail);
 		out.writeObject(tailIndex);
+	}
+
+	public TailCharIterator newIterator(int offset){
+		return new TailCharIterator(tail, offset);
+	}
+
+	public TailCharIterator newIterator(){
+		return new TailCharIterator(tail, -1);
+	}
+
+	public int getIteratorOffset(int nodeId){
+		return tailIndex.get(nodeId);
+	}
+
+	public void getChars(StringBuilder builder, int nodeId){
+		int offset = tailIndex.get(nodeId);
+		if(offset == -1) return;
+		TailUtil.appendChars(tail, offset, builder);
 	}
 
 	private CharSequence tail;

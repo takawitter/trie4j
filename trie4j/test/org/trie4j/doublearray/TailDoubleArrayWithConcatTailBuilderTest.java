@@ -18,12 +18,12 @@ package org.trie4j.doublearray;
 import org.trie4j.AbstractTrieTest;
 import org.trie4j.Trie;
 import org.trie4j.patricia.PatriciaTrie;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 
 public class TailDoubleArrayWithConcatTailBuilderTest extends AbstractTrieTest{
 	@Override
 	protected Trie buildSecondTrie(Trie firstTrie) {
-		return new TailDoubleArray(firstTrie, new ConcatTailArray());
+		return new TailDoubleArray(firstTrie, new ConcatTailArrayBuilder());
 	}
 
 	public static void main(String[] args) throws Exception{

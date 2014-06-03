@@ -15,25 +15,27 @@
  */
 package org.trie4j.tail;
 
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.tail.builder.TailBuilder;
 import org.trie4j.tail.index.ArrayTailIndexBuilder;
 import org.trie4j.tail.index.TailIndexBuilder;
 
-public class SuffixTrieTailArray
+public class ConcatTailArrayBuilder
 extends AbstractTailArrayBuilder
 implements TailArrayBuilder{
-	public SuffixTrieTailArray() {
+	public ConcatTailArrayBuilder() {
+		this(0);
 	}
 
-	public SuffixTrieTailArray(int initialCapacity) {
+	public ConcatTailArrayBuilder(int initialCapacity) {
 		super(initialCapacity);
 	}
 
 	@Override
 	protected TailBuilder newTailBuilder(StringBuilder tails) {
-		return new SuffixTrieTailBuilder(tails);
+		return new ConcatTailBuilder(tails);
 	}
+
 	@Override
 	protected TailIndexBuilder newTailIndexBuilder(int initialCapacity) {
 		return new ArrayTailIndexBuilder(initialCapacity);
