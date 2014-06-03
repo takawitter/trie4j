@@ -51,7 +51,7 @@ public class SuffixTrieDenseIndexNonstrictincTailArrayBuilder implements TailArr
 
 	@Override
 	public TailArray build() {
-		return new ImmutableTailArray(
+		return new DefaultTailArray(
 				tailBuilder.getTails(),
 				new DenseArrayTailIndex(
 						ArrayUtil.unbox(indexes.values().toArray(new Integer[]{})),
