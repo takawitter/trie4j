@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.AbstractTailLOUDSTrie;
 import org.trie4j.patricia.TailPatriciaTrie;
+import org.trie4j.tail.DefaultTailArray;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 
@@ -64,9 +65,9 @@ public abstract class AbstractWikipediaSerializeTest{
 		if(trie instanceof TailPatriciaTrie){
 			return "(" + ((TailPatriciaTrie) trie).getTailBuilder().getClass().getSimpleName() + ")";
 		} else if(trie instanceof TailDoubleArray){
-			return "(" + ((TailDoubleArray) trie).getTailArray().getClass().getSimpleName() + ")";
+			return "(" + ((DefaultTailArray)((TailDoubleArray)trie).getTailArray()).getTailIndex().getClass().getSimpleName() + ")";
 		} else if(trie instanceof AbstractTailLOUDSTrie){
-			return "(" + ((AbstractTailLOUDSTrie) trie).getTailArray().getClass().getSimpleName() + ")";
+			return "(" + ((DefaultTailArray)((AbstractTailLOUDSTrie) trie).getTailArray()).getTailIndex().getClass().getSimpleName() + ")";
 		} else{
 			return "";
 		}

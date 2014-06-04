@@ -37,18 +37,19 @@ implements Serializable, Trie {
 	}
 
 	public TailLOUDSTrie(Trie orig, TailArrayBuilder tailArrayBuilder){
-		this(orig, new LOUDSBvTree(orig.size() * 2), tailArrayBuilder);
-	}
-
-	public TailLOUDSTrie(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder){
-		this(orig, bvtree, tailArrayBuilder, new NodeListener(){
+		this(orig, tailArrayBuilder, new NodeListener(){
 			@Override
 			public void listen(Node node, int id) {
 			}
 		});
 	}
 
-	public TailLOUDSTrie(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder, NodeListener listener){
-		super(orig, bvtree, tailArrayBuilder, listener);
+	public TailLOUDSTrie(Trie orig, TailArrayBuilder tailArrayBuilder, NodeListener listener){
+		this(orig, tailArrayBuilder, listener, new LOUDSBvTree(orig.size() * 2));
+	}
+
+	TailLOUDSTrie(Trie orig, TailArrayBuilder tailArrayBuilder, NodeListener listener,
+			BvTree bvTree){
+		super(orig, bvTree, tailArrayBuilder, listener);
 	}
 }

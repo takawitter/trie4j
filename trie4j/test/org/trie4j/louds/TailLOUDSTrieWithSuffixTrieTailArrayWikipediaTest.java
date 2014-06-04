@@ -26,6 +26,7 @@ import org.trie4j.Algorithms;
 import org.trie4j.Node;
 import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
+import org.trie4j.louds.AbstractTailLOUDSTrie.NodeListener;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.tail.SuffixTrieTailArray;
 
@@ -34,7 +35,13 @@ public class TailLOUDSTrieWithSuffixTrieTailArrayWikipediaTest extends AbstractW
 	protected Trie buildSecondTrie(Trie first) {
 		bv.resetCounts();
 		TailLOUDSTrie t = new TailLOUDSTrie(
-				first, new LOUDSBvTree(bv), new SuffixTrieTailArray(first.size()));
+				first, new SuffixTrieTailArray(first.size()),
+				new NodeListener() {
+					@Override
+					public void listen(Node node, int id) {
+					}
+				},
+				new LOUDSBvTree(bv));
 		return t;
 	}
 

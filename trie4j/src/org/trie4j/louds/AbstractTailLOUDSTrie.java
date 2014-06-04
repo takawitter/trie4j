@@ -156,7 +156,7 @@ implements Externalizable, TermIdTrie{
 				}
 			}
 		}
-		nodeSize = count;
+		this.nodeSize = count;
 		this.tailArray = tailArrayBuilder.build();
 	}
 

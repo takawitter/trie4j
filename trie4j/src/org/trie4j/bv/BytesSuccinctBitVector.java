@@ -40,7 +40,7 @@ implements Externalizable, SuccinctBitVector{
 		this.size = bitsSize;
 		int cacheSize = bitsSize / CACHE_WIDTH + 1;
 		countCache0 = new int[cacheSize + 1];
-		indexCache0 = new int[cacheSize + 1];
+		indexCache0 = new int[cacheSize / 2 + 1];
 		// cache, indexCache(0のCACHE_WIDTH個毎に位置を記憶), node1/2/3pos(0)
 
 		int n = bytes.length;
@@ -81,20 +81,20 @@ implements Externalizable, SuccinctBitVector{
 			// (size0 - zeroCount)とzeroCountの間に境界(CACHE_WIDTH)があればindexCache0更新
 			if(zeroCount > 0 && ((size0 / CACHE_WIDTH) != (prevSize0 / CACHE_WIDTH))){
 				// 10010|010
-				indexCache0[size0 / CACHE_WIDTH] = prevSize0 +
-						zeroPosInB[zeroPosInB.length - size0 % CACHE_WIDTH - 1];
+				indexCache0[size0 / CACHE_WIDTH] = i * 8 +
+						zeroPosInB[zeroPosInB.length - (size0 % CACHE_WIDTH) - 1];
 			}
 
 			if(rest < 8) break;
 		}
 		countCache0[(size - 1) / CACHE_WIDTH] = size0;
 		// 最後に番兵を置く
-		if(indexCache0[size0 / CACHE_WIDTH] == 0){
+/*		if(indexCache0[size0 / CACHE_WIDTH] == 0){
 			indexCache0[size0 / CACHE_WIDTH] = size;
 		} else{
 			indexCache0[(size0 / CACHE_WIDTH) + 1] = size;
 		}
-	}
+*/	}
 
 	@Override
 	public String toString() {

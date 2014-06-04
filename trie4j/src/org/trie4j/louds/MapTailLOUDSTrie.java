@@ -24,8 +24,6 @@ import org.trie4j.MapNode;
 import org.trie4j.MapTrie;
 import org.trie4j.Node;
 import org.trie4j.louds.AbstractTailLOUDSTrie.NodeListener;
-import org.trie4j.louds.bvtree.BvTree;
-import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.tail.TailArrayBuilder;
 
@@ -40,12 +38,8 @@ implements Externalizable, MapTrie<T>{
 	}
 
 	public MapTailLOUDSTrie(MapTrie<T> orig, TailArrayBuilder tailArrayBuilder){
-		this(orig, new LOUDSBvTree(orig.size() * 2), tailArrayBuilder);
-	}
-
-	public MapTailLOUDSTrie(MapTrie<T> orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder){
 		final List<T> values = new ArrayList<T>();
-		setTrie(new TailLOUDSTrie(orig, bvtree, tailArrayBuilder, new NodeListener(){
+		setTrie(new TailLOUDSTrie(orig, tailArrayBuilder, new NodeListener(){
 			@Override
 			@SuppressWarnings("unchecked")
 			public void listen(Node node, int id) {

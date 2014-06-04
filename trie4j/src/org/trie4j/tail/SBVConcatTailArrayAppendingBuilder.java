@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Takao Nakaguchi
+ * Copyright 2012 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,28 @@
  */
 package org.trie4j.tail;
 
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.tail.builder.TailBuilder;
-import org.trie4j.tail.index.DenseArrayTailIndexBuilder;
+import org.trie4j.tail.index.SBVTailIndexAppendingBuilder;
 import org.trie4j.tail.index.TailIndexBuilder;
 
-public class SuffixTrieDenseTailArrayBuilder
+public class SBVConcatTailArrayAppendingBuilder
 extends AbstractTailArrayBuilder
 implements TailArrayBuilder{
-	public SuffixTrieDenseTailArrayBuilder() {
+	public SBVConcatTailArrayAppendingBuilder() {
+		super();
 	}
 
-	public SuffixTrieDenseTailArrayBuilder(int initialCapacity) {
+	public SBVConcatTailArrayAppendingBuilder(int initialCapacity) {
 		super(initialCapacity);
 	}
 
 	@Override
 	protected TailBuilder newTailBuilder(StringBuilder tails) {
-		return new SuffixTrieTailBuilder(tails);
+		return new ConcatTailBuilder(tails);
 	}
-
 	@Override
 	protected TailIndexBuilder newTailIndexBuilder(int initialCapacity) {
-		return new DenseArrayTailIndexBuilder(initialCapacity);
+		return new SBVTailIndexAppendingBuilder(initialCapacity);
 	}
 }

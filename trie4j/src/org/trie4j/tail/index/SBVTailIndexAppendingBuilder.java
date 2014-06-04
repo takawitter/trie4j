@@ -23,55 +23,65 @@ import java.io.ObjectOutput;
 import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 
-public class SBVTailIndex
-implements Externalizable, TailIndex{
-	public SBVTailIndex() {
+public class SBVTailIndexAppendingBuilder
+implements Externalizable, TailIndexBuilder{
+	public SBVTailIndexAppendingBuilder() {
 		sbv = new BytesSuccinctBitVector();
 	}
 
-	public SBVTailIndex(SuccinctBitVector sbv, int size) {
-		this.sbv = sbv;
-		this.size = size;
-	}
-	public SBVTailIndex(byte[] bits, int bitSize, int size) {
-		this.sbv = new BytesSuccinctBitVector(bits, bitSize);
-		this.size = size;
+	public SBVTailIndexAppendingBuilder(int initialCapacity) {
+		sbv = new BytesSuccinctBitVector(initialCapacity);
 	}
 
-	public SuccinctBitVector getSbv(){
+	public SuccinctBitVector getSbv() {
 		return sbv;
 	}
 
 	@Override
-	public int size() {
-		return size;
+	public void add(int nodeId, int start, int end) {
+		if(nodeId != current){
+			throw new IllegalArgumentException("nodeId must be a strictly increasing.");
+		}
+		for(int i = start; i < end; i++){
+			sbv.append1();
+		}
+		sbv.append0();
+		current++;
 	}
 
 	@Override
-	public int get(int nodeId) {
-		if(nodeId == 0){
-			if(sbv.isZero(0)) return -1;
-			else return 0;
+	public void addEmpty(int nodeId) {
+		if(nodeId != current){
+			throw new IllegalArgumentException("nodeId must be a strictly increasing.");
 		}
-		int s = sbv.select0(nodeId);
-		if(sbv.isZero(s + 1)) return -1;
-		return sbv.rank1(s);
+		sbv.append0();
+		current++;
+	}
+
+	@Override
+	public void trimToSize() {
+//		bs.trimToSize();
+	}
+
+	@Override
+	public TailIndex build() {
+		return new SBVTailIndex(sbv, current);
 	}
 
 	@Override
 	public void readExternal(ObjectInput in)
 	throws ClassNotFoundException, IOException{
+		current = in.readInt();
 		sbv = (SuccinctBitVector)in.readObject();
-		size = in.readInt();
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException{
+		out.writeInt(current);
 		out.writeObject(sbv);
-		out.writeInt(size);
 	}
 
+	private int current;
 	private SuccinctBitVector sbv;
-	private int size;
 	private static final long serialVersionUID = 8843853578097509573L;
 }
