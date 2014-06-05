@@ -34,6 +34,7 @@ implements TailArrayBuilder{
 	protected TailBuilder newTailBuilder(StringBuilder tails) {
 		return new SuffixTrieTailBuilder(tails);
 	}
+
 	@Override
 	protected TailIndexBuilder newTailIndexBuilder(int initialCapacity) {
 		return new ArrayTailIndexBuilder(initialCapacity);

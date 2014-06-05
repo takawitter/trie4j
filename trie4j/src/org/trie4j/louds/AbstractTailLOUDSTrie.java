@@ -67,6 +67,7 @@ implements Externalizable, TermIdTrie{
 		FastBitSet bs = new FastBitSet(orig.size());
 		build(orig, bvtree, tailArrayBuilder, bs, listener);
 		this.term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
+		this.tailArray = tailArrayBuilder.build();
 	}
 
 	@Override
@@ -157,7 +158,6 @@ implements Externalizable, TermIdTrie{
 			}
 		}
 		this.nodeSize = count;
-		this.tailArray = tailArrayBuilder.build();
 	}
 
 	public BvTree getBvTree() {

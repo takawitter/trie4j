@@ -62,6 +62,7 @@ implements Externalizable, TailArrayBuilder{
 
 	@Override
 	public TailArray build() {
+		tails.trimToSize();
 		return new DefaultTailArray(tails, indexBuilder.build());
 	}
 

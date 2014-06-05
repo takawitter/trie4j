@@ -58,6 +58,7 @@ implements Externalizable, TailIndexBuilder{
 
 	@Override
 	public TailIndex build() {
+		trimToSize();
 		return new DenseArrayTailIndex(tail, bs.getBytes(), bs.size());
 	}
 
