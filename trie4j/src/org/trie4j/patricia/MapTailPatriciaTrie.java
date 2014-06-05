@@ -22,7 +22,7 @@ implements MapTrie<T>{
 	@SuppressWarnings("unchecked")
 	public MapNode<T> getRoot(){
 		return new MapTailPatriciaTrieNodeAdapter<T>(
-				(MapTailPatriciaTrieNode<T>)super.getRoot(),
+				(MapTailPatriciaTrieNode<T>)((TailPatriciaTrieNodeAdapter)super.getRoot()).getNode(),
 				getTails());
 	}
 
