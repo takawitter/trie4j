@@ -40,11 +40,14 @@ implements Externalizable, SuccinctBitVector{
 		this.size = bits;
 		this.vector = Arrays.copyOf(bytes, containerCount(bits, 8));
 		this.countCache1 = new int[containerCount(vector.length, 8)];
-		int sum = 0;
+		int sum = BITCOUNTS1[bytes[0] & 0xff];
 		int n = vector.length;
-		for(int i = 0; i < n; i++){
+		for(int i = 1; i < n; i++){
+			if(i % 8 == 0) countCache1[(i / 8) - 1] = sum;
 			sum += BITCOUNTS1[bytes[i] & 0xff];
-			countCache1[i / 8] = sum;
+		}
+		if(countCache1.length > 0){
+			countCache1[n / 8] = sum;
 		}
 	}
 

@@ -82,7 +82,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		Arrays.fill(check, -1);
 		Arrays.fill(charToCode, (char)0);
 
-		FastBitSet bs = new FastBitSet(65536);
+		FastBitSet bs = new FastBitSet(orig.size() * 2);
 		build(orig.getRoot(), 0, tab, bs, listener);
 		term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 		tailArray = tab.build();
@@ -489,7 +489,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		if(node.isTerminate()){
 			bs.set(nodeIndex);
 			listener.listen(node, nodeIndex);
-		} else if(bs.size() <= nodeIndex){
+		} else{
 			bs.unsetIfLE(nodeIndex);
 		}
 

@@ -76,7 +76,7 @@ implements Externalizable, TermIdTrie{
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[arraySize];
 		Arrays.fill(check, -1);
-		FastBitSet bs = new FastBitSet();
+		FastBitSet bs = new FastBitSet(arraySize);
 		build(trie.getRoot(), 0, bs, listener);
 		term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 	}
@@ -514,8 +514,9 @@ implements Externalizable, TermIdTrie{
 		// letters
 		char[] letters = node.getLetters();
 		int lettersLen = letters.length;
+		int maxUnset = 0;
 		for(int i = 1; i < lettersLen; i++){
-			bs.unsetIfLE(nodeIndex);
+			maxUnset = Math.max(maxUnset, nodeIndex);
 			int cid = getCharId(letters[i]);
 			int empty = findFirstEmptyCheck();
 			setCheck(empty, nodeIndex);
@@ -525,8 +526,9 @@ implements Externalizable, TermIdTrie{
 		if(node.isTerminate()){
 			bs.set(nodeIndex);
 			listener.listen(node, nodeIndex);
-		} else if(bs.size() <= nodeIndex){
-			bs.unsetIfLE(nodeIndex);
+		} else{
+			maxUnset = Math.max(maxUnset, nodeIndex);
+			bs.unsetIfLE(maxUnset);
 		}
 
 		// children
