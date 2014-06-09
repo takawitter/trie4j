@@ -514,9 +514,8 @@ implements Externalizable, TermIdTrie{
 		// letters
 		char[] letters = node.getLetters();
 		int lettersLen = letters.length;
-		int maxUnset = 0;
 		for(int i = 1; i < lettersLen; i++){
-			maxUnset = Math.max(maxUnset, nodeIndex);
+			bs.unsetIfLE(nodeIndex);
 			int cid = getCharId(letters[i]);
 			int empty = findFirstEmptyCheck();
 			setCheck(empty, nodeIndex);
@@ -527,8 +526,7 @@ implements Externalizable, TermIdTrie{
 			bs.set(nodeIndex);
 			listener.listen(node, nodeIndex);
 		} else{
-			maxUnset = Math.max(maxUnset, nodeIndex);
-			bs.unsetIfLE(maxUnset);
+			bs.unsetIfLE(nodeIndex);
 		}
 
 		// children
