@@ -36,7 +36,6 @@ implements Externalizable, TailIndex{
 
 	@Override
 	public int get(int nodeId) {
-		if(nodeId >= indexes.length) return -1;
 		return indexes[nodeId];
 	}
 

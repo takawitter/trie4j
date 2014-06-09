@@ -58,10 +58,12 @@ implements Externalizable, TailArray{
 	}
 
 	public int getIteratorOffset(int nodeId){
+		if(tailIndex.size() <= nodeId) return -1;
 		return tailIndex.get(nodeId);
 	}
 
 	public void getChars(StringBuilder builder, int nodeId){
+		if(tailIndex.size() <= nodeId) return;
 		int offset = tailIndex.get(nodeId);
 		if(offset == -1) return;
 		TailUtil.appendChars(tail, offset, builder);

@@ -33,7 +33,7 @@ public class ArrayTailIndexTest {
 	public void test2() throws Exception{
 		TailIndexBuilder tib = new ArrayTailIndexBuilder();
 		TailIndex ti = tib.build();
-		Assert.assertEquals(-1, ti.get(0));
+		Assert.assertEquals(0, ti.size());
 	}
 
 	@Test
