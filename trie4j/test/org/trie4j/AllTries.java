@@ -184,7 +184,7 @@ public class AllTries {
 		private Class<?>[] ctorParamClasses;
 		private TrieConsumer consumer;
 		public TrieProcess(){
-			this(TailPatriciaTrie.class, ConcatTailBuilder.class);
+			this(PatriciaTrie.class);
 		}
 		public TrieProcess(Class<? extends Trie> clazz, Class<?>... ctorParamClasses){
 			super(createName(clazz, ctorParamClasses));
@@ -393,9 +393,9 @@ public class AllTries {
 		new SetProcess(HashSet.class),
 		new SetProcess(TreeSet.class),
 		new TrieProcess(PatriciaTrie.class),
+		new TrieProcess(TailPatriciaTrie.class, ConcatTailBuilder.class),
 		new TrieProcess(TailPatriciaTrie.class, SuffixTrieTailBuilder.class),
 		new TrieProcess(TailPatriciaTrie.class, SuffixTrieTailBuilder.class).afterBuild(new TrieFreezer()),
-		new TrieProcess(TailPatriciaTrie.class, ConcatTailBuilder.class),
 //*/
 /*
 			new TrieProcess("MultilayerPatriciaTrie(no pack)"){
