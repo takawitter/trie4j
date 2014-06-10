@@ -162,6 +162,23 @@ public class AllTries {
 		}
 	}
 
+	private static interface TrieFactory{
+		Pair<Trie, Long> create(Object... args);
+	}
+	private static Map<Class<?>, TrieFactory> trieFactories = new HashMap<Class<?>, AllTries.TrieFactory>();
+	static{
+		trieFactories.put(DoubleArray.class, new TrieFactory() {
+			@Override
+			public Pair<Trie, Long> create(Object... args) {
+				Trie arg = (Trie)args[0];
+				LapTimer lt = new LapTimer();
+				Trie ret = new DoubleArray(arg);
+				long b = lt.lapMillis();
+				return Pair.create(ret, b);
+			}
+		});
+	}
+
 	private static class TrieProcess extends AbstractProcess{
 		private Class<?> trieClass;
 		private Class<?>[] ctorParamClasses;
@@ -199,17 +216,23 @@ public class AllTries {
 					for(int i = 0; i < ctorParamClasses.length; i++){
 						args[i + 1] = ctorParamClasses[i].newInstance();
 					}
-					for(Constructor<?> c : secondTrieClass.getConstructors()){
-						try{
-							if(c.getParameterTypes().length == args.length){
-								LapTimer lt = new LapTimer();
-								Object ret = c.newInstance(args);
-								long ms = lt.lapMillis();
-								return Pair.create((Trie)ret, ms);
+					TrieFactory tf = trieFactories.get(secondTrieClass);
+					if(tf != null){
+						return tf.create(args);
+					} else{
+						for(Constructor<?> c : secondTrieClass.getConstructors()){
+							try{
+								if(c.getParameterTypes().length == args.length){
+									LapTimer lt = new LapTimer();
+									Object ret = c.newInstance(args);
+									long ms = lt.lapMillis();
+									return Pair.create((Trie)ret, ms);
+								}
+							} catch(InstantiationException | IllegalAccessException |
+									SecurityException |
+									IllegalArgumentException | InvocationTargetException e){
+								e.printStackTrace();
 							}
-						} catch(InstantiationException | IllegalAccessException |
-								SecurityException |
-								IllegalArgumentException | InvocationTargetException e){
 						}
 					}
 					throw new RuntimeException("no suitable constructor.");
@@ -308,6 +331,7 @@ public class AllTries {
 						} catch(InstantiationException | IllegalAccessException |
 								SecurityException |
 								IllegalArgumentException | InvocationTargetException e){
+							e.printStackTrace();
 						}
 					}
 					throw new RuntimeException("no suitable constructor.");
@@ -410,7 +434,8 @@ public class AllTries {
 			new TrieProcess().second(TailLOUDSPPTrie.class, SBVConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSPPTrie.class, SuffixTrieTailArray.class),
 			new TrieProcess().second(TailLOUDSPPTrie.class, SuffixTrieDenseTailArrayBuilder.class),
-
+//*/
+//*
 			new MapProcess(HashMap.class),
 			new MapProcess(TreeMap.class),
 			new MapTrieProcess(MapPatriciaTrie.class),
