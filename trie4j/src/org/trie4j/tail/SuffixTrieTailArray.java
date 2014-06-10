@@ -16,9 +16,13 @@
 package org.trie4j.tail;
 
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
-import org.trie4j.tail.index.ArrayTailIndex;
+import org.trie4j.tail.builder.TailBuilder;
+import org.trie4j.tail.index.ArrayTailIndexBuilder;
+import org.trie4j.tail.index.TailIndexBuilder;
 
-public class SuffixTrieTailArray extends AbstractTailArray implements TailArray{
+public class SuffixTrieTailArray
+extends AbstractTailArrayBuilder
+implements TailArrayBuilder{
 	public SuffixTrieTailArray() {
 	}
 
@@ -30,8 +34,9 @@ public class SuffixTrieTailArray extends AbstractTailArray implements TailArray{
 	protected TailBuilder newTailBuilder(StringBuilder tails) {
 		return new SuffixTrieTailBuilder(tails);
 	}
+
 	@Override
-	protected TailIndex newTailIndex(int initialCapacity) {
-		return new ArrayTailIndex(initialCapacity);
+	protected TailIndexBuilder newTailIndexBuilder(int initialCapacity) {
+		return new ArrayTailIndexBuilder(initialCapacity);
 	}
 }

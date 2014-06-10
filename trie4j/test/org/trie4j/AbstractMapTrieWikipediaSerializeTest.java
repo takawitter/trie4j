@@ -22,8 +22,8 @@ import java.io.ObjectOutputStream;
 
 import org.junit.Test;
 import org.trie4j.doublearray.MapTailDoubleArray;
-import org.trie4j.patricia.simple.MapPatriciaTrie;
-import org.trie4j.patricia.tail.MapTailPatriciaTrie;
+import org.trie4j.patricia.MapPatriciaTrie;
+import org.trie4j.patricia.MapTailPatriciaTrie;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 
@@ -56,12 +56,12 @@ extends AbstractWikipediaSerializeTest{
 				new ByteArrayInputStream(serialized))
 				.readObject();
 		long rd = lt.lapMillis();
-		wt.assertAllContains(t);
+		long vd = wt.assertAllContains(t);
 		System.out.println(String.format(
-				"%s%s, size: %d, write(ms): %d, read(ms): %d, verified.",
+				"%s%s, size: %d, write(ms): %d, read(ms): %d, verify(ms): %d.",
 				trie.getClass().getSimpleName(),
 				getTailClassName(trie),
-				serialized.length, wd, rd
+				serialized.length, wd, rd, vd
 				));
 	}
 

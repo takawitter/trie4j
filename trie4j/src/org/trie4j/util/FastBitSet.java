@@ -22,8 +22,8 @@ public class FastBitSet implements Serializable, BitSet{
 	public FastBitSet() {
 	}
 
-	public FastBitSet(int byteSize){
-		bytes = new byte[byteSize];
+	public FastBitSet(int bitSize){
+		bytes = new byte[bitSize / 8 + 1];
 	}
 
 	@Override
@@ -41,31 +41,44 @@ public class FastBitSet implements Serializable, BitSet{
 	}
 
 	public void set(int index){
-		if(index / 8 >= bytes.length){
-			extend(index);
+		if(size <= index){
+			if(index / 8 >= bytes.length){
+				extend(index);
+			}
+			size = index + 1;
 		}
 		bytes[index / 8] |= 0x80 >> (index % 8);
-		size = Math.max(size, index + 1);
 	}
 
 	public void unset(int index){
-		if(index / 8 >= bytes.length){
-			extend(index);
+		if(size <= index){
+			if(index / 8 >= bytes.length){
+				extend(index);
+			}
+			size = index + 1;
 		}
 		bytes[index / 8] &= ~(0x80 >> (index % 8));
-		size = Math.max(size, index + 1);
 	}
 
 	public void unsetIfLE(int index){
-		if((index / 8 + 1) >= bytes.length){
-			extend(index);
+		if(size <= index){
+			if(index / 8 >= bytes.length){
+				extend(index);
+			}
+			size = index + 1;
 		}
-		size = Math.max(size, index + 1);
 	}
 
 	public void ensureCapacity(int index){
-		if((index / 8 + 1) >= bytes.length){
+		if((index / 8) >= bytes.length){
 			extend(index);
+		}
+	}
+
+	public void trimToSize(){
+		int sz = size / 8 + 1;
+		if(bytes.length > sz){
+			bytes = Arrays.copyOf(bytes, sz);
 		}
 	}
 

@@ -31,10 +31,10 @@ import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.bv.BytesSuccinctBitVector;
-import org.trie4j.tail.TailBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.TailUtil;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.builder.TailBuilder;
 import org.trie4j.util.Pair;
 
 public class InlinedTailLOUDSTrie

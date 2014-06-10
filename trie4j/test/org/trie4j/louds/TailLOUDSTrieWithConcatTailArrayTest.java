@@ -10,13 +10,13 @@ import org.junit.Test;
 import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.patricia.PatriciaTrie;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 
 public class TailLOUDSTrieWithConcatTailArrayTest extends AbstractTermIdTrieTest{
 	@Override
 	protected TailLOUDSTrie buildSecondTrie(Trie firstTrie) {
-		return new TailLOUDSTrie(firstTrie, new ConcatTailArray(firstTrie.size()));
+		return new TailLOUDSTrie(firstTrie, new ConcatTailArrayBuilder(firstTrie.size()));
 	}
 
 	@Test

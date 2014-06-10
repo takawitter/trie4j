@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.AbstractTrieTest;
-import org.trie4j.patricia.simple.PatriciaTrie;
+import org.trie4j.patricia.PatriciaTrie;
 
 public class LOUDSTrieTest extends AbstractTrieTest{
 	@Override

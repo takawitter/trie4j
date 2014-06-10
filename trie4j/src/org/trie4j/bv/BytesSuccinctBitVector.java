@@ -28,52 +28,94 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	public BytesSuccinctBitVector(int initialCapacity){
-		this.vector = new byte[initialCapacity / 8 + 1];
+		this.bytes = new byte[initialCapacity / 8 + 1];
 		int blockSize = CACHE_WIDTH;
 		int size = initialCapacity / blockSize + 1;
 		countCache0 = new int[size];
 		indexCache0 = new int[size + 1];
 	}
 
-	public BytesSuccinctBitVector(byte[] bytes, int bits){
-		this.vector = Arrays.copyOf(bytes, containerBytesCount(bits));
-		int size = bits / CACHE_WIDTH + 1;
-		countCache0 = new int[size];
-		indexCache0 = new int[size + 1];
-		throw new UnsupportedOperationException();
-		// now implementing...
-/*		if(size % CACHE_WIDTH == 0 && ci > 0){
-			countCache0[ci] = countCache0[ci - 1];
+	public BytesSuccinctBitVector(byte[] bytes, int bitsSize){
+		this.bytes = Arrays.copyOf(bytes, containerBytesCount(bitsSize));
+		this.size = bitsSize;
+		int cacheSize = bitsSize / CACHE_WIDTH + 1;
+		countCache0 = new int[cacheSize + 1];
+		indexCache0 = new int[cacheSize / 2 + 1];
+		// cache, indexCache(0のCACHE_WIDTH個毎に位置を記憶), node1/2/3pos(0)
+
+		int n = bytes.length;
+		for(int i = 0; i < n; i++){
+			// 8bit毎に処理を行う
+			int b = bytes[i] & 0xff;
+			byte[] zeroPosInB = BITPOS0[b];
+			int rest = bitsSize - i * 8;
+			if(rest < 8){
+				// 残りより後の0の位置は扱わない
+				int nz = zeroPosInB.length;
+				for(int j = 0; j < nz; j++){
+					if(zeroPosInB[j] >= rest){
+						zeroPosInB = Arrays.copyOf(zeroPosInB, j);
+						break;
+					}
+				}
+			}
+			int zeroCount = zeroPosInB.length;
+			if(size0 < 3 && zeroCount > 0){
+				if(size0 == 0){
+					node1pos = zeroPosInB[0] + 8 * i;
+					if(zeroPosInB.length > 1) node2pos = zeroPosInB[1] + 8 * i;
+					if(zeroPosInB.length > 2) node3pos = zeroPosInB[2] + 8 * i;
+				} else if(size0 == 1){
+					node2pos = zeroPosInB[0] + 8 * i;
+					if(zeroPosInB.length > 1) node3pos = zeroPosInB[1] + 8 * i;
+				} else{
+					node3pos = zeroPosInB[0] + 8 * i;
+				}
+			}
+
+			int prevSize0 = size0;
+			size0 += zeroCount;
+			if((i + 1) % (CACHE_WIDTH / 8) == 0){
+				countCache0[i / (CACHE_WIDTH / 8)] = size0;
+			}
+			// (size0 - zeroCount)とzeroCountの間に境界(CACHE_WIDTH)があればindexCache0更新
+			if(zeroCount > 0 && ((size0 / CACHE_WIDTH) != (prevSize0 / CACHE_WIDTH))){
+				// 10010|010
+				indexCache0[size0 / CACHE_WIDTH] = i * 8 +
+						zeroPosInB[zeroPosInB.length - (size0 % CACHE_WIDTH) - 1];
+			}
+
+			if(rest < 8) break;
 		}
-//		int r = size % 8;
-//		vector[i] &= ~BITS[r];
-		size0++;
-		switch(size0){
-			case 1:
-				node1pos = size;
-				break;
-			case 2:
-				node2pos = size;
-				break;
-			case 3:
-				node3pos = size;
-				break;
-		}
-		if(size0 % CACHE_WIDTH == 0){
+		countCache0[(size - 1) / CACHE_WIDTH] = size0;
+		// 最後に番兵を置く
+/*		if(indexCache0[size0 / CACHE_WIDTH] == 0){
 			indexCache0[size0 / CACHE_WIDTH] = size;
+		} else{
+			indexCache0[(size0 / CACHE_WIDTH) + 1] = size;
 		}
-		countCache0[ci]++;
-*/
-	}
+*/	}
 
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
 		int n = Math.min(size, 32);
 		for(int i = 0; i < n; i++){
-			b.append((vector[(i / 8)] & (0x80 >> (i % 8))) != 0 ? "1" : "0");
+			b.append((bytes[(i / 8)] & (0x80 >> (i % 8))) != 0 ? "1" : "0");
 		}
 		return b.toString();
+	}
+
+	public byte[] getBytes(){
+		return bytes;
+	}
+
+	public int[] getCountCache0(){
+		return countCache0;
+	}
+
+	public int[] getIndexCache0(){
+		return indexCache0;
 	}
 
 	@Override
@@ -82,11 +124,11 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	public boolean isZero(int pos){
-		return (vector[pos / 8] & BITS[pos % 8]) == 0;
+		return (bytes[pos / 8] & BITS[pos % 8]) == 0;
 	}
 
 	public boolean isOne(int pos){
-		return (vector[pos / 8] & BITS[pos % 8]) != 0;
+		return (bytes[pos / 8] & BITS[pos % 8]) != 0;
 	}
 
 	public int size(){
@@ -95,7 +137,7 @@ implements Externalizable, SuccinctBitVector{
 
 	public void trimToSize(){
 		int vectorSize = size / 8 + 1;
-		vector = Arrays.copyOf(vector, Math.min(vector.length, vectorSize));
+		bytes = Arrays.copyOf(bytes, Math.min(bytes.length, vectorSize));
 		int blockSize = CACHE_WIDTH / 8;
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 		int countCacheSize0 = size;
@@ -107,21 +149,21 @@ implements Externalizable, SuccinctBitVector{
 	public void append1(){
 		int i = size / 8;
 		int ci = size / CACHE_WIDTH;
-		if(i >= vector.length){
+		if(i >= bytes.length){
 			extend();
 		}
 		if(size % CACHE_WIDTH == 0 && ci > 0){
 			countCache0[ci] = countCache0[ci - 1];
 		}
 		int r = size % 8;
-		vector[i] |= BITS[r];
+		bytes[i] |= BITS[r];
 		size++;
 	}
 
 	public void append0(){
 		int i = size / 8;
 		int ci = size / CACHE_WIDTH;
-		if(i >= vector.length){
+		if(i >= bytes.length){
 			extend();
 		}
 		if(size % CACHE_WIDTH == 0 && ci > 0){
@@ -161,9 +203,9 @@ implements Externalizable, SuccinctBitVector{
 		}
 		int n = pos / 8;
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
-			ret += BITCOUNTS1[vector[i] & 0xff];
+			ret += BITCOUNTS1[bytes[i] & 0xff];
 		}
-		ret += BITCOUNTS1[vector[n] & MASKS[pos % 8]];
+		ret += BITCOUNTS1[bytes[n] & MASKS[pos % 8]];
 		return ret;
 	}
 
@@ -175,9 +217,9 @@ implements Externalizable, SuccinctBitVector{
 		}
 		int n = pos / 8;
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
-			ret += BITCOUNTS0[vector[i] & 0xff];
+			ret += BITCOUNTS0[bytes[i] & 0xff];
 		}
-		ret += BITCOUNTS0[vector[n] & MASKS[pos % 8]] - 7 + (pos % 8);
+		ret += BITCOUNTS0[bytes[n] & MASKS[pos % 8]] - 7 + (pos % 8);
 		return ret;
 	}
 
@@ -197,11 +239,11 @@ implements Externalizable, SuccinctBitVector{
 			count -= countCache0[(i - 1) / CACHE_WIDTH * 8];
 		}
 		if(count > 0){
-			for(; i < vector.length; i++){
+			for(; i < bytes.length; i++){
 				if(i * 8 >= size) return -1;
-				int c = BITCOUNTS0[vector[i] & 0xff];
+				int c = BITCOUNTS0[bytes[i] & 0xff];
 				if(count <= c){
-					int v = vector[i] & 0xff;
+					int v = bytes[i] & 0xff;
 					for(int j = 0; j < 8; j++){
 						if(i * 8 + j >= size) return -1;
 						if((v & 0x80) == 0){
@@ -218,7 +260,7 @@ implements Externalizable, SuccinctBitVector{
 		} else{
 			count--;
 			i = Math.min(((i + 1) * CACHE_WIDTH) - 1, size - 1);
-			int v = vector[i / 8] & 0xff;
+			int v = bytes[i / 8] & 0xff;
 			v >>= 8 - (i % 8) - 1;
 			while(i >= 0){
 				if((v & 0x01) == 0){
@@ -228,7 +270,7 @@ implements Externalizable, SuccinctBitVector{
 					}
 				}
 				if(i % 8 == 0){
-					v = vector[(i - 1) / 8] & 0xff;
+					v = bytes[(i - 1) / 8] & 0xff;
 				} else{
 					v >>= 1;
 				}
@@ -259,6 +301,9 @@ implements Externalizable, SuccinctBitVector{
 			int vectorSize = size / 8 + 1;
 			int blockSize = CACHE_WIDTH / 8;
 			end = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
+			if(end == 0){
+				end = size;
+			}
 		}
 /*/
 		int start = Math.max(offset / CACHE_WIDTH - 1, 0);
@@ -289,7 +334,7 @@ implements Externalizable, SuccinctBitVector{
 
 		int n = size / 8 + 1;
 		for(int i = (m + 1) * CACHE_WIDTH / 8; i < n; i++){
-			int bits = vector[i] & 0xff;
+			int bits = bytes[i] & 0xff;
 			int c = BITCOUNTS0[bits];
 			if(count <= c){
 				return i * 8 + BITPOS0[bits][count - 1];
@@ -300,11 +345,11 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	public int select1(int count){
-		for(int i = 0; i < vector.length; i++){
+		for(int i = 0; i < bytes.length; i++){
 			if(i * 8 >= size) return -1;
-			int c = BITCOUNTS1[vector[i] & 0xff];
+			int c = BITCOUNTS1[bytes[i] & 0xff];
 			if(count <= c){
-				int v = vector[i] & 0xff;
+				int v = bytes[i] & 0xff;
 				for(int j = 0; j < 8; j++){
 					if(i * 8 + j >= size) return -1;
 					if((v & 0x80) != 0){
@@ -336,14 +381,14 @@ implements Externalizable, SuccinctBitVector{
 		int i = pos / 8;
 		int s = pos % 8;
 		if(s != 0){
-			for(byte b : BITPOS0[vector[i] & 0xff]){
+			for(byte b : BITPOS0[bytes[i] & 0xff]){
 				if(s <= b) return i * 8 + b;
 			}
 			i++;
 		}
 		int n = size / 8 + 1;
 		for(; i < n; i++){
-			byte[] poss = BITPOS0[vector[i] & 0xff];
+			byte[] poss = BITPOS0[bytes[i] & 0xff];
 			if(poss.length > 0){
 				return poss[0] + i * 8;
 			}
@@ -359,8 +404,8 @@ implements Externalizable, SuccinctBitVector{
 		out.writeInt(node2pos);
 		out.writeInt(node3pos);
 		trimToSize();
-		out.writeInt(vector.length);
-		out.write(vector);
+		out.writeInt(bytes.length);
+		out.write(bytes);
 		out.writeInt(countCache0.length);
 		for(int e : countCache0){
 			out.writeInt(e);
@@ -379,8 +424,8 @@ implements Externalizable, SuccinctBitVector{
 		node2pos = in.readInt();
 		node3pos = in.readInt();
 		int vectorSize = in.readInt();
-		vector = new byte[vectorSize];
-		in.readFully(vector, 0, vectorSize);
+		bytes = new byte[vectorSize];
+		in.readFully(bytes, 0, vectorSize);
 		int size = in.readInt();
 		countCache0 = new int[size];
 		for(int i = 0; i < size; i++){
@@ -394,8 +439,8 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	private void extend(){
-		int vectorSize = (int)(vector.length * 1.2) + 1;
-		vector = Arrays.copyOf(vector, vectorSize);
+		int vectorSize = (int)(bytes.length * 1.2) + 1;
+		bytes = Arrays.copyOf(bytes, vectorSize);
 		int blockSize = CACHE_WIDTH / 8;
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 		countCache0 = Arrays.copyOf(countCache0, size);
@@ -407,7 +452,7 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	private static final int CACHE_WIDTH = 64;
-	private byte[] vector;
+	private byte[] bytes;
 	private int node1pos = -1;
 	private int node2pos = -1;
 	private int node3pos = -1;

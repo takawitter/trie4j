@@ -23,7 +23,8 @@ import java.io.ObjectOutputStream;
 import org.junit.Test;
 import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.AbstractTailLOUDSTrie;
-import org.trie4j.patricia.tail.TailPatriciaTrie;
+import org.trie4j.patricia.TailPatriciaTrie;
+import org.trie4j.tail.DefaultTailArray;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
 
@@ -51,12 +52,12 @@ public abstract class AbstractWikipediaSerializeTest{
 		Trie t = (Trie)new ObjectInputStream(new ByteArrayInputStream(serialized))
 				.readObject();
 		long rd = lt.lapMillis();
-		wt.assertAllContains(t);
+		long vd = wt.assertAllContains(t);
 		System.out.println(String.format(
-				"%s%s, size: %d, write(ms): %d, read(ms): %d, verified.",
+				"%s%s, size: %d, write(ms): %d, read(ms): %d, verify(ms): %d.",
 				trie.getClass().getSimpleName(),
 				getTailClassName(trie),
-				serialized.length, wd, rd
+				serialized.length, wd, rd, vd
 				));
 	}
 
@@ -64,9 +65,9 @@ public abstract class AbstractWikipediaSerializeTest{
 		if(trie instanceof TailPatriciaTrie){
 			return "(" + ((TailPatriciaTrie) trie).getTailBuilder().getClass().getSimpleName() + ")";
 		} else if(trie instanceof TailDoubleArray){
-			return "(unknown)";
+			return "(" + ((DefaultTailArray)((TailDoubleArray)trie).getTailArray()).getTailIndex().getClass().getSimpleName() + ")";
 		} else if(trie instanceof AbstractTailLOUDSTrie){
-			return "(" + ((AbstractTailLOUDSTrie) trie).getTailArray().getClass().getSimpleName() + ")";
+			return "(" + ((DefaultTailArray)((AbstractTailLOUDSTrie) trie).getTailArray()).getTailIndex().getClass().getSimpleName() + ")";
 		} else{
 			return "";
 		}

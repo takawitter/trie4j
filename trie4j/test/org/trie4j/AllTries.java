@@ -20,12 +20,14 @@ import org.trie4j.louds.MapTailLOUDSPPTrie;
 import org.trie4j.louds.MapTailLOUDSTrie;
 import org.trie4j.louds.TailLOUDSPPTrie;
 import org.trie4j.louds.TailLOUDSTrie;
-import org.trie4j.patricia.simple.MapPatriciaTrie;
-import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.patricia.tail.MapTailPatriciaTrie;
-import org.trie4j.patricia.tail.TailPatriciaTrie;
-import org.trie4j.tail.ConcatTailArray;
-import org.trie4j.tail.SBVConcatTailArray;
+import org.trie4j.patricia.MapPatriciaTrie;
+import org.trie4j.patricia.MapTailPatriciaTrie;
+import org.trie4j.patricia.PatriciaTrie;
+import org.trie4j.patricia.TailPatriciaTrie;
+import org.trie4j.tail.ConcatTailArrayBuilder;
+import org.trie4j.tail.SBVConcatTailArrayBuilder;
+import org.trie4j.tail.SuffixTrieDenseIndexNonstrictincTailArrayBuilder;
+import org.trie4j.tail.SuffixTrieDenseTailArrayBuilder;
 import org.trie4j.tail.SuffixTrieTailArray;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
@@ -160,12 +162,29 @@ public class AllTries {
 		}
 	}
 
+	private static interface TrieFactory{
+		Pair<Trie, Long> create(Object... args);
+	}
+	private static Map<Class<?>, TrieFactory> trieFactories = new HashMap<Class<?>, AllTries.TrieFactory>();
+	static{
+		trieFactories.put(DoubleArray.class, new TrieFactory() {
+			@Override
+			public Pair<Trie, Long> create(Object... args) {
+				Trie arg = (Trie)args[0];
+				LapTimer lt = new LapTimer();
+				Trie ret = new DoubleArray(arg);
+				long b = lt.lapMillis();
+				return Pair.create(ret, b);
+			}
+		});
+	}
+
 	private static class TrieProcess extends AbstractProcess{
 		private Class<?> trieClass;
 		private Class<?>[] ctorParamClasses;
 		private TrieConsumer consumer;
 		public TrieProcess(){
-			this(TailPatriciaTrie.class, ConcatTailBuilder.class);
+			this(PatriciaTrie.class);
 		}
 		public TrieProcess(Class<? extends Trie> clazz, Class<?>... ctorParamClasses){
 			super(createName(clazz, ctorParamClasses));
@@ -197,17 +216,23 @@ public class AllTries {
 					for(int i = 0; i < ctorParamClasses.length; i++){
 						args[i + 1] = ctorParamClasses[i].newInstance();
 					}
-					for(Constructor<?> c : secondTrieClass.getConstructors()){
-						try{
-							if(c.getParameterTypes().length == args.length){
-								LapTimer lt = new LapTimer();
-								Object ret = c.newInstance(args);
-								long ms = lt.lapMillis();
-								return Pair.create((Trie)ret, ms);
+					TrieFactory tf = trieFactories.get(secondTrieClass);
+					if(tf != null){
+						return tf.create(args);
+					} else{
+						for(Constructor<?> c : secondTrieClass.getConstructors()){
+							try{
+								if(c.getParameterTypes().length == args.length){
+									LapTimer lt = new LapTimer();
+									Object ret = c.newInstance(args);
+									long ms = lt.lapMillis();
+									return Pair.create((Trie)ret, ms);
+								}
+							} catch(InstantiationException | IllegalAccessException |
+									SecurityException |
+									IllegalArgumentException | InvocationTargetException e){
+								e.printStackTrace();
 							}
-						} catch(InstantiationException | IllegalAccessException |
-								SecurityException |
-								IllegalArgumentException | InvocationTargetException e){
 						}
 					}
 					throw new RuntimeException("no suitable constructor.");
@@ -306,6 +331,7 @@ public class AllTries {
 						} catch(InstantiationException | IllegalAccessException |
 								SecurityException |
 								IllegalArgumentException | InvocationTargetException e){
+							e.printStackTrace();
 						}
 					}
 					throw new RuntimeException("no suitable constructor.");
@@ -366,16 +392,10 @@ public class AllTries {
 //*
 		new SetProcess(HashSet.class),
 		new SetProcess(TreeSet.class),
-		new MapProcess(HashMap.class),
-		new MapProcess(TreeMap.class),
 		new TrieProcess(PatriciaTrie.class),
-		new MapTrieProcess(MapPatriciaTrie.class),
+		new TrieProcess(TailPatriciaTrie.class, ConcatTailBuilder.class),
 		new TrieProcess(TailPatriciaTrie.class, SuffixTrieTailBuilder.class),
 		new TrieProcess(TailPatriciaTrie.class, SuffixTrieTailBuilder.class).afterBuild(new TrieFreezer()),
-		new TrieProcess(TailPatriciaTrie.class, ConcatTailBuilder.class),
-		new MapTrieProcess(MapTailPatriciaTrie.class, SuffixTrieTailBuilder.class),
-		new MapTrieProcess(MapTailPatriciaTrie.class, SuffixTrieTailBuilder.class).afterBuild(new TrieFreezer()),
-		new MapTrieProcess(MapTailPatriciaTrie.class, ConcatTailBuilder.class),
 //*/
 /*
 			new TrieProcess("MultilayerPatriciaTrie(no pack)"){
@@ -394,13 +414,9 @@ public class AllTries {
 //*/
 //*
 			new TrieProcess().second(DoubleArray.class),
-			new MapTrieProcess().second(MapDoubleArray.class),
-			new TrieProcess().second(TailDoubleArray.class, SuffixTrieTailBuilder.class),
-			new TrieProcess().second(TailDoubleArray.class, ConcatTailBuilder.class),
-			new MapTrieProcess().second(MapTailDoubleArray.class, SuffixTrieTailBuilder.class),
-			new MapTrieProcess().second(MapTailDoubleArray.class, ConcatTailBuilder.class),
-//			new TrieProcess().second(TailDoubleArray.class, SuffixTrieTailBuilder.class),
-//			new TrieProcess().second(TailDoubleArray.class, ConcatTailBuilder.class),
+			new TrieProcess().second(TailDoubleArray.class, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailDoubleArray.class, SuffixTrieTailArray.class),
+			new TrieProcess().second(TailDoubleArray.class, SuffixTrieDenseIndexNonstrictincTailArrayBuilder.class),
 //*/
 /*
 			new TrieProcess2("LOUDSTrie"){
@@ -410,18 +426,34 @@ public class AllTries {
 			},
 //*/
 //*
+			new TrieProcess().second(TailLOUDSTrie.class, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, SBVConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieTailArray.class),
-			new TrieProcess().second(TailLOUDSTrie.class, ConcatTailArray.class),
-			new TrieProcess().second(TailLOUDSTrie.class, SBVConcatTailArray.class),
-			new MapTrieProcess().second(MapTailLOUDSTrie.class, SuffixTrieTailArray.class),
-			new MapTrieProcess().second(MapTailLOUDSTrie.class, ConcatTailArray.class),
-			new MapTrieProcess().second(MapTailLOUDSTrie.class, SBVConcatTailArray.class),
+			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieDenseTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSPPTrie.class, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSPPTrie.class, SBVConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSPPTrie.class, SuffixTrieTailArray.class),
-			new TrieProcess().second(TailLOUDSPPTrie.class, ConcatTailArray.class),
-			new TrieProcess().second(TailLOUDSPPTrie.class, SBVConcatTailArray.class),
+			new TrieProcess().second(TailLOUDSPPTrie.class, SuffixTrieDenseTailArrayBuilder.class),
+//*/
+//*
+			new MapProcess(HashMap.class),
+			new MapProcess(TreeMap.class),
+			new MapTrieProcess(MapPatriciaTrie.class),
+			new MapTrieProcess(MapTailPatriciaTrie.class, SuffixTrieTailBuilder.class),
+			new MapTrieProcess(MapTailPatriciaTrie.class, SuffixTrieTailBuilder.class).afterBuild(new TrieFreezer()),
+			new MapTrieProcess(MapTailPatriciaTrie.class, ConcatTailBuilder.class),
+			new MapTrieProcess().second(MapDoubleArray.class),
+			new MapTrieProcess().second(MapTailDoubleArray.class, ConcatTailArrayBuilder.class),
+			new MapTrieProcess().second(MapTailDoubleArray.class, SuffixTrieTailArray.class),
+			new MapTrieProcess().second(MapTailDoubleArray.class, SuffixTrieDenseIndexNonstrictincTailArrayBuilder.class),
+			new MapTrieProcess().second(MapTailLOUDSTrie.class, SuffixTrieTailArray.class),
+			new MapTrieProcess().second(MapTailLOUDSTrie.class, ConcatTailArrayBuilder.class),
+			new MapTrieProcess().second(MapTailLOUDSTrie.class, SBVConcatTailArrayBuilder.class),
+			new MapTrieProcess().second(MapTailLOUDSTrie.class, SuffixTrieDenseTailArrayBuilder.class),
 			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, SuffixTrieTailArray.class),
-			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, ConcatTailArray.class),
-			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, SBVConcatTailArray.class),
+			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, ConcatTailArrayBuilder.class),
+			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, SBVConcatTailArrayBuilder.class),
+			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, SuffixTrieDenseTailArrayBuilder.class),
 //*/
 			};
 

@@ -20,14 +20,14 @@ import org.trie4j.AbstractMapTrieTest;
 import org.trie4j.MapTrie;
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
-import org.trie4j.patricia.simple.MapPatriciaTrie;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.patricia.MapPatriciaTrie;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.test.WikipediaTitles;
 
 public class MapTailLOUDSTrieWithConcatTailArrayTest extends AbstractMapTrieTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailLOUDSTrie<Integer>(firstTrie, new ConcatTailArray());
+		return new MapTailLOUDSTrie<Integer>(firstTrie, new ConcatTailArrayBuilder());
 	}
 
 	public void investigate1() throws Exception{

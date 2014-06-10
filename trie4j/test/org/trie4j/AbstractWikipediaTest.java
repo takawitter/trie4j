@@ -18,7 +18,7 @@ package org.trie4j;
 import java.io.PrintWriter;
 
 import org.junit.Test;
-import org.trie4j.patricia.tail.TailPatriciaTrie;
+import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;

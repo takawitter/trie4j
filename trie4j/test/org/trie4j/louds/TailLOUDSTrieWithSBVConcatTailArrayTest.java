@@ -17,11 +17,11 @@ package org.trie4j.louds;
 
 import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Trie;
-import org.trie4j.tail.SBVConcatTailArray;
+import org.trie4j.tail.SBVConcatTailArrayBuilder;
 
 public class TailLOUDSTrieWithSBVConcatTailArrayTest extends AbstractTermIdTrieTest{
 	@Override
 	protected TailLOUDSTrie buildSecondTrie(Trie firstTrie) {
-		return new TailLOUDSTrie(firstTrie, new SBVConcatTailArray(firstTrie.size()));
+		return new TailLOUDSTrie(firstTrie, new SBVConcatTailArrayBuilder(firstTrie.size()));
 	}
 }

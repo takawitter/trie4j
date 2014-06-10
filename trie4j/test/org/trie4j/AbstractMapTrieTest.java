@@ -17,7 +17,7 @@ package org.trie4j;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.patricia.simple.MapPatriciaTrie;
+import org.trie4j.patricia.MapPatriciaTrie;
 
 public abstract class AbstractMapTrieTest extends AbstractTrieTest {
 	@Override

@@ -20,9 +20,8 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
-import org.trie4j.patricia.tail.TailPatriciaTrie;
-import org.trie4j.tail.ConcatTailArray;
-import org.trie4j.tail.SBVConcatTailArray;
+import org.trie4j.patricia.TailPatriciaTrie;
+import org.trie4j.tail.SBVConcatTailArrayBuilder;
 import org.trie4j.test.WikipediaTitles;
 
 public class SaveLOUDSTrie {
@@ -33,7 +32,7 @@ public class SaveLOUDSTrie {
 		}
 		System.out.println(trie1.size() + "nodes.");
 
-		SBVConcatTailArray tailArray = new SBVConcatTailArray(trie1.size());
+		SBVConcatTailArrayBuilder tailArray = new SBVConcatTailArrayBuilder(trie1.size());
 		TailLOUDSTrie trie = new TailLOUDSTrie(trie1, tailArray);
 		System.out.println(trie.size() + "nodes.");
 		trie.freeze();
@@ -70,7 +69,7 @@ public class SaveLOUDSTrie {
 		os = new FileOutputStream("louds-tails.dat");
 		try{
 			ObjectOutputStream dos = new ObjectOutputStream(os);
-			dos.writeObject(tailArray.getTails());
+			dos.writeObject(tailArray);
 			dos.flush();
 		} finally{
 			os.close();
@@ -79,7 +78,7 @@ public class SaveLOUDSTrie {
 		os = new FileOutputStream("louds-tailIndex.dat");
 		try{
 			ObjectOutputStream oos = new ObjectOutputStream(os);
-			oos.writeObject(tailArray.getTailIndex());
+			oos.writeObject(tailArray);
 			oos.flush();
 		} finally{
 			os.close();

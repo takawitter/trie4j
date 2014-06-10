@@ -17,12 +17,12 @@ package org.trie4j.louds;
 
 import org.trie4j.AbstractWikipediaSerializeTest;
 import org.trie4j.Trie;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 
 public class TailLOUDSTrieWithConcatTailArrayWikipediaSerializeTest
 extends AbstractWikipediaSerializeTest{
 	@Override
 	protected Trie secondTrie(Trie orig) {
-		return new TailLOUDSTrie(orig, new ConcatTailArray());
+		return new TailLOUDSTrie(orig, new ConcatTailArrayBuilder());
 	}
 }

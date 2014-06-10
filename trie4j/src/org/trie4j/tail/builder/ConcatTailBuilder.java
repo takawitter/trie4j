@@ -17,8 +17,6 @@ package org.trie4j.tail.builder;
 
 import java.io.Serializable;
 
-import org.trie4j.tail.TailBuilder;
-
 public class ConcatTailBuilder
 implements Serializable, TailBuilder{
 	public ConcatTailBuilder() {

@@ -21,13 +21,14 @@ import org.junit.Test;
 public class ConcatTailArrayTest {
 	@Test
 	public void test_tailtrie_1() throws Exception{
-		TailArray tb = new ConcatTailArray(0);
-		tb.append("hello", 0, 5);
-		tb.append("mello", 0, 5);
-		TailCharIterator it = tb.newIterator();
-		it.setOffset(tb.getIteratorOffset(0));
+		TailArrayBuilder tab = new ConcatTailArrayBuilder(0);
+		tab.append(0, "hello", 0, 5);
+		tab.append(1, "mello", 0, 5);
+		TailArray ta = tab.build();
+		TailCharIterator it = ta.newIterator();
+		it.setOffset(ta.getIteratorOffset(0));
 		Assert.assertEquals("hello", TailUtil.readAll(it));
-		it.setOffset(tb.getIteratorOffset(1));
+		it.setOffset(ta.getIteratorOffset(1));
 		Assert.assertEquals("mello", TailUtil.readAll(it));
 	}
 }

@@ -24,8 +24,8 @@ import org.trie4j.MapNode;
 import org.trie4j.MapTrie;
 import org.trie4j.Node;
 import org.trie4j.doublearray.TailDoubleArray.TermNodeListener;
-import org.trie4j.tail.TailBuilder;
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.SuffixTrieTailArray;
+import org.trie4j.tail.TailArrayBuilder;
 
 /**
  * @author Takao Nakaguchi
@@ -39,10 +39,10 @@ implements Externalizable, MapTrie<T>{
 	}
 
 	public MapTailDoubleArray(MapTrie<T> orig){
-		this(orig, new SuffixTrieTailBuilder());
+		this(orig, new SuffixTrieTailArray());
 	}
 
-	public MapTailDoubleArray(MapTrie<T> orig, TailBuilder builder){
+	public MapTailDoubleArray(MapTrie<T> orig, TailArrayBuilder builder){
 		final Map<Integer, Object> termValues = new TreeMap<Integer, Object>();
 		setTrie(new TailDoubleArray(orig, builder, new TermNodeListener(){
 			@Override

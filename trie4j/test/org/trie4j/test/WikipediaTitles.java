@@ -7,7 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import org.junit.Assert;
@@ -41,20 +43,75 @@ public class WikipediaTitles implements Iterable<String>{
 		return trie;
 	}
 
-	public void assertAllContains(Trie trie){
-		int i = 0;
+	public Set<String> insertTo(Set<String> set){
 		for(String s : this){
-			Assert.assertTrue(i + "th entry: ." + s, trie.contains(s));
-			i++;
+			set.add(s);
 		}
+		return set;
 	}
 
-	public void assertAllContains(MapTrie<Integer> trie){
+	public Map<String, Integer> insertTo(Map<String, Integer> map){
 		int i = 0;
 		for(String s : this){
-			Assert.assertEquals(i + "th entry: ." + s, (Integer)(i), trie.get(s));
+			map.put(s, i++);
+		}
+		return map;
+	}
+
+	public long assertAllContains(Trie trie){
+		LapTimer lt = new LapTimer();
+		long d = 0;
+		int i = 0;
+		for(String s : this){
+			lt.reset();
+			boolean a = trie.contains(s);
+			d += lt.lapNanos();
+			Assert.assertTrue(String.format("%dth entry: %s", i, s), a);
 			i++;
 		}
+		return d / 1000000;
+	}
+
+	public long assertAllContains(MapTrie<Integer> trie){
+		LapTimer lt = new LapTimer();
+		long d = 0;
+		int i = 0;
+		for(String s : this){
+			lt.reset();
+			Integer a = trie.get(s);
+			d += lt.lapNanos();
+			Assert.assertEquals(i + "th entry: ." + s, (Integer)(i), a);
+			i++;
+		}
+		return d / 1000000;
+	}
+
+	public long assertAllContains(Set<String> set){
+		LapTimer lt = new LapTimer();
+		long d = 0;
+		int i = 0;
+		for(String s : this){
+			lt.reset();
+			boolean a = set.contains(s);
+			d += lt.lapNanos();
+			Assert.assertTrue(String.format("%dth entry: %s", i, s), a);
+			i++;
+		}
+		return d / 1000000;
+	}
+
+	public long assertAllContains(Map<String, Integer> map){
+		LapTimer lt = new LapTimer();
+		long d = 0;
+		int i = 0;
+		for(String s : this){
+			lt.reset();
+			Integer a = map.get(s);
+			d += lt.lapNanos();
+			Assert.assertEquals(i + "th entry: ." + s, (Integer)(i), a);
+			i++;
+		}
+		return d / 1000000;
 	}
 
 	@Override

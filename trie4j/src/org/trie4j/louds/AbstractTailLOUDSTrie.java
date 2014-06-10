@@ -35,8 +35,9 @@ import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
-import org.trie4j.tail.ConcatTailArray;
+import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.tail.TailArray;
+import org.trie4j.tail.TailArrayBuilder;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.util.BitSet;
 import org.trie4j.util.FastBitSet;
@@ -54,18 +55,19 @@ implements Externalizable, TermIdTrie{
 	}
 
 	public AbstractTailLOUDSTrie(Trie orig){
-		this(orig, new LOUDSBvTree(orig.size() * 2), new ConcatTailArray(orig.size() * 3));
+		this(orig, new LOUDSBvTree(orig.size() * 2), new ConcatTailArrayBuilder(orig.size() * 3));
 	}
 
-	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray){
-		this(orig, bvtree, tailArray,
+	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder){
+		this(orig, bvtree, tailArrayBuilder,
 				new NodeListener(){ public void listen(Node node, int id){}});
 	}
 
-	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArray tailArray, NodeListener listener){
+	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder, NodeListener listener){
 		FastBitSet bs = new FastBitSet(orig.size());
-		build(orig, bvtree, tailArray, bs, listener);
+		build(orig, bvtree, tailArrayBuilder, bs, listener);
 		this.term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
+		this.tailArray = tailArrayBuilder.build();
 	}
 
 	@Override
@@ -117,9 +119,8 @@ implements Externalizable, TermIdTrie{
 		return size;
 	}
 
-	private void build(Trie orig, BvTree bvtree, TailArray tailArray,
+	private void build(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder,
 			FastBitSet termBs, NodeListener listener){
-		this.tailArray = tailArray;
 		this.bvtree = bvtree;
 		this.size = orig.size();
 		this.labels = new char[size];
@@ -146,18 +147,17 @@ implements Externalizable, TermIdTrie{
 			char[] letters = node.getLetters();
 			if(letters.length == 0){
 				labels[index] = 0xffff;
-				tailArray.appendEmpty();
+				tailArrayBuilder.appendEmpty(index);
 			} else{
 				labels[index] = letters[0];
 				if(letters.length >= 2){
-					tailArray.append(letters, 1, letters.length - 1);
+					tailArrayBuilder.append(index, letters, 1, letters.length - 1);
 				} else{
-					tailArray.appendEmpty();
+					tailArrayBuilder.appendEmpty(index);
 				}
 			}
 		}
-		nodeSize = count;
-		tailArray.freeze();
+		this.nodeSize = count;
 	}
 
 	public BvTree getBvTree() {
@@ -324,7 +324,6 @@ implements Externalizable, TermIdTrie{
 			labels = Arrays.copyOf(labels, nodeSize);
 		}
 		bvtree.trimToSize();
-		tailArray.trimToSize();
 	}
 
 	@Override

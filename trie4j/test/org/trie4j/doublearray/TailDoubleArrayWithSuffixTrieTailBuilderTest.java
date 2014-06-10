@@ -17,13 +17,13 @@ package org.trie4j.doublearray;
 
 import org.trie4j.AbstractTrieTest;
 import org.trie4j.Trie;
-import org.trie4j.patricia.simple.PatriciaTrie;
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.patricia.PatriciaTrie;
+import org.trie4j.tail.SuffixTrieTailArray;
 
 public class TailDoubleArrayWithSuffixTrieTailBuilderTest extends AbstractTrieTest{
 	@Override
 	protected Trie buildSecondTrie(Trie firstTrie) {
-		return new TailDoubleArray(firstTrie, new SuffixTrieTailBuilder());
+		return new TailDoubleArray(firstTrie, new SuffixTrieTailArray());
 	}
 
 	public static void main(String[] args) throws Exception{

@@ -17,16 +17,16 @@ package org.trie4j.bv;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.Arrays;
 
 public class Rank1OnlySuccinctBitVector
-implements Serializable, SuccinctBitVector{
+implements Externalizable, SuccinctBitVector{
 	public Rank1OnlySuccinctBitVector(){
 		this(16);
 	}
@@ -40,11 +40,14 @@ implements Serializable, SuccinctBitVector{
 		this.size = bits;
 		this.vector = Arrays.copyOf(bytes, containerCount(bits, 8));
 		this.countCache1 = new int[containerCount(vector.length, 8)];
-		int sum = 0;
+		int sum = BITCOUNTS1[bytes[0] & 0xff];
 		int n = vector.length;
-		for(int i = 0; i < n; i++){
+		for(int i = 1; i < n; i++){
+			if(i % 8 == 0) countCache1[(i / 8) - 1] = sum;
 			sum += BITCOUNTS1[bytes[i] & 0xff];
-			countCache1[i / 8] = sum;
+		}
+		if(countCache1.length > 0){
+			countCache1[n / 8] = sum;
 		}
 	}
 
@@ -174,24 +177,20 @@ implements Serializable, SuccinctBitVector{
 		return i;
 	}
 
-	private void writeObject(ObjectOutputStream s)
-	throws IOException {
-		trimToSize();
-		ObjectOutputStream.PutField fields = s.putFields();
-		fields.put("size", size);
-		trimToSize();
-		fields.put("vector", vector);
-		fields.put("countCache1", countCache1);
-		s.writeFields();
-    }
-
-	private void readObject(ObjectInputStream s)
+	@Override
+	public void readExternal(ObjectInput in)
 	throws IOException, ClassNotFoundException {
-		ObjectInputStream.GetField fields = s.readFields();
-		size = fields.get("size", 0);
-		vector = (byte[])fields.get("vector", null);
-		countCache1 = (int[])fields.get("countCache1", null);
-    }
+		vector = (byte[])in.readObject();
+		size = in.readInt();
+		countCache1 = (int[])in.readObject();
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(vector);
+		out.writeInt(size);
+		out.writeObject(countCache1);
+	}
 
 	private void extend(){
 		int vectorSize = (int)(vector.length * 1.2) + 1;

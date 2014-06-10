@@ -17,12 +17,12 @@ package org.trie4j.doublearray;
 
 import org.trie4j.AbstractWikipediaSerializeTest;
 import org.trie4j.Trie;
-import org.trie4j.tail.builder.SuffixTrieTailBuilder;
+import org.trie4j.tail.SuffixTrieTailArray;
 
 public class TailDoubleArrayWithSuffixTrieTailBuilderWikipediaSerializeTest
 extends AbstractWikipediaSerializeTest{
 	@Override
 	protected Trie secondTrie(Trie trie) {
-		return new TailDoubleArray(trie, new SuffixTrieTailBuilder());
+		return new TailDoubleArray(trie, new SuffixTrieTailArray());
 	}
 }
