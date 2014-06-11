@@ -36,11 +36,14 @@ implements Externalizable, BitVector{
 		this.size = bits;
 		this.vector = Arrays.copyOf(bytes, containerCount(bits, 8));
 		this.countCache0 = new int[containerCount(vector.length, 8)];
-		int sum = 0;
+		int sum = BITCOUNTS0[bytes[0] & 0xff];
 		int n = vector.length;
-		for(int i = 0; i < n; i++){
+		for(int i = 1; i < n; i++){
+			if(i % 8 == 0) countCache0[(i / 8) - 1] = sum;
 			sum += BITCOUNTS0[bytes[i] & 0xff];
-			countCache0[i / 8] = sum;
+		}
+		if(countCache0.length > 0){
+			countCache0[n / 8] = sum;
 		}
 	}
 
