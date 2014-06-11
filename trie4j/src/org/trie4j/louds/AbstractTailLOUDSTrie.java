@@ -68,6 +68,7 @@ implements Externalizable, TermIdTrie{
 		build(orig, bvtree, tailArrayBuilder, bs, listener);
 		this.term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 		this.tailArray = tailArrayBuilder.build();
+		this.bvtree.trimToSize();
 	}
 
 	@Override
@@ -332,9 +333,7 @@ implements Externalizable, TermIdTrie{
 		out.writeInt(nodeSize);
 		trimToSize();
 		out.writeObject(bvtree);
-		for(char c : labels){
-			out.writeChar(c);
-		}
+		out.writeObject(labels);
 		out.writeObject(tailArray);
 		out.writeObject(term);
 	}
@@ -345,10 +344,7 @@ implements Externalizable, TermIdTrie{
 		size = in.readInt();
 		nodeSize = in.readInt();
 		bvtree = (BvTree)in.readObject();
-		labels = new char[nodeSize];
-		for(int i = 0; i < nodeSize; i++){
-			labels[i] = in.readChar();
-		}
+		labels = (char[])in.readObject();
 		tailArray = (TailArray)in.readObject();
 		term = (SuccinctBitVector)in.readObject();
 	}
@@ -364,8 +360,7 @@ implements Externalizable, TermIdTrie{
 		if(end == -1) return -1;
 		if((end - start) <= 16){
 			for(int i = start; i < end; i++){
-				int d = c - labels[i];
-				if(d == 0) return i;
+				if(c == labels[i]) return i;
 			}
 			return -1;
 		} else{
