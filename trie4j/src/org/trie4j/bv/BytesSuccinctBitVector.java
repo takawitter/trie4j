@@ -96,6 +96,20 @@ implements Externalizable, SuccinctBitVector{
 		}
 */	}
 
+	public BytesSuccinctBitVector(
+			byte[] bytes, int size, int size0,
+			int node1pos, int node2pos, int node3pos,
+			int[] countCache0, int[] indexCache0) {
+		this.bytes = bytes;
+		this.size = size;
+		this.size0 = size0;
+		this.node1pos = node1pos;
+		this.node2pos = node2pos;
+		this.node3pos = node3pos;
+		this.countCache0 = countCache0;
+		this.indexCache0 = indexCache0;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
@@ -133,6 +147,22 @@ implements Externalizable, SuccinctBitVector{
 
 	public int size(){
 		return this.size;
+	}
+
+	public int getSize0() {
+		return size0;
+	}
+
+	public int getNode1pos() {
+		return node1pos;
+	}
+
+	public int getNode2pos() {
+		return node2pos;
+	}
+
+	public int getNode3pos() {
+		return node3pos;
 	}
 
 	public void trimToSize(){
@@ -397,26 +427,6 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeInt(size);
-		out.writeInt(size0);
-		out.writeInt(node1pos);
-		out.writeInt(node2pos);
-		out.writeInt(node3pos);
-		trimToSize();
-		out.writeInt(bytes.length);
-		out.write(bytes);
-		out.writeInt(countCache0.length);
-		for(int e : countCache0){
-			out.writeInt(e);
-		}
-		out.writeInt(indexCache0.length);
-		for(int e : indexCache0){
-			out.writeInt(e);
-		}
-	}
-
-	@Override
 	public void readExternal(ObjectInput in) throws IOException{
 		size = in.readInt();
 		size0 = in.readInt();
@@ -438,6 +448,26 @@ implements Externalizable, SuccinctBitVector{
 		}
 	}
 
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(size);
+		out.writeInt(size0);
+		out.writeInt(node1pos);
+		out.writeInt(node2pos);
+		out.writeInt(node3pos);
+		trimToSize();
+		out.writeInt(bytes.length);
+		out.write(bytes);
+		out.writeInt(countCache0.length);
+		for(int e : countCache0){
+			out.writeInt(e);
+		}
+		out.writeInt(indexCache0.length);
+		for(int e : indexCache0){
+			out.writeInt(e);
+		}
+	}
+
 	private void extend(){
 		int vectorSize = (int)(bytes.length * 1.2) + 1;
 		bytes = Arrays.copyOf(bytes, vectorSize);
@@ -453,11 +483,11 @@ implements Externalizable, SuccinctBitVector{
 
 	private static final int CACHE_WIDTH = 64;
 	private byte[] bytes;
+	private int size;
+	private int size0;
 	private int node1pos = -1;
 	private int node2pos = -1;
 	private int node3pos = -1;
-	private int size;
-	private int size0;
 	private int[] countCache0;
 	private int[] indexCache0;
 

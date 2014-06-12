@@ -31,7 +31,11 @@ implements Externalizable, TailArray{
 		this.tail = tail;
 		this.tailIndex = tailIndex;
 	}
-	
+
+	public CharSequence getTail() {
+		return tail;
+	}
+
 	public TailIndex getTailIndex() {
 		return tailIndex;
 	}

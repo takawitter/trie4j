@@ -51,6 +51,20 @@ implements Externalizable, SuccinctBitVector{
 		}
 	}
 
+	public Rank1OnlySuccinctBitVector(byte[] vector, int size, int[] countCache1) {
+		this.vector = vector;
+		this.size = size;
+		this.countCache1 = countCache1;
+	}
+
+	public byte[] getVector() {
+		return vector;
+	}
+
+	public int[] getCountCache1() {
+		return countCache1;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();

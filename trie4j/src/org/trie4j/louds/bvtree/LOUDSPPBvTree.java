@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.trie4j.bv.BitVector01Devider;
+import org.trie4j.bv.BitVector01Divider;
 import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
 import org.trie4j.util.Range;
@@ -34,7 +34,27 @@ implements Externalizable, BvTree{
 	public LOUDSPPBvTree(int initialCapacity) {
 		r0 = new Rank0OnlySuccinctBitVector(initialCapacity);
 		r1 = new BytesSuccinctBitVector(initialCapacity);
-		divider = new BitVector01Devider(r0, r1);
+		divider = new BitVector01Divider(r0, r1);
+	}
+
+	public LOUDSPPBvTree(BitVector01Divider divider,
+			Rank0OnlySuccinctBitVector r0, BytesSuccinctBitVector r1) {
+		this.divider = divider;
+		this.r0 = r0;
+		this.r1 = r1;
+		divider.setVectors(r0, r1);
+	}
+
+	public BitVector01Divider getDivider() {
+		return divider;
+	}
+
+	public Rank0OnlySuccinctBitVector getR0() {
+		return r0;
+	}
+
+	public BytesSuccinctBitVector getR1() {
+		return r1;
 	}
 
 	@Override
@@ -69,7 +89,8 @@ implements Externalizable, BvTree{
 	}
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException {
+	public void readExternal(ObjectInput in)
+	throws ClassNotFoundException, IOException {
 		divider.readExternal(in);
 		r0.readExternal(in);
 		r1.readExternal(in);
@@ -82,7 +103,7 @@ implements Externalizable, BvTree{
 		r1.writeExternal(out);
 	}
 
-	private BitVector01Devider divider;
+	private BitVector01Divider divider;
 	private Rank0OnlySuccinctBitVector r0;
 	private BytesSuccinctBitVector r1;
 }

@@ -29,52 +29,56 @@ public class LOUDSBvTree implements Externalizable, BvTree{
 	}
 
 	public LOUDSBvTree(int initialCapacity) {
-		vector = new BytesSuccinctBitVector(initialCapacity);
+		sbv = new BytesSuccinctBitVector(initialCapacity);
 	}
 
-	public LOUDSBvTree(BytesSuccinctBitVector vector) {
-		this.vector = vector;
+	public LOUDSBvTree(BytesSuccinctBitVector sbv) {
+		this.sbv = sbv;
+	}
+
+	public BytesSuccinctBitVector getSbv() {
+		return sbv;
 	}
 
 	@Override
 	public String toString() {
-		String bvs = vector.toString();
+		String bvs = sbv.toString();
 		return "bitvec: " + ((bvs.length() > 100) ? bvs.substring(0, 100) : bvs);
 	}
 
 	@Override
 	public void appendChild() {
-		vector.append1();
+		sbv.append1();
 	}
 	
 	@Override
 	public void appendSelf() {
-		vector.append0();
+		sbv.append0();
 	}
 
 	@Override
 	public void getChildNodeIds(int selfNodeId, Range range) {
-		int s = vector.select0(selfNodeId) + 1;
-		int e = vector.next0(s);
-		int startNodeId = vector.rank1(s);
+		int s = sbv.select0(selfNodeId) + 1;
+		int e = sbv.next0(s);
+		int startNodeId = sbv.rank1(s);
 		range.set(startNodeId, startNodeId + e - s);
 	}
-	
+
 	@Override
 	public void trimToSize() {
-		vector.trimToSize();
+		sbv.trimToSize();
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-		vector.readExternal(in);
+		sbv.readExternal(in);
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		vector.writeExternal(out);
+		sbv.writeExternal(out);
 	}
 
-	private BytesSuccinctBitVector vector;
+	private BytesSuccinctBitVector sbv;
 }

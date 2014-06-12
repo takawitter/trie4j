@@ -30,7 +30,7 @@ import java.util.List;
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.bv.BitVector01Devider;
+import org.trie4j.bv.BitVector01Divider;
 import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
 import org.trie4j.tail.ConcatTailArrayBuilder;
@@ -61,7 +61,7 @@ implements Externalizable, Trie {
 		term = new BitSet(size);
 		LinkedList<Node> queue = new LinkedList<Node>();
 		int count = 0;
-		BitVector01Devider d = new BitVector01Devider(r0, r1);
+		BitVector01Divider d = new BitVector01Divider(r0, r1);
 		if(orig.getRoot() != null) queue.add(orig.getRoot());
 		while(!queue.isEmpty()){
 			Node node = queue.pollFirst();

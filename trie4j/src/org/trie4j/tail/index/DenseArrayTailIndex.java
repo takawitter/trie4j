@@ -33,6 +33,27 @@ implements Externalizable, TailIndex{
 		this.tail = tail;
 	}
 
+	public DenseArrayTailIndex(SuccinctBitVector sbv, int[] tail) {
+		this.sbv = sbv;
+		this.tail = tail;
+	}
+
+	public SuccinctBitVector getSbv() {
+		return sbv;
+	}
+
+	public void setSbv(SuccinctBitVector sbv) {
+		this.sbv = sbv;
+	}
+
+	public int[] getTail() {
+		return tail;
+	}
+
+	public void setTail(int[] tail) {
+		this.tail = tail;
+	}
+
 	@Override
 	public int size() {
 		return sbv.size();

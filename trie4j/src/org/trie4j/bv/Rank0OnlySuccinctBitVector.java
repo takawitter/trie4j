@@ -22,7 +22,7 @@ import java.io.ObjectOutput;
 import java.util.Arrays;
 
 public class Rank0OnlySuccinctBitVector
-implements Externalizable, BitVector{
+implements Externalizable, SuccinctBitVector{
 	public Rank0OnlySuccinctBitVector(){
 		this(16);
 	}
@@ -42,6 +42,20 @@ implements Externalizable, BitVector{
 			sum += BITCOUNTS0[bytes[i] & 0xff];
 			countCache0[i / 8] = sum;
 		}
+	}
+
+	public Rank0OnlySuccinctBitVector(byte[] vector, int size, int[] countCache0) {
+		this.vector = vector;
+		this.size = size;
+		this.countCache0 = countCache0;
+	}
+
+	public byte[] getVector() {
+		return vector;
+	}
+
+	public int[] getCountCache0() {
+		return countCache0;
 	}
 
 	@Override
@@ -110,6 +124,16 @@ implements Externalizable, BitVector{
 		size++;
 	}
 
+	@Override
+	public int select0(int num) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int select1(int num) {
+		throw new UnsupportedOperationException();
+	}
+
 	public int rank0(int pos){
 		int ret = 0;
 		int cn = pos / CACHE_WIDTH;
@@ -125,28 +149,24 @@ implements Externalizable, BitVector{
 	}
 
 	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeInt(size);
-		trimToSize();
-		out.writeInt(vector.length);
-		out.write(vector);
-		out.writeInt(countCache0.length);
-		for(int e : countCache0){
-			out.writeInt(e);
-		}
+	public int rank1(int pos) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException{
+	public void readExternal(ObjectInput in)
+	throws ClassNotFoundException, IOException{
 		size = in.readInt();
-		int vectorSize = in.readInt();
-		vector = new byte[vectorSize];
-		in.readFully(vector, 0, vectorSize);
-		int size = in.readInt();
-		countCache0 = new int[size];
-		for(int i = 0; i < size; i++){
-			countCache0[i] = in.readInt();
-		}
+		vector = (byte[])in.readObject();
+		countCache0 = (int[])in.readObject();
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		trimToSize();
+		out.writeInt(size);
+		out.writeObject(vector);
+		out.writeObject(countCache0);
 	}
 
 	private static int containerCount(int size, int unitSize){

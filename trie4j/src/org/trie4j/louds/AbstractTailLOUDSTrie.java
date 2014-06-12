@@ -39,7 +39,6 @@ import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.tail.TailArray;
 import org.trie4j.tail.TailArrayBuilder;
 import org.trie4j.tail.TailCharIterator;
-import org.trie4j.util.BitSet;
 import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
 import org.trie4j.util.Range;
@@ -68,6 +67,30 @@ implements Externalizable, TermIdTrie{
 		build(orig, bvtree, tailArrayBuilder, bs, listener);
 		this.term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 		this.tailArray = tailArrayBuilder.build();
+	}
+
+	public AbstractTailLOUDSTrie(
+			int size, int nodeSize, BvTree bvTree, char[] labels,
+			TailArray tailArray, SuccinctBitVector term){
+		this.size = size;
+		this.nodeSize = nodeSize;
+		this.bvtree = bvTree;
+		this.labels = labels;
+		this.tailArray = tailArray;
+		this.term = term;
+	}
+
+	@Override
+	public int size() {
+		return size;
+	}
+
+	public int nodeSize(){
+		return nodeSize;
+	}
+
+	public void setNodeSize(int nodeSize) {
+		this.nodeSize = nodeSize;
 	}
 
 	@Override
@@ -112,11 +135,6 @@ implements Externalizable, TermIdTrie{
 		int nodeId = getNodeId(text);
 		if(nodeId == -1) return -1;
 		return term.get(nodeId) ? term.rank1(nodeId) - 1 : -1;
-	}
-
-	@Override
-	public int size() {
-		return size;
 	}
 
 	private void build(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder,
@@ -164,6 +182,10 @@ implements Externalizable, TermIdTrie{
 		return bvtree;
 	}
 
+	public void setBvtree(BvTree bvtree) {
+		this.bvtree = bvtree;
+	}
+
 	public char[] getLabels(){
 		return labels;
 	}
@@ -172,7 +194,7 @@ implements Externalizable, TermIdTrie{
 		return tailArray;
 	}
 
-	public BitSet getTerm(){
+	public SuccinctBitVector getTerm(){
 		return term;
 	}
 
@@ -351,10 +373,6 @@ implements Externalizable, TermIdTrie{
 		}
 		tailArray = (TailArray)in.readObject();
 		term = (SuccinctBitVector)in.readObject();
-	}
-
-	public void setBvtree(BvTree bvtree) {
-		this.bvtree = bvtree;
 	}
 
 	private int getChildNode(int nodeId, char c, Range r){
