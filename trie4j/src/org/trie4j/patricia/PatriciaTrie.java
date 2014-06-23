@@ -29,6 +29,13 @@ import org.trie4j.util.Pair;
 public class PatriciaTrie
 extends AbstractTrie
 implements Serializable, Trie{
+	public PatriciaTrie(){
+	}
+
+	public PatriciaTrie(String... words){
+		for(String s : words) insert(s);
+	}
+
 	@Override
 	public int size() {
 		return size;
