@@ -75,6 +75,20 @@ implements Serializable, SuccinctBitVector{
 		countCache0[(size - 1) / CACHE_WIDTH_BITS] = size0;
 	}
 
+	public LongsSuccinctBitVector(
+			long[] longs, int size, int size0,
+			int node1pos, int node2pos, int node3pos,
+			int[] countCache0, int[] indexCache0) {
+		this.longs = longs;
+		this.size = size;
+		this.size0 = size0;
+		this.node1pos = node1pos;
+		this.node2pos = node2pos;
+		this.node3pos = node3pos;
+		this.countCache0 = countCache0;
+		this.indexCache0 = indexCache0;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
@@ -118,6 +132,18 @@ implements Serializable, SuccinctBitVector{
 
 	public int getSize0() {
 		return size0;
+	}
+
+	public int getNode1pos() {
+		return node1pos;
+	}
+
+	public int getNode2pos() {
+		return node2pos;
+	}
+
+	public int getNode3pos() {
+		return node3pos;
 	}
 
 	public void trimToSize(){
