@@ -31,4 +31,5 @@ public interface Constants {
 	public static final int TYPE_SBV_BYTES				= 0x0070;
 	public static final int TYPE_SBV_RANK0ONLY			= 0x0071;
 	public static final int TYPE_SBV_RANK1ONLY			= 0x0072;
+	public static final int TYPE_SBV_LONGS				= 0x0073;
 }

@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import org.trie4j.Trie;
 import org.trie4j.bv.BitVector01Divider;
 import org.trie4j.bv.BytesSuccinctBitVector;
+import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
@@ -78,14 +79,14 @@ public class TrieWriter implements Constants{
 
 	public void writeLOUDSBvTree(LOUDSBvTree bvTree) throws IOException{
 		bvTree.trimToSize();
-		writeBytesSuccinctBitVector(bvTree.getSbv());
+		writeSuccinctBitVector(bvTree.getSbv());
 	}
 
 	public void writeLOUDSPPBvTree(LOUDSPPBvTree bvTree) throws IOException{
 		bvTree.trimToSize();
 		writeBitVector01Divider(bvTree.getDivider());
 		writeRank0OnlySuccinctBitVector(bvTree.getR0());
-		writeBytesSuccinctBitVector(bvTree.getR1());
+		writeSuccinctBitVector(bvTree.getR1());
 	}
 
 	public void writeTailArray(TailArray tailArray) throws IOException{
@@ -152,6 +153,9 @@ public class TrieWriter implements Constants{
 		} else if(sbv instanceof Rank1OnlySuccinctBitVector){
 			dos.writeShort(TYPE_SBV_RANK1ONLY);
 			writeRank1OnlySuccinctBitVector((Rank1OnlySuccinctBitVector)sbv);
+		} else if(sbv instanceof Rank1OnlySuccinctBitVector){
+			dos.writeShort(TYPE_SBV_LONGS);
+			writeLongsSuccinctBitVector((LongsSuccinctBitVector)sbv);
 		} else {
 			throw new IOException("unknown sbv: " + sbv.getClass().getName());
 		}
@@ -177,6 +181,19 @@ public class TrieWriter implements Constants{
 	throws IOException{
 		sbv.trimToSize();
 		writeBytes(sbv.getBytes());
+		dos.writeInt(sbv.size());
+		dos.writeInt(sbv.getSize0());
+		dos.writeInt(sbv.getNode1pos());
+		dos.writeInt(sbv.getNode2pos());
+		dos.writeInt(sbv.getNode3pos());
+		writeInts(sbv.getCountCache0());
+		writeInts(sbv.getIndexCache0());
+	}
+
+	public void writeLongsSuccinctBitVector(LongsSuccinctBitVector sbv)
+	throws IOException{
+		sbv.trimToSize();
+		writeLongs(sbv.getLongs());
 		dos.writeInt(sbv.size());
 		dos.writeInt(sbv.getSize0());
 		dos.writeInt(sbv.getNode1pos());
@@ -217,6 +234,14 @@ public class TrieWriter implements Constants{
 		dos.writeInt(data.length);
 		for(int d : data){
 			dos.writeInt(d);
+		}
+	}
+
+	public void writeLongs(long[] data)
+	throws IOException{
+		dos.writeInt(data.length);
+		for(long d : data){
+			dos.writeLong(d);
 		}
 	}
 
