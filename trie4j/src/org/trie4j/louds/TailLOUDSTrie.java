@@ -36,6 +36,14 @@ implements Serializable, Trie {
 		this(orig, new ConcatTailArrayBuilder(orig.size()));
 	}
 
+	public TailLOUDSTrie(Trie orig, BvTree bvTree, TailArrayBuilder tailArrayBuilder){
+		this(orig, bvTree, tailArrayBuilder, new NodeListener(){
+			@Override
+			public void listen(Node node, int id) {
+			}
+		});
+	}
+
 	public TailLOUDSTrie(Trie orig, TailArrayBuilder tailArrayBuilder){
 		this(orig, tailArrayBuilder, new NodeListener(){
 			@Override
@@ -45,11 +53,12 @@ implements Serializable, Trie {
 	}
 
 	public TailLOUDSTrie(Trie orig, TailArrayBuilder tailArrayBuilder, NodeListener listener){
-		this(orig, tailArrayBuilder, listener, new LOUDSBvTree(orig.size() * 2));
+		this(orig, new LOUDSBvTree(orig.size()), tailArrayBuilder, listener);
 	}
 
-	TailLOUDSTrie(Trie orig, TailArrayBuilder tailArrayBuilder, NodeListener listener,
-			BvTree bvTree){
+	TailLOUDSTrie(Trie orig, BvTree bvTree, TailArrayBuilder tailArrayBuilder,
+			NodeListener listener
+			){
 		super(orig, bvTree, tailArrayBuilder, listener);
 	}
 }

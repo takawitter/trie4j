@@ -20,16 +20,22 @@ import java.io.Writer;
 
 public interface Trie{
 	/**
-	 * returns inserted word count(equals to terminal node count)
-	 * @return inserted word count
+	 * returns node size;
+	 * @return node size;
 	 */
-	int size();
+	int nodeSize();
 
 	/**
 	 * retuns root node.
 	 * @return root node.
 	 */
 	Node getRoot();
+
+	/**
+	 * returns inserted word count(equals to terminal node count)
+	 * @return inserted word count
+	 */
+	int size();
 
 	/**
 	 * returns true if trie contains word.

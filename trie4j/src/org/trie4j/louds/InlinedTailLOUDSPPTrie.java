@@ -101,6 +101,11 @@ implements Externalizable, Trie {
 	}
 
 	@Override
+	public int nodeSize() {
+		return nodeSize;
+	}
+
+	@Override
 	public Node getRoot(){
 		return new LOUDSNode(0);
 	}

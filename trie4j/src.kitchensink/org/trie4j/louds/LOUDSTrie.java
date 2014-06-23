@@ -50,6 +50,7 @@ implements Externalizable, Trie {
 
 	public LOUDSTrie(Trie orig, int bitSize){
 		size = orig.size();
+		nodeSize = orig.nodeSize();
 		bv = new BytesSuccinctBitVector(bitSize);
 		labels = new char[bitSize / 2];
 		tail = new char[bitSize / 2][];
@@ -82,7 +83,6 @@ implements Externalizable, Trie {
 				}
 			}
 		}
-		nodeSize = count;
 	}
 
 	@Override
@@ -92,6 +92,11 @@ implements Externalizable, Trie {
 
 	public BytesSuccinctBitVector getBv() {
 		return bv;
+	}
+
+	@Override
+	public int nodeSize() {
+		return nodeSize;
 	}
 
 	@Override
@@ -361,10 +366,10 @@ implements Externalizable, Trie {
 	}
 
 	private int size;
+	private int nodeSize;
 	private BytesSuccinctBitVector bv;
 	private char[] labels;
 	private char[][] tail;
 	private BitSet term;
-	private int nodeSize;
 	private static final char[] emptyChars = {};
 }

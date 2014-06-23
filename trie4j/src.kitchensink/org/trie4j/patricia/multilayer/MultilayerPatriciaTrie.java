@@ -34,6 +34,10 @@ public class MultilayerPatriciaTrie extends AbstractTrie implements Trie{
 		return size;
 	}
 
+	public int nodeSize(){
+		throw new UnsupportedOperationException();
+	}
+
 	public Node getRoot(){
 		return root;
 	}

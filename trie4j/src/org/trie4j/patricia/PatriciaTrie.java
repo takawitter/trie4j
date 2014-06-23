@@ -37,6 +37,11 @@ implements Serializable, Trie{
 	}
 
 	@Override
+	public int nodeSize() {
+		return nodeSize;
+	}
+
+	@Override
 	public int size() {
 		return size;
 	}
@@ -206,6 +211,7 @@ implements Serializable, Trie{
 						(child1.getLetters()[0] < child2.getLetters()[0]) ?
 						newNodeArray(child1, child2) : newNodeArray(child2, child1));
 				size++;
+				nodeSize += 2;
 				return child2;
 			} else if(lettersRest == thisLettersLength){
 				if(!node.isTerminate()){
@@ -221,6 +227,7 @@ implements Serializable, Trie{
 				node.setTerminate(true);
 				node.setChildren(newNodeArray(newChild));
 				size++;
+				nodeSize++;
 				return node;
 			} else{
 				int index = 0;
@@ -266,6 +273,7 @@ implements Serializable, Trie{
 				PatriciaTrieNode child = newNode(letters.substring(i + offset).toCharArray(), true);
 				node.addChild(index, child);
 				size++;
+				nodeSize++;
 				return child;
 			}
 		}
@@ -312,6 +320,7 @@ implements Serializable, Trie{
 	}
 
 	private int size;
+	private int nodeSize;
 	private PatriciaTrieNode root = newNode();
 	private static final long serialVersionUID = -7611399538600722195L;
 }
