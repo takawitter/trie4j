@@ -21,6 +21,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.trie4j.bv.BytesSuccinctBitVector;
+import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.util.Range;
 
 public class LOUDSBvTree implements Externalizable, BvTree{
@@ -32,11 +33,11 @@ public class LOUDSBvTree implements Externalizable, BvTree{
 		sbv = new BytesSuccinctBitVector(initialCapacity);
 	}
 
-	public LOUDSBvTree(BytesSuccinctBitVector sbv) {
+	public LOUDSBvTree(SuccinctBitVector sbv) {
 		this.sbv = sbv;
 	}
 
-	public BytesSuccinctBitVector getSbv() {
+	public SuccinctBitVector getSbv() {
 		return sbv;
 	}
 
@@ -72,13 +73,13 @@ public class LOUDSBvTree implements Externalizable, BvTree{
 	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-		sbv.readExternal(in);
+		sbv = (SuccinctBitVector)in.readObject();
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		sbv.writeExternal(out);
+		out.writeObject(sbv);
 	}
 
-	private BytesSuccinctBitVector sbv;
+	private SuccinctBitVector sbv;
 }

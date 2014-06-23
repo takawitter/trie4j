@@ -85,7 +85,7 @@ public class TrieWriter implements Constants{
 	public void writeLOUDSPPBvTree(LOUDSPPBvTree bvTree) throws IOException{
 		bvTree.trimToSize();
 		writeBitVector01Divider(bvTree.getDivider());
-		writeRank0OnlySuccinctBitVector(bvTree.getR0());
+		writeSuccinctBitVector(bvTree.getR0());
 		writeSuccinctBitVector(bvTree.getR1());
 	}
 

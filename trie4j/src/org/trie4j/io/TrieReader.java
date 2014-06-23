@@ -82,8 +82,9 @@ public class TrieReader implements Constants{
 
 	public LOUDSPPBvTree readLOUDSPPBvTree() throws IOException{
 		return new LOUDSPPBvTree(
-				readBitVector01Divider(), readRank0OnlySuccinctBitVector(),
-				readBytesSuccinctBitVector());
+				readBitVector01Divider(),
+				readSuccinctBitVector(),
+				readSuccinctBitVector());
 	}
 
 	public TailArray readTailArray() throws IOException{
