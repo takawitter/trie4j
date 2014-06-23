@@ -127,6 +127,11 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	@Override
+	public int next0(int count) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public int select1(int num) {
 		throw new UnsupportedOperationException();
 	}
