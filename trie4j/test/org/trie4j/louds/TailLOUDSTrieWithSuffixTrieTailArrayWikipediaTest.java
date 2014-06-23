@@ -26,31 +26,29 @@ import org.trie4j.Algorithms;
 import org.trie4j.Node;
 import org.trie4j.NodeVisitor;
 import org.trie4j.Trie;
-import org.trie4j.louds.AbstractTailLOUDSTrie.NodeListener;
+import org.trie4j.bv.BytesSuccinctBitVector;
+import org.trie4j.louds.TailLOUDSTrie.NodeListener;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.tail.SuffixTrieTailArray;
 
 public class TailLOUDSTrieWithSuffixTrieTailArrayWikipediaTest extends AbstractWikipediaTest{
 	@Override
 	protected Trie buildSecondTrie(Trie first) {
-		bv.resetCounts();
 		TailLOUDSTrie t = new TailLOUDSTrie(
-				first, new SuffixTrieTailArray(first.size()),
+				first,
+				new LOUDSBvTree(new BytesSuccinctBitVector()),
+				new SuffixTrieTailArray(first.size()),
 				new NodeListener() {
 					@Override
 					public void listen(Node node, int id) {
 					}
-				},
-				new LOUDSBvTree(bv));
+				});
 		return t;
 	}
 
 	@Override
 	protected void afterVerification(Trie trie) throws Exception{
 		TailLOUDSTrie t = (TailLOUDSTrie)trie;
-		System.out.println("select0 time: " + bv.getSelect0Time() + ", count: " + bv.getSelect0Count());
-		System.out.println("next0 time: " + bv.getNext0Time() + ", count: " + bv.getNext0Count());
-		System.out.println("rank1 time: " + bv.getRank1Time() + ", count: " + bv.getRank1Count());
 
 		final Map<Integer, List<Integer>> childrenCounts = new TreeMap<Integer, List<Integer>>(
 				new Comparator<Integer>() {
@@ -79,6 +77,4 @@ public class TailLOUDSTrieWithSuffixTrieTailArrayWikipediaTest extends AbstractW
 
 		Thread.sleep(10000);
 	}
-
-	private MonitoredSuccinctBitVector bv = new MonitoredSuccinctBitVector(65536);
 }

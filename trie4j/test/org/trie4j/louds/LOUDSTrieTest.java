@@ -34,8 +34,7 @@ public class LOUDSTrieTest extends AbstractTrieTest{
 	@Test
 	public void test() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
+		Trie trie = new PatriciaTrie(words);
 		LOUDSTrie lt = new LOUDSTrie(trie);
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));
@@ -54,15 +53,19 @@ public class LOUDSTrieTest extends AbstractTrieTest{
 	@Test
 	public void test_save_load() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
+		Trie trie = new PatriciaTrie(words);
 		LOUDSTrie lt = new LOUDSTrie(trie);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		lt.save(baos);
 		lt = new LOUDSTrie();
 		lt.load(new ByteArrayInputStream(baos.toByteArray()));
 		for(String w : words){
-			Assert.assertTrue(lt.contains(w));
+			try{
+				Assert.assertTrue(lt.contains(w));
+			} catch(ArrayIndexOutOfBoundsException e){
+				System.out.println(w);
+				throw e;
+			}
 		}
 		Assert.assertFalse(lt.contains("おやすみなさい"));
 

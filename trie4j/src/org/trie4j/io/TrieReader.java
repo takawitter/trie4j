@@ -27,7 +27,7 @@ import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
-import org.trie4j.louds.AbstractTailLOUDSTrie;
+import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.louds.bvtree.LOUDSPPBvTree;
@@ -55,8 +55,8 @@ public class TrieReader implements Constants{
 		}
 	}
 
-	public AbstractTailLOUDSTrie readTailLOUDSTrie() throws IOException{
-		return new AbstractTailLOUDSTrie(
+	public TailLOUDSTrie readTailLOUDSTrie() throws IOException{
+		return new TailLOUDSTrie(
 				dis.readInt(), dis.readInt(),
 				readBvTree(), readChars(),
 				readTailArray(), readSuccinctBitVector()) {};

@@ -20,7 +20,8 @@ import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
 import org.trie4j.Trie;
-import org.trie4j.louds.TailLOUDSPPTrie;
+import org.trie4j.louds.TailLOUDSTrie;
+import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.SuffixTrieDenseTailArrayBuilder;
 import org.trie4j.test.LapTimer;
@@ -34,7 +35,8 @@ public class TrieWriterTest {
 		new WikipediaTitles().insertTo(origTrie);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		TrieWriter tw = new TrieWriter(baos);
-		Trie trie = new TailLOUDSPPTrie(origTrie, new SuffixTrieDenseTailArrayBuilder());
+		Trie trie = new TailLOUDSTrie(origTrie, new LOUDSPPBvTree(origTrie.nodeSize()),
+				new SuffixTrieDenseTailArrayBuilder());
 		lt.reset();
 		tw.write(trie);
 		tw.flush();

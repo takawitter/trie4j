@@ -17,11 +17,15 @@ package org.trie4j.louds;
 
 import org.trie4j.AbstractWikipediaTest;
 import org.trie4j.Trie;
+import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.tail.ConcatTailArrayBuilder;
 
 public class TailLOUDSPPTrieWithConcatTailArrayWikipediaTest extends AbstractWikipediaTest{
 	@Override
 	protected Trie buildSecondTrie(Trie first) {
-		return new TailLOUDSPPTrie(first, new ConcatTailArrayBuilder(first.size()));
+		return new TailLOUDSTrie(
+				first,
+				new LOUDSPPBvTree(first.nodeSize()),
+				new ConcatTailArrayBuilder(first.size()));
 	}
 }

@@ -9,18 +9,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.trie4j.doublearray.DoubleArray;
-import org.trie4j.doublearray.MapDoubleArray;
-import org.trie4j.doublearray.MapTailDoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
-import org.trie4j.louds.MapTailLOUDSPPTrie;
-import org.trie4j.louds.MapTailLOUDSTrie;
-import org.trie4j.louds.TailLOUDSPPTrie;
 import org.trie4j.louds.TailLOUDSTrie;
-import org.trie4j.patricia.MapPatriciaTrie;
+import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.patricia.MapTailPatriciaTrie;
 import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.patricia.TailPatriciaTrie;
@@ -222,12 +216,19 @@ public class AllTries {
 					} else{
 						for(Constructor<?> c : secondTrieClass.getConstructors()){
 							try{
-								if(c.getParameterTypes().length == args.length){
-									LapTimer lt = new LapTimer();
-									Object ret = c.newInstance(args);
-									long ms = lt.lapMillis();
-									return Pair.create((Trie)ret, ms);
+								if(c.getParameterTypes().length != args.length) continue;
+								boolean suitable = true;
+								for(int i = 0; i < c.getParameterTypes().length; i++){
+									if(!c.getParameterTypes()[i].isAssignableFrom(args[i].getClass())){
+										suitable = false;
+										break;
+									}
 								}
+								if(!suitable) continue;
+								LapTimer lt = new LapTimer();
+								Object ret = c.newInstance(args);
+								long ms = lt.lapMillis();
+								return Pair.create((Trie)ret, ms);
 							} catch(InstantiationException | IllegalAccessException |
 									SecurityException |
 									IllegalArgumentException | InvocationTargetException e){
@@ -430,12 +431,12 @@ public class AllTries {
 			new TrieProcess().second(TailLOUDSTrie.class, SBVConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieTailArray.class),
 			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieDenseTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSPPTrie.class, ConcatTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSPPTrie.class, SBVConcatTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSPPTrie.class, SuffixTrieTailArray.class),
-			new TrieProcess().second(TailLOUDSPPTrie.class, SuffixTrieDenseTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SBVConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieTailArray.class),
+			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieDenseTailArrayBuilder.class),
 //*/
-//*
+/*
 			new MapProcess(HashMap.class),
 			new MapProcess(TreeMap.class),
 			new MapTrieProcess(MapPatriciaTrie.class),

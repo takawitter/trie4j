@@ -22,7 +22,7 @@ import java.io.ObjectOutputStream;
 
 import org.junit.Test;
 import org.trie4j.doublearray.TailDoubleArray;
-import org.trie4j.louds.AbstractTailLOUDSTrie;
+import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.DefaultTailArray;
 import org.trie4j.test.LapTimer;
@@ -66,8 +66,8 @@ public abstract class AbstractWikipediaSerializeTest{
 			return "(" + ((TailPatriciaTrie) trie).getTailBuilder().getClass().getSimpleName() + ")";
 		} else if(trie instanceof TailDoubleArray){
 			return "(" + ((DefaultTailArray)((TailDoubleArray)trie).getTailArray()).getTailIndex().getClass().getSimpleName() + ")";
-		} else if(trie instanceof AbstractTailLOUDSTrie){
-			return "(" + ((DefaultTailArray)((AbstractTailLOUDSTrie) trie).getTailArray()).getTailIndex().getClass().getSimpleName() + ")";
+		} else if(trie instanceof TailLOUDSTrie){
+			return "(" + ((DefaultTailArray)((TailLOUDSTrie)trie).getTailArray()).getTailIndex().getClass().getSimpleName() + ")";
 		} else{
 			return "";
 		}

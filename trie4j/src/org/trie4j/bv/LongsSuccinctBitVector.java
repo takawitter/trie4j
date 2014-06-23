@@ -59,6 +59,19 @@ implements Serializable, SuccinctBitVector{
 				}
 			}
 			int zeroCount = zeroPosInB.length;
+			if(size0 < 3 && zeroCount > 0){
+				if(size0 == 0){
+					node1pos = zeroPosInB[0] + 8 * i;
+					if(zeroPosInB.length > 1) node2pos = zeroPosInB[1] + 8 * i;
+					if(zeroPosInB.length > 2) node3pos = zeroPosInB[2] + 8 * i;
+				} else if(size0 == 1){
+					node2pos = zeroPosInB[0] + 8 * i;
+					if(zeroPosInB.length > 1) node3pos = zeroPosInB[1] + 8 * i;
+				} else{
+					node3pos = zeroPosInB[0] + 8 * i;
+				}
+			}
+			
 			int prevSize0 = size0;
 			size0 += zeroCount;
 			if((i + 1) % (CACHE_WIDTH_BITS / 8) == 0){

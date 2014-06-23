@@ -26,7 +26,7 @@ import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.bv.Rank0OnlySuccinctBitVector;
 import org.trie4j.bv.Rank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
-import org.trie4j.louds.AbstractTailLOUDSTrie;
+import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.louds.bvtree.LOUDSPPBvTree;
@@ -47,15 +47,15 @@ public class TrieWriter implements Constants{
 	}
 
 	public void write(Trie trie) throws IOException{
-		if(trie instanceof AbstractTailLOUDSTrie){
+		if(trie instanceof TailLOUDSTrie){
 			dos.writeShort(TYPE_TRIE_LOUDS_TAIL);
-			writeTailLOUDSTrie((AbstractTailLOUDSTrie)trie);
+			writeTailLOUDSTrie((TailLOUDSTrie)trie);
 		} else{
 			throw new IOException("unknown trie: " + trie.getClass().getName());
 		}
 	}
 
-	public void writeTailLOUDSTrie(AbstractTailLOUDSTrie trie) throws IOException{
+	public void writeTailLOUDSTrie(TailLOUDSTrie trie) throws IOException{
 		trie.trimToSize();
 		dos.writeInt(trie.size());
 		dos.writeInt(trie.nodeSize());

@@ -32,9 +32,9 @@ implements Externalizable, BvTree{
 		this(0);
 	}
 
-	public LOUDSPPBvTree(int initialCapacity) {
-		r0 = new Rank0OnlySuccinctBitVector(initialCapacity);
-		r1 = new BytesSuccinctBitVector(initialCapacity);
+	public LOUDSPPBvTree(int initialNodeCapacity) {
+		r0 = new Rank0OnlySuccinctBitVector(initialNodeCapacity);
+		r1 = new BytesSuccinctBitVector(initialNodeCapacity);
 		divider = new BitVector01Divider(r0, r1);
 	}
 

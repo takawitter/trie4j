@@ -25,13 +25,17 @@ import org.junit.Test;
 import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArrayBuilder;
 
 public class TailLOUDSPPTrieWithConcatTailArrayTest extends AbstractTermIdTrieTest{
 	@Override
-	protected TailLOUDSPPTrie buildSecondTrie(Trie firstTrie) {
-		return new TailLOUDSPPTrie(firstTrie, new ConcatTailArrayBuilder());
+	protected TailLOUDSTrie buildSecondTrie(Trie firstTrie) {
+		return new TailLOUDSTrie(
+				firstTrie,
+				new LOUDSPPBvTree(firstTrie.nodeSize()),
+				new ConcatTailArrayBuilder());
 	}
 
 	@Test
@@ -41,7 +45,7 @@ public class TailLOUDSPPTrieWithConcatTailArrayTest extends AbstractTermIdTrieTe
 		for(String w : words) trie.insert(w);
 		
 //		final SBVTailIndex ti = new SBVTailIndex();
-		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
+		TailLOUDSTrie lt = buildSecondTrie(trie);
 //		System.out.println(lt.getBvTree());
 //		System.out.println(ti.getSBV());
 //		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
@@ -62,15 +66,14 @@ public class TailLOUDSPPTrieWithConcatTailArrayTest extends AbstractTermIdTrieTe
 	@Test
 	public void test_save_load() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
-		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
+		Trie trie = new PatriciaTrie(words);
+		TailLOUDSTrie lt = new TailLOUDSTrie(trie, new LOUDSPPBvTree(trie.nodeSize()));
 		try(
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(baos)){
 			lt.writeExternal(oos);
 			oos.flush();
-			lt = new TailLOUDSPPTrie();
+			lt = new TailLOUDSTrie(new PatriciaTrie(), new LOUDSPPBvTree());
 			lt.readExternal(new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())));
 			for(String w : words){
 				Assert.assertTrue(lt.contains(w));

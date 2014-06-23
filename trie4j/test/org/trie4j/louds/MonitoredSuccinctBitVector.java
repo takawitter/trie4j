@@ -1,14 +1,26 @@
+/*
+ * Copyright 2012 Takao Nakaguchi
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.trie4j.louds;
 
-import org.trie4j.bv.BytesSuccinctBitVector;
+import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.test.LapTimer;
 
-public class MonitoredSuccinctBitVector extends BytesSuccinctBitVector{
-	public MonitoredSuccinctBitVector() {
-		super();
-	}
-	public MonitoredSuccinctBitVector(int bitSize){
-		super(bitSize);
+public class MonitoredSuccinctBitVector implements SuccinctBitVector{
+	public MonitoredSuccinctBitVector(SuccinctBitVector orig) {
+		this.orig = orig;
 	}
 
 	public void resetCounts(){
@@ -53,15 +65,27 @@ public class MonitoredSuccinctBitVector extends BytesSuccinctBitVector{
 	public long getRank1Time() {
 		return rank1Time;
 	}
+	public int getAppend0Count() {
+		return append0Count;
+	}
+	public long getAppend0Time() {
+		return append0Time;
+	}
+	public int getAppend1Count() {
+		return append1Count;
+	}
+	public long getAppend1Time() {
+		return append1Time;
+	}
 
 	@Override
 	public int select0(int count) {
 		select0Count++;
 		t.reset();
 		try{
-			return super.select0(count);
+			return orig.select0(count);
 		} finally{
-			select0Time += t.lapMillis();
+			select0Time += t.lapNanos();
 		}
 	}
 	@Override
@@ -69,9 +93,9 @@ public class MonitoredSuccinctBitVector extends BytesSuccinctBitVector{
 		select1Count++;
 		t.reset();
 		try{
-			return super.select1(count);
+			return orig.select1(count);
 		} finally{
-			select1Time += t.lapMillis();
+			select1Time += t.lapNanos();
 		}
 	}
 	@Override
@@ -79,9 +103,9 @@ public class MonitoredSuccinctBitVector extends BytesSuccinctBitVector{
 		next0Count++;
 		t.reset();
 		try{
-			return super.next0(pos);
+			return orig.next0(pos);
 		} finally{
-			next0Time += t.lapMillis();
+			next0Time += t.lapNanos();
 		}
 	}
 	@Override
@@ -89,9 +113,9 @@ public class MonitoredSuccinctBitVector extends BytesSuccinctBitVector{
 		rank0Count++;
 		t.reset();
 		try{
-			return super.rank0(pos);
+			return orig.rank0(pos);
 		} finally{
-			rank0Time += t.lapMillis();
+			rank0Time += t.lapNanos();
 		}
 	}
 	@Override
@@ -99,12 +123,53 @@ public class MonitoredSuccinctBitVector extends BytesSuccinctBitVector{
 		rank1Count++;
 		t.reset();
 		try{
-			return super.rank1(pos);
+			return orig.rank1(pos);
 		} finally{
-			rank1Time += t.lapMillis();
+			rank1Time += t.lapNanos();
 		}
 	}
+	@Override
+	public void append0() {
+		append0Count++;
+		t.reset();
+		try{
+			orig.append0();
+		} finally{
+			append0Time += t.lapNanos();
+		}
+	}
+	@Override
+	public void append1() {
+		append1Count++;
+		t.reset();
+		try{
+			orig.append1();
+		} finally{
+			append1Time += t.lapNanos();
+		}
+	}
+	@Override
+	public boolean get(int pos) {
+		return orig.get(pos);
+	}
+	@Override
+	public boolean isOne(int pos) {
+		return orig.isOne(pos);
+	}
+	@Override
+	public boolean isZero(int pos) {
+		return orig.isZero(pos);
+	}
+	@Override
+	public int size() {
+		return orig.size();
+	}
+	@Override
+	public void trimToSize() {
+		orig.trimToSize();
+	}
 
+	private SuccinctBitVector orig;
 	private LapTimer t = new LapTimer();
 	private int select0Count;
 	private long select0Time;
@@ -116,6 +181,8 @@ public class MonitoredSuccinctBitVector extends BytesSuccinctBitVector{
 	private long rank0Time;
 	private int rank1Count;
 	private long rank1Time;
-
-	private static final long serialVersionUID = -1336792059094207726L;
+	private int append0Count;
+	private long append0Time;
+	private int append1Count;
+	private long append1Time;
 }

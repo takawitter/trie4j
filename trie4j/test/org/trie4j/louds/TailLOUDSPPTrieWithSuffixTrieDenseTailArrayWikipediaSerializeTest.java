@@ -17,12 +17,16 @@ package org.trie4j.louds;
 
 import org.trie4j.AbstractWikipediaSerializeTest;
 import org.trie4j.Trie;
+import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.tail.SuffixTrieDenseTailArrayBuilder;
 
 public class TailLOUDSPPTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest
 extends AbstractWikipediaSerializeTest{
 	@Override
-	protected Trie secondTrie(Trie orig) {
-		return new TailLOUDSPPTrie(orig, new SuffixTrieDenseTailArrayBuilder());
+	protected Trie secondTrie(Trie firstTrie) {
+		return new TailLOUDSTrie(
+				firstTrie,
+				new LOUDSPPBvTree(firstTrie.nodeSize()),
+				new SuffixTrieDenseTailArrayBuilder());
 	}
 }

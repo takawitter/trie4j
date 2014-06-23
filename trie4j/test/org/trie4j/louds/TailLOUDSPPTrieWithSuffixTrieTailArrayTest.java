@@ -10,21 +10,24 @@ import org.junit.Test;
 import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.SuffixTrieTailArray;
 
 public class TailLOUDSPPTrieWithSuffixTrieTailArrayTest extends AbstractTermIdTrieTest{
 	@Override
-	protected TailLOUDSPPTrie buildSecondTrie(Trie firstTrie) {
-		return new TailLOUDSPPTrie(firstTrie, new SuffixTrieTailArray(firstTrie.size()));
+	protected TailLOUDSTrie buildSecondTrie(Trie firstTrie) {
+		return new TailLOUDSTrie(
+				firstTrie,
+				new LOUDSPPBvTree(firstTrie.nodeSize()),
+				new SuffixTrieTailArray(firstTrie.size()));
 	}
 
 	@Test
 	public void test() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
-		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
+		Trie trie = new PatriciaTrie(words);
+		TailLOUDSTrie lt = buildSecondTrie(trie);
 //		System.out.println(lt.getBvTree());
 //		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){
@@ -44,16 +47,14 @@ public class TailLOUDSPPTrieWithSuffixTrieTailArrayTest extends AbstractTermIdTr
 	@Test
 	public void test_save_load() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
-		TailLOUDSPPTrie lt = new TailLOUDSPPTrie(trie);
+		Trie trie = new PatriciaTrie(words);
+		TailLOUDSTrie lt = buildSecondTrie(trie);
 		try(
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(baos)){
-			lt.writeExternal(oos);
+			oos.writeObject(lt);
 			oos.flush();
-			lt = new TailLOUDSPPTrie();
-			lt.readExternal(new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())));
+			lt = (TailLOUDSTrie)new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())).readObject();
 			for(String w : words){
 				Assert.assertTrue(lt.contains(w));
 			}
