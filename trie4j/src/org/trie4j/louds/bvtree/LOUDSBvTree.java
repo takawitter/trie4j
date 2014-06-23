@@ -29,8 +29,8 @@ public class LOUDSBvTree implements Externalizable, BvTree{
 		this(0);
 	}
 
-	public LOUDSBvTree(int initialCapacity) {
-		sbv = new BytesSuccinctBitVector(initialCapacity);
+	public LOUDSBvTree(int initialNodeCapacity) {
+		sbv = new BytesSuccinctBitVector(initialNodeCapacity * 2);
 	}
 
 	public LOUDSBvTree(SuccinctBitVector sbv) {
