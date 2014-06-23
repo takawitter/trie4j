@@ -17,6 +17,8 @@ package org.trie4j.louds;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,7 +37,7 @@ public class LOUDSTrieTest extends AbstractTrieTest{
 	public void test() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie(words);
-		LOUDSTrie lt = new LOUDSTrie(trie);
+		Trie lt = buildSecondTrie(trie);
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));
 		}
@@ -54,18 +56,17 @@ public class LOUDSTrieTest extends AbstractTrieTest{
 	public void test_save_load() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
 		Trie trie = new PatriciaTrie(words);
-		LOUDSTrie lt = new LOUDSTrie(trie);
+		Trie lt = buildSecondTrie(trie);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		lt.save(baos);
-		lt = new LOUDSTrie();
-		lt.load(new ByteArrayInputStream(baos.toByteArray()));
+		ObjectOutputStream oos = new ObjectOutputStream(baos);
+		try{
+			oos.writeObject(lt);
+		} finally{
+			oos.flush();
+		}
+		lt = (Trie)new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray())).readObject();
 		for(String w : words){
-			try{
-				Assert.assertTrue(lt.contains(w));
-			} catch(ArrayIndexOutOfBoundsException e){
-				System.out.println(w);
-				throw e;
-			}
+			Assert.assertTrue(lt.contains(w));
 		}
 		Assert.assertFalse(lt.contains("おやすみなさい"));
 

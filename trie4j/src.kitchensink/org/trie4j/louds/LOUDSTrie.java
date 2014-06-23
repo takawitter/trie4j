@@ -36,6 +36,7 @@ import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.bv.BytesSuccinctBitVector;
+import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.util.Pair;
 
 public class LOUDSTrie
@@ -50,7 +51,6 @@ implements Externalizable, Trie {
 
 	public LOUDSTrie(Trie orig, int bitSize){
 		size = orig.size();
-		nodeSize = orig.nodeSize();
 		bv = new BytesSuccinctBitVector(bitSize);
 		labels = new char[bitSize / 2];
 		tail = new char[bitSize / 2][];
@@ -83,6 +83,7 @@ implements Externalizable, Trie {
 				}
 			}
 		}
+		nodeSize = count;
 	}
 
 	@Override
@@ -90,7 +91,7 @@ implements Externalizable, Trie {
 		return size;
 	}
 
-	public BytesSuccinctBitVector getBv() {
+	public SuccinctBitVector getBv() {
 		return bv;
 	}
 
@@ -279,17 +280,10 @@ implements Externalizable, Trie {
 		out.writeInt(size);
 		out.writeInt(nodeSize);
 		trimToSize();
-		for(char c : labels){
-			out.writeChar(c);
-		}
-		for(char[] t : tail){
-			out.writeInt(t.length);
-			for(char c : t){
-				out.writeChar(c);
-			}
-		}
+		out.writeObject(labels);
+		out.writeObject(tail);
 		out.writeObject(term);
-		bv.writeExternal(out);
+		out.writeObject(bv);
 	}
 
 	public void load(InputStream is) throws IOException{
@@ -305,22 +299,10 @@ implements Externalizable, Trie {
 	throws IOException, ClassNotFoundException {
 		size = in.readInt();
 		nodeSize = in.readInt();
-		labels = new char[nodeSize];
-		for(int i = 0; i < nodeSize; i++){
-			labels[i] = in.readChar();
-		}
-		tail = new char[nodeSize][];
-		for(int i = 0; i < nodeSize; i++){
-			int n = in.readInt();
-			StringBuilder b = new StringBuilder(n);
-			for(int j = 0; j < n; j++){
-				b.append(in.readChar());
-			}
-			tail[i] = b.toString().toCharArray();
-		}
+		labels = (char[])in.readObject();
+		tail = (char[][])in.readObject();
 		term = (BitSet)in.readObject();
-		bv = new BytesSuccinctBitVector();
-		bv.readExternal(in);
+		bv = (SuccinctBitVector)in.readObject();
 	}
 
 	private int getChildNode(int nodeId, char c){
@@ -367,7 +349,7 @@ implements Externalizable, Trie {
 
 	private int size;
 	private int nodeSize;
-	private BytesSuccinctBitVector bv;
+	private SuccinctBitVector bv;
 	private char[] labels;
 	private char[][] tail;
 	private BitSet term;
