@@ -22,6 +22,7 @@ import java.io.ObjectOutputStream;
 
 import org.junit.Test;
 import org.trie4j.doublearray.MapTailDoubleArray;
+import org.trie4j.louds.MapTailLOUDSTrie;
 import org.trie4j.patricia.MapPatriciaTrie;
 import org.trie4j.patricia.MapTailPatriciaTrie;
 import org.trie4j.test.LapTimer;
@@ -58,11 +59,21 @@ extends AbstractWikipediaSerializeTest{
 		long rd = lt.lapMillis();
 		long vd = wt.assertAllContains(t);
 		System.out.println(String.format(
-				"%s%s, size: %d, write(ms): %d, read(ms): %d, verify(ms): %d.",
+				"%s%s%s, size: %d, write(ms): %d, read(ms): %d, verify(ms): %d.",
 				trie.getClass().getSimpleName(),
+				getBvTreeClassName(trie),
 				getTailClassName(trie),
 				serialized.length, wd, rd, vd
 				));
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static String getBvTreeClassName(MapTrie<?> trie){
+		if(trie instanceof MapTailLOUDSTrie){
+			return getBvTreeClassName(((MapTailLOUDSTrie)trie).getTrie());
+		} else{
+			return "";
+		}
 	}
 
 	@SuppressWarnings("rawtypes")

@@ -9,12 +9,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.trie4j.doublearray.DoubleArray;
+import org.trie4j.doublearray.MapDoubleArray;
+import org.trie4j.doublearray.MapTailDoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
+import org.trie4j.louds.MapTailLOUDSTrie;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.louds.bvtree.LOUDSPPBvTree;
+import org.trie4j.patricia.MapPatriciaTrie;
 import org.trie4j.patricia.MapTailPatriciaTrie;
 import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.patricia.TailPatriciaTrie;
@@ -436,7 +441,7 @@ public class AllTries {
 			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieTailArray.class),
 			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieDenseTailArrayBuilder.class),
 //*/
-/*
+//*
 			new MapProcess(HashMap.class),
 			new MapProcess(TreeMap.class),
 			new MapTrieProcess(MapPatriciaTrie.class),
@@ -451,10 +456,10 @@ public class AllTries {
 			new MapTrieProcess().second(MapTailLOUDSTrie.class, ConcatTailArrayBuilder.class),
 			new MapTrieProcess().second(MapTailLOUDSTrie.class, SBVConcatTailArrayBuilder.class),
 			new MapTrieProcess().second(MapTailLOUDSTrie.class, SuffixTrieDenseTailArrayBuilder.class),
-			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, SuffixTrieTailArray.class),
-			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, ConcatTailArrayBuilder.class),
-			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, SBVConcatTailArrayBuilder.class),
-			new MapTrieProcess().second(MapTailLOUDSPPTrie.class, SuffixTrieDenseTailArrayBuilder.class),
+			new MapTrieProcess().second(MapTailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieTailArray.class),
+			new MapTrieProcess().second(MapTailLOUDSTrie.class, LOUDSPPBvTree.class, ConcatTailArrayBuilder.class),
+			new MapTrieProcess().second(MapTailLOUDSTrie.class, LOUDSPPBvTree.class, SBVConcatTailArrayBuilder.class),
+			new MapTrieProcess().second(MapTailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieDenseTailArrayBuilder.class),
 //*/
 			};
 

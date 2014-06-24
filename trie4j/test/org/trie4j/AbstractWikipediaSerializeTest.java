@@ -54,11 +54,20 @@ public abstract class AbstractWikipediaSerializeTest{
 		long rd = lt.lapMillis();
 		long vd = wt.assertAllContains(t);
 		System.out.println(String.format(
-				"%s%s, size: %d, write(ms): %d, read(ms): %d, verify(ms): %d.",
+				"%s%s%s, size: %d, write(ms): %d, read(ms): %d, verify(ms): %d.",
 				trie.getClass().getSimpleName(),
+				getBvTreeClassName(trie),
 				getTailClassName(trie),
 				serialized.length, wd, rd, vd
 				));
+	}
+
+	static String getBvTreeClassName(Trie trie){
+		if(trie instanceof TailLOUDSTrie){
+			return "(" + ((TailLOUDSTrie)trie).getBvTree().getClass().getSimpleName() + ")";
+		} else{
+			return "";
+		}
 	}
 
 	static String getTailClassName(Trie trie){
