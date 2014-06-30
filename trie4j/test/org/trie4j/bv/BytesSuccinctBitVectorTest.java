@@ -15,7 +15,6 @@
  */
 package org.trie4j.bv;
 
-
 public class BytesSuccinctBitVectorTest extends AbstractSuccinctBitVectorTest {
 	protected SuccinctBitVector create(){
 		return new BytesSuccinctBitVector();

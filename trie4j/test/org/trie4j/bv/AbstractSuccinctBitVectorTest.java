@@ -91,6 +91,19 @@ public abstract class AbstractSuccinctBitVectorTest {
 	}
 
 	@Test
+	public void test_select0_4() throws Exception{
+		String[] B ={"11111111", "11111111", "11111111", "01010101",
+					 "11111111", "11111110", "00000001", "11111111",
+					};
+		BytesSuccinctBitVector bv = new BytesSuccinctBitVector();
+		BitVectorUtil.appendBitStrings(bv, B);
+		Assert.assertEquals(4, bv.rank0(31));
+		Assert.assertEquals(28, bv.rank1(31));
+		Assert.assertEquals(30, bv.select0(4));
+		Assert.assertEquals(47, bv.select0(5));
+	}
+
+	@Test
 	public void test_select1_1() throws Exception{
 		SuccinctBitVector bv = create(1);
 		for(int i = 0; i < 2000; i++){
@@ -374,6 +387,13 @@ public abstract class AbstractSuccinctBitVectorTest {
 			Assert.assertEquals(i + 1, sbv.rank0(i));
 			Assert.assertEquals(0, sbv.rank1(i));
 		}
+	}
+
+	@Test
+	public void test_append_rank1_5() throws Exception{
+		SuccinctBitVector sbv = create(1);
+		sbv.append0();
+		System.out.println(sbv.rank1(1));
 	}
 
 	@Test
