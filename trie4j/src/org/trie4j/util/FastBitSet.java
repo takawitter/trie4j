@@ -27,6 +27,16 @@ public class FastBitSet implements Serializable, BitSet{
 	}
 
 	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		int n = Math.min(size, 32);
+		for(int i = 0; i < n; i++){
+			b.append((bytes[(i / 8)] & (0x80 >> (i % 8))) != 0 ? "1" : "0");
+		}
+		return b.toString();
+	}
+
+	@Override
 	public int size(){
 		return size;
 	}
