@@ -323,12 +323,12 @@ implements Externalizable, SuccinctBitVector{
 		if(count % CACHE_WIDTH == 0) return start;
 		start /= CACHE_WIDTH;
 		int end = 0;
-		if(indexCache0.length > (idx + 1)){
-			int c = (indexCache0[idx + 1]) / CACHE_WIDTH + 1;
-			if(c != 1) end = c;
+		if(indexCache0.length > (idx)){
+			int c = (indexCache0[idx]) / CACHE_WIDTH;
+			if(c != 0) end = c + 1;
 		}
 		if(end == 0){
-			int vectorSize = size / 8 + 1;
+			int vectorSize = containerBytesCount(size);
 			int blockSize = CACHE_WIDTH / 8;
 			end = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 			if(end == 0){
@@ -362,7 +362,7 @@ implements Externalizable, SuccinctBitVector{
 			if(m >= 0) count -= countCache0[m];
 		}
 
-		int n = size / 8 + 1;
+		int n = containerBytesCount(size);
 		for(int i = (m + 1) * CACHE_WIDTH / 8; i < n; i++){
 			int bits = bytes[i] & 0xff;
 			int c = BITCOUNTS0[bits];
