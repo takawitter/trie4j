@@ -47,4 +47,22 @@ public class BitVectorUtil {
 			}
 		}
 	}
+
+	/**
+	 * Append bits from bit string. The "bit string" is the array
+	 * of string that contains 8 characters which is '0' or '1'.
+	 * @param bv bit vector
+	 * @param bs the array of bit string
+	 */
+	public static void appendBitStrings(BitVector bv, String[] bs){
+		for(String s : bs){
+			if(s.length() != 8) throw new RuntimeException(
+					"The length of bit string must be 8  while " + s.length());
+			for(char c : s.toCharArray()){
+				if(c == '0') bv.append0();
+				else if(c == '1') bv.append1();
+				else throw new RuntimeException("invalid char '" + c + "' for bit string.");
+			}
+		}
+	}
 }
