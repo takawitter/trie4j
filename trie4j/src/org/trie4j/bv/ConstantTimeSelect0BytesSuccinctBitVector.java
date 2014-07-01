@@ -36,8 +36,8 @@ implements Externalizable, SuccinctBitVector{
 		int size = initialCapacity / blockSize + 1;
 		countCache0 = new int[size];
 		bsC = new FastBitSet();
-		bvD = new Rank1OnlySuccinctBitVector();
-		bvR = new Rank1OnlySuccinctBitVector();
+		bvD = new LongsRank1OnlySuccinctBitVector();
+		bvR = new LongsRank1OnlySuccinctBitVector();
 		arS = new int[]{0};
 	}
 
@@ -196,9 +196,7 @@ implements Externalizable, SuccinctBitVector{
 
 		if(i >= bsC.size()){
 			bsC.unset(i);
-//			System.out.println("block" + i + ": 0  ++");
 			arS[arS.length - 1]++;
-//			System.out.println(Arrays.toString(arS));
 		}
 	}
 
@@ -225,6 +223,10 @@ implements Externalizable, SuccinctBitVector{
 		}
 		countCache0[ci]++;
 
+		// D, C, Rを構築
+		// Dはbytesの0bitに対応。8bitブロック内で最初に現れるものに1、連続する場合は0。
+		// Cはbytesの8bitブロックに対応。0を含むものに1、含まないものに0。
+		// RはCの1bitに対応。最初に現れるものに1、続いて現れるものに0。0は無視。
 		if(bvD_first1){
 			bvD.append1();
 			bvD_first1 = false;
@@ -237,30 +239,22 @@ implements Externalizable, SuccinctBitVector{
 		} else{
 			bvD.append0();
 		}
-		//
-		// C is going to be set 1
-		// 0 0 0 0
-		//       1 1 0 1 0
-		//               1 0
+
 		if(bsC.size() == i){
 			// first time
-//			System.out.println("block" + i + ": 1");
 			if(bsC.size() == 0 || !bsC.get(i - 1)){
 				arS = set(arS, arS.length, arS[arS.length - 1]);
 			}
-//			System.out.println(Arrays.toString(arS));
 		} else{
 			if(!bsC.get(i)){
 				// turn bsC from 0 to 1
-//				System.out.println("block" + i + ": 1  (0 to 1)");
 				arS[arS.length - 1]--;
 				if(bsC.size() > 0 && !bsC.get(bsC.size() - 1)){
 					arS = set(arS, arS.length, arS[arS.length - 1]);
 				}
-//				System.out.println(Arrays.toString(arS));
 			}
 		}
-		//
+
 		size++;
 		if(size % 8 == 0){
 			bvD_first1 = true;
@@ -317,17 +311,11 @@ implements Externalizable, SuccinctBitVector{
 		// select1_C( rank1_D(4) - 1 ) = select1_C( 1 ) = 2
 		// u = (i + 1) + S[ rank1_D( i + 1 ) ]
 		// select1_B( i ) = (u - 1) × 8 + SELECT_TABLE[u - 1][s]
-		int ci = bvD.rank1(count - 1);
-		int u = ci - 1 + arS[bvR.rank1(ci - 1) - 1];
-		int r = u == 0 ? 0 : rank0(u * 8 - 1);
-		try{
-			return u * 8 + BITPOS0[bytes[u] & 0xff][count - r - 1];
-		} catch(ArrayIndexOutOfBoundsException e){
-			System.out.println("!!!");
-			System.out.println(String.format(
-					"count:%d, ci:%d, u:%d, r:%d", count, ci, u, r));
-			throw e;
-		}
+		int ci = bvD.rank1(count - 1) - 1;
+		int u = ci + arS[bvR.rank1(ci) - 1];
+		int ui = u * 8;
+		int r = u == 0 ? 0 : rank0(ui - 1);
+		return ui + BITPOS0[bytes[u] & 0xff][count - r - 1];
 	}
 
 	public int select1(int count){
