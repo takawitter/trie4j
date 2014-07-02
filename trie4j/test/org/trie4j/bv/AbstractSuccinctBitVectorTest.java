@@ -390,13 +390,6 @@ public abstract class AbstractSuccinctBitVectorTest {
 	}
 
 	@Test
-	public void test_append_rank1_5() throws Exception{
-		SuccinctBitVector sbv = create(1);
-		sbv.append0();
-		System.out.println(sbv.rank1(1));
-	}
-
-	@Test
 	public void test_from_bytes_rank_1() throws Exception{
 		SuccinctBitVector sbv = create(
 				new byte[]{0x01, 0x1f},
