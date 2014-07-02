@@ -39,9 +39,9 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	public BytesConstantTimeSelect0SuccinctBitVector(byte[] bytes, int bitsSize){
-		this.bytes = Arrays.copyOf(bytes, containerBytesCount(bitsSize));
+		this.bytes = Arrays.copyOf(bytes, bytesSize(bitsSize));
 		this.size = bitsSize;
-		int cacheSize = bitsSize / CACHE_WIDTH + 1;
+		int cacheSize = countCache0Size(bitsSize);
 		countCache0 = new int[cacheSize + 1];
 		// cache, indexCache(0のCACHE_WIDTH個毎に位置を記憶), node1/2/3pos(0)
 
@@ -166,12 +166,8 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	public void trimToSize(){
-		int vectorSize = size / 8 + 1;
-		bytes = Arrays.copyOf(bytes, Math.min(bytes.length, vectorSize));
-		int blockSize = CACHE_WIDTH / 8;
-		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
-		int countCacheSize0 = size;
-		countCache0 = Arrays.copyOf(countCache0, Math.min(countCache0.length, countCacheSize0));
+		bytes = Arrays.copyOf(bytes, bytesSize(size));
+		countCache0 = Arrays.copyOf(countCache0, countCache0Size(size));
 		bvD.trimToSize();
 		bvR.trimToSize();
 		arS = Arrays.copyOf(arS, arSSize);
@@ -429,10 +425,15 @@ implements Externalizable, SuccinctBitVector{
 		arSSize++;
 	}
 
-	private static int containerBytesCount(int size){
-		return size / 8 + ((size % 8) != 0 ? 1 : 0);
+	private static int bytesSize(int bitSize){
+		return (bitSize - 1) / BITS_IN_BYTE + 1;
 	}
 
+	private static int countCache0Size(int bitSize){
+		return (bitSize - 1) / CACHE_WIDTH + 1;
+	}
+
+	private static final int BITS_IN_BYTE = 8;
 	private static final int CACHE_WIDTH = 64;
 	private byte[] bytes;
 	private int size;
