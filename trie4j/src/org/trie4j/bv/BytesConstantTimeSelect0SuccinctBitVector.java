@@ -43,6 +43,10 @@ implements Externalizable, SuccinctBitVector{
 		this.size = bitsSize;
 		int cacheSize = countCache0Size(bitsSize);
 		countCache0 = new int[cacheSize + 1];
+		bvD = new LongsRank1OnlySuccinctBitVector();
+		bvR = new LongsRank1OnlySuccinctBitVector();
+		arS = new int[]{0};
+		arSSize = 1;
 		// cache, indexCache(0のCACHE_WIDTH個毎に位置を記憶), node1/2/3pos(0)
 
 		int n = bytes.length;
@@ -75,6 +79,26 @@ implements Externalizable, SuccinctBitVector{
 				}
 			}
 
+			// D, C, Rを構築
+			// Dはbytesの0bitに対応。8bitブロック内で最初に現れるものに1、それ以外は0。
+			// Cはbytesの8bitブロックに対応。0を含むものに1、含まないものに0。
+			// RはCの1bitに対応。最初に現れるものに1、続いて現れるものに0。0は無視。
+			prevBsC = currentBsC;
+			if(zeroPosInB.length > 0){
+				bvD.append1();
+				for(int j = 1; j < zeroPosInB.length; j++) bvD.append0();
+				currentBsC = true;
+				if(prevBsC){
+					bvR.append0();
+				} else{
+					bvR.append1();
+					addArS();
+				}
+			} else{
+				currentBsC = false;
+				arS[arSSize - 1]++;
+			}
+
 			size0 += zeroCount;
 			if((i + 1) % (CACHE_WIDTH / 8) == 0){
 				countCache0[i / (CACHE_WIDTH / 8)] = size0;
@@ -88,7 +112,10 @@ implements Externalizable, SuccinctBitVector{
 	public BytesConstantTimeSelect0SuccinctBitVector(
 			byte[] bytes, int size, int size0,
 			int node1pos, int node2pos, int node3pos,
-			int[] countCache0) {
+			int[] countCache0, SuccinctBitVector bvD,
+			SuccinctBitVector bvR, boolean first0bitInBlock,
+			boolean prevBsC, boolean currentBsC,
+			int[] arS, int arSSize){
 		this.bytes = bytes;
 		this.size = size;
 		this.size0 = size0;
@@ -96,6 +123,13 @@ implements Externalizable, SuccinctBitVector{
 		this.node2pos = node2pos;
 		this.node3pos = node3pos;
 		this.countCache0 = countCache0;
+		this.bvD = bvD;
+		this.bvR = bvR;
+		this.first0bitInBlock = first0bitInBlock;
+		this.prevBsC = prevBsC;
+		this.currentBsC = currentBsC;
+		this.arS = arS;
+		this.arSSize = arSSize;
 	}
 
 	@Override
@@ -494,22 +528,7 @@ implements Externalizable, SuccinctBitVector{
 		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
 		4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0, 
 	};
-	public static void main(String[] args) throws Exception{
-		System.out.println("\tprivate static final byte[][] BITPOS0 = {");
-		for(int i = 0; i < 256; i++){
-			int count = 0;
-			System.out.print("\t\t{");
-			for(int b = 0x80; b > 0; b >>= 1){
-				if((i & b) == 0){
-					System.out.print(count);
-					System.out.print(", ");
-				}
-				count++;
-			}
-			System.out.println("}, // " + String.format("%d(%1$x)", i));
-		}
-		System.out.println("\t};");
-	}
+
 	private static final byte[][] BITPOS0 = {
 		{0, 1, 2, 3, 4, 5, 6, 7, }, // 0(0)
 		{0, 1, 2, 3, 4, 5, 6, }, // 1(1)
