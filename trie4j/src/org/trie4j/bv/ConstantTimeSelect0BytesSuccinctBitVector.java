@@ -167,6 +167,8 @@ implements Externalizable, SuccinctBitVector{
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 		int countCacheSize0 = size;
 		countCache0 = Arrays.copyOf(countCache0, Math.min(countCache0.length, countCacheSize0));
+		bvD.trimToSize();
+		bvR.trimToSize();
 	}
 
 	public void append1(){
@@ -399,10 +401,6 @@ implements Externalizable, SuccinctBitVector{
 		out.writeBoolean(first0bitInBlock);
 		out.writeObject(bvR);
 		out.writeObject(arS);
-		System.out.println("bvB: " + (bytes.length + countCache0.length * 4));
-		System.out.println("bvD: " + (bvD.size() + ((Rank1OnlySuccinctBitVector)bvD).getCountCache1().length * 4));
-		System.out.println("bvR: " + (bvR.size() + ((Rank1OnlySuccinctBitVector)bvR).getCountCache1().length * 4));
-		System.out.println("arS: " + arS.length * 4);
 	}
 
 	private int[] set(int[] ar, int i, int v){
