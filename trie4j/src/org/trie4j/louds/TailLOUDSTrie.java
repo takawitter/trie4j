@@ -300,11 +300,15 @@ implements Externalizable, TermIdTrie{
 			int nid = element.getFirst();
 
 			StringBuilder b = new StringBuilder(element.getSecond());
-			b.append(labels[nid]);
+			if(nid > 0){
+				b.append(labels[nid]);
+			}
 			tci.setOffset(tailArray.getIteratorOffset(nid));
 			while(tci.hasNext()) b.append(tci.next());
 			String letter = b.toString();
-			if(term.get(nid)) ret.add(Pair.create(letter, nid));
+			if(term.get(nid)){
+				ret.add(Pair.create(letter, nid));
+			}
 			bvtree.getChildNodeIds(nid, r);
 			for(int i = (r.getEnd() - 1); i >= r.getStart(); i--){
 				queue.offerFirst(Pair.create(i, letter));
