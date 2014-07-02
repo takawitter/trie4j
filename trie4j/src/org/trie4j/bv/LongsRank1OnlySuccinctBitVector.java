@@ -116,12 +116,8 @@ implements Serializable, SuccinctBitVector{
 	}
 
 	public void trimToSize(){
-		int vectorSize = size / 64 + 1;
-		longs = Arrays.copyOf(longs, Math.min(longs.length, vectorSize));
-		int blockSize = CACHE_WIDTH_BITS / 8;
-		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
-		int countCacheSize0 = size;
-		countCache0 = Arrays.copyOf(countCache0, Math.min(countCache0.length, countCacheSize0));
+		longs = Arrays.copyOf(longs, longsSize(size));
+		countCache0 = Arrays.copyOf(countCache0, countCache0Size(size));
 	}
 
 	public void append0(){
