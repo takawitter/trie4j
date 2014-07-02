@@ -303,7 +303,7 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	public int select0(int count){
-		if(count > size) return -1;
+		if(count > bvD.size()) return -1;
 		if(count <= 3){
 			if(count == 1) return node1pos;
 			else if(count == 2) return node2pos;

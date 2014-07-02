@@ -7,22 +7,23 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class BytesConstantTimeSelect0SuccinctBitVectorTest
+extends AbstractSuccinctBitVectorTest
 {
-/*	@Override
+	@Override
 	protected SuccinctBitVector create() {
-		return new ConstantTimeSelect0BytesSuccinctBitVector();
+		return new BytesConstantTimeSelect0SuccinctBitVector();
 	}
 
 	@Override
 	protected SuccinctBitVector create(int initialCapacity) {
-		return new ConstantTimeSelect0BytesSuccinctBitVector(initialCapacity);
+		return new BytesConstantTimeSelect0SuccinctBitVector(initialCapacity);
 	}
 
 	@Override
 	protected SuccinctBitVector create(byte[] bytes, int bitsSize) {
-		return new ConstantTimeSelect0BytesSuccinctBitVector(bytes, bitsSize);
+		return new BytesConstantTimeSelect0SuccinctBitVector(bytes, bitsSize);
 	}
-*/
+
 	@Test
 	public void test_bv1() throws Exception{
 		// B | 0 0 1 1 0 1 0 0 | 1 1 1 1 1 1 1 1 | 1 0 0 0 0 1 0 0 | 0 0 0 0 1 1 1 1 | 1 1 1 1 1 1 1 1 | 0 0 0 0 0 0 0 1 |
