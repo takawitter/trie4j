@@ -23,6 +23,10 @@ public class MonitoredSuccinctBitVector implements SuccinctBitVector{
 		this.orig = orig;
 	}
 
+	public SuccinctBitVector getOriginal() {
+		return orig;
+	}
+
 	public void resetCounts(){
 		select0Count = 0;
 		select0Time = 0;

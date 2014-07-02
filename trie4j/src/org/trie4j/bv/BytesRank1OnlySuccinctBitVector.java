@@ -25,18 +25,18 @@ import java.io.ObjectOutput;
 import java.io.OutputStream;
 import java.util.Arrays;
 
-public class Rank1OnlySuccinctBitVector
+public class BytesRank1OnlySuccinctBitVector
 implements Externalizable, SuccinctBitVector{
-	public Rank1OnlySuccinctBitVector(){
+	public BytesRank1OnlySuccinctBitVector(){
 		this(16);
 	}
 
-	public Rank1OnlySuccinctBitVector(int initialCapacity){
+	public BytesRank1OnlySuccinctBitVector(int initialCapacity){
 		vector = new byte[containerCount(initialCapacity, 8)];
 		countCache1 = new int[containerCount(vector.length, CACHE_WIDTH / 8)];
 	}
 
-	public Rank1OnlySuccinctBitVector(byte[] bytes, int bits){
+	public BytesRank1OnlySuccinctBitVector(byte[] bytes, int bits){
 		this.size = bits;
 		this.vector = Arrays.copyOf(bytes, containerCount(bits, 8));
 		this.countCache1 = new int[containerCount(vector.length, 8)];
@@ -51,7 +51,7 @@ implements Externalizable, SuccinctBitVector{
 		}
 	}
 
-	public Rank1OnlySuccinctBitVector(byte[] vector, int size, int[] countCache1) {
+	public BytesRank1OnlySuccinctBitVector(byte[] vector, int size, int[] countCache1) {
 		this.vector = vector;
 		this.size = size;
 		this.countCache1 = countCache1;

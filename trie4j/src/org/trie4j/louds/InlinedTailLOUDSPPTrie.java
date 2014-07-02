@@ -32,7 +32,7 @@ import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.bv.BitVector01Divider;
 import org.trie4j.bv.BytesSuccinctBitVector;
-import org.trie4j.bv.Rank0OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
 import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.tail.TailArray;
 import org.trie4j.tail.TailArrayBuilder;
@@ -44,15 +44,15 @@ extends AbstractTrie
 implements Externalizable, Trie {
 	public InlinedTailLOUDSPPTrie(){
 		tailArray = newTailArrayBuilder(0).build();
-		r0 = new Rank0OnlySuccinctBitVector();
+		r0 = new BytesRank0OnlySuccinctBitVector();
 		r1 = new BytesSuccinctBitVector();
 	}
 
 	public InlinedTailLOUDSPPTrie(Trie orig){
-		this(orig, new Rank0OnlySuccinctBitVector(orig.size() + 1), new BytesSuccinctBitVector(orig.size() + 1));
+		this(orig, new BytesRank0OnlySuccinctBitVector(orig.size() + 1), new BytesSuccinctBitVector(orig.size() + 1));
 	}
 
-	public InlinedTailLOUDSPPTrie(Trie orig, Rank0OnlySuccinctBitVector r0, BytesSuccinctBitVector r1){
+	public InlinedTailLOUDSPPTrie(Trie orig, BytesRank0OnlySuccinctBitVector r0, BytesSuccinctBitVector r1){
 		this.r0 = r0;
 		this.r1 = r1;
 		size = orig.size();
@@ -92,7 +92,7 @@ implements Externalizable, Trie {
 		this.tailArray = tailArrayBuilder.build();
 	}
 
-	public Rank0OnlySuccinctBitVector getR0() {
+	public BytesRank0OnlySuccinctBitVector getR0() {
 		return r0;
 	}
 
@@ -348,7 +348,7 @@ implements Externalizable, Trie {
 		return new ConcatTailArrayBuilder(initialCapacity);
 	}
 
-	private Rank0OnlySuccinctBitVector r0;
+	private BytesRank0OnlySuccinctBitVector r0;
 	private BytesSuccinctBitVector r1;
 	private int size;
 	private char[] labels;

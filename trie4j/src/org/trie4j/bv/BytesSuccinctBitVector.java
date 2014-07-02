@@ -365,7 +365,14 @@ implements Externalizable, SuccinctBitVector{
 		int n = containerBytesCount(size);
 		for(int i = (m + 1) * CACHE_WIDTH / 8; i < n; i++){
 			int bits = bytes[i] & 0xff;
+//*
 			int c = BITCOUNTS0[bits];
+/*/
+			byte b = (byte)~bits;
+			int c = ((b & 0xaa) >> 1) + (b & 0x55);
+			c = ((c & 0xcc) >> 2) + (c & 0x33);
+			c = ((c & 0xf0) >> 4) + (c & 0x0f);
+//*/
 			if(count <= c){
 				return i * 8 + BITPOS0[bits][count - 1];
 			}

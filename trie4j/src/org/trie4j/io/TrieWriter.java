@@ -23,8 +23,8 @@ import org.trie4j.Trie;
 import org.trie4j.bv.BitVector01Divider;
 import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.bv.LongsSuccinctBitVector;
-import org.trie4j.bv.Rank0OnlySuccinctBitVector;
-import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.louds.bvtree.BvTree;
@@ -147,13 +147,13 @@ public class TrieWriter implements Constants{
 		if(sbv instanceof BytesSuccinctBitVector){
 			dos.writeShort(TYPE_SBV_BYTES);
 			writeBytesSuccinctBitVector((BytesSuccinctBitVector)sbv);
-		} else if(sbv instanceof Rank0OnlySuccinctBitVector){
+		} else if(sbv instanceof BytesRank0OnlySuccinctBitVector){
 			dos.writeShort(TYPE_SBV_RANK0ONLY);
-			writeRank0OnlySuccinctBitVector((Rank0OnlySuccinctBitVector)sbv);
-		} else if(sbv instanceof Rank1OnlySuccinctBitVector){
+			writeRank0OnlySuccinctBitVector((BytesRank0OnlySuccinctBitVector)sbv);
+		} else if(sbv instanceof BytesRank1OnlySuccinctBitVector){
 			dos.writeShort(TYPE_SBV_RANK1ONLY);
-			writeRank1OnlySuccinctBitVector((Rank1OnlySuccinctBitVector)sbv);
-		} else if(sbv instanceof Rank1OnlySuccinctBitVector){
+			writeRank1OnlySuccinctBitVector((BytesRank1OnlySuccinctBitVector)sbv);
+		} else if(sbv instanceof BytesRank1OnlySuccinctBitVector){
 			dos.writeShort(TYPE_SBV_LONGS);
 			writeLongsSuccinctBitVector((LongsSuccinctBitVector)sbv);
 		} else {
@@ -161,7 +161,7 @@ public class TrieWriter implements Constants{
 		}
 	}
 
-	public void writeRank0OnlySuccinctBitVector(Rank0OnlySuccinctBitVector sbv)
+	public void writeRank0OnlySuccinctBitVector(BytesRank0OnlySuccinctBitVector sbv)
 	throws IOException{
 		sbv.trimToSize();
 		writeBytes(sbv.getVector());
@@ -169,7 +169,7 @@ public class TrieWriter implements Constants{
 		writeInts(sbv.getCountCache0());
 	}
 
-	public void writeRank1OnlySuccinctBitVector(Rank1OnlySuccinctBitVector sbv)
+	public void writeRank1OnlySuccinctBitVector(BytesRank1OnlySuccinctBitVector sbv)
 	throws IOException{
 		sbv.trimToSize();
 		writeBytes(sbv.getVector());

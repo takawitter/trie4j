@@ -22,7 +22,7 @@ import java.io.ObjectOutput;
 
 import org.trie4j.bv.BitVector01Divider;
 import org.trie4j.bv.BytesSuccinctBitVector;
-import org.trie4j.bv.Rank0OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.util.Range;
 
@@ -33,7 +33,7 @@ implements Externalizable, BvTree{
 	}
 
 	public LOUDSPPBvTree(int initialNodeCapacity) {
-		r0 = new Rank0OnlySuccinctBitVector(initialNodeCapacity);
+		r0 = new BytesRank0OnlySuccinctBitVector(initialNodeCapacity);
 		r1 = new BytesSuccinctBitVector(initialNodeCapacity);
 		divider = new BitVector01Divider(r0, r1);
 	}

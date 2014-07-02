@@ -20,8 +20,8 @@ import org.junit.runners.Suite;
 import org.trie4j.bv.BitVectorUtilTest;
 import org.trie4j.bv.BytesSuccinctBitVectorTest;
 import org.trie4j.bv.LongsSuccinctBitVectorTest;
-import org.trie4j.bv.Rank0OnlySuccinctBitVectorTest;
-import org.trie4j.bv.Rank1OnlySuccinctBitVectorTest;
+import org.trie4j.bv.BytesRank0OnlySuccinctBitVectorTest;
+import org.trie4j.bv.BytesRank1OnlySuccinctBitVectorTest;
 import org.trie4j.doublearray.DoubleArrayTest;
 import org.trie4j.doublearray.MapDoubleArrayTest;
 import org.trie4j.doublearray.MapTailDoubleArrayWithConcatTailBuilderTest;
@@ -66,8 +66,8 @@ import org.trie4j.util.FastBitSetTest;
 	FastBitSetTest.class,
 	BytesSuccinctBitVectorTest.class,
 	LongsSuccinctBitVectorTest.class,
-	Rank0OnlySuccinctBitVectorTest.class,
-	Rank1OnlySuccinctBitVectorTest.class,
+	BytesRank0OnlySuccinctBitVectorTest.class,
+	BytesRank1OnlySuccinctBitVectorTest.class,
 	ArrayTailIndexTest.class,
 	DenseArrayTailIndexTest.class,
 	SBVTailIndexTest.class,

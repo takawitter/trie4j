@@ -18,10 +18,10 @@ package org.trie4j.bv;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class Rank0OnlySuccinctBitVectorTest {
+public class BytesRank0OnlySuccinctBitVectorTest {
 	@Test
 	public void test() throws Exception{
-		Rank0OnlySuccinctBitVector bv = new Rank0OnlySuccinctBitVector(1);
+		BytesRank0OnlySuccinctBitVector bv = new BytesRank0OnlySuccinctBitVector(1);
 		bv.append0();
 		bv.append1();
 		Assert.assertEquals(1, bv.rank0(0));
@@ -41,7 +41,7 @@ public class Rank0OnlySuccinctBitVectorTest {
 
 	@Test
 	public void test2() throws Exception{
-		Rank0OnlySuccinctBitVector bv = new Rank0OnlySuccinctBitVector(
+		BytesRank0OnlySuccinctBitVector bv = new BytesRank0OnlySuccinctBitVector(
 				new byte[]{0x2d, 0x3f}, 16);
 		Assert.assertEquals(1, bv.rank0(0));
 		Assert.assertEquals(2, bv.rank0(1));

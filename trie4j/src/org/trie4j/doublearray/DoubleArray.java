@@ -41,7 +41,7 @@ import org.trie4j.Node;
 import org.trie4j.TermIdNode;
 import org.trie4j.TermIdTrie;
 import org.trie4j.Trie;
-import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.util.BitSet;
 import org.trie4j.util.FastBitSet;
@@ -79,7 +79,7 @@ implements Externalizable, TermIdTrie{
 		Arrays.fill(check, -1);
 		FastBitSet bs = new FastBitSet(arraySize);
 		build(trie.getRoot(), 0, bs, listener);
-		term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
+		term = new BytesRank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 	}
 
 	@Override

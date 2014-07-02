@@ -24,8 +24,8 @@ import org.trie4j.Trie;
 import org.trie4j.bv.BitVector01Divider;
 import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.bv.LongsSuccinctBitVector;
-import org.trie4j.bv.Rank0OnlySuccinctBitVector;
-import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.louds.bvtree.BvTree;
@@ -171,14 +171,14 @@ public class TrieReader implements Constants{
 				);
 	}
 
-	public Rank0OnlySuccinctBitVector readRank0OnlySuccinctBitVector() throws IOException{
-		return new Rank0OnlySuccinctBitVector(
+	public BytesRank0OnlySuccinctBitVector readRank0OnlySuccinctBitVector() throws IOException{
+		return new BytesRank0OnlySuccinctBitVector(
 				readBytes(), dis.readInt(), readInts()
 				);
 	}
 
-	public Rank1OnlySuccinctBitVector readRank1OnlySuccinctBitVector() throws IOException{
-		return new Rank1OnlySuccinctBitVector(
+	public BytesRank1OnlySuccinctBitVector readRank1OnlySuccinctBitVector() throws IOException{
+		return new BytesRank1OnlySuccinctBitVector(
 				readBytes(), dis.readInt(), readInts()
 				);
 	}

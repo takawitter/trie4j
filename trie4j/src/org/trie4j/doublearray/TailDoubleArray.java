@@ -41,7 +41,7 @@ import org.trie4j.Node;
 import org.trie4j.TermIdNode;
 import org.trie4j.TermIdTrie;
 import org.trie4j.Trie;
-import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.tail.SuffixTrieTailArray;
 import org.trie4j.tail.TailArray;
@@ -90,7 +90,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 
 		FastBitSet bs = new FastBitSet(orig.size() * 2);
 		build(orig.getRoot(), 0, tab, bs, listener);
-		term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
+		term = new BytesRank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 		tailArray = tab.build();
 	}
 

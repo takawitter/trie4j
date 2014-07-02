@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.AbstractMapTrieTest;
 import org.trie4j.MapTrie;
-import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.patricia.MapPatriciaTrie;
 import org.trie4j.test.WikipediaTitles;
 
@@ -82,7 +82,7 @@ public class MapDoubleArrayTest extends AbstractMapTrieTest{
 		MapDoubleArray<Integer> trie = (MapDoubleArray<Integer>)newMapTrie(words, values);
 		DoubleArray da = (DoubleArray)trie.getTrie();
 		int n = words.length;
-		Rank1OnlySuccinctBitVector bv = (Rank1OnlySuccinctBitVector)da.getTerm();
+		BytesRank1OnlySuccinctBitVector bv = (BytesRank1OnlySuccinctBitVector)da.getTerm();
 		System.out.println(bv.rank1(67));
 		for(int i = 0; i < n; i++){
 			String s = words[i];

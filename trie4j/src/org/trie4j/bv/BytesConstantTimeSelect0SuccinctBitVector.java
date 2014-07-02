@@ -21,13 +21,13 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 
-public class ConstantTimeSelect0BytesSuccinctBitVector
+public class BytesConstantTimeSelect0SuccinctBitVector
 implements Externalizable, SuccinctBitVector{
-	public ConstantTimeSelect0BytesSuccinctBitVector(){
+	public BytesConstantTimeSelect0SuccinctBitVector(){
 		this(16);
 	}
 
-	public ConstantTimeSelect0BytesSuccinctBitVector(int initialCapacity){
+	public BytesConstantTimeSelect0SuccinctBitVector(int initialCapacity){
 		this.bytes = new byte[initialCapacity / 8 + 1];
 		int blockSize = CACHE_WIDTH;
 		int size = initialCapacity / blockSize + 1;
@@ -37,7 +37,7 @@ implements Externalizable, SuccinctBitVector{
 		arS = new int[]{0};
 	}
 
-	public ConstantTimeSelect0BytesSuccinctBitVector(byte[] bytes, int bitsSize){
+	public BytesConstantTimeSelect0SuccinctBitVector(byte[] bytes, int bitsSize){
 		this.bytes = Arrays.copyOf(bytes, containerBytesCount(bitsSize));
 		this.size = bitsSize;
 		int cacheSize = bitsSize / CACHE_WIDTH + 1;
@@ -84,7 +84,7 @@ implements Externalizable, SuccinctBitVector{
 		countCache0[(size - 1) / CACHE_WIDTH] = size0;
 	}
 
-	public ConstantTimeSelect0BytesSuccinctBitVector(
+	public BytesConstantTimeSelect0SuccinctBitVector(
 			byte[] bytes, int size, int size0,
 			int node1pos, int node2pos, int node3pos,
 			int[] countCache0) {

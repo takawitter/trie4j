@@ -21,13 +21,13 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 
-public class Select0OnlySuccinctBitVector
+public class BytesSelect0OnlySuccinctBitVector
 implements Externalizable, BitVector{
-	public Select0OnlySuccinctBitVector(){
+	public BytesSelect0OnlySuccinctBitVector(){
 		this(16);
 	}
 
-	public Select0OnlySuccinctBitVector(int initialCapacity){
+	public BytesSelect0OnlySuccinctBitVector(int initialCapacity){
 		vector = new byte[initialCapacity / 8 + 1];
 		int blockSize = CACHE_WIDTH;
 		int size = initialCapacity / blockSize + 1;

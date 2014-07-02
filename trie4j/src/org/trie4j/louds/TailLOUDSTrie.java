@@ -31,7 +31,7 @@ import org.trie4j.Node;
 import org.trie4j.TermIdNode;
 import org.trie4j.TermIdTrie;
 import org.trie4j.Trie;
-import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
@@ -91,7 +91,7 @@ implements Externalizable, TermIdTrie{
 			NodeListener listener){
 		FastBitSet bs = new FastBitSet(orig.size());
 		build(orig, bvTree, tailArrayBuilder, bs, listener);
-		this.term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
+		this.term = new BytesRank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 		this.tailArray = tailArrayBuilder.build();
 	}
 
