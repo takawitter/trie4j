@@ -262,7 +262,7 @@ implements Externalizable, TermIdTrie{
 			if(term.get(child)){
 				ret.add(Pair.create(
 						new String(chars, 0, charsIndex + 1),
-						child));
+						term.rank1(child) - 1));
 			}
 			nodeId = child;
 		}
@@ -307,7 +307,7 @@ implements Externalizable, TermIdTrie{
 			while(tci.hasNext()) b.append(tci.next());
 			String letter = b.toString();
 			if(term.get(nid)){
-				ret.add(Pair.create(letter, nid));
+				ret.add(Pair.create(letter, term.rank1(nid) - 1));
 			}
 			bvtree.getChildNodeIds(nid, r);
 			for(int i = (r.getEnd() - 1); i >= r.getStart(); i--){
