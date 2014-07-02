@@ -286,22 +286,6 @@ implements Externalizable, BitVector{
 		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
 		4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0, 
 	};
-	public static void main(String[] args) throws Exception{
-		System.out.println("\tprivate static final byte[][] BITPOS0 = {");
-		for(int i = 0; i < 256; i++){
-			int count = 0;
-			System.out.print("\t\t{");
-			for(int b = 0x80; b > 0; b >>= 1){
-				if((i & b) == 0){
-					System.out.print(count);
-					System.out.print(", ");
-				}
-				count++;
-			}
-			System.out.println("}, // " + String.format("%d(%1$x)", i));
-		}
-		System.out.println("\t};");
-	}
 	private static final byte[][] BITPOS0 = {
 		{0, 1, 2, 3, 4, 5, 6, 7, }, // 0(0)
 		{0, 1, 2, 3, 4, 5, 6, }, // 1(1)
