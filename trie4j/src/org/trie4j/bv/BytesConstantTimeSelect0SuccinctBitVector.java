@@ -35,6 +35,7 @@ implements Externalizable, SuccinctBitVector{
 		bvD = new LongsRank1OnlySuccinctBitVector();
 		bvR = new LongsRank1OnlySuccinctBitVector();
 		arS = new int[]{0};
+		arSSize = 1;
 	}
 
 	public BytesConstantTimeSelect0SuccinctBitVector(byte[] bytes, int bitsSize){
@@ -160,6 +161,10 @@ implements Externalizable, SuccinctBitVector{
 		return arS;
 	}
 
+	public int getArSSize() {
+		return arSSize;
+	}
+
 	public void trimToSize(){
 		int vectorSize = size / 8 + 1;
 		bytes = Arrays.copyOf(bytes, Math.min(bytes.length, vectorSize));
@@ -169,6 +174,7 @@ implements Externalizable, SuccinctBitVector{
 		countCache0 = Arrays.copyOf(countCache0, Math.min(countCache0.length, countCacheSize0));
 		bvD.trimToSize();
 		bvR.trimToSize();
+		arS = Arrays.copyOf(arS, arSSize);
 	}
 
 	public void append1(){
@@ -187,7 +193,7 @@ implements Externalizable, SuccinctBitVector{
 			// first bit in block
 			prevBsC = currentBsC;
 			currentBsC = false;
-			arS[arS.length - 1]++;
+			arS[arSSize - 1]++;
 		}
 
 		size++;
@@ -236,7 +242,7 @@ implements Externalizable, SuccinctBitVector{
 			//first bit
 			if(bvR.size() == 0 || !currentBsC){
 				bvR.append1();
-				arS = set(arS, arS.length, arS[arS.length - 1]);
+				addArS();
 			} else{
 				bvR.append0();
 			}
@@ -249,9 +255,9 @@ implements Externalizable, SuccinctBitVector{
 			} else{
 				bvR.append0();
 			}
-			arS[arS.length - 1]--;
+			arS[arSSize - 1]--;
 			if(!prevBsC){
-				arS = set(arS, arS.length, arS[arS.length - 1]);
+				addArS();
 			}
 			currentBsC = true;
 		}
@@ -384,6 +390,7 @@ implements Externalizable, SuccinctBitVector{
 		first0bitInBlock = in.readBoolean();
 		bvR = (SuccinctBitVector)in.readObject();
 		arS = (int[])in.readObject();
+		arSSize = in.readInt();
 	}
 
 	@Override
@@ -401,14 +408,7 @@ implements Externalizable, SuccinctBitVector{
 		out.writeBoolean(first0bitInBlock);
 		out.writeObject(bvR);
 		out.writeObject(arS);
-	}
-
-	private int[] set(int[] ar, int i, int v){
-		if(i >= ar.length){
-			ar = Arrays.copyOf(ar, i + 1);
-		}
-		ar[i] = v;
-		return ar;
+		out.writeInt(arSSize);
 	}
 
 	private void extend(){
@@ -417,6 +417,16 @@ implements Externalizable, SuccinctBitVector{
 		int blockSize = CACHE_WIDTH / 8;
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 		countCache0 = Arrays.copyOf(countCache0, size);
+	}
+
+	private void addArS(){
+		if(arSSize == arS.length){
+			arS = Arrays.copyOf(arS, (int)(arSSize * 1.2) + 1);
+		}
+		if(arSSize > 0){
+			arS[arSSize] = arS[arSSize - 1];
+		}
+		arSSize++;
 	}
 
 	private static int containerBytesCount(int size){
@@ -437,6 +447,7 @@ implements Externalizable, SuccinctBitVector{
 	private boolean currentBsC;
 	private SuccinctBitVector bvR;
 	private int[] arS;
+	private int arSSize;
 
 	private static final int[] MASKS = {
 		0x80, 0xc0, 0xe0, 0xf0
