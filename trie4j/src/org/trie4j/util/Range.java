@@ -22,6 +22,13 @@ public class Range {
 		this.start = start;
 		this.end = end;
 	}
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() +
+				"(start:" + start +
+				", end:" + end +
+				")";
+	}
 	public int getStart() {
 		return start;
 	}

@@ -34,6 +34,10 @@ implements Externalizable, TailIndex{
 		return indexes.length;
 	}
 
+	public int[] getIndexes() {
+		return indexes;
+	}
+
 	@Override
 	public int get(int nodeId) {
 		return indexes[nodeId];

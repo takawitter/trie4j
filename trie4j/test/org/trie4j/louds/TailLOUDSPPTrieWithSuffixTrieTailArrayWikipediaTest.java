@@ -17,11 +17,15 @@ package org.trie4j.louds;
 
 import org.trie4j.AbstractWikipediaTest;
 import org.trie4j.Trie;
+import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.tail.SuffixTrieTailArray;
 
 public class TailLOUDSPPTrieWithSuffixTrieTailArrayWikipediaTest extends AbstractWikipediaTest{
 	@Override
-	protected Trie buildSecondTrie(Trie first) {
-		return new TailLOUDSPPTrie(first, new SuffixTrieTailArray(first.size()));
+	protected Trie buildSecondTrie(Trie firstTrie) {
+		return new TailLOUDSTrie(
+				firstTrie,
+				new LOUDSPPBvTree(firstTrie.nodeSize()),
+				new SuffixTrieTailArray(firstTrie.size()));
 	}
 }

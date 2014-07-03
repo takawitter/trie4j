@@ -18,8 +18,11 @@ package org.trie4j;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.trie4j.bv.BitVectorUtilTest;
-import org.trie4j.bv.Rank0OnlySuccinctBitVectorTest;
-import org.trie4j.bv.Rank1OnlySuccinctBitVectorTest;
+import org.trie4j.bv.BytesConstantTimeSelect0SuccinctBitVectorTest;
+import org.trie4j.bv.BytesRank0OnlySuccinctBitVectorTest;
+import org.trie4j.bv.BytesRank1OnlySuccinctBitVectorTest;
+import org.trie4j.bv.BytesSuccinctBitVectorTest;
+import org.trie4j.bv.LongsSuccinctBitVectorTest;
 import org.trie4j.doublearray.DoubleArrayTest;
 import org.trie4j.doublearray.MapDoubleArrayTest;
 import org.trie4j.doublearray.MapTailDoubleArrayWithConcatTailBuilderTest;
@@ -54,7 +57,6 @@ import org.trie4j.tail.index.DenseArrayTailIndexTest;
 import org.trie4j.tail.index.SBVTailIndexTest;
 import org.trie4j.util.CharsCharSequenceTest;
 import org.trie4j.util.FastBitSetTest;
-import org.trie4j.util.SuccinctBitVectorTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -63,37 +65,39 @@ import org.trie4j.util.SuccinctBitVectorTest;
 	ConcatTailArrayTest.class,
 	CharsCharSequenceTest.class,
 	FastBitSetTest.class,
-	Rank0OnlySuccinctBitVectorTest.class,
-	Rank1OnlySuccinctBitVectorTest.class,
+	BytesSuccinctBitVectorTest.class,
+	BytesConstantTimeSelect0SuccinctBitVectorTest.class,
+	BytesRank0OnlySuccinctBitVectorTest.class,
+	BytesRank1OnlySuccinctBitVectorTest.class,
+	LongsSuccinctBitVectorTest.class,
 	ArrayTailIndexTest.class,
 	DenseArrayTailIndexTest.class,
 	SBVTailIndexTest.class,
-	SuccinctBitVectorTest.class,
 	SuffixTrieTailBuilderTest.class,
 	PatriciaTrieTest.class,
-	MapPatriciaTrieTest.class,
 	TailPatriciaTrieWithConcatTailBuilderTest.class,
 	TailPatriciaTrieWithSuffixTrieTailBuilderTest.class,
-	MapTailPatriciaTrieWithConcatTailBuilderTest.class,
-	MapTailPatriciaTrieWithSuffixTrieTailBuilderTest.class,
 	DoubleArrayTest.class,
-	MapDoubleArrayTest.class,
 	TailDoubleArrayWithConcatTailBuilderTest.class,
 	TailDoubleArrayWithSuffixTrieTailBuilderTest.class,
-	MapTailDoubleArrayWithConcatTailBuilderTest.class,
-	MapTailDoubleArrayWithSuffixTrieTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithConcatTailBuilderTest.class,
 	OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest.class,
 	LOUDSTrieTest.class,
 	TailLOUDSTrieWithConcatTailArrayTest.class,
 	TailLOUDSTrieWithSBVConcatTailArrayTest.class,
 	TailLOUDSTrieWithSuffixTrieTailArrayTest.class,
-	MapTailLOUDSTrieWithConcatTailArrayTest.class,
-	MapTailLOUDSTrieWithSBVConcatTailArrayTest.class,
-	MapTailLOUDSTrieWithSuffixTrieTailArrayTest.class,
 	TailLOUDSPPTrieWithConcatTailArrayTest.class,
 	TailLOUDSPPTrieWithSBVConcatTailArrayTest.class,
 	TailLOUDSPPTrieWithSuffixTrieTailArrayTest.class,
+	MapPatriciaTrieTest.class,
+	MapTailPatriciaTrieWithConcatTailBuilderTest.class,
+	MapTailPatriciaTrieWithSuffixTrieTailBuilderTest.class,
+	MapDoubleArrayTest.class,
+	MapTailDoubleArrayWithConcatTailBuilderTest.class,
+	MapTailDoubleArrayWithSuffixTrieTailBuilderTest.class,
+	MapTailLOUDSTrieWithConcatTailArrayTest.class,
+	MapTailLOUDSTrieWithSBVConcatTailArrayTest.class,
+	MapTailLOUDSTrieWithSuffixTrieTailArrayTest.class,
 	MapTailLOUDSPPTrieWithConcatTailArrayTest.class,
 	MapTailLOUDSPPTrieWithSBVConcatTailArrayTest.class,
 	MapTailLOUDSPPTrieWithSuffixTrieTailArrayTest.class,

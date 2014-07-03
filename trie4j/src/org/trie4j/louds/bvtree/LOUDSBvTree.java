@@ -21,6 +21,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.trie4j.bv.BytesSuccinctBitVector;
+import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.util.Range;
 
 public class LOUDSBvTree implements Externalizable, BvTree{
@@ -28,53 +29,57 @@ public class LOUDSBvTree implements Externalizable, BvTree{
 		this(0);
 	}
 
-	public LOUDSBvTree(int initialCapacity) {
-		vector = new BytesSuccinctBitVector(initialCapacity);
+	public LOUDSBvTree(int initialNodeCapacity) {
+		sbv = new BytesSuccinctBitVector(initialNodeCapacity * 2);
 	}
 
-	public LOUDSBvTree(BytesSuccinctBitVector vector) {
-		this.vector = vector;
+	public LOUDSBvTree(SuccinctBitVector sbv) {
+		this.sbv = sbv;
+	}
+
+	public SuccinctBitVector getSbv() {
+		return sbv;
 	}
 
 	@Override
 	public String toString() {
-		String bvs = vector.toString();
+		String bvs = sbv.toString();
 		return "bitvec: " + ((bvs.length() > 100) ? bvs.substring(0, 100) : bvs);
 	}
 
 	@Override
 	public void appendChild() {
-		vector.append1();
+		sbv.append1();
 	}
 	
 	@Override
 	public void appendSelf() {
-		vector.append0();
+		sbv.append0();
 	}
 
 	@Override
 	public void getChildNodeIds(int selfNodeId, Range range) {
-		int s = vector.select0(selfNodeId) + 1;
-		int e = vector.next0(s);
-		int startNodeId = vector.rank1(s);
+		int s = sbv.select0(selfNodeId) + 1;
+		int e = sbv.next0(s);
+		int startNodeId = sbv.rank1(s);
 		range.set(startNodeId, startNodeId + e - s);
 	}
-	
+
 	@Override
 	public void trimToSize() {
-		vector.trimToSize();
+		sbv.trimToSize();
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-		vector.readExternal(in);
+		sbv = (SuccinctBitVector)in.readObject();
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		vector.writeExternal(out);
+		out.writeObject(sbv);
 	}
 
-	private BytesSuccinctBitVector vector;
+	private SuccinctBitVector sbv;
 }

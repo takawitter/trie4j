@@ -20,9 +20,10 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.trie4j.bv.BitVector01Devider;
+import org.trie4j.bv.BitVector01Divider;
 import org.trie4j.bv.BytesSuccinctBitVector;
-import org.trie4j.bv.Rank0OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
+import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.util.Range;
 
 public class LOUDSPPBvTree
@@ -31,10 +32,36 @@ implements Externalizable, BvTree{
 		this(0);
 	}
 
-	public LOUDSPPBvTree(int initialCapacity) {
-		r0 = new Rank0OnlySuccinctBitVector(initialCapacity);
-		r1 = new BytesSuccinctBitVector(initialCapacity);
-		divider = new BitVector01Devider(r0, r1);
+	public LOUDSPPBvTree(int initialNodeCapacity) {
+		r0 = new BytesRank0OnlySuccinctBitVector(initialNodeCapacity);
+		r1 = new BytesSuccinctBitVector(initialNodeCapacity);
+		divider = new BitVector01Divider(r0, r1);
+	}
+
+	/**
+	 * 
+	 * @param divider
+	 * @param r0 SBV for r0. Only rank0 method of this sbv will be invoked.
+	 * @param r1
+	 */
+	public LOUDSPPBvTree(BitVector01Divider divider,
+			SuccinctBitVector r0, SuccinctBitVector r1) {
+		this.divider = divider;
+		this.r0 = r0;
+		this.r1 = r1;
+		divider.setVectors(r0, r1);
+	}
+
+	public BitVector01Divider getDivider() {
+		return divider;
+	}
+
+	public SuccinctBitVector getR0() {
+		return r0;
+	}
+
+	public SuccinctBitVector getR1() {
+		return r1;
 	}
 
 	@Override
@@ -69,20 +96,21 @@ implements Externalizable, BvTree{
 	}
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException {
+	public void readExternal(ObjectInput in)
+	throws ClassNotFoundException, IOException {
 		divider.readExternal(in);
-		r0.readExternal(in);
-		r1.readExternal(in);
+		r0 = (SuccinctBitVector)in.readObject();
+		r1 = (SuccinctBitVector)in.readObject();
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		divider.writeExternal(out);
-		r0.writeExternal(out);
-		r1.writeExternal(out);
+		out.writeObject(r0);
+		out.writeObject(r1);
 	}
 
-	private BitVector01Devider divider;
-	private Rank0OnlySuccinctBitVector r0;
-	private BytesSuccinctBitVector r1;
+	private BitVector01Divider divider;
+	private SuccinctBitVector r0;
+	private SuccinctBitVector r1;
 }

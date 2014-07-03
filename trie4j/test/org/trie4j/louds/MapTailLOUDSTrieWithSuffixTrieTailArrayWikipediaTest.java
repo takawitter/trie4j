@@ -22,6 +22,6 @@ import org.trie4j.tail.SuffixTrieTailArray;
 public class MapTailLOUDSTrieWithSuffixTrieTailArrayWikipediaTest extends AbstractMapTrieWikipediaTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailLOUDSPPTrie<Integer>(firstTrie, new SuffixTrieTailArray());
+		return new MapTailLOUDSTrie<Integer>(firstTrie, new SuffixTrieTailArray());
 	}
 }

@@ -49,6 +49,8 @@ implements Serializable, Trie{
 		this.tailBuilder = builder;
 		this.tails = builder.getTails();
 		this.root = cloneNode(orig.getRoot());
+		this.size = orig.size();
+		this.nodeSize = orig.nodeSize();
 		trimToSize();
 	}
 
@@ -67,6 +69,11 @@ implements Serializable, Trie{
 	@Override
 	public int size() {
 		return size;
+	}
+
+	@Override
+	public int nodeSize() {
+		return nodeSize;
 	}
 
 	@Override
@@ -379,6 +386,7 @@ implements Serializable, Trie{
 				node.setChildren(newNodeArray(newChild));
 				node.setTerminate(true);
 				size++;
+				nodeSize++;
 				return node;
 			} else{
 				// n: abc
@@ -415,6 +423,7 @@ implements Serializable, Trie{
 						(n1.getFirstLetter() < n2.getFirstLetter()) ?
 								newNodeArray(n1, n2) : newNodeArray(n2, n1));
 				size++;
+				nodeSize += 2;
 				return n2;
 			} else{
 				// n: abc
@@ -432,6 +441,7 @@ implements Serializable, Trie{
 					TailPatriciaTrieNode newNode = newNode(fc, idx, true);
 					node.addChild(ret.getSecond(), newNode);
 					size++;
+					nodeSize++;
 					return newNode;
 				}
 			}
@@ -482,6 +492,7 @@ implements Serializable, Trie{
 	}
 
 	private int size;
+	private int nodeSize;
 	private TailPatriciaTrieNode root = newNode();
 	private TailBuilder tailBuilder;
 	private CharSequence tails;

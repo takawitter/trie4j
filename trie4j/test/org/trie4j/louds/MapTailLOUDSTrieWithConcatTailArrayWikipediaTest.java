@@ -22,6 +22,6 @@ import org.trie4j.tail.ConcatTailArrayBuilder;
 public class MapTailLOUDSTrieWithConcatTailArrayWikipediaTest extends AbstractMapTrieWikipediaTest{
 	@Override
 	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
-		return new MapTailLOUDSPPTrie<Integer>(firstTrie, new ConcatTailArrayBuilder());
+		return new MapTailLOUDSTrie<Integer>(firstTrie, new ConcatTailArrayBuilder());
 	}
 }

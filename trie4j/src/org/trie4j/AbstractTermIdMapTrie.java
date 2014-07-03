@@ -36,6 +36,11 @@ implements Externalizable, MapTrie<T>{
 	}
 
 	@Override
+	public int nodeSize() {
+		return trie.nodeSize();
+	}
+
+	@Override
 	public boolean contains(String word) {
 		return trie.contains(word);
 	}

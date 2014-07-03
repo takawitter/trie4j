@@ -23,6 +23,7 @@ import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.tail.index.SBVTailIndex;
 import org.trie4j.test.WikipediaTitles;
+import org.trie4j.util.IntArray;
 
 public class SBVConcatTailArrayTest {
 	@Test
@@ -59,23 +60,23 @@ public class SBVConcatTailArrayTest {
 			}
 		}
 		{
-			int[] indexCache1 = sbv1.getIndexCache0();
-			int[] indexCache2 = sbv2.getIndexCache0();
-			int n = indexCache1.length;
+			IntArray indexCache1 = sbv1.getIndexCache0();
+			IntArray indexCache2 = sbv2.getIndexCache0();
+			int n = indexCache1.size();
 			System.out.println("indexCache0 size1: " + n);
-			System.out.println("indexCache0 size2: " + indexCache2.length);
+			System.out.println("indexCache0 size2: " + indexCache2.size());
 //			Assert.assertEquals(n, countCache2.length);
-			n = Math.min(indexCache1.length, indexCache2.length);
+			n = Math.min(indexCache1.size(), indexCache2.size());
 			for(int i = 0; i < 10; i++){
-				System.out.print(indexCache1[i] + ", ");
+				System.out.print(indexCache1.get(i) + ", ");
 			}
 			System.out.println();
 			for(int i = 0; i < 10; i++){
-				System.out.print(indexCache2[i] + ", ");
+				System.out.print(indexCache2.get(i) + ", ");
 			}
 			System.out.println();
 			for(int i = 0; i < n; i++){
-				Assert.assertEquals(i + "th index cache.", indexCache1[i], indexCache2[i]);
+				Assert.assertEquals(i + "th index cache.", indexCache1.get(i), indexCache2.get(i));
 			}
 		}
 	}

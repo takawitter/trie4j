@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.util.FastBitSet;
 
-public class Rank1OnlySuccinctBitVectorTest {
+public class BytesRank1OnlySuccinctBitVectorTest {
 	@Test
 	public void test_1() throws Exception{
 		FastBitSet bs = new FastBitSet();
@@ -28,7 +28,7 @@ public class Rank1OnlySuccinctBitVectorTest {
 		bs.set(28);
 		bs.set(34);
 		bs.set(67);
-		Rank1OnlySuccinctBitVector bv = new Rank1OnlySuccinctBitVector(
+		BytesRank1OnlySuccinctBitVector bv = new BytesRank1OnlySuccinctBitVector(
 				bs.getBytes(), bs.size());
 		Assert.assertEquals(1, bv.rank1(11));
 		Assert.assertEquals(2, bv.rank1(22));
@@ -39,7 +39,7 @@ public class Rank1OnlySuccinctBitVectorTest {
 
 	@Test
 	public void test_2() throws Exception{
-		Rank1OnlySuccinctBitVector bv = new Rank1OnlySuccinctBitVector(
+		BytesRank1OnlySuccinctBitVector bv = new BytesRank1OnlySuccinctBitVector(
 				new byte[]{127, -12, -102, -1, -6, 95, -1, -33, -128},
 				65
 				);
@@ -48,7 +48,7 @@ public class Rank1OnlySuccinctBitVectorTest {
 
 	@Test
 	public void test_3() throws Exception{
-		Rank1OnlySuccinctBitVector bv = new Rank1OnlySuccinctBitVector();
+		BytesRank1OnlySuccinctBitVector bv = new BytesRank1OnlySuccinctBitVector();
 		for(int i = 0; i < 9; i++){
 			bv.append1();
 		}

@@ -41,7 +41,7 @@ import org.trie4j.Node;
 import org.trie4j.TermIdNode;
 import org.trie4j.TermIdTrie;
 import org.trie4j.Trie;
-import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.tail.SuffixTrieTailArray;
 import org.trie4j.tail.TailArray;
@@ -72,8 +72,14 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		});
 	}
 
+	@Override
+	public int nodeSize() {
+		return nodeSize;
+	}
+
 	public TailDoubleArray(Trie orig, TailArrayBuilder tab, TermNodeListener listener){
 		size = orig.size();
+		nodeSize = orig.nodeSize();
 		int as = size;
 		if(as <= 1) as = 2;
 		base = new int[as];
@@ -84,7 +90,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 
 		FastBitSet bs = new FastBitSet(orig.size() * 2);
 		build(orig.getRoot(), 0, tab, bs, listener);
-		term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
+		term = new BytesRank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 		tailArray = tab.build();
 	}
 
@@ -294,6 +300,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeInt(size);
+		out.writeInt(nodeSize);
 		out.writeInt(base.length);
 		for(int v : base){
 			out.writeInt(v);
@@ -324,6 +331,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 	public void readExternal(ObjectInput in)
 	throws ClassNotFoundException, IOException{
 		size = in.readInt();
+		nodeSize = in.readInt();
 		int len = in.readInt();
 		base = new int[len];
 		for(int i = 0; i < len; i++){
@@ -639,6 +647,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 	}
 
 	private int size;
+	private int nodeSize;
 	private int[] base;
 	private int[] check;
 	private int firstEmptyCheck = 1;

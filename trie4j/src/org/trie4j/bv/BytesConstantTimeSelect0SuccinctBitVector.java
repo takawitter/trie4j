@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Takao Nakaguchi
+ * Copyright 2014 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,28 +21,32 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 
-import org.trie4j.util.IntArray;
-
-public class BytesSuccinctBitVector
+public class BytesConstantTimeSelect0SuccinctBitVector
 implements Externalizable, SuccinctBitVector{
-	public BytesSuccinctBitVector(){
+	public BytesConstantTimeSelect0SuccinctBitVector(){
 		this(16);
 	}
 
-	public BytesSuccinctBitVector(int initialCapacity){
+	public BytesConstantTimeSelect0SuccinctBitVector(int initialCapacity){
 		this.bytes = new byte[initialCapacity / 8 + 1];
 		int blockSize = CACHE_WIDTH;
 		int size = initialCapacity / blockSize + 1;
 		countCache0 = new int[size];
-		indexCache0 = new IntArray(size + 1);
+		bvD = new LongsRank1OnlySuccinctBitVector();
+		bvR = new LongsRank1OnlySuccinctBitVector();
+		arS = new int[]{0};
+		arSSize = 1;
 	}
 
-	public BytesSuccinctBitVector(byte[] bytes, int bitsSize){
-		this.bytes = Arrays.copyOf(bytes, containerBytesCount(bitsSize));
+	public BytesConstantTimeSelect0SuccinctBitVector(byte[] bytes, int bitsSize){
+		this.bytes = Arrays.copyOf(bytes, bytesSize(bitsSize));
 		this.size = bitsSize;
-		int cacheSize = bitsSize / CACHE_WIDTH + 1;
+		int cacheSize = countCache0Size(bitsSize);
 		countCache0 = new int[cacheSize + 1];
-		indexCache0 = new IntArray(cacheSize / 2 + 1);
+		bvD = new LongsRank1OnlySuccinctBitVector();
+		bvR = new LongsRank1OnlySuccinctBitVector();
+		arS = new int[]{0};
+		arSSize = 1;
 		// cache, indexCache(0のCACHE_WIDTH個毎に位置を記憶), node1/2/3pos(0)
 
 		int n = bytes.length;
@@ -75,34 +79,43 @@ implements Externalizable, SuccinctBitVector{
 				}
 			}
 
-			int prevSize0 = size0;
+			// D, C, Rを構築
+			// Dはbytesの0bitに対応。8bitブロック内で最初に現れるものに1、それ以外は0。
+			// Cはbytesの8bitブロックに対応。0を含むものに1、含まないものに0。
+			// RはCの1bitに対応。最初に現れるものに1、続いて現れるものに0。0は無視。
+			prevBsC = currentBsC;
+			if(zeroPosInB.length > 0){
+				bvD.append1();
+				for(int j = 1; j < zeroPosInB.length; j++) bvD.append0();
+				currentBsC = true;
+				if(prevBsC){
+					bvR.append0();
+				} else{
+					bvR.append1();
+					addArS();
+				}
+			} else{
+				currentBsC = false;
+				arS[arSSize - 1]++;
+			}
+
 			size0 += zeroCount;
 			if((i + 1) % (CACHE_WIDTH / 8) == 0){
 				countCache0[i / (CACHE_WIDTH / 8)] = size0;
-			}
-			// (size0 - zeroCount)とzeroCountの間に境界(CACHE_WIDTH)があればindexCache0更新
-			if(zeroCount > 0 && ((size0 / CACHE_WIDTH) != (prevSize0 / CACHE_WIDTH))){
-				// 10010|010
-				indexCache0.set(size0 / CACHE_WIDTH,
-						i * 8 +
-						zeroPosInB[zeroPosInB.length - (size0 % CACHE_WIDTH) - 1]);
 			}
 
 			if(rest < 8) break;
 		}
 		countCache0[(size - 1) / CACHE_WIDTH] = size0;
-		// 最後に番兵を置く
-/*		if(indexCache0[size0 / CACHE_WIDTH] == 0){
-			indexCache0[size0 / CACHE_WIDTH] = size;
-		} else{
-			indexCache0[(size0 / CACHE_WIDTH) + 1] = size;
-		}
-*/	}
+	}
 
-	public BytesSuccinctBitVector(
+	public BytesConstantTimeSelect0SuccinctBitVector(
 			byte[] bytes, int size, int size0,
 			int node1pos, int node2pos, int node3pos,
-			int[] countCache0, IntArray indexCache0) {
+			int[] countCache0, SuccinctBitVector bvD,
+			SuccinctBitVector bvR, boolean first0bitInBlock,
+			boolean prevBsC, boolean currentBsC,
+			int[] arS, int arSSize){
 		this.bytes = bytes;
 		this.size = size;
 		this.size0 = size0;
@@ -110,7 +123,13 @@ implements Externalizable, SuccinctBitVector{
 		this.node2pos = node2pos;
 		this.node3pos = node3pos;
 		this.countCache0 = countCache0;
-		this.indexCache0 = indexCache0;
+		this.bvD = bvD;
+		this.bvR = bvR;
+		this.first0bitInBlock = first0bitInBlock;
+		this.prevBsC = prevBsC;
+		this.currentBsC = currentBsC;
+		this.arS = arS;
+		this.arSSize = arSSize;
 	}
 
 	@Override
@@ -129,10 +148,6 @@ implements Externalizable, SuccinctBitVector{
 
 	public int[] getCountCache0(){
 		return countCache0;
-	}
-
-	public IntArray getIndexCache0(){
-		return indexCache0;
 	}
 
 	@Override
@@ -168,40 +183,66 @@ implements Externalizable, SuccinctBitVector{
 		return node3pos;
 	}
 
+	public SuccinctBitVector getBvD() {
+		return bvD;
+	}
+
+	public SuccinctBitVector getBvR() {
+		return bvR;
+	}
+
+	public int[] getArS() {
+		return arS;
+	}
+
+	public int getArSSize() {
+		return arSSize;
+	}
+
 	public void trimToSize(){
-		int vectorSize = size / 8 + 1;
-		bytes = Arrays.copyOf(bytes, Math.min(bytes.length, vectorSize));
-		int blockSize = CACHE_WIDTH / 8;
-		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
-		int countCacheSize0 = size;
-		countCache0 = Arrays.copyOf(countCache0, Math.min(countCache0.length, countCacheSize0));
-		indexCache0.trimToSize();
+		bytes = Arrays.copyOf(bytes, bytesSize(size));
+		countCache0 = Arrays.copyOf(countCache0, countCache0Size(size));
+		bvD.trimToSize();
+		bvR.trimToSize();
+		arS = Arrays.copyOf(arS, arSSize);
 	}
 
 	public void append1(){
-		int i = size / 8;
-		int ci = size / CACHE_WIDTH;
-		if(i >= bytes.length){
+		int blockIndex = size / 8;
+		int indexInBlock = size % 8;
+		int cacheBlockIndex = size / CACHE_WIDTH;
+		if(blockIndex >= bytes.length){
 			extend();
 		}
-		if(size % CACHE_WIDTH == 0 && ci > 0){
-			countCache0[ci] = countCache0[ci - 1];
+		if(size % CACHE_WIDTH == 0 && cacheBlockIndex > 0){
+			countCache0[cacheBlockIndex] = countCache0[cacheBlockIndex - 1];
 		}
-		int r = size % 8;
-		bytes[i] |= BITS[r];
+		bytes[blockIndex] |= BITS[indexInBlock];
+
+		if(indexInBlock == 0){
+			// first bit in block
+			prevBsC = currentBsC;
+			currentBsC = false;
+			arS[arSSize - 1]++;
+		}
+
 		size++;
+		if(size % 8 == 0){
+			first0bitInBlock = true;
+		}
 	}
 
 	public void append0(){
-		int i = size / 8;
-		int ci = size / CACHE_WIDTH;
-		if(i >= bytes.length){
+		int blockIndex = size / 8;
+		int indexInBlock = size % 8;
+		int cacheBlockIndex = size / CACHE_WIDTH;
+		int indexInCacheBlock = size % CACHE_WIDTH;
+		if(blockIndex >= bytes.length){
 			extend();
 		}
-		if(size % CACHE_WIDTH == 0 && ci > 0){
-			countCache0[ci] = countCache0[ci - 1];
+		if(indexInCacheBlock== 0 && cacheBlockIndex > 0){
+			countCache0[cacheBlockIndex] = countCache0[cacheBlockIndex - 1];
 		}
-
 		size0++;
 		switch(size0){
 			case 1:
@@ -214,11 +255,47 @@ implements Externalizable, SuccinctBitVector{
 				node3pos = size;
 				break;
 		}
-		if(size0 % CACHE_WIDTH == 0){
-			indexCache0.set(size0 / CACHE_WIDTH, size);
+		countCache0[cacheBlockIndex]++;
+
+		// D, C, Rを構築
+		// Dはbytesの0bitに対応。8bitブロック内で最初に現れるものに1、連続する場合は0。
+		// Cはbytesの8bitブロックに対応。0を含むものに1、含まないものに0。
+		// RはCの1bitに対応。最初に現れるものに1、続いて現れるものに0。0は無視。
+		if(first0bitInBlock){
+			bvD.append1();
+			first0bitInBlock = false;
+		} else{
+			bvD.append0();
 		}
-		countCache0[ci]++;
+
+		if(indexInBlock == 0){
+			//first bit
+			if(bvR.size() == 0 || !currentBsC){
+				bvR.append1();
+				addArS();
+			} else{
+				bvR.append0();
+			}
+			prevBsC = currentBsC;
+			currentBsC = true;
+		} else if(!currentBsC){
+			// turn from 0 to 1
+			if(bvR.size() == 0 || !prevBsC){
+				bvR.append1();
+			} else{
+				bvR.append0();
+			}
+			arS[arSSize - 1]--;
+			if(!prevBsC){
+				addArS();
+			}
+			currentBsC = true;
+		}
+
 		size++;
+		if(size % 8 == 0){
+			first0bitInBlock = true;
+		}
 	}
 
 	public void append(boolean bit){
@@ -259,125 +336,20 @@ implements Externalizable, SuccinctBitVector{
 		else return rank0(pos);
 	}
 
-	public int select0_(int count){
-		if(count <= 2){
-			if(count == 1) return node1pos;
-			else return node2pos;
-		}
-		int block = count / CACHE_WIDTH;
-		int i = indexCache0.get(block) / 8;
-		if(i > 0){
-			count -= countCache0[(i - 1) / CACHE_WIDTH * 8];
-		}
-		if(count > 0){
-			for(; i < bytes.length; i++){
-				if(i * 8 >= size) return -1;
-				int c = BITCOUNTS0[bytes[i] & 0xff];
-				if(count <= c){
-					int v = bytes[i] & 0xff;
-					for(int j = 0; j < 8; j++){
-						if(i * 8 + j >= size) return -1;
-						if((v & 0x80) == 0){
-							count--;
-							if(count == 0){
-								return i * 8 + j;
-							}
-						}
-						v <<= 1;
-					}
-				}
-				count -= c;
-			}
-		} else{
-			count--;
-			i = Math.min(((i + 1) * CACHE_WIDTH) - 1, size - 1);
-			int v = bytes[i / 8] & 0xff;
-			v >>= 8 - (i % 8) - 1;
-			while(i >= 0){
-				if((v & 0x01) == 0){
-					count++;
-					if(count == 0){
-						return i;
-					}
-				}
-				if(i % 8 == 0){
-					v = bytes[(i - 1) / 8] & 0xff;
-				} else{
-					v >>= 1;
-				}
-				i--;
-			}		}
-		return -1;
-	}
-
-	@Override
 	public int select0(int count){
-		if(count > size0) return -1;
+		if(count > bvD.size()) return -1;
 		if(count <= 3){
 			if(count == 1) return node1pos;
 			else if(count == 2) return node2pos;
 			else if(count == 3) return node3pos;
 			else return -1;
 		}
-
-		int idx = count / BITS0_COUNT_IN_EACH_INDEX;
-		int start = 0;
-		int end = 0;
-		if(idx < indexCache0.size()){
-			start = indexCache0.get(idx);
-			if(count % CACHE_WIDTH == 0) return start;
-			start /= CACHE_WIDTH;
-			if(idx + 1 < indexCache0.size()){
-				end = indexCache0.get(idx + 1) / CACHE_WIDTH + 1;
-			} else{
-				end = countCache0Size(size);
-			}
-		} else if(idx > 0){
-			start = indexCache0.get(idx - 1) / CACHE_WIDTH;
-			end = Math.min(start + CACHE_WIDTH, countCache0Size(size));
-		}
-
-		int m = -1;
-		int d = 0;
-		if(start != end){
-			do{
-				m = (start + end) / 2;
-				d = count - countCache0[m];
-				if(d < 0){
-					end = m;
-					continue;
-				} else if(d > 0){
-					if(start != m) start = m;
-					else break;
-				} else{
-					break;
-				}
-			} while(start != end);
-			if(d > 0){
-				count = d;
-			} else{
-				while(m >= 0 && count <= countCache0[m]) m--;
-				if(m >= 0) count -= countCache0[m];
-			}
-		}
-
-//		int n = containerBytesCount(size);
-		for(int i = (m + 1) * CACHE_WIDTH / 8; i < bytes.length; i++){
-			int bits = bytes[i] & 0xff;
-//*
-			int c = BITCOUNTS0[bits];
-/*/
-			byte b = (byte)~bits;
-			int c = ((b & 0xaa) >> 1) + (b & 0x55);
-			c = ((c & 0xcc) >> 2) + (c & 0x33);
-			c = ((c & 0xf0) >> 4) + (c & 0x0f);
-//*/
-			if(count <= c){
-				return i * 8 + BITPOS0[bits][count - 1];
-			}
-			count -= c;
-		}
-		return -1;
+		int c = count - 1;
+		int ci = bvD.rank1(c) - 1;
+		int u = ci + arS[bvR.rank1(ci) - 1];
+		int ui = u * 8;
+		int r = u == 0 ? 0 : rank0(ui - 1);
+		return ui + BITPOS0[bytes[u] & 0xff][c - r];
 	}
 
 	public int select1(int count){
@@ -443,12 +415,12 @@ implements Externalizable, SuccinctBitVector{
 		int vectorSize = in.readInt();
 		bytes = new byte[vectorSize];
 		in.readFully(bytes, 0, vectorSize);
-		int size = in.readInt();
-		countCache0 = new int[size];
-		for(int i = 0; i < size; i++){
-			countCache0[i] = in.readInt();
-		}
-		indexCache0 = (IntArray)in.readObject();
+		countCache0 = (int[])in.readObject();
+		bvD = (SuccinctBitVector)in.readObject();
+		first0bitInBlock = in.readBoolean();
+		bvR = (SuccinctBitVector)in.readObject();
+		arS = (int[])in.readObject();
+		arSSize = in.readInt();
 	}
 
 	@Override
@@ -461,30 +433,42 @@ implements Externalizable, SuccinctBitVector{
 		trimToSize();
 		out.writeInt(bytes.length);
 		out.write(bytes);
-		out.writeInt(countCache0.length);
-		for(int e : countCache0){
-			out.writeInt(e);
-		}
-		out.writeObject(indexCache0);
+		out.writeObject(countCache0);
+		out.writeObject(bvD);
+		out.writeBoolean(first0bitInBlock);
+		out.writeObject(bvR);
+		out.writeObject(arS);
+		out.writeInt(arSSize);
 	}
 
 	private void extend(){
 		int vectorSize = (int)(bytes.length * 1.2) + 1;
 		bytes = Arrays.copyOf(bytes, vectorSize);
-		countCache0 = Arrays.copyOf(countCache0, countCache0Size(vectorSize * 8));
+		int blockSize = CACHE_WIDTH / 8;
+		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
+		countCache0 = Arrays.copyOf(countCache0, size);
 	}
 
-	private static int containerBytesCount(int size){
-		return size / 8 + ((size % 8) != 0 ? 1 : 0);
+	private void addArS(){
+		if(arSSize == arS.length){
+			arS = Arrays.copyOf(arS, (int)(arSSize * 1.2) + 1);
+		}
+		if(arSSize > 0){
+			arS[arSSize] = arS[arSSize - 1];
+		}
+		arSSize++;
+	}
+
+	private static int bytesSize(int bitSize){
+		return (bitSize - 1) / BITS_IN_BYTE + 1;
 	}
 
 	private static int countCache0Size(int bitSize){
 		return (bitSize - 1) / CACHE_WIDTH + 1;
 	}
 
-
+	private static final int BITS_IN_BYTE = 8;
 	private static final int CACHE_WIDTH = 64;
-	private static final int BITS0_COUNT_IN_EACH_INDEX = 64;
 	private byte[] bytes;
 	private int size;
 	private int size0;
@@ -492,7 +476,13 @@ implements Externalizable, SuccinctBitVector{
 	private int node2pos = -1;
 	private int node3pos = -1;
 	private int[] countCache0;
-	private IntArray indexCache0;
+	private SuccinctBitVector bvD;
+	private boolean first0bitInBlock = true;
+	private boolean prevBsC;
+	private boolean currentBsC;
+	private SuccinctBitVector bvR;
+	private int[] arS;
+	private int arSSize;
 
 	private static final int[] MASKS = {
 		0x80, 0xc0, 0xe0, 0xf0
@@ -538,22 +528,7 @@ implements Externalizable, SuccinctBitVector{
 		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
 		4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0, 
 	};
-	public static void main(String[] args) throws Exception{
-		System.out.println("\tprivate static final byte[][] BITPOS0 = {");
-		for(int i = 0; i < 256; i++){
-			int count = 0;
-			System.out.print("\t\t{");
-			for(int b = 0x80; b > 0; b >>= 1){
-				if((i & b) == 0){
-					System.out.print(count);
-					System.out.print(", ");
-				}
-				count++;
-			}
-			System.out.println("}, // " + String.format("%d(%1$x)", i));
-		}
-		System.out.println("\t};");
-	}
+
 	private static final byte[][] BITPOS0 = {
 		{0, 1, 2, 3, 4, 5, 6, 7, }, // 0(0)
 		{0, 1, 2, 3, 4, 5, 6, }, // 1(1)

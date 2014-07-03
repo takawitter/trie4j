@@ -17,8 +17,13 @@ package org.trie4j.bv;
 
 import org.trie4j.util.BitSet;
 
+/**
+ * Mutable bit vector.
+ * @author Takao Nakaguchi
+ */
 public interface BitVector extends BitSet {
 	int size();
+	void trimToSize();
 	boolean isZero(int pos);
 	boolean isOne(int pos);
 	void append0();

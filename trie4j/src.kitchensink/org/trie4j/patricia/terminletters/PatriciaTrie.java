@@ -143,6 +143,10 @@ public class PatriciaTrie extends AbstractTrie implements Trie{
 		root.visit(visitor, 0);
 	}
 
+	public int nodeSize(){
+		throw new UnsupportedOperationException();
+	}
+
 	public Node getRoot(){
 		return root;
 	}

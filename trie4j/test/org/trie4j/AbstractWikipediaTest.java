@@ -58,16 +58,11 @@ public class AbstractWikipediaTest {
 		System.out.println(String.format("done in %d millis with %d words and %d chars."
 				, (b / 1000000), c, chars));
 
+		t.reset();
 		Trie second = buildSecondTrie(trie);
-		try{
-			getClass().getDeclaredMethod("buildSecondTrie", Trie.class);
-			System.out.print("building second trie: ");
-			t.reset();
-			second = buildSecondTrie(trie);
-			System.out.println(second.getClass().getName());
-			System.out.println("done in " + t.lapMillis() + "millis.");
-		} catch(NoSuchMethodException e){
-		}
+		long d = t.lapMillis();
+		System.out.println(second.getClass().getName());
+		System.out.println("done in " + d + "millis.");
 
 		System.out.println("verifying trie.");
 		long sum = 0;

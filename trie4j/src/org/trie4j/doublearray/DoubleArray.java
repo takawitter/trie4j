@@ -41,7 +41,7 @@ import org.trie4j.Node;
 import org.trie4j.TermIdNode;
 import org.trie4j.TermIdTrie;
 import org.trie4j.Trie;
-import org.trie4j.bv.Rank1OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.util.BitSet;
 import org.trie4j.util.FastBitSet;
@@ -72,13 +72,19 @@ implements Externalizable, TermIdTrie{
 	public DoubleArray(Trie trie, int arraySize, TermNodeListener listener){
 		if(arraySize <= 1) arraySize = 2;
 		size = trie.size();
+		nodeSize = trie.nodeSize();
 		base = new int[arraySize];
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[arraySize];
 		Arrays.fill(check, -1);
 		FastBitSet bs = new FastBitSet(arraySize);
 		build(trie.getRoot(), 0, bs, listener);
-		term = new Rank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
+		term = new BytesRank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
+	}
+
+	@Override
+	public int nodeSize() {
+		return nodeSize;
 	}
 
 	@Override
@@ -393,6 +399,7 @@ implements Externalizable, TermIdTrie{
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeInt(size);
+		out.writeInt(nodeSize);
 		out.writeInt(base.length);
 		for(int v : base){
 			out.writeInt(v);
@@ -422,6 +429,7 @@ implements Externalizable, TermIdTrie{
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		size = in.readInt();
+		nodeSize = in.readInt();
 		int len = in.readInt();
 		base = new int[len];
 		for(int i = 0; i < len; i++){
@@ -682,6 +690,7 @@ implements Externalizable, TermIdTrie{
 	}
 
 	private int size;
+	private int nodeSize;
 	private int[] base;
 	private int[] check;
 	private int firstEmptyCheck = 1;

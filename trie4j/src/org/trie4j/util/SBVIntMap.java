@@ -19,17 +19,17 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-import org.trie4j.bv.Rank0OnlySuccinctBitVector;
+import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
 
 public class SBVIntMap<T> implements Serializable{
 	public SBVIntMap() {
 		values = new Object[]{};
-		valueIndices = new Rank0OnlySuccinctBitVector();
+		valueIndices = new BytesRank0OnlySuccinctBitVector();
 	}
 
 	public SBVIntMap(int initialCapacity){
 		values = new Object[]{};
-		valueIndices = new Rank0OnlySuccinctBitVector(initialCapacity);
+		valueIndices = new BytesRank0OnlySuccinctBitVector(initialCapacity);
 	}
 
 	public int size(){
@@ -76,6 +76,6 @@ public class SBVIntMap<T> implements Serializable{
 
 	private int current;
 	private Object[] values;
-	private Rank0OnlySuccinctBitVector valueIndices = new Rank0OnlySuccinctBitVector();
+	private BytesRank0OnlySuccinctBitVector valueIndices = new BytesRank0OnlySuccinctBitVector();
 	private static final long serialVersionUID = -4753279563025571408L;
 }
