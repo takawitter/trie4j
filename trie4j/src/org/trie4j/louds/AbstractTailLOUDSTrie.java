@@ -35,89 +35,40 @@ import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
-import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.tail.TailArray;
 import org.trie4j.tail.TailArrayBuilder;
 import org.trie4j.tail.TailCharIterator;
+import org.trie4j.util.BitSet;
 import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
 import org.trie4j.util.Range;
 
-public class TailLOUDSTrie
+public abstract class AbstractTailLOUDSTrie
 extends AbstractTermIdTrie
 implements Externalizable, TermIdTrie{
 	protected static interface NodeListener{
 		void listen(Node node, int id);
 	}
 
-	public TailLOUDSTrie(){
-		this(new PatriciaTrie());
+	public AbstractTailLOUDSTrie(){
 	}
 
-	public TailLOUDSTrie(Trie orig){
-		this(orig, new LOUDSBvTree(orig.nodeSize()));
+	public AbstractTailLOUDSTrie(Trie orig){
+		this(orig, new LOUDSBvTree(orig.size() * 2), new ConcatTailArrayBuilder(orig.size() * 3));
 	}
 
-	public TailLOUDSTrie(Trie orig, BvTree bvTree){
-		this(orig, bvTree, new ConcatTailArrayBuilder(orig.size() * 4), new NodeListener(){
-			@Override
-			public void listen(Node node, int id) {
-			}
-		});
+	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder){
+		this(orig, bvtree, tailArrayBuilder,
+				new NodeListener(){ public void listen(Node node, int id){}});
 	}
 
-	public TailLOUDSTrie(Trie orig, BvTree bvTree, TailArrayBuilder tailArrayBuilder){
-		this(orig, bvTree, tailArrayBuilder, new NodeListener(){
-			@Override
-			public void listen(Node node, int id) {
-			}
-		});
-	}
-
-	public TailLOUDSTrie(Trie orig, TailArrayBuilder tailArrayBuilder){
-		this(orig, tailArrayBuilder, new NodeListener(){
-			@Override
-			public void listen(Node node, int id) {
-			}
-		});
-	}
-
-	public TailLOUDSTrie(Trie orig, TailArrayBuilder tailArrayBuilder, NodeListener listener){
-		this(orig, new LOUDSBvTree(orig.size()), tailArrayBuilder, listener);
-	}
-
-	public TailLOUDSTrie(Trie orig, BvTree bvTree, TailArrayBuilder tailArrayBuilder,
-			NodeListener listener){
+	public AbstractTailLOUDSTrie(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder, NodeListener listener){
 		FastBitSet bs = new FastBitSet(orig.size());
-		build(orig, bvTree, tailArrayBuilder, bs, listener);
+		build(orig, bvtree, tailArrayBuilder, bs, listener);
 		this.term = new BytesRank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 		this.tailArray = tailArrayBuilder.build();
 		this.bvtree.trimToSize();
-	}
-
-	public TailLOUDSTrie(int size, int nodeSize, BvTree bvTree,
-			char[] labels, TailArray tailArray,
-			SuccinctBitVector term){
-		this.size = size;
-		this.nodeSize = nodeSize;
-		this.bvtree = bvTree;
-		this.labels = labels;
-		this.tailArray = tailArray;
-		this.term = term;
-	}
-
-	@Override
-	public int size() {
-		return size;
-	}
-
-	public int nodeSize(){
-		return nodeSize;
-	}
-
-	public void setNodeSize(int nodeSize) {
-		this.nodeSize = nodeSize;
 	}
 
 	@Override
@@ -162,6 +113,11 @@ implements Externalizable, TermIdTrie{
 		int nodeId = getNodeId(text);
 		if(nodeId == -1) return -1;
 		return term.get(nodeId) ? term.rank1(nodeId) - 1 : -1;
+	}
+
+	@Override
+	public int size() {
+		return size;
 	}
 
 	private void build(Trie orig, BvTree bvtree, TailArrayBuilder tailArrayBuilder,
@@ -209,10 +165,6 @@ implements Externalizable, TermIdTrie{
 		return bvtree;
 	}
 
-	public void setBvtree(BvTree bvtree) {
-		this.bvtree = bvtree;
-	}
-
 	public char[] getLabels(){
 		return labels;
 	}
@@ -221,7 +173,7 @@ implements Externalizable, TermIdTrie{
 		return tailArray;
 	}
 
-	public SuccinctBitVector getTerm(){
+	public BitSet getTerm(){
 		return term;
 	}
 
@@ -263,7 +215,7 @@ implements Externalizable, TermIdTrie{
 			if(term.get(child)){
 				ret.add(Pair.create(
 						new String(chars, 0, charsIndex + 1),
-						term.rank1(child) - 1));
+						child));
 			}
 			nodeId = child;
 		}
@@ -301,15 +253,11 @@ implements Externalizable, TermIdTrie{
 			int nid = element.getFirst();
 
 			StringBuilder b = new StringBuilder(element.getSecond());
-			if(nid > 0){
-				b.append(labels[nid]);
-			}
+			b.append(labels[nid]);
 			tci.setOffset(tailArray.getIteratorOffset(nid));
 			while(tci.hasNext()) b.append(tci.next());
 			String letter = b.toString();
-			if(term.get(nid)){
-				ret.add(Pair.create(letter, term.rank1(nid) - 1));
-			}
+			if(term.get(nid)) ret.add(Pair.create(letter, nid));
 			bvtree.getChildNodeIds(nid, r);
 			for(int i = (r.getEnd() - 1); i >= r.getStart(); i--){
 				queue.offerFirst(Pair.create(i, letter));
@@ -401,6 +349,10 @@ implements Externalizable, TermIdTrie{
 		term = (SuccinctBitVector)in.readObject();
 	}
 
+	public void setBvtree(BvTree bvtree) {
+		this.bvtree = bvtree;
+	}
+
 	private int getChildNode(int nodeId, char c, Range r){
 		bvtree.getChildNodeIds(nodeId, r);
 		int start = r.getStart();
@@ -440,4 +392,5 @@ implements Externalizable, TermIdTrie{
 	private TailArray tailArray;
 	private SuccinctBitVector term;
 	private int nodeSize;
+	private static final long serialVersionUID = 8376289953859608479L;
 }
