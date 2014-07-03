@@ -18,6 +18,8 @@ package org.trie4j.bv;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import org.trie4j.util.IntArray;
+
 public class LongsSuccinctBitVector
 implements Serializable, SuccinctBitVector{
 	public LongsSuccinctBitVector(){
@@ -28,19 +30,19 @@ implements Serializable, SuccinctBitVector{
 		if(initialCapacity == 0){
 			this.longs = new long[]{};
 			this.countCache0 = new int[]{};
-			this.indexCache0 = new int[]{};
+			this.indexCache0 = new IntArray();
 			return;
 		}
 		this.longs = new long[longsSize(initialCapacity)];
 		this.countCache0 = new int[countCache0Size(initialCapacity)];
-		this.indexCache0 = new int[initialIndexCache0Size(initialCapacity)];
+		this.indexCache0 = new IntArray(initialIndexCache0Size(initialCapacity));
 	}
 
 	public LongsSuccinctBitVector(byte[] bytes, int bitsSize){
 		this.longs = new long[longsSize(bitsSize)];
 		this.size = bitsSize;
 		countCache0 = new int[countCache0Size(bitsSize)];
-		indexCache0 = new int[initialIndexCache0Size(bitsSize)];
+		indexCache0 = new IntArray(initialIndexCache0Size(bitsSize));
 
 		int n = bytes.length;
 		for(int i = 0; i < n; i++){
@@ -78,9 +80,12 @@ implements Serializable, SuccinctBitVector{
 				countCache0[i / (CACHE_WIDTH_BITS / 8)] = size0;
 			}
 			// (size0 - zeroCount)とzeroCountの間に境界(CACHE_WIDTH)があればindexCache0更新
-			if(zeroCount > 0 && ((size0 / CACHE_WIDTH_BITS) != (prevSize0 / CACHE_WIDTH_BITS))){
-				indexCache0[size0 / CACHE_WIDTH_BITS] = i * 8 +
-						zeroPosInB[zeroPosInB.length - (size0 % CACHE_WIDTH_BITS) - 1];
+			int indexOfIndexBlock = size0 / BITS0_COUNT_IN_EACH_INDEX;
+			if(zeroCount > 0 && (indexOfIndexBlock != (prevSize0 / BITS0_COUNT_IN_EACH_INDEX))){
+				indexCache0.set(
+						indexOfIndexBlock,
+						i * 8 +
+						zeroPosInB[zeroPosInB.length - (size0 % BITS0_COUNT_IN_EACH_INDEX) - 1]);
 			}
 
 			if(rest < 8) break;
@@ -91,7 +96,7 @@ implements Serializable, SuccinctBitVector{
 	public LongsSuccinctBitVector(
 			long[] longs, int size, int size0,
 			int node1pos, int node2pos, int node3pos,
-			int[] countCache0, int[] indexCache0) {
+			int[] countCache0, IntArray indexCache0) {
 		this.longs = longs;
 		this.size = size;
 		this.size0 = size0;
@@ -122,7 +127,7 @@ implements Serializable, SuccinctBitVector{
 		return countCache0;
 	}
 
-	public int[] getIndexCache0(){
+	public IntArray getIndexCache0(){
 		return indexCache0;
 	}
 
@@ -162,12 +167,11 @@ implements Serializable, SuccinctBitVector{
 	public void trimToSize(){
 		int vectorSize = size / 64 + 1;
 		longs = Arrays.copyOf(longs, Math.min(longs.length, vectorSize));
-		int blockSize = CACHE_WIDTH_BITS / 8;
-		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
-		int countCacheSize0 = size;
-		countCache0 = Arrays.copyOf(countCache0, Math.min(countCache0.length, countCacheSize0));
-		int indexCacheSize = size + 1;
-		indexCache0 = Arrays.copyOf(indexCache0, Math.min(indexCache0.length, indexCacheSize));
+//		int blockSize = CACHE_WIDTH_BITS / 8;
+//		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
+//		int countCacheSize0 = size;
+		countCache0 = Arrays.copyOf(countCache0, Math.min(countCache0.length, countCache0Size(longs.length * BITS_IN_LONG)));
+		indexCache0.trimToSize();
 	}
 
 	public void append0(){
@@ -194,11 +198,7 @@ implements Serializable, SuccinctBitVector{
 				break;
 		}
 		if(size0 % BITS0_COUNT_IN_EACH_INDEX == 0){
-			int ii = size0 / BITS0_COUNT_IN_EACH_INDEX;
-			if(ii >= indexCache0.length){
-				extendIndexCache0();
-			}
-			indexCache0[ii - 1] = size;
+			indexCache0.set(size0 / BITS0_COUNT_IN_EACH_INDEX, size);
 		}
 
 		size++;
@@ -257,56 +257,57 @@ implements Serializable, SuccinctBitVector{
 
 	@Override
 	public int select0(int count) {
-		if(count > size) return -1;
+		if(count > size0) return -1;
 		if(count <= 3){
 			if(count == 1) return node1pos;
 			else if(count == 2) return node2pos;
 			else if(count == 3) return node3pos;
 			else return -1;
 		}
+
 		int idx = count / BITS0_COUNT_IN_EACH_INDEX;
-
-		// startとなる大ブロックを決める
-		int start = idx > 0 ? indexCache0[idx - 1] : 0;
-		if(count % CACHE_WIDTH_BITS == 0) return start;
-		start /= CACHE_WIDTH_BITS;
-
-		// endをとなる大ブロックを決める
+		int start = 0;
 		int end = 0;
-		if(indexCache0.length > idx){
-			// 次のindex cacheがあるならそこまでがend
-			int c = (indexCache0[idx]) / CACHE_WIDTH_BITS;
-			if(c != 1) end = c;
-		}
-		if(end == 0){
-			// 無ければ最後のブロック + 1
-			end = size / CACHE_WIDTH_BITS + 1;
+		if(idx < indexCache0.size()){
+			start = indexCache0.get(idx);
+			if(count % CACHE_WIDTH_BITS == 0) return start;
+			start /= CACHE_WIDTH_BITS;
+			if(idx + 1 < indexCache0.size()){
+				end = indexCache0.get(idx + 1) / CACHE_WIDTH_BITS + 1;
+			} else{
+				end = countCache0Size(size);
+			}
+		} else if(idx > 0){
+			start = indexCache0.get(idx - 1) / CACHE_WIDTH_BITS;
+			end = Math.min(start + CACHE_WIDTH_BITS, countCache0Size(size));
 		}
 
-		int m = 0;
+		int m = -1;
 		int d = 0;
-		while(start != end){
-			m = (start + end) / 2;
-			d = count - countCache0[m];
-			if(d < 0){
-				end = m;
-				continue;
-			} else if(d > 0){
-				if(start != m) start = m;
-				else break;
+		if(start != end){
+			do{
+				m = (start + end) / 2;
+				d = count - countCache0[m];
+				if(d < 0){
+					end = m;
+					continue;
+				} else if(d > 0){
+					if(start != m) start = m;
+					else break;
+				} else{
+					break;
+				}
+			} while(start != end);
+			if(d > 0){
+				count = d;
 			} else{
-				break;
+				while(m >= 0 && count <= countCache0[m]) m--;
+				if(m >= 0) count -= countCache0[m];
 			}
 		}
-		if(d > 0){
-			count = d;
-		} else{
-			while(m >= 0 && count <= countCache0[m]) m--;
-			if(m >= 0) count -= countCache0[m];
-		}
 
-		int n = size / BITS_IN_LONG + 1;
-		for(int i = (m + 1) * CACHE_WIDTH_BITS / BITS_IN_LONG; i < n; i++){
+//		int n = size / BITS_IN_LONG + 1;
+		for(int i = (m + 1) * CACHE_WIDTH_BITS / BITS_IN_LONG; i < longs.length; i++){
 //			int c = BITS_IN_LONG - Long.bitCount(longs[i]);
 			int c = countCache0[i];
 			if(i > 0) c -= countCache0[i - 1];
@@ -394,12 +395,7 @@ implements Serializable, SuccinctBitVector{
 	private void extendLongsAndCountCache0(){
 		int longsSize = (int)(longs.length * 1.2) + 1;
 		longs = Arrays.copyOf(longs, longsSize);
-		int cacheSize = longsSize * BITS_IN_LONG / CACHE_WIDTH_BITS + 1;
-		countCache0 = Arrays.copyOf(countCache0, cacheSize);
-	}
-
-	private void extendIndexCache0(){
-		indexCache0 = Arrays.copyOf(indexCache0, (int)(indexCache0.length * 1.2) + 1);
+		countCache0 = Arrays.copyOf(countCache0, countCache0Size(longsSize * BITS_IN_LONG));
 	}
 
 	private static int longsSize(int bitSize){
@@ -424,7 +420,7 @@ implements Serializable, SuccinctBitVector{
 	private int node2pos = -1;
 	private int node3pos = -1;
 	private int[] countCache0;
-	private int[] indexCache0;
+	private IntArray indexCache0;
 
 	private static final byte[] BITS = {
 		(byte)0x80, (byte)0x40, (byte)0x20, (byte)0x10
