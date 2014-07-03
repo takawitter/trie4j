@@ -109,29 +109,6 @@ implements Externalizable, SuccinctBitVector{
 		countCache0[(size - 1) / CACHE_WIDTH] = size0;
 	}
 
-	public BytesConstantTimeSelect0SuccinctBitVector(
-			byte[] bytes, int size, int size0,
-			int node1pos, int node2pos, int node3pos,
-			int[] countCache0, SuccinctBitVector bvD,
-			SuccinctBitVector bvR, boolean first0bitInBlock,
-			boolean prevBsC, boolean currentBsC,
-			int[] arS, int arSSize){
-		this.bytes = bytes;
-		this.size = size;
-		this.size0 = size0;
-		this.node1pos = node1pos;
-		this.node2pos = node2pos;
-		this.node3pos = node3pos;
-		this.countCache0 = countCache0;
-		this.bvD = bvD;
-		this.bvR = bvR;
-		this.first0bitInBlock = first0bitInBlock;
-		this.prevBsC = prevBsC;
-		this.currentBsC = currentBsC;
-		this.arS = arS;
-		this.arSSize = arSSize;
-	}
-
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
@@ -169,6 +146,29 @@ implements Externalizable, SuccinctBitVector{
 
 	public int getSize0() {
 		return size0;
+	}
+
+	public BytesConstantTimeSelect0SuccinctBitVector(
+			byte[] bytes, int size, int size0,
+			int node1pos, int node2pos, int node3pos,
+			int[] countCache0, SuccinctBitVector bvD,
+			SuccinctBitVector bvR, boolean first0bitInBlock,
+			boolean prevBsC, boolean currentBsC,
+			int[] arS, int arSSize){
+		this.bytes = bytes;
+		this.size = size;
+		this.size0 = size0;
+		this.node1pos = node1pos;
+		this.node2pos = node2pos;
+		this.node3pos = node3pos;
+		this.countCache0 = countCache0;
+		this.bvD = bvD;
+		this.bvR = bvR;
+		this.first0bitInBlock = first0bitInBlock;
+		this.prevBsC = prevBsC;
+		this.currentBsC = currentBsC;
+		this.arS = arS;
+		this.arSSize = arSSize;
 	}
 
 	public int getNode1pos() {
@@ -337,7 +337,7 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	public int select0(int count){
-		if(count > bvD.size()) return -1;
+		if(count > size0) return -1;
 		if(count <= 3){
 			if(count == 1) return node1pos;
 			else if(count == 2) return node2pos;
@@ -347,9 +347,13 @@ implements Externalizable, SuccinctBitVector{
 		int c = count - 1;
 		int ci = bvD.rank1(c) - 1;
 		int u = ci + arS[bvR.rank1(ci) - 1];
-		int ui = u * 8;
-		int r = u == 0 ? 0 : rank0(ui - 1);
-		return ui + BITPOS0[bytes[u] & 0xff][c - r];
+		if(u != 0){
+			int ui = u * 8;
+			int r = u == 0 ? 0 : rank0(ui - 1);
+			return ui + BITPOS0[bytes[u] & 0xff][c - r];
+		} else{
+			return BITPOS0[bytes[0] & 0xff][c];
+		}
 	}
 
 	public int select1(int count){
