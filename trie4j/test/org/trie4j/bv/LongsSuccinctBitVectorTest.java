@@ -89,13 +89,16 @@ public class LongsSuccinctBitVectorTest extends AbstractSuccinctBitVectorTest{
 			sbv.append0();
 		}
 		Assert.assertEquals(
+				0,
+				sbv.getIndexCache0().get(0));
+		Assert.assertEquals(
 				LongsSuccinctBitVector.BITS0_COUNT_IN_EACH_INDEX - 1,
-				sbv.getIndexCache0()[0]);
+				sbv.getIndexCache0().get(1));
 		Assert.assertEquals(
 				LongsSuccinctBitVector.BITS0_COUNT_IN_EACH_INDEX * 2 - 1,
-				sbv.getIndexCache0()[1]);
+				sbv.getIndexCache0().get(2));
 		Assert.assertEquals(
 				LongsSuccinctBitVector.BITS0_COUNT_IN_EACH_INDEX * 3 - 1,
-				sbv.getIndexCache0()[2]);
+				sbv.getIndexCache0().get(3));
 	}
 }
