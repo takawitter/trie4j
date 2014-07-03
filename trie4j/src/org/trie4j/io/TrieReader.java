@@ -22,10 +22,10 @@ import java.io.InputStream;
 
 import org.trie4j.Trie;
 import org.trie4j.bv.BitVector01Divider;
-import org.trie4j.bv.BytesSuccinctBitVector;
-import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
 import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
+import org.trie4j.bv.BytesSuccinctBitVector;
+import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.louds.bvtree.BvTree;
@@ -37,6 +37,7 @@ import org.trie4j.tail.index.ArrayTailIndex;
 import org.trie4j.tail.index.DenseArrayTailIndex;
 import org.trie4j.tail.index.SBVTailIndex;
 import org.trie4j.tail.index.TailIndex;
+import org.trie4j.util.IntArray;
 
 public class TrieReader implements Constants{
 	public TrieReader(InputStream is){
@@ -159,7 +160,7 @@ public class TrieReader implements Constants{
 		return new BytesSuccinctBitVector(
 				readBytes(), dis.readInt(), dis.readInt(),
 				dis.readInt(), dis.readInt(), dis.readInt(),
-				readInts(), readInts()
+				readInts(), readIntArray()
 				);
 	}
 
@@ -167,7 +168,7 @@ public class TrieReader implements Constants{
 		return new LongsSuccinctBitVector(
 				readLongs(), dis.readInt(), dis.readInt(),
 				dis.readInt(), dis.readInt(), dis.readInt(),
-				readInts(), readInts()
+				readInts(), readIntArray()
 				);
 	}
 
@@ -228,6 +229,12 @@ public class TrieReader implements Constants{
 			ret[i] = dis.readLong();
 		}
 		return ret;
+	}
+
+	public IntArray readIntArray()
+	throws IOException{
+		int[] i = readInts();
+		return new IntArray(i, i.length);
 	}
 
 	private DataInputStream dis;

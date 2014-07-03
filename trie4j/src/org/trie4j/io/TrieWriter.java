@@ -21,10 +21,10 @@ import java.io.OutputStream;
 
 import org.trie4j.Trie;
 import org.trie4j.bv.BitVector01Divider;
-import org.trie4j.bv.BytesSuccinctBitVector;
-import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
 import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
+import org.trie4j.bv.BytesSuccinctBitVector;
+import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.louds.bvtree.BvTree;
@@ -36,6 +36,7 @@ import org.trie4j.tail.index.ArrayTailIndex;
 import org.trie4j.tail.index.DenseArrayTailIndex;
 import org.trie4j.tail.index.SBVTailIndex;
 import org.trie4j.tail.index.TailIndex;
+import org.trie4j.util.IntArray;
 
 public class TrieWriter implements Constants{
 	public TrieWriter(OutputStream os) {
@@ -187,7 +188,7 @@ public class TrieWriter implements Constants{
 		dos.writeInt(sbv.getNode2pos());
 		dos.writeInt(sbv.getNode3pos());
 		writeInts(sbv.getCountCache0());
-		writeInts(sbv.getIndexCache0());
+		writeIntArray(sbv.getIndexCache0());
 	}
 
 	public void writeLongsSuccinctBitVector(LongsSuccinctBitVector sbv)
@@ -200,7 +201,7 @@ public class TrieWriter implements Constants{
 		dos.writeInt(sbv.getNode2pos());
 		dos.writeInt(sbv.getNode3pos());
 		writeInts(sbv.getCountCache0());
-		writeInts(sbv.getIndexCache0());
+		writeIntArray(sbv.getIndexCache0());
 	}
 
 	public void writeBytes(byte[] data)
@@ -243,6 +244,11 @@ public class TrieWriter implements Constants{
 		for(long d : data){
 			dos.writeLong(d);
 		}
+	}
+
+	public void writeIntArray(IntArray data)
+	throws IOException{
+		writeInts(data.getElements());
 	}
 
 	private DataOutputStream dos;
