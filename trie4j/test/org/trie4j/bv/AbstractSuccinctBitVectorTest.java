@@ -433,8 +433,9 @@ public abstract class AbstractSuccinctBitVectorTest {
 	public void test_append_select_1() throws Exception{
 		SuccinctBitVector sbv = create();
 		for(int i = 0; i < 1000; i++){
+			String msg = i + "th";
 			sbv.append0();
-			Assert.assertEquals(i + "th", i, sbv.select0(i + 1));
+			Assert.assertEquals(msg, i, sbv.select0(i + 1));
 		}
 	}
 }
