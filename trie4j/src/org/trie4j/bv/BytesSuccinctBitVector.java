@@ -310,6 +310,7 @@ implements Externalizable, SuccinctBitVector{
 		return -1;
 	}
 
+	@Override
 	public int select0(int count){
 		if(count > size0) return -1;
 		if(count <= 3){
@@ -334,7 +335,6 @@ implements Externalizable, SuccinctBitVector{
 		} else if(idx > 0){
 			start = indexCache0.get(idx - 1) / CACHE_WIDTH;
 			end = Math.min(start + CACHE_WIDTH, countCache0Size(size));
-//			end = start + CACHE_WIDTH;// countCache0Size(size);
 		}
 
 		int m = -1;
