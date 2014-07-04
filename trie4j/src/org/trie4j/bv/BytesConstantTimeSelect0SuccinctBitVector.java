@@ -28,25 +28,22 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	public BytesConstantTimeSelect0SuccinctBitVector(int initialCapacity){
-		this.bytes = new byte[initialCapacity / 8 + 1];
-		int blockSize = CACHE_WIDTH;
-		int size = initialCapacity / blockSize + 1;
-		countCache0 = new int[size];
-		bvD = new LongsRank1OnlySuccinctBitVector();
-		bvR = new LongsRank1OnlySuccinctBitVector();
-		arS = new int[]{0};
-		arSSize = 1;
+		this.bytes = new byte[bytesSize(initialCapacity)];
+		this.countCache0 = new int[countCache0Size(initialCapacity)];
+		this.bvD = new LongsRank1OnlySuccinctBitVector();
+		this.bvR = new LongsRank1OnlySuccinctBitVector();
+		this.arS = new int[]{0};
+		this.arSSize = 1;
 	}
 
 	public BytesConstantTimeSelect0SuccinctBitVector(byte[] bytes, int bitsSize){
-		this.bytes = Arrays.copyOf(bytes, bytesSize(bitsSize));
 		this.size = bitsSize;
-		int cacheSize = countCache0Size(bitsSize);
-		countCache0 = new int[cacheSize + 1];
-		bvD = new LongsRank1OnlySuccinctBitVector();
-		bvR = new LongsRank1OnlySuccinctBitVector();
-		arS = new int[]{0};
-		arSSize = 1;
+		this.bytes = Arrays.copyOf(bytes, bytesSize(bitsSize));
+		this.countCache0 = new int[countCache0Size(bitsSize)];
+		this.bvD = new LongsRank1OnlySuccinctBitVector();
+		this.bvR = new LongsRank1OnlySuccinctBitVector();
+		this.arS = new int[]{0};
+		this.arSSize = 1;
 		// cache, indexCache(0のCACHE_WIDTH個毎に位置を記憶), node1/2/3pos(0)
 
 		int n = bytes.length;
@@ -240,20 +237,14 @@ implements Externalizable, SuccinctBitVector{
 		if(blockIndex >= bytes.length){
 			extend();
 		}
-		if(indexInCacheBlock== 0 && cacheBlockIndex > 0){
+		if(indexInCacheBlock == 0 && cacheBlockIndex > 0){
 			countCache0[cacheBlockIndex] = countCache0[cacheBlockIndex - 1];
 		}
 		size0++;
 		switch(size0){
-			case 1:
-				node1pos = size;
-				break;
-			case 2:
-				node2pos = size;
-				break;
-			case 3:
-				node3pos = size;
-				break;
+			case 1:		node1pos = size;	break;
+			case 2:		node2pos = size;	break;
+			case 3:		node3pos = size;	break;
 		}
 		countCache0[cacheBlockIndex]++;
 
@@ -336,6 +327,7 @@ implements Externalizable, SuccinctBitVector{
 		else return rank0(pos);
 	}
 
+	@Override
 	public int select0(int count){
 		if(count > size0) return -1;
 		if(count <= 3){
