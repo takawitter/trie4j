@@ -295,26 +295,25 @@ implements Serializable, SuccinctBitVector{
 		//int n = longsSize(size);
 		int n = longs.length;
 		for(int i = (m + 1) * BITS_IN_COUNTCACHE0 / BITS_IN_BLOCK; i < n; i++){
+			if(count == 0){
+				return i * BITS_IN_BLOCK - 1;
+			}
 			int c = countCache0[i];
 			if(i > 0) c -= countCache0[i - 1];
 			if(count <= c){
 				long v = longs[i];
-				int lzc = Long.numberOfLeadingZeros(v);
-				if(count <= lzc){
-					return i * BITS_IN_BLOCK + count - 1;
+				int j = 0;
+				int jn = 64;
+				if((v & 0xffffffff00000000L) == 0xffffffff00000000L){
+					j = 32;
+					v <<= 32;
 				}
-				count -= lzc;
-				long mask = 0x8000000000000000L >>> lzc;
-				int tzc = Long.numberOfTrailingZeros(v);
-				for(int j = lzc; j < BITS_IN_BLOCK - tzc; j++){
-					if((v & mask) == 0){
+				for(; j < jn; j++){
+					if(v >= 0){
 						count--;
 						if(count == 0) return i * BITS_IN_BLOCK + j;
 					}
-					mask >>>= 1;
-				}
-				if(tzc > 0){
-					return i * BITS_IN_BLOCK + BITS_IN_BLOCK - tzc + count - 1;
+					v <<= 1;
 				}
 				return -1;
 			}
@@ -363,11 +362,10 @@ implements Serializable, SuccinctBitVector{
 		int s = pos % BITS_IN_BLOCK;
 		int n = longs.length - 1;
 		if(longsi < n){
-			long v = longs[longsi];
+			long v = longs[longsi] << s;
 			for(int i = s; i < BITS_IN_BLOCK; i++){
-				if((v & (0x8000000000000000L >>> i)) == 0){
-					return longsi * BITS_IN_BLOCK + i;
-				}
+				if(v >= 0) return longsi * BITS_IN_BLOCK + i;
+				v <<= 1;
 			}
 			longsi++;
 			s = 0;
@@ -380,14 +378,12 @@ implements Serializable, SuccinctBitVector{
 				}
 			}
 		}
-		long v = longs[longsi];
-		if(Long.bitCount(v) != BITS_IN_BLOCK){
-			for(int i = s; i < BITS_IN_BLOCK; i++){
-				int p = longsi * BITS_IN_BLOCK + i;
-				if(p >= size) return -1;
-				if((v & (0x8000000000000000L >>> i)) == 0){
-					return p;
-				}
+		long v = longs[longsi] << s;
+		if(Long.bitCount(v) != (BITS_IN_BLOCK - s)){
+			int in = size % BITS_IN_BLOCK;
+			for(int i = s; i < in; i++){
+				if(v >= 0) return longsi * BITS_IN_BLOCK + i;
+				v <<= 1;
 			}
 		}
 		return -1;
@@ -422,11 +418,6 @@ implements Serializable, SuccinctBitVector{
 	private int node3pos = -1;
 	private int[] countCache0;
 	private IntArray indexCache0;
-
-	private static final byte[] BITS = {
-		(byte)0x80, (byte)0x40, (byte)0x20, (byte)0x10
-		, (byte)0x08, (byte)0x04, (byte)0x02, (byte)0x01
-	};
 
 	private static final byte[][] BITPOS0 = {
 		{0, 1, 2, 3, 4, 5, 6, 7, }, // 0(0)
