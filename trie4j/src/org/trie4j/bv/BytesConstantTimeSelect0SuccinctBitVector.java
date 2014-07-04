@@ -318,8 +318,7 @@ implements Externalizable, SuccinctBitVector{
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
 			ret += BITCOUNTS0[bytes[i] & 0xff];
 		}
-		ret += BITCOUNTS0[bytes[n] & MASKS[pos % 8]] - 7 + (pos % 8);
-		return ret;
+		return ret + BITCOUNTS0[(bytes[n] | ~MASKS[pos % 8]) & 0xff];
 	}
 
 	public int rank(int pos, boolean b){

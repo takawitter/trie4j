@@ -163,8 +163,7 @@ implements Serializable, SuccinctBitVector{
 		for(int i = (cn * CACHE_WIDTH_BITS / BITS_IN_LONG); i < n; i++){
 			ret += Long.bitCount(longs[i]);
 		}
-		ret += Long.bitCount(longs[n] & (0x8000000000000000L >> (pos % BITS_IN_LONG)));
-		return ret;
+		return ret + Long.bitCount(longs[n] & (0x8000000000000000L >> (pos % BITS_IN_LONG)));
 	}
 
 	public int rank0(int pos){

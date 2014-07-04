@@ -226,8 +226,7 @@ implements Serializable, SuccinctBitVector{
 		for(int i = (cn * BITS_IN_COUNTCACHE0 / BITS_IN_BLOCK); i < n; i++){
 			ret += Long.bitCount(~longs[i]);
 		}
-		ret += Long.bitCount(~longs[n] & (0x8000000000000000L >> (pos % BITS_IN_BLOCK)));
-		return ret;
+		return ret + Long.bitCount(~longs[n] & (0x8000000000000000L >> (pos % BITS_IN_BLOCK)));
 	}
 
 	public int rank(int pos, boolean b){
