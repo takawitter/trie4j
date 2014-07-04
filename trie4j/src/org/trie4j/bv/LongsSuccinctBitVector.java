@@ -27,15 +27,9 @@ implements Serializable, SuccinctBitVector{
 	}
 
 	public LongsSuccinctBitVector(int initialCapacity){
-		if(initialCapacity == 0){
-			this.longs = new long[]{};
-			this.countCache0 = new int[]{};
-			this.indexCache0 = new IntArray();
-		} else{
-			this.longs = new long[longsSize(initialCapacity)];
-			this.countCache0 = new int[countCache0Size(initialCapacity)];
-			this.indexCache0 = new IntArray(initialIndexCache0Size(initialCapacity));
-		}
+		this.longs = new long[longsSize(initialCapacity)];
+		this.countCache0 = new int[countCache0Size(initialCapacity)];
+		this.indexCache0 = new IntArray(initialIndexCache0Size(initialCapacity));
 	}
 
 	public LongsSuccinctBitVector(byte[] bytes, int bitsSize){
@@ -169,6 +163,19 @@ implements Serializable, SuccinctBitVector{
 		indexCache0.trimToSize();
 	}
 
+	public void append1(){
+		int longsi = size / BITS_IN_BLOCK;
+		int countCachei = size / BITS_IN_COUNTCACHE0;
+		if(longsi >= longs.length){
+			extendLongsAndCountCache0();
+		}
+		if(size % BITS_IN_COUNTCACHE0 == 0 && countCachei > 0){
+			countCache0[countCachei] = countCache0[countCachei - 1];
+		}
+		longs[longsi] |= 0x8000000000000000L >>> (size % BITS_IN_BLOCK);
+		size++;
+	}
+
 	public void append0(){
 		int longsi = size / BITS_IN_BLOCK;
 		int countCachei = size / BITS_IN_COUNTCACHE0;
@@ -190,19 +197,6 @@ implements Serializable, SuccinctBitVector{
 			indexCache0.set(size0 / ZEROBITS_IN_EACH_INDEX, size);
 		}
 
-		size++;
-	}
-
-	public void append1(){
-		int longsi = size / BITS_IN_BLOCK;
-		int countCachei = size / BITS_IN_COUNTCACHE0;
-		if(longsi >= longs.length){
-			extendLongsAndCountCache0();
-		}
-		if(size % BITS_IN_COUNTCACHE0 == 0 && countCachei > 0){
-			countCache0[countCachei] = countCache0[countCachei - 1];
-		}
-		longs[longsi] |= 0x8000000000000000L >>> (size % BITS_IN_BLOCK);
 		size++;
 	}
 
@@ -397,14 +391,17 @@ implements Serializable, SuccinctBitVector{
 	}
 
 	private static int longsSize(int bitSize){
+		if(bitSize == 0) return 0;
 		return (bitSize - 1) / BITS_IN_BLOCK + 1;
 	}
 
 	private static int countCache0Size(int bitSize){
+		if(bitSize == 0) return 0;
 		return (bitSize - 1) / BITS_IN_COUNTCACHE0 + 1;
 	}
 
 	private static int initialIndexCache0Size(int bitSize){
+		if(bitSize == 0) return 0;
 		return bitSize / 2 / ZEROBITS_IN_EACH_INDEX;
 	}
 

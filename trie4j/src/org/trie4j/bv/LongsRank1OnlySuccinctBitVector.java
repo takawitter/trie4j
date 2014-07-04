@@ -28,16 +28,16 @@ implements Serializable, SuccinctBitVector{
 		if(initialCapacity == 0){
 			this.longs = new long[]{};
 			this.countCache0 = new int[]{};
-			return;
+		} else{
+			this.longs = new long[longsSize(initialCapacity)];
+			this.countCache0 = new int[countCache0Size(initialCapacity)];
 		}
-		this.longs = new long[longsSize(initialCapacity)];
-		this.countCache0 = new int[countCache0Size(initialCapacity)];
 	}
 
 	public LongsRank1OnlySuccinctBitVector(byte[] bytes, int bitsSize){
-		this.longs = new long[longsSize(bitsSize)];
 		this.size = bitsSize;
-		countCache0 = new int[countCache0Size(bitsSize)];
+		this.longs = new long[longsSize(bitsSize)];
+		this.countCache0 = new int[countCache0Size(bitsSize)];
 
 		int n = bytes.length;
 		for(int i = 0; i < n; i++){
@@ -120,6 +120,19 @@ implements Serializable, SuccinctBitVector{
 		countCache0 = Arrays.copyOf(countCache0, countCache0Size(size));
 	}
 
+	public void append1(){
+		int longsi = size / BITS_IN_LONG;
+		int countCachei = size / CACHE_WIDTH_BITS;
+		if(longsi >= longs.length){
+			extendLongsAndCountCache0();
+		}
+		if(size % CACHE_WIDTH_BITS == 0 && countCachei > 0){
+			countCache0[countCachei] = countCache0[countCachei - 1];
+		}
+		longs[longsi] |= 0x8000000000000000L >>> (size % BITS_IN_LONG);
+		size++;
+	}
+
 	public void append0(){
 		int longsi = size / BITS_IN_LONG;
 		int countCachei = size / CACHE_WIDTH_BITS;
@@ -132,19 +145,6 @@ implements Serializable, SuccinctBitVector{
 		countCache0[countCachei]++;
 
 		size0++;
-		size++;
-	}
-
-	public void append1(){
-		int longsi = size / BITS_IN_LONG;
-		int countCachei = size / CACHE_WIDTH_BITS;
-		if(longsi >= longs.length){
-			extendLongsAndCountCache0();
-		}
-		if(size % CACHE_WIDTH_BITS == 0 && countCachei > 0){
-			countCache0[countCachei] = countCache0[countCachei - 1];
-		}
-		longs[longsi] |= 0x8000000000000000L >>> (size % BITS_IN_LONG);
 		size++;
 	}
 

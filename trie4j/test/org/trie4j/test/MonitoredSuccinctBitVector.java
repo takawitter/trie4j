@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.louds;
+package org.trie4j.test;
 
 import org.trie4j.bv.SuccinctBitVector;
-import org.trie4j.test.LapTimer;
 
 public class MonitoredSuccinctBitVector implements SuccinctBitVector{
 	public MonitoredSuccinctBitVector(SuccinctBitVector orig) {

@@ -430,7 +430,7 @@ public abstract class AbstractSuccinctBitVectorTest {
 	}
 
 	@Test
-	public void test_append_select_1() throws Exception{
+	public void test_append_select0_1() throws Exception{
 		SuccinctBitVector sbv = create();
 		for(int i = 0; i < 1000; i++){
 			String msg = i + "th";
