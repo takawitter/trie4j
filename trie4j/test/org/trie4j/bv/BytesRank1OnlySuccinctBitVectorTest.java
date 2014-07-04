@@ -54,4 +54,16 @@ public class BytesRank1OnlySuccinctBitVectorTest {
 		}
 		Assert.assertEquals(9, bv.rank1(8));
 	}
+
+	@Test
+	public void test_from_bytes_rank_1() throws Exception{
+		SuccinctBitVector sbv = new BytesRank1OnlySuccinctBitVector(
+				new byte[]{0x01, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte)0x80},
+				68
+				);
+		Assert.assertEquals(0, sbv.rank1(4));
+		Assert.assertEquals(1, sbv.rank1(8));
+		Assert.assertEquals(6, sbv.rank1(15));
+		Assert.assertEquals(7, sbv.rank1(64));
+	}
 }

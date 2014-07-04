@@ -46,7 +46,7 @@ implements Externalizable, SuccinctBitVector{
 			if(i % 8 == 0) countCache1[(i / 8) - 1] = sum;
 			sum += BITCOUNTS1[bytes[i] & 0xff];
 		}
-		if(countCache1.length > 0){
+		if(countCache1.length > n / 8){
 			countCache1[n / 8] = sum;
 		}
 	}
