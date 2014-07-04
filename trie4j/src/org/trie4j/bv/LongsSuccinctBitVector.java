@@ -31,18 +31,18 @@ implements Serializable, SuccinctBitVector{
 			this.longs = new long[]{};
 			this.countCache0 = new int[]{};
 			this.indexCache0 = new IntArray();
-			return;
+		} else{
+			this.longs = new long[longsSize(initialCapacity)];
+			this.countCache0 = new int[countCache0Size(initialCapacity)];
+			this.indexCache0 = new IntArray(initialIndexCache0Size(initialCapacity));
 		}
-		this.longs = new long[longsSize(initialCapacity)];
-		this.countCache0 = new int[countCache0Size(initialCapacity)];
-		this.indexCache0 = new IntArray(initialIndexCache0Size(initialCapacity));
 	}
 
 	public LongsSuccinctBitVector(byte[] bytes, int bitsSize){
-		this.longs = new long[longsSize(bitsSize)];
 		this.size = bitsSize;
-		countCache0 = new int[countCache0Size(bitsSize)];
-		indexCache0 = new IntArray(initialIndexCache0Size(bitsSize));
+		this.longs = new long[longsSize(bitsSize)];
+		this.countCache0 = new int[countCache0Size(bitsSize)];
+		this.indexCache0 = new IntArray(initialIndexCache0Size(bitsSize));
 
 		int n = bytes.length;
 		for(int i = 0; i < n; i++){
@@ -76,21 +76,20 @@ implements Serializable, SuccinctBitVector{
 			
 			int prevSize0 = size0;
 			size0 += zeroCount;
-			if((i + 1) % (CACHE_WIDTH_BITS / 8) == 0){
-				countCache0[i / (CACHE_WIDTH_BITS / 8)] = size0;
+			if((i + 1) % (BITS_IN_COUNTCACHE0 / 8) == 0){
+				countCache0[i / (BITS_IN_COUNTCACHE0 / 8)] = size0;
 			}
-			// (size0 - zeroCount)とzeroCountの間に境界(CACHE_WIDTH)があればindexCache0更新
-			int indexOfIndexBlock = size0 / BITS0_COUNT_IN_EACH_INDEX;
-			if(zeroCount > 0 && (indexOfIndexBlock != (prevSize0 / BITS0_COUNT_IN_EACH_INDEX))){
+			int indexOfIndexBlock = size0 / ZEROBITS_IN_EACH_INDEX;
+			if(zeroCount > 0 && (indexOfIndexBlock != (prevSize0 / ZEROBITS_IN_EACH_INDEX))){
 				indexCache0.set(
 						indexOfIndexBlock,
 						i * 8 +
-						zeroPosInB[zeroPosInB.length - (size0 % BITS0_COUNT_IN_EACH_INDEX) - 1]);
+						zeroPosInB[zeroPosInB.length - (size0 % ZEROBITS_IN_EACH_INDEX) - 1]);
 			}
 
 			if(rest < 8) break;
 		}
-		countCache0[(size - 1) / CACHE_WIDTH_BITS] = size0;
+		countCache0[(size - 1) / BITS_IN_COUNTCACHE0] = size0;
 	}
 
 	public LongsSuccinctBitVector(
@@ -112,9 +111,9 @@ implements Serializable, SuccinctBitVector{
 		StringBuilder b = new StringBuilder();
 		int n = Math.min(size, 64);
 		for(int i = 0; i < n; i++){
-			long m = 0x8000000000000000L >>> (i % BITS_IN_LONG);
-			long bi = longs[(i / BITS_IN_LONG)] & m;
-			b.append((bi) != 0 ? "1" : "0");
+			long m = 0x8000000000000000L >>> (i % BITS_IN_BLOCK);
+			long bi = longs[(i / BITS_IN_BLOCK)] & m;
+			b.append(bi != 0 ? "1" : "0");
 		}
 		return b.toString();
 	}
@@ -137,11 +136,11 @@ implements Serializable, SuccinctBitVector{
 	}
 
 	public boolean isZero(int pos){
-		return (longs[pos / BITS_IN_LONG] & BITS[pos % BITS_IN_LONG]) == 0;
+		return (longs[pos / BITS_IN_BLOCK] & (0x8000000000000000L >>> pos % BITS_IN_BLOCK)) == 0;
 	}
 
 	public boolean isOne(int pos){
-		return (longs[pos / BITS_IN_LONG] & BITS[pos % BITS_IN_LONG]) != 0;
+		return (longs[pos / BITS_IN_BLOCK] & (0x8000000000000000L >>> pos % BITS_IN_BLOCK)) != 0;
 	}
 
 	public int size(){
@@ -165,55 +164,45 @@ implements Serializable, SuccinctBitVector{
 	}
 
 	public void trimToSize(){
-		int vectorSize = size / 64 + 1;
-		longs = Arrays.copyOf(longs, Math.min(longs.length, vectorSize));
-//		int blockSize = CACHE_WIDTH_BITS / 8;
-//		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
-//		int countCacheSize0 = size;
-		countCache0 = Arrays.copyOf(countCache0, Math.min(countCache0.length, countCache0Size(longs.length * BITS_IN_LONG)));
+		longs = Arrays.copyOf(longs, longsSize(size));
+		countCache0 = Arrays.copyOf(countCache0, countCache0Size(size));
 		indexCache0.trimToSize();
 	}
 
 	public void append0(){
-		int longsi = size / BITS_IN_LONG;
-		int countCachei = size / CACHE_WIDTH_BITS;
+		int longsi = size / BITS_IN_BLOCK;
+		int countCachei = size / BITS_IN_COUNTCACHE0;
 		if(longsi >= longs.length){
 			extendLongsAndCountCache0();
 		}
-		if(size % CACHE_WIDTH_BITS == 0 && countCachei > 0){
+		if(size % BITS_IN_COUNTCACHE0 == 0 && countCachei > 0){
 			countCache0[countCachei] = countCache0[countCachei - 1];
 		}
 		countCache0[countCachei]++;
 
 		size0++;
 		switch(size0){
-			case 1:
-				node1pos = size;
-				break;
-			case 2:
-				node2pos = size;
-				break;
-			case 3:
-				node3pos = size;
-				break;
+			case 1:		node1pos = size;	break;
+			case 2:		node2pos = size;	break;
+			case 3:		node3pos = size;	break;
 		}
-		if(size0 % BITS0_COUNT_IN_EACH_INDEX == 0){
-			indexCache0.set(size0 / BITS0_COUNT_IN_EACH_INDEX, size);
+		if(size0 % ZEROBITS_IN_EACH_INDEX == 0){
+			indexCache0.set(size0 / ZEROBITS_IN_EACH_INDEX, size);
 		}
 
 		size++;
 	}
 
 	public void append1(){
-		int longsi = size / BITS_IN_LONG;
-		int countCachei = size / CACHE_WIDTH_BITS;
+		int longsi = size / BITS_IN_BLOCK;
+		int countCachei = size / BITS_IN_COUNTCACHE0;
 		if(longsi >= longs.length){
 			extendLongsAndCountCache0();
 		}
-		if(size % CACHE_WIDTH_BITS == 0 && countCachei > 0){
+		if(size % BITS_IN_COUNTCACHE0 == 0 && countCachei > 0){
 			countCache0[countCachei] = countCache0[countCachei - 1];
 		}
-		longs[longsi] |= 0x8000000000000000L >>> (size % BITS_IN_LONG);
+		longs[longsi] |= 0x8000000000000000L >>> (size % BITS_IN_BLOCK);
 		size++;
 	}
 
@@ -224,29 +213,26 @@ implements Serializable, SuccinctBitVector{
 
 	public int rank1(int pos){
 		int ret = 0;
-		int cn = pos / CACHE_WIDTH_BITS;
+		int cn = pos / BITS_IN_COUNTCACHE0;
 		if(cn > 0){
-			ret = cn * CACHE_WIDTH_BITS - countCache0[cn - 1];
+			ret = cn * BITS_IN_COUNTCACHE0 - countCache0[cn - 1];
 		}
-		int n = pos / BITS_IN_LONG;
-		for(int i = (cn * CACHE_WIDTH_BITS / BITS_IN_LONG); i < n; i++){
+		int n = pos / BITS_IN_BLOCK;
+		for(int i = (cn * BITS_IN_COUNTCACHE0 / BITS_IN_BLOCK); i < n; i++){
 			ret += Long.bitCount(longs[i]);
 		}
-		ret += Long.bitCount(longs[n] & (0x8000000000000000L >> (pos % BITS_IN_LONG)));
+		ret += Long.bitCount(longs[n] & (0x8000000000000000L >> (pos % BITS_IN_BLOCK)));
 		return ret;
 	}
 
 	public int rank0(int pos){
-		int ret = 0;
-		int cn = pos / CACHE_WIDTH_BITS;
-		if(cn > 0){
-			ret = countCache0[cn - 1];
+		int cn = pos / BITS_IN_COUNTCACHE0;
+		int ret = (cn > 0) ? countCache0[cn - 1] : 0;
+		int n = pos / BITS_IN_BLOCK;
+		for(int i = (cn * BITS_IN_COUNTCACHE0 / BITS_IN_BLOCK); i < n; i++){
+			ret += Long.bitCount(~longs[i]);
 		}
-		int n = pos / BITS_IN_LONG;
-		for(int i = (cn * CACHE_WIDTH_BITS / BITS_IN_LONG); i < n; i++){
-			ret += BITS_IN_LONG - Long.bitCount(longs[i]);
-		}
-		ret += (pos % BITS_IN_LONG) + 1 - Long.bitCount(longs[n] & (0x8000000000000000L >> (pos % BITS_IN_LONG)));
+		ret += Long.bitCount(~longs[n] & (0x8000000000000000L >> (pos % BITS_IN_BLOCK)));
 		return ret;
 	}
 
@@ -265,21 +251,21 @@ implements Serializable, SuccinctBitVector{
 			else return -1;
 		}
 
-		int idx = count / BITS0_COUNT_IN_EACH_INDEX;
+		int idx = count / ZEROBITS_IN_EACH_INDEX;
 		int start = 0;
 		int end = 0;
 		if(idx < indexCache0.size()){
 			start = indexCache0.get(idx);
-			if(count % CACHE_WIDTH_BITS == 0) return start;
-			start /= CACHE_WIDTH_BITS;
+			if(count % BITS_IN_COUNTCACHE0 == 0) return start;
+			start /= BITS_IN_COUNTCACHE0;
 			if(idx + 1 < indexCache0.size()){
-				end = indexCache0.get(idx + 1) / CACHE_WIDTH_BITS + 1;
+				end = indexCache0.get(idx + 1) / BITS_IN_COUNTCACHE0 + 1;
 			} else{
 				end = countCache0Size(size);
 			}
 		} else if(idx > 0){
-			start = indexCache0.get(idx - 1) / CACHE_WIDTH_BITS;
-			end = Math.min(start + CACHE_WIDTH_BITS, countCache0Size(size));
+			start = indexCache0.get(idx - 1) / BITS_IN_COUNTCACHE0;
+			end = Math.min(start + BITS_IN_COUNTCACHE0, countCache0Size(size));
 		}
 
 		int m = -1;
@@ -306,32 +292,29 @@ implements Serializable, SuccinctBitVector{
 			}
 		}
 
-//		int n = size / BITS_IN_LONG + 1;
-		for(int i = (m + 1) * CACHE_WIDTH_BITS / BITS_IN_LONG; i < longs.length; i++){
-//			int c = BITS_IN_LONG - Long.bitCount(longs[i]);
+		//int n = longsSize(size);
+		int n = longs.length;
+		for(int i = (m + 1) * BITS_IN_COUNTCACHE0 / BITS_IN_BLOCK; i < n; i++){
 			int c = countCache0[i];
 			if(i > 0) c -= countCache0[i - 1];
 			if(count <= c){
 				long v = longs[i];
-//				final int zc = 0;
-				int zc = Long.numberOfLeadingZeros(v);
-				if(count <= zc){
-					return i * BITS_IN_LONG + count - 1;
+				int lzc = Long.numberOfLeadingZeros(v);
+				if(count <= lzc){
+					return i * BITS_IN_BLOCK + count - 1;
 				}
-				count -= zc;
-//*/
-				long mask = 0x8000000000000000L >>> zc;
-//				final int tzc = 0;
+				count -= lzc;
+				long mask = 0x8000000000000000L >>> lzc;
 				int tzc = Long.numberOfTrailingZeros(v);
-				for(int j = zc; j < BITS_IN_LONG - tzc; j++){
+				for(int j = lzc; j < BITS_IN_BLOCK - tzc; j++){
 					if((v & mask) == 0){
 						count--;
-						if(count == 0) return i * BITS_IN_LONG + j;
+						if(count == 0) return i * BITS_IN_BLOCK + j;
 					}
 					mask >>>= 1;
 				}
 				if(tzc > 0){
-					return i * BITS_IN_LONG + BITS_IN_LONG - tzc + count - 1;
+					return i * BITS_IN_BLOCK + BITS_IN_BLOCK - tzc + count - 1;
 				}
 				return -1;
 			}
@@ -343,16 +326,16 @@ implements Serializable, SuccinctBitVector{
 	@Override
 	public int select1(int count) {
 		for(int i = 0; i < longs.length; i++){
-			if(i * BITS_IN_LONG >= size) return -1;
+			if(i * BITS_IN_BLOCK >= size) return -1;
 			long v = longs[i];
 			int c = Long.bitCount(v);
 			if(count <= c){
-				for(int j = 0; j < BITS_IN_LONG; j++){
-					if(i * BITS_IN_LONG + j >= size) return -1;
+				for(int j = 0; j < BITS_IN_BLOCK; j++){
+					if(i * BITS_IN_BLOCK + j >= size) return -1;
 					if((v & 0x8000000000000000L) != 0){
 						count--;
 						if(count == 0){
-							return i * BITS_IN_LONG + j;
+							return i * BITS_IN_BLOCK + j;
 						}
 					}
 					v <<= 1;
@@ -376,18 +359,36 @@ implements Serializable, SuccinctBitVector{
 			else if(pos <= node2pos) return node2pos;
 			else return node3pos;
 		}
-		int longsi = pos / BITS_IN_LONG;
-		int s = pos % BITS_IN_LONG;
-		for(; longsi < longs.length; longsi++){
+		int longsi = pos / BITS_IN_BLOCK;
+		int s = pos % BITS_IN_BLOCK;
+		int n = longs.length - 1;
+		if(longsi < n){
 			long v = longs[longsi];
-			for(int i = s; i < BITS_IN_LONG; i++){
-				int p = longsi * BITS_IN_LONG + i;
+			for(int i = s; i < BITS_IN_BLOCK; i++){
+				if((v & (0x8000000000000000L >>> i)) == 0){
+					return longsi * BITS_IN_BLOCK + i;
+				}
+			}
+			longsi++;
+			s = 0;
+			for(; longsi < n; longsi++){
+				v = longs[longsi];
+				if(Long.bitCount(v) == BITS_IN_BLOCK) continue;
+				for(int i = 0; i < BITS_IN_BLOCK; i++){
+					if(v >= 0) return longsi * BITS_IN_BLOCK + i;
+					v <<= 1;
+				}
+			}
+		}
+		long v = longs[longsi];
+		if(Long.bitCount(v) != BITS_IN_BLOCK){
+			for(int i = s; i < BITS_IN_BLOCK; i++){
+				int p = longsi * BITS_IN_BLOCK + i;
 				if(p >= size) return -1;
 				if((v & (0x8000000000000000L >>> i)) == 0){
 					return p;
 				}
 			}
-			s = 0;
 		}
 		return -1;
 	}
@@ -395,24 +396,24 @@ implements Serializable, SuccinctBitVector{
 	private void extendLongsAndCountCache0(){
 		int longsSize = (int)(longs.length * 1.2) + 1;
 		longs = Arrays.copyOf(longs, longsSize);
-		countCache0 = Arrays.copyOf(countCache0, countCache0Size(longsSize * BITS_IN_LONG));
+		countCache0 = Arrays.copyOf(countCache0, countCache0Size(longsSize * BITS_IN_BLOCK));
 	}
 
 	private static int longsSize(int bitSize){
-		return (bitSize - 1) / BITS_IN_LONG + 1;
+		return (bitSize - 1) / BITS_IN_BLOCK + 1;
 	}
 
 	private static int countCache0Size(int bitSize){
-		return (bitSize - 1) / CACHE_WIDTH_BITS + 1;
+		return (bitSize - 1) / BITS_IN_COUNTCACHE0 + 1;
 	}
 
 	private static int initialIndexCache0Size(int bitSize){
-		return bitSize / 2 / BITS0_COUNT_IN_EACH_INDEX;
+		return bitSize / 2 / ZEROBITS_IN_EACH_INDEX;
 	}
 
-	static final int BITS_IN_LONG = 64;
-	static final int CACHE_WIDTH_BITS = 1 * 64;
-	static final int BITS0_COUNT_IN_EACH_INDEX = 64;
+	static final int BITS_IN_BLOCK = 64;
+	static final int BITS_IN_COUNTCACHE0 = 1 * 64;
+	static final int ZEROBITS_IN_EACH_INDEX = 64;
 	private long[] longs;
 	private int size;
 	private int size0;
