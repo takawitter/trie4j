@@ -341,7 +341,7 @@ implements Externalizable, SuccinctBitVector{
 		int u = ci + arS[bvR.rank1(ci) - 1];
 		if(u != 0){
 			int ui = u * 8;
-			int r = u == 0 ? 0 : rank0(ui - 1);
+			int r = rank0(ui - 1);
 			return ui + BITPOS0[bytes[u] & 0xff][c - r];
 		} else{
 			return BITPOS0[bytes[0] & 0xff][c];
