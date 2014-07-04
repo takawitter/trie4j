@@ -292,32 +292,33 @@ implements Serializable, SuccinctBitVector{
 			}
 		}
 
-		//int n = longsSize(size);
 		int n = longs.length;
 		for(int i = (m + 1) * BITS_IN_COUNTCACHE0 / BITS_IN_BLOCK; i < n; i++){
-			if(count == 0){
-				return i * BITS_IN_BLOCK - 1;
-			}
-			int c = countCache0[i];
-			if(i > 0) c -= countCache0[i - 1];
-			if(count <= c){
-				long v = longs[i];
-				int j = 0;
-				int jn = 64;
+			long v = longs[i];
+			int c = Long.bitCount(~v);
+			int cd = count - c;
+			if(cd <= 0){
 				if((v & 0xffffffff00000000L) == 0xffffffff00000000L){
-					j = 32;
 					v <<= 32;
-				}
-				for(; j < jn; j++){
-					if(v >= 0){
-						count--;
-						if(count == 0) return i * BITS_IN_BLOCK + j;
+					for(int j = 32; j < 64; j++){
+						if(v >= 0){
+							count--;
+							if(count == 0) return i * BITS_IN_BLOCK + j;
+						}
+						v <<= 1;
 					}
-					v <<= 1;
+				} else{
+					for(int j = 0; j < 64; j++){
+						if(v >= 0){
+							count--;
+							if(count == 0) return i * BITS_IN_BLOCK + j;
+						}
+						v <<= 1;
+					}
 				}
 				return -1;
 			}
-			count -= c;
+			count = cd;
 		}
 		return -1;
 	}
@@ -408,7 +409,7 @@ implements Serializable, SuccinctBitVector{
 	}
 
 	static final int BITS_IN_BLOCK = 64;
-	static final int BITS_IN_COUNTCACHE0 = 1 * 64;
+	static final int BITS_IN_COUNTCACHE0 = 2 * 64;
 	static final int ZEROBITS_IN_EACH_INDEX = 64;
 	private long[] longs;
 	private int size;
