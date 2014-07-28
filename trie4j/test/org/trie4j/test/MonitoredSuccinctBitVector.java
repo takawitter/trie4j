@@ -15,6 +15,12 @@
  */
 package org.trie4j.test;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.trie4j.bv.SuccinctBitVector;
 
 public class MonitoredSuccinctBitVector implements SuccinctBitVector{
@@ -29,6 +35,8 @@ public class MonitoredSuccinctBitVector implements SuccinctBitVector{
 	public void resetCounts(){
 		select0Count = 0;
 		select0Time = 0;
+		select0MinTime = Long.MAX_VALUE;
+		select0MaxTime = Long.MIN_VALUE;
 		select1Count = 0;
 		select1Time = 0;
 		next0Count = 0;
@@ -49,6 +57,18 @@ public class MonitoredSuccinctBitVector implements SuccinctBitVector{
 	}
 	public long getSelect0Time() {
 		return select0Time;
+	}
+	public long getSelect0MaxTime() {
+		return select0MaxTime;
+	}
+	public long getSelect0MinTime() {
+		return select0MinTime;
+	}
+	public Collection<Long> getSelect0Times() {
+		return select0Times;
+	}
+	public Map<Long, Integer> getSelect0TimesMap() {
+		return select0TimesMap;
 	}
 	public int getSelect1Count() {
 		return select1Count;
@@ -88,7 +108,17 @@ public class MonitoredSuccinctBitVector implements SuccinctBitVector{
 		try{
 			return orig.select0(count);
 		} finally{
-			select0Time += t.lapNanos();
+			long n = t.lapNanos();
+			select0Time += n;
+			select0MaxTime = Math.max(select0MaxTime, n);
+			select0MinTime = Math.min(select0MinTime, n);
+			if(select0Count % 500 == 0){
+				select0Times.add(n);
+			}
+			Integer i = select0TimesMap.get(n);
+			if(i == null) i = 1;
+			else i = i + 1;
+			select0TimesMap.put(n, i);
 		}
 	}
 	@Override
@@ -176,6 +206,10 @@ public class MonitoredSuccinctBitVector implements SuccinctBitVector{
 	private LapTimer t = new LapTimer();
 	private int select0Count;
 	private long select0Time;
+	private long select0MaxTime;
+	private long select0MinTime;
+	private List<Long> select0Times = new ArrayList<Long>();
+	private Map<Long, Integer> select0TimesMap = new TreeMap<Long, Integer>();
 	private int select1Count;
 	private long select1Time;
 	private int next0Count;
