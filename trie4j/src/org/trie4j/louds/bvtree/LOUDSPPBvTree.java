@@ -52,6 +52,14 @@ implements Externalizable, BvTree{
 		divider.setVectors(r0, r1);
 	}
 
+	public LOUDSPPBvTree(
+			SuccinctBitVector r0, SuccinctBitVector r1) {
+		this.divider = new BitVector01Divider();
+		this.r0 = r0;
+		this.r1 = r1;
+		divider.setVectors(r0, r1);
+	}
+
 	public BitVector01Divider getDivider() {
 		return divider;
 	}
