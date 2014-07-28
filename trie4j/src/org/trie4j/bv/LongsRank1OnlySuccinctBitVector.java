@@ -174,7 +174,7 @@ implements Serializable, SuccinctBitVector{
 		}
 		int n = pos / BITS_IN_LONG;
 		for(int i = (cn * CACHE_WIDTH_BITS / BITS_IN_LONG); i < n; i++){
-			ret += BITS_IN_LONG - Long.bitCount(longs[i]);
+			ret += Long.bitCount(~longs[i]);
 		}
 		ret += (pos % BITS_IN_LONG) + 1 - Long.bitCount(longs[n] & (0x8000000000000000L >> (pos % BITS_IN_LONG)));
 		return ret;
