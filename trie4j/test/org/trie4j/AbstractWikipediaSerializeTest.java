@@ -23,6 +23,9 @@ import java.io.ObjectOutputStream;
 import org.junit.Test;
 import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.TailLOUDSTrie;
+import org.trie4j.louds.bvtree.BvTree;
+import org.trie4j.louds.bvtree.LOUDSBvTree;
+import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.DefaultTailArray;
 import org.trie4j.test.LapTimer;
@@ -64,7 +67,24 @@ public abstract class AbstractWikipediaSerializeTest{
 
 	static String getBvTreeClassName(Trie trie){
 		if(trie instanceof TailLOUDSTrie){
-			return "(" + ((TailLOUDSTrie)trie).getBvTree().getClass().getSimpleName() + ")";
+			StringBuilder b = new StringBuilder("(");
+			BvTree bvTree = ((TailLOUDSTrie)trie).getBvTree();
+			b.append(bvTree.getClass().getSimpleName());
+			if(bvTree instanceof LOUDSBvTree){
+				b.append("(");
+				b.append(((LOUDSBvTree)bvTree).getSbv().getClass().getSimpleName());
+				b.append(")");
+			} else if(bvTree instanceof LOUDSPPBvTree){
+				b.append("(");
+				LOUDSPPBvTree pbvt = (LOUDSPPBvTree)bvTree;
+				b.append("r0:")
+					.append(pbvt.getR0().getClass().getSimpleName())
+					.append(",r1:")
+					.append(pbvt.getR1().getClass().getSimpleName())
+					.append(")");
+			}
+			b.append(")");
+			return b.toString();
 		} else{
 			return "";
 		}
