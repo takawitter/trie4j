@@ -12,12 +12,18 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.trie4j.bv.BitVector01Divider;
+import org.trie4j.bv.BytesConstantTimeSelect0SuccinctBitVector;
+import org.trie4j.bv.BytesSuccinctBitVector;
+import org.trie4j.bv.LongsRank1OnlySuccinctBitVector;
+import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.MapDoubleArray;
 import org.trie4j.doublearray.MapTailDoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.MapTailLOUDSTrie;
 import org.trie4j.louds.TailLOUDSTrie;
+import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.patricia.MapPatriciaTrie;
 import org.trie4j.patricia.MapTailPatriciaTrie;
@@ -39,7 +45,7 @@ public class AllTries {
 	private static Iterable<String> newWords() throws IOException{
 		return new WikipediaTitles();
 	}
-
+/*
 	private static String createName(Class<?> trieClass, Class<?>... ctorParamClasses){
 		StringBuilder b = new StringBuilder(trieClass.getSimpleName());
 		if(ctorParamClasses.length > 0){
@@ -49,6 +55,39 @@ public class AllTries {
 				if(first) first = false;
 				else b.append(",");
 				b.append(c.getSimpleName());
+			}
+			b.append(")");
+		}
+		return b.toString();
+	}
+*/
+	private static String createName(Class<?> trieClass, Object... ctorParamClasses){
+		StringBuilder b = new StringBuilder(trieClass.getSimpleName());
+		if(ctorParamClasses.length > 0){
+			b.append("(");
+			boolean first = true;
+			for(Object p : ctorParamClasses){
+				if(first) first = false;
+				else b.append(",");
+				if(p instanceof Class){
+					b.append(((Class<?>)p).getSimpleName());
+				} else if(p instanceof Class[]){
+					Class<?>[] cc = (Class<?>[])p;
+					int i = 0; int n = cc.length;
+					if(i < n){
+						b.append(cc[i].getSimpleName()).append("(");
+						boolean f = true;
+						for(i++; i < n; i++){
+							if(f) {
+								f = false;
+							} else{
+								b.append(",");
+							}
+							b.append(cc[i].getSimpleName());
+						}
+						b.append(")");
+					}
+				}
 			}
 			b.append(")");
 		}
@@ -186,7 +225,7 @@ public class AllTries {
 			this(PatriciaTrie.class);
 		}
 		public TrieProcess(Class<? extends Trie> clazz, Class<?>... ctorParamClasses){
-			super(createName(clazz, ctorParamClasses));
+			super(createName(clazz, (Object[])ctorParamClasses));
 			this.trieClass = clazz;
 			this.ctorParamClasses = ctorParamClasses;
 		}
@@ -195,8 +234,92 @@ public class AllTries {
 			setName(getName() + ":" + consumer.name());
 			return this;
 		}
-		public AbstractProcess second(final Class<? extends Trie> secondTrieClass, final Class<?>... ctorParamClasses){
+		public AbstractProcess second(final Class<? extends Trie> secondTrieClass,
+				final Object... ctorParamClasses){
 			return new AbstractProcess(createName(secondTrieClass, ctorParamClasses)){
+				@Override
+				public Trio<Object, Long, Long> run() throws Throwable {
+					Trie first = buildFirstTrie().getFirst();
+					Pair<Trie, Long> tries = buildSecondTrie(first);
+					Trie second = tries.getFirst();
+					first = null;
+					System.gc();
+					System.gc();
+					long c = verifyTrie(second);
+					return Trio.create((Object)second, tries.getSecond(), c);
+				}
+				private Object create(Object param)
+				throws InstantiationException, IllegalAccessException,
+				IllegalArgumentException, InvocationTargetException{
+					if(param instanceof Class){
+						return ((Class<?>)param).newInstance();
+					} else if(param instanceof Class<?>[]){
+						Class<?>[] params = (Class<?>[])param;
+						Object[] args = new Object[params.length - 1];
+						for(int i = 0; i < args.length; i++){
+							args[i] = create(params[i + 1]);
+						}
+						for(Constructor<?> c : params[0].getConstructors()){
+							Class<?>[] paramTypes = c.getParameterTypes();
+							if(paramTypes.length != args.length) continue;
+							boolean ok = true;
+							for(int i = 0; i < args.length; i++){
+								if(!paramTypes[i].isAssignableFrom(args[i].getClass())){
+									ok = false;
+									break;
+								}
+							}
+							if(!ok) continue;
+							return c.newInstance(args);
+						}
+					}
+					throw new RuntimeException();
+				}
+				private Pair<Trie, Long> buildSecondTrie(Trie firstTrie)
+				throws InstantiationException, IllegalAccessException,
+				IllegalArgumentException, InvocationTargetException{
+					Object[] args = new Object[1 + ctorParamClasses.length];
+					args[0] = firstTrie;
+					for(int i = 0; i < ctorParamClasses.length; i++){
+						Object pc = ctorParamClasses[i];
+						if(pc instanceof Class){
+							args[i + 1] = ((Class<?>)pc).newInstance();
+						} else if(pc instanceof Class<?>[]){
+							args[i + 1] = create((Class<?>[])pc);
+						}
+					}
+					TrieFactory tf = trieFactories.get(secondTrieClass);
+					if(tf != null){
+						return tf.create(args);
+					} else{
+						for(Constructor<?> c : secondTrieClass.getConstructors()){
+							try{
+								if(c.getParameterTypes().length != args.length) continue;
+								boolean suitable = true;
+								for(int i = 0; i < c.getParameterTypes().length; i++){
+									if(!c.getParameterTypes()[i].isAssignableFrom(args[i].getClass())){
+										suitable = false;
+										break;
+									}
+								}
+								if(!suitable) continue;
+								LapTimer lt = new LapTimer();
+								Object ret = c.newInstance(args);
+								long ms = lt.lapMillis();
+								return Pair.create((Trie)ret, ms);
+							} catch(InstantiationException | IllegalAccessException |
+									SecurityException |
+									IllegalArgumentException | InvocationTargetException e){
+								e.printStackTrace();
+							}
+						}
+					}
+					throw new RuntimeException("no suitable constructor.");
+				}
+			};
+		}
+		public AbstractProcess second(final Class<? extends Trie> secondTrieClass, final Class<?>... ctorParamClasses){
+			return new AbstractProcess(createName(secondTrieClass, (Object[])ctorParamClasses)){
 				@Override
 				public Trio<Object, Long, Long> run() throws Throwable {
 					Trie first = buildFirstTrie().getFirst();
@@ -296,7 +419,7 @@ public class AllTries {
 		}
 		@SuppressWarnings("rawtypes")
 		public MapTrieProcess(Class<? extends MapTrie> clazz, Class<?>... ctorParamClasses){
-			super(createName(clazz, ctorParamClasses));
+			super(createName(clazz, (Object[])ctorParamClasses));
 			this.trieClass = clazz;
 			this.ctorParamClasses = ctorParamClasses;
 		}
@@ -307,7 +430,7 @@ public class AllTries {
 		}
 		@SuppressWarnings("rawtypes")
 		public AbstractProcess second(final Class<? extends Trie> secondTrieClass, final Class<?>... ctorParamClasses){
-			return new AbstractProcess(createName(secondTrieClass, ctorParamClasses)){
+			return new AbstractProcess(createName(secondTrieClass, (Object[])ctorParamClasses)){
 				@Override
 				public Trio<Object, Long, Long> run() throws Throwable {
 					MapTrie first = buildFirstTrie().getFirst();
@@ -436,7 +559,10 @@ public class AllTries {
 			new TrieProcess().second(TailLOUDSTrie.class, SBVConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieTailArray.class),
 			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieDenseTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesConstantTimeSelect0SuccinctBitVector.class}, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, LongsSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, BitVector01Divider.class, LongsRank1OnlySuccinctBitVector.class, BytesSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SBVConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieTailArray.class),
 			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieDenseTailArrayBuilder.class),
