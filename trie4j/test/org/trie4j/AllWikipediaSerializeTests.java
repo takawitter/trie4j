@@ -24,6 +24,7 @@ import org.trie4j.doublearray.MapTailDoubleArrayWithSuffixTrieTailBuilderWikiped
 import org.trie4j.doublearray.TailDoubleArrayWithConcatTailBuilderWikipediaSerializeTest;
 import org.trie4j.doublearray.TailDoubleArrayWithSuffixTrieDenseIndexTailArrayBuilderWikipediaSerializeTest;
 import org.trie4j.doublearray.TailDoubleArrayWithSuffixTrieTailBuilderWikipediaSerializeTest;
+import org.trie4j.louds.ConstantTimeSelect0TailLOUDSPPTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest;
 import org.trie4j.louds.ConstantTimeSelect0TailLOUDSTrieWithConcatTailArrayWikipediaSerializeTest;
 import org.trie4j.louds.LongsTailLOUDSTrieWithConcatTailArrayWikipediaSerializeTest;
 import org.trie4j.louds.MapTailLOUDSPPTrieWithConcatTailArrayWikipediaSerializeTest;
@@ -54,6 +55,7 @@ import org.trie4j.setAndMap.TreeSetWikipediaSerializeTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+//*
 	HashSetWikipediaSerializeTest.class,
 	TreeSetWikipediaSerializeTest.class,
 	PatriciaTrieWikipediaSerializeTest.class,
@@ -74,6 +76,8 @@ import org.trie4j.setAndMap.TreeSetWikipediaSerializeTest;
 	TailLOUDSPPTrieWithSBVConcatTailArrayWikipediaSerializeTest.class,
 	TailLOUDSPPTrieWithSuffixTrieTailArrayWikipediaSerializeTest.class,
 	TailLOUDSPPTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest.class,
+	ConstantTimeSelect0TailLOUDSPPTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest.class,
+//*/
 //*
 	MapPatriciaTrieWikipediaSerializeTest.class,
 	MapTailPatriciaTrieWithConcatTailBuilderWikipediaSerializeTest.class,
