@@ -22,6 +22,7 @@ import org.trie4j.bv.BytesConstantTimeSelect0SuccinctBitVectorTest;
 import org.trie4j.bv.BytesRank0OnlySuccinctBitVectorTest;
 import org.trie4j.bv.BytesRank1OnlySuccinctBitVectorTest;
 import org.trie4j.bv.BytesSuccinctBitVectorTest;
+import org.trie4j.bv.LongsRank1OnlySuccinctBitVectorTest;
 import org.trie4j.bv.LongsSuccinctBitVectorTest;
 import org.trie4j.doublearray.DoubleArrayTest;
 import org.trie4j.doublearray.MapDoubleArrayTest;
@@ -70,6 +71,7 @@ import org.trie4j.util.FastBitSetTest;
 	BytesRank0OnlySuccinctBitVectorTest.class,
 	BytesRank1OnlySuccinctBitVectorTest.class,
 	LongsSuccinctBitVectorTest.class,
+	LongsRank1OnlySuccinctBitVectorTest.class,
 	ArrayTailIndexTest.class,
 	DenseArrayTailIndexTest.class,
 	SBVTailIndexTest.class,
