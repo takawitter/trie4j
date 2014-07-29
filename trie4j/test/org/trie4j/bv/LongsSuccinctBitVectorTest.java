@@ -45,20 +45,20 @@ public class LongsSuccinctBitVectorTest extends AbstractSuccinctBitVectorTest{
 		Assert.assertEquals(1, new LongsSuccinctBitVector(1).getCountCache0().length);
 		Assert.assertEquals(1, new LongsSuccinctBitVector(64).getCountCache0().length);
 		Assert.assertEquals(2, new LongsSuccinctBitVector(
-				LongsSuccinctBitVector.CACHE_WIDTH_BITS + 1).getCountCache0().length);
+				LongsSuccinctBitVector.BITS_IN_COUNTCACHE0 + 1).getCountCache0().length);
 	}
 
 	@Test
 	public void test_append_countCache0_1() throws Exception{
 		LongsSuccinctBitVector sbv = new LongsSuccinctBitVector();
-		for(int i = 0; i < LongsSuccinctBitVector.CACHE_WIDTH_BITS; i++){
+		for(int i = 0; i < LongsSuccinctBitVector.BITS_IN_COUNTCACHE0; i++){
 			sbv.append0();
 			Assert.assertEquals(i + 1, sbv.getCountCache0()[0]);
 		}
-		for(int i = 0; i < LongsSuccinctBitVector.CACHE_WIDTH_BITS; i++){
+		for(int i = 0; i < LongsSuccinctBitVector.BITS_IN_COUNTCACHE0; i++){
 			sbv.append0();
-			Assert.assertEquals(LongsSuccinctBitVector.CACHE_WIDTH_BITS, sbv.getCountCache0()[0]);
-			Assert.assertEquals(LongsSuccinctBitVector.CACHE_WIDTH_BITS + i + 1, sbv.getCountCache0()[1]);
+			Assert.assertEquals(LongsSuccinctBitVector.BITS_IN_COUNTCACHE0, sbv.getCountCache0()[0]);
+			Assert.assertEquals(LongsSuccinctBitVector.BITS_IN_COUNTCACHE0 + i + 1, sbv.getCountCache0()[1]);
 		}
 	}
 
@@ -67,7 +67,7 @@ public class LongsSuccinctBitVectorTest extends AbstractSuccinctBitVectorTest{
 		LongsSuccinctBitVector sbv = new LongsSuccinctBitVector();
 		for(int i = 0; i < 10000; i++){
 			sbv.append0();
-			Assert.assertEquals(i + 1, sbv.getCountCache0()[i / LongsSuccinctBitVector.CACHE_WIDTH_BITS]);
+			Assert.assertEquals(i + 1, sbv.getCountCache0()[i / LongsSuccinctBitVector.BITS_IN_COUNTCACHE0]);
 		}
 	}
 
@@ -78,27 +78,27 @@ public class LongsSuccinctBitVectorTest extends AbstractSuccinctBitVectorTest{
 			sbv.append0();
 			sbv.append1();
 			String msg = i + "th";
-			Assert.assertEquals(msg, i + 1, sbv.getCountCache0()[i * 2 / LongsSuccinctBitVector.CACHE_WIDTH_BITS]);
+			Assert.assertEquals(msg, i + 1, sbv.getCountCache0()[i * 2 / LongsSuccinctBitVector.BITS_IN_COUNTCACHE0]);
 		}
 	}
 
 	@Test
 	public void test_append_indexCache0_1() throws Exception{
 		LongsSuccinctBitVector sbv = new LongsSuccinctBitVector();
-		for(int i = 0; i < LongsSuccinctBitVector.BITS0_COUNT_IN_EACH_INDEX * 3; i++){
+		for(int i = 0; i < LongsSuccinctBitVector.ZEROBITS_IN_EACH_INDEX * 3; i++){
 			sbv.append0();
 		}
 		Assert.assertEquals(
 				0,
 				sbv.getIndexCache0().get(0));
 		Assert.assertEquals(
-				LongsSuccinctBitVector.BITS0_COUNT_IN_EACH_INDEX - 1,
+				LongsSuccinctBitVector.ZEROBITS_IN_EACH_INDEX - 1,
 				sbv.getIndexCache0().get(1));
 		Assert.assertEquals(
-				LongsSuccinctBitVector.BITS0_COUNT_IN_EACH_INDEX * 2 - 1,
+				LongsSuccinctBitVector.ZEROBITS_IN_EACH_INDEX * 2 - 1,
 				sbv.getIndexCache0().get(2));
 		Assert.assertEquals(
-				LongsSuccinctBitVector.BITS0_COUNT_IN_EACH_INDEX * 3 - 1,
+				LongsSuccinctBitVector.ZEROBITS_IN_EACH_INDEX * 3 - 1,
 				sbv.getIndexCache0().get(3));
 	}
 }

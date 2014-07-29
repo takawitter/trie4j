@@ -18,8 +18,6 @@ package org.trie4j.bv;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.trie4j.util.IntArray;
-
 public class LongsConstantTimeSelect0SuccinctBitVector
 implements Serializable, SuccinctBitVector{
 	public LongsConstantTimeSelect0SuccinctBitVector(){
@@ -208,7 +206,6 @@ implements Serializable, SuccinctBitVector{
 
 	public void append0(){
 		int blockIndex = size / BITS_IN_BLOCK;
-		int indexInBlock = size % BITS_IN_BLOCK;
 		int cacheBlockIndex = size / BITS_IN_COUNTCACHE0;
 		int indexInCacheBlock = size % BITS_IN_COUNTCACHE0;
 		if(blockIndex >= longs.length){
@@ -232,7 +229,7 @@ implements Serializable, SuccinctBitVector{
 			bvD.append0();
 		}
 
-		if(indexInBlock == 0){
+		if((size % 8) == 0){
 			//first bit
 			if(bvR.size() == 0 || !currentBsC){
 				bvR.append1();
@@ -264,7 +261,6 @@ implements Serializable, SuccinctBitVector{
 
 	public void append1(){
 		int blockIndex = size / BITS_IN_BLOCK;
-		int indexInBlock = size % BITS_IN_BLOCK;
 		int cacheBlockIndex = size / BITS_IN_COUNTCACHE0;
 		if(blockIndex >= longs.length){
 			extendLongsAndCountCache0();
@@ -274,7 +270,7 @@ implements Serializable, SuccinctBitVector{
 		}
 		longs[blockIndex] |= 0x8000000000000000L >>> (size % BITS_IN_BLOCK);
 
-		if(indexInBlock == 0){
+		if((size % 8) == 0){
 			// first bit in block
 			prevBsC = currentBsC;
 			currentBsC = false;
@@ -282,7 +278,7 @@ implements Serializable, SuccinctBitVector{
 		}
 
 		size++;
-		if(size % BITS_IN_BLOCK == 0){
+		if(size % 8 == 0){
 			first0bitInBlock = true;
 		}
 	}
@@ -336,10 +332,13 @@ implements Serializable, SuccinctBitVector{
 		int u = ci + arS[bvR.rank1(ci) - 1];
 		if(u != 0){
 			int ui = u * 8;
-			int r = u == 0 ? 0 : rank0(ui - 1);
-			return ui + find0(longs[u], c - r);
+			int r = rank0(ui - 1);
+			int bi = u % 8;
+			return ui + BITPOS0[
+			          (int)((longs[u / 8] >>> ((7 - bi) * 8)) & 0xff)
+			          ][c - r];
 		} else{
-			return find0(longs[0], c);
+			return BITPOS0[(int)((longs[0] >>> 56) & 0xff)][c];
 		}
 	}
 
@@ -410,17 +409,6 @@ implements Serializable, SuccinctBitVector{
 		return -1;
 	}
 
-	private int find0(long v, int count){
-		for(int i = 0; i < 64; i++){
-			if(v > 0){
-				count--;
-				if(count == 0) return i;
-			}
-			v >>= 1;
-		}
-		return -1;
-	}
-	
 	private void extendLongsAndCountCache0(){
 		int longsSize = (int)(longs.length * 1.2) + 1;
 		longs = Arrays.copyOf(longs, longsSize);
@@ -443,10 +431,6 @@ implements Serializable, SuccinctBitVector{
 
 	private static int countCache0Size(int bitSize){
 		return (bitSize - 1) / BITS_IN_COUNTCACHE0 + 1;
-	}
-
-	private static int initialIndexCache0Size(int bitSize){
-		return bitSize / 2 / ZEROBITS_IN_EACH_INDEX;
 	}
 
 	static final int BITS_IN_BLOCK = 64;
