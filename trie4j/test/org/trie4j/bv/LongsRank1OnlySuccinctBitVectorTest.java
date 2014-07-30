@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.util.FastBitSet;
 
-public class LongsRank1OnlySuccinctBitVectorTest extends AbstractSuccinctBitVectorTest{
+public class LongsRank1OnlySuccinctBitVectorTest {//extends AbstractSuccinctBitVectorTest{
 	protected SuccinctBitVector create(){
 		return new LongsRank0OnlySuccinctBitVector();
 	}
