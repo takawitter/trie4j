@@ -143,22 +143,26 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	public int rank0(int pos){
-		int ret = 0;
 		int cn = pos / CACHE_WIDTH;
-		if(cn > 0){
-			ret = countCache0[cn - 1];
-		}
+		if((pos + 1) % CACHE_WIDTH == 0) return countCache0[cn];
+		int ret = (cn > 0) ? ret = countCache0[cn - 1] : 0;
 		int n = pos / 8;
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
 			ret += BITCOUNTS0[vector[i] & 0xff];
 		}
-		ret += BITCOUNTS0[vector[n] & MASKS[pos % 8]] - 7 + (pos % 8);
-		return ret;
+		return ret + BITCOUNTS0[(vector[n] | ~MASKS[pos % 8]) & 0xff];
 	}
 
 	@Override
 	public int rank1(int pos) {
-		throw new UnsupportedOperationException();
+		int cn = pos / CACHE_WIDTH;
+		if((pos + 1) % CACHE_WIDTH == 0) return (cn + 1) * CACHE_WIDTH - countCache0[cn];
+		int ret = (cn > 0) ? cn * CACHE_WIDTH - countCache0[cn - 1] : 0;
+		int n = pos / 8;
+		for(int i = (cn * CACHE_WIDTH / 8); i < n; i++){
+			ret += BITCOUNTS1[vector[i] & 0xff];
+		}
+		return ret + BITCOUNTS1[(vector[n] & (0x80 >> (pos % 8))) & 0xff];
 	}
 
 	@Override
@@ -220,6 +224,23 @@ implements Externalizable, SuccinctBitVector{
 		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
 		4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0, 
 	};
-
+	private static final byte[] BITCOUNTS1 = {
+		0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
+	};
 	private static final long serialVersionUID = -7658605229245494623L;
 }

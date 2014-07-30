@@ -12,10 +12,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.trie4j.bv.BitVector01Divider;
 import org.trie4j.bv.BytesConstantTimeSelect0SuccinctBitVector;
+import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
 import org.trie4j.bv.BytesSuccinctBitVector;
-import org.trie4j.bv.LongsRank1OnlySuccinctBitVector;
+import org.trie4j.bv.LongsConstantTimeSelect0SuccinctBitVector;
+import org.trie4j.bv.LongsRank0OnlySuccinctBitVector;
 import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.MapDoubleArray;
@@ -404,7 +405,8 @@ public class AllTries {
 				lt.reset();
 				boolean r = trie.contains(w);
 				c += lt.lapNanos();
-				if(!r) throw new RuntimeException("verification failed for \"" + w + "\"");
+				if(!r) throw new RuntimeException(
+						"verification failed for \"" + w + "\"");
 			}
 			return c / 1000000;
 		}
@@ -555,17 +557,20 @@ public class AllTries {
 			},
 //*/
 //*
-			new TrieProcess().second(TailLOUDSTrie.class, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, SBVConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieTailArray.class),
 			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieDenseTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesConstantTimeSelect0SuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, LongsSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, ConcatTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, BitVector01Divider.class, LongsRank1OnlySuccinctBitVector.class, BytesSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, LongsRank0OnlySuccinctBitVector.class, BytesSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SBVConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieTailArray.class),
-			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieDenseTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, BytesRank0OnlySuccinctBitVector.class, BytesSuccinctBitVector.class}, SuffixTrieDenseTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, BytesRank0OnlySuccinctBitVector.class, BytesConstantTimeSelect0SuccinctBitVector.class}, SuffixTrieDenseTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, LongsRank0OnlySuccinctBitVector.class, LongsSuccinctBitVector.class}, SuffixTrieDenseTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, LongsRank0OnlySuccinctBitVector.class, LongsConstantTimeSelect0SuccinctBitVector.class}, SuffixTrieDenseTailArrayBuilder.class),
 //*/
 //*
 			new MapProcess(HashMap.class),
@@ -595,7 +600,7 @@ public class AllTries {
 		System.out.println("run each process " + n + " times.");
 		System.out.println("warming up... running all trie once");
 		for(AbstractProcess p : procs){
-			System.out.print(p.getName() + " ");
+			System.out.println(p.getName());
 			p.run();
 			System.gc();
 		}

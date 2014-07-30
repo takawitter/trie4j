@@ -163,19 +163,6 @@ implements Serializable, SuccinctBitVector{
 		indexCache0.trimToSize();
 	}
 
-	public void append1(){
-		int longsi = size / BITS_IN_BLOCK;
-		int countCachei = size / BITS_IN_COUNTCACHE0;
-		if(longsi >= longs.length){
-			extendLongsAndCountCache0();
-		}
-		if(size % BITS_IN_COUNTCACHE0 == 0 && countCachei > 0){
-			countCache0[countCachei] = countCache0[countCachei - 1];
-		}
-		longs[longsi] |= 0x8000000000000000L >>> (size % BITS_IN_BLOCK);
-		size++;
-	}
-
 	public void append0(){
 		int longsi = size / BITS_IN_BLOCK;
 		int countCachei = size / BITS_IN_COUNTCACHE0;
@@ -200,27 +187,37 @@ implements Serializable, SuccinctBitVector{
 		size++;
 	}
 
+	public void append1(){
+		int longsi = size / BITS_IN_BLOCK;
+		int countCachei = size / BITS_IN_COUNTCACHE0;
+		if(longsi >= longs.length){
+			extendLongsAndCountCache0();
+		}
+		if(size % BITS_IN_COUNTCACHE0 == 0 && countCachei > 0){
+			countCache0[countCachei] = countCache0[countCachei - 1];
+		}
+		longs[longsi] |= 0x8000000000000000L >>> (size % BITS_IN_BLOCK);
+		size++;
+	}
+
 	public void append(boolean bit){
 		if(bit) append1();
 		else append0();
 	}
 
 	public int rank1(int pos){
-		int ret = 0;
 		int cn = pos / BITS_IN_COUNTCACHE0;
-		if(cn > 0){
-			ret = cn * BITS_IN_COUNTCACHE0 - countCache0[cn - 1];
-		}
+		int ret = (cn > 0) ? cn * BITS_IN_COUNTCACHE0 - countCache0[cn - 1] : 0;
 		int n = pos / BITS_IN_BLOCK;
 		for(int i = (cn * BITS_IN_COUNTCACHE0 / BITS_IN_BLOCK); i < n; i++){
 			ret += Long.bitCount(longs[i]);
 		}
-		ret += Long.bitCount(longs[n] & (0x8000000000000000L >> (pos % BITS_IN_BLOCK)));
-		return ret;
+		return ret + Long.bitCount(longs[n] & (0x8000000000000000L >> (pos % BITS_IN_BLOCK)));
 	}
 
 	public int rank0(int pos){
 		int cn = pos / BITS_IN_COUNTCACHE0;
+		if((pos + 1) % BITS_IN_COUNTCACHE0 == 0) return countCache0[cn];
 		int ret = (cn > 0) ? countCache0[cn - 1] : 0;
 		int n = pos / BITS_IN_BLOCK;
 		for(int i = (cn * BITS_IN_COUNTCACHE0 / BITS_IN_BLOCK); i < n; i++){
@@ -291,7 +288,47 @@ implements Serializable, SuccinctBitVector{
 			int c = Long.bitCount(~v);
 			int cd = count - c;
 			if(cd <= 0){
-				if((v & 0xffffffff00000000L) == 0xffffffff00000000L){
+				int b = 0, bc = 0;
+				if((v & 0xffff000000000000L) != 0xffff000000000000L){
+					b = (int)(v >>> 56);
+					bc = BITCOUNTS0[b];
+					count -= bc;
+					if(count <= 0) return i * BITS_IN_BLOCK + BITPOS0[b][count + bc - 1];
+					b = (int)((v >>> 48) & 0xff);
+					bc = BITCOUNTS0[b];
+					count -= bc;
+					if(count <= 0) return i * BITS_IN_BLOCK + 8 + BITPOS0[b][count + bc - 1];
+				}
+				if((v & 0x0000ffff00000000L) != 0x0000ffff00000000L){
+					b = (int)((v >>> 40) & 0xff);
+					bc = BITCOUNTS0[b];
+					count -= bc;
+					if(count <= 0) return i * BITS_IN_BLOCK + 16 + BITPOS0[b][count + bc - 1];
+					b = (int)((v >>> 32) & 0xff);
+					bc = BITCOUNTS0[b];
+					count -= bc;
+					if(count <= 0) return i * BITS_IN_BLOCK + 24 + BITPOS0[b][count + bc - 1];
+				}
+				if((v & 0x00000000ffff0000L) != 0x00000000ffff0000L){
+					b = (int)((v >>> 24) & 0xff);
+					bc = BITCOUNTS0[b];
+					count -= bc;
+					if(count <= 0) return i * BITS_IN_BLOCK + 32 + BITPOS0[b][count + bc - 1];
+					b = (int)((v >>> 16) & 0xff);
+					bc = BITCOUNTS0[b];
+					count -= bc;
+					if(count <= 0) return i * BITS_IN_BLOCK + 40 + BITPOS0[b][count + bc - 1];
+				}
+				b = (int)((v >>> 8) & 0xff);
+				bc = BITCOUNTS0[b];
+				count -= bc;
+				if(count <= 0) return i * BITS_IN_BLOCK + 48 + BITPOS0[b][count + bc - 1];
+				b = (int)(v & 0xff);
+				bc = BITCOUNTS0[b];
+				count -= bc;
+				if(count <= 0) return i * BITS_IN_BLOCK + 56 + BITPOS0[b][count + bc - 1];
+
+/*				if((v & 0xffffffff00000000L) == 0xffffffff00000000L){
 					v <<= 32;
 					for(int j = 32; j < 64; j++){
 						if(v >= 0){
@@ -309,7 +346,7 @@ implements Serializable, SuccinctBitVector{
 						v <<= 1;
 					}
 				}
-				return -1;
+*/				return -1;
 			}
 			count = cd;
 		}
@@ -405,8 +442,8 @@ implements Serializable, SuccinctBitVector{
 	}
 
 	static final int BITS_IN_BLOCK = 64;
-	static final int BITS_IN_COUNTCACHE0 = 2 * 64;
-	static final int ZEROBITS_IN_EACH_INDEX = 64;
+	static final int BITS_IN_COUNTCACHE0 = 1 * 64;
+	static final int ZEROBITS_IN_EACH_INDEX = 1 * 64;
 	private long[] longs;
 	private int size;
 	private int size0;
@@ -416,6 +453,24 @@ implements Serializable, SuccinctBitVector{
 	private int[] countCache0;
 	private IntArray indexCache0;
 
+	private static final byte[] BITCOUNTS0 = {
+		8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4, 
+		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
+		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
+		7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
+		6, 5, 5, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 3, 3, 2, 
+		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
+		5, 4, 4, 3, 4, 3, 3, 2, 4, 3, 3, 2, 3, 2, 2, 1, 
+		4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0, 
+	};
 	private static final byte[][] BITPOS0 = {
 		{0, 1, 2, 3, 4, 5, 6, 7, }, // 0(0)
 		{0, 1, 2, 3, 4, 5, 6, }, // 1(1)

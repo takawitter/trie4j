@@ -18,13 +18,13 @@ package org.trie4j.bv;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class LongsConstantTimeSelect0SuccinctBitVector
+public class LongsRank0OnlySuccinctBitVector
 implements Serializable, SuccinctBitVector{
-	public LongsConstantTimeSelect0SuccinctBitVector(){
+	public LongsRank0OnlySuccinctBitVector(){
 		this(16);
 	}
 
-	public LongsConstantTimeSelect0SuccinctBitVector(int initialCapacity){
+	public LongsRank0OnlySuccinctBitVector(int initialCapacity){
 		if(initialCapacity == 0){
 			this.longs = new long[]{};
 			this.countCache0 = new int[]{};
@@ -32,20 +32,12 @@ implements Serializable, SuccinctBitVector{
 			this.longs = new long[longsSize(initialCapacity)];
 			this.countCache0 = new int[countCache0Size(initialCapacity)];
 		}
-		this.bvD = new LongsRank1OnlySuccinctBitVector();
-		this.bvR = new LongsRank1OnlySuccinctBitVector();
-		this.arS = new int[]{0};
-		this.arSSize = 1;
 	}
 
-	public LongsConstantTimeSelect0SuccinctBitVector(byte[] bytes, int bitsSize){
+	public LongsRank0OnlySuccinctBitVector(byte[] bytes, int bitsSize){
 		this.size = bitsSize;
 		this.longs = new long[longsSize(bitsSize)];
 		this.countCache0 = new int[countCache0Size(bitsSize)];
-		this.bvD = new LongsRank1OnlySuccinctBitVector();
-		this.bvR = new LongsRank1OnlySuccinctBitVector();
-		this.arS = new int[]{0};
-		this.arSSize = 1;
 
 		int n = bytes.length;
 		for(int i = 0; i < n; i++){
@@ -63,37 +55,7 @@ implements Serializable, SuccinctBitVector{
 					}
 				}
 			}
-			int zeroCount = zeroPosInB.length;
-			if(size0 < 3 && zeroCount > 0){
-				if(size0 == 0){
-					node1pos = zeroPosInB[0] + 8 * i;
-					if(zeroPosInB.length > 1) node2pos = zeroPosInB[1] + 8 * i;
-					if(zeroPosInB.length > 2) node3pos = zeroPosInB[2] + 8 * i;
-				} else if(size0 == 1){
-					node2pos = zeroPosInB[0] + 8 * i;
-					if(zeroPosInB.length > 1) node3pos = zeroPosInB[1] + 8 * i;
-				} else{
-					node3pos = zeroPosInB[0] + 8 * i;
-				}
-			}
-			
-			prevBsC = currentBsC;
-			if(zeroPosInB.length > 0){
-				bvD.append1();
-				for(int j = 1; j < zeroPosInB.length; j++) bvD.append0();
-				currentBsC = true;
-				if(prevBsC){
-					bvR.append0();
-				} else{
-					bvR.append1();
-					addArS();
-				}
-			} else{
-				currentBsC = false;
-				arS[arSSize - 1]++;
-			}
-
-			size0 += zeroCount;
+			size0 += zeroPosInB.length;
 			if((i + 1) % (BITS_IN_COUNTCACHE0 / 8) == 0){
 				countCache0[i / (BITS_IN_COUNTCACHE0 / 8)] = size0;
 			}
@@ -103,28 +65,13 @@ implements Serializable, SuccinctBitVector{
 		countCache0[(size - 1) / BITS_IN_COUNTCACHE0] = size0;
 	}
 
-	public LongsConstantTimeSelect0SuccinctBitVector(
+	public LongsRank0OnlySuccinctBitVector(
 			long[] longs, int size, int size0,
-			int node1pos, int node2pos, int node3pos,
-			int[] countCache0,
-			SuccinctBitVector bvD, boolean first0bitInBlock,
-			boolean prevBsC, boolean currentBsC,
-			SuccinctBitVector bvR, int[] arS, int arSSize
-			) {
+			int[] countCache0) {
 		this.longs = longs;
 		this.size = size;
 		this.size0 = size0;
-		this.node1pos = node1pos;
-		this.node2pos = node2pos;
-		this.node3pos = node3pos;
 		this.countCache0 = countCache0;
-		this.bvD = bvD;
-		this.first0bitInBlock = first0bitInBlock;
-		this.prevBsC = prevBsC;
-		this.currentBsC = currentBsC;
-		this.bvR = bvR;
-		this.arS = arS;
-		this.arSSize = arSSize;
 	}
 
 	@Override
@@ -134,7 +81,7 @@ implements Serializable, SuccinctBitVector{
 		for(int i = 0; i < n; i++){
 			long m = 0x8000000000000000L >>> (i % BITS_IN_BLOCK);
 			long bi = longs[(i / BITS_IN_BLOCK)] & m;
-			b.append(bi != 0 ? "1" : "0");
+			b.append((bi) != 0 ? "1" : "0");
 		}
 		return b.toString();
 	}
@@ -145,22 +92,6 @@ implements Serializable, SuccinctBitVector{
 
 	public int[] getCountCache0(){
 		return countCache0;
-	}
-
-	public SuccinctBitVector getBvD() {
-		return bvD;
-	}
-
-	public SuccinctBitVector getBvR() {
-		return bvR;
-	}
-
-	public int[] getArS() {
-		return arS;
-	}
-
-	public int getArSSize() {
-		return arSSize;
 	}
 
 	@Override
@@ -184,103 +115,37 @@ implements Serializable, SuccinctBitVector{
 		return size0;
 	}
 
-	public int getNode1pos() {
-		return node1pos;
-	}
-
-	public int getNode2pos() {
-		return node2pos;
-	}
-
-	public int getNode3pos() {
-		return node3pos;
-	}
-
 	public void trimToSize(){
 		longs = Arrays.copyOf(longs, longsSize(size));
 		countCache0 = Arrays.copyOf(countCache0, countCache0Size(size));
-		bvD.trimToSize();
-		bvR.trimToSize();
-		arS = Arrays.copyOf(arS, arSSize);
-	}
-
-	public void append0(){
-		int blockIndex = size / BITS_IN_BLOCK;
-		int cacheBlockIndex = size / BITS_IN_COUNTCACHE0;
-		int indexInCacheBlock = size % BITS_IN_COUNTCACHE0;
-		if(blockIndex >= longs.length){
-			extendLongsAndCountCache0();
-		}
-		if(indexInCacheBlock == 0 && cacheBlockIndex > 0){
-			countCache0[cacheBlockIndex] = countCache0[cacheBlockIndex - 1];
-		}
-		size0++;
-		switch(size0){
-			case 1:		node1pos = size;	break;
-			case 2:		node2pos = size;	break;
-			case 3:		node3pos = size;	break;
-		}
-		countCache0[cacheBlockIndex]++;
-
-		if(first0bitInBlock){
-			bvD.append1();
-			first0bitInBlock = false;
-		} else{
-			bvD.append0();
-		}
-
-		if((size % 8) == 0){
-			//first bit
-			if(bvR.size() == 0 || !currentBsC){
-				bvR.append1();
-				addArS();
-			} else{
-				bvR.append0();
-			}
-			prevBsC = currentBsC;
-			currentBsC = true;
-		} else if(!currentBsC){
-			// turn from 0 to 1
-			if(bvR.size() == 0 || !prevBsC){
-				bvR.append1();
-			} else{
-				bvR.append0();
-			}
-			arS[arSSize - 1]--;
-			if(!prevBsC){
-				addArS();
-			}
-			currentBsC = true;
-		}
-
-		size++;
-		if(size % 8 == 0){
-			first0bitInBlock = true;
-		}
 	}
 
 	public void append1(){
-		int blockIndex = size / BITS_IN_BLOCK;
-		int cacheBlockIndex = size / BITS_IN_COUNTCACHE0;
-		if(blockIndex >= longs.length){
+		int longsi = size / BITS_IN_BLOCK;
+		int countCachei = size / BITS_IN_COUNTCACHE0;
+		if(longsi >= longs.length){
 			extendLongsAndCountCache0();
 		}
-		if(size % BITS_IN_COUNTCACHE0 == 0 && cacheBlockIndex > 0){
-			countCache0[cacheBlockIndex] = countCache0[cacheBlockIndex - 1];
+		if(size % BITS_IN_COUNTCACHE0 == 0 && countCachei > 0){
+			countCache0[countCachei] = countCache0[countCachei - 1];
 		}
-		longs[blockIndex] |= 0x8000000000000000L >>> (size % BITS_IN_BLOCK);
-
-		if((size % 8) == 0){
-			// first bit in block
-			prevBsC = currentBsC;
-			currentBsC = false;
-			arS[arSSize - 1]++;
-		}
-
+		longs[longsi] |= 0x8000000000000000L >>> (size % BITS_IN_BLOCK);
 		size++;
-		if(size % 8 == 0){
-			first0bitInBlock = true;
+	}
+
+	public void append0(){
+		int longsi = size / BITS_IN_BLOCK;
+		int countCachei = size / BITS_IN_COUNTCACHE0;
+		if(longsi >= longs.length){
+			extendLongsAndCountCache0();
 		}
+		if(size % BITS_IN_COUNTCACHE0 == 0 && countCachei > 0){
+			countCache0[countCachei] = countCache0[countCachei - 1];
+		}
+		countCache0[countCachei]++;
+
+		size0++;
+		size++;
 	}
 
 	public void append(boolean bit){
@@ -317,26 +182,26 @@ implements Serializable, SuccinctBitVector{
 
 	@Override
 	public int select0(int count) {
-		if(count > size0) return -1;
-		if(count <= 3){
-			if(count == 1) return node1pos;
-			else if(count == 2) return node2pos;
-			else if(count == 3) return node3pos;
-			else return -1;
+		for(int i = 0; i < longs.length; i++){
+			if(i * BITS_IN_BLOCK >= size) return -1;
+			long v = longs[i];
+			int c = BITS_IN_BLOCK - Long.bitCount(v);
+			if(count <= c){
+				for(int j = 0; j < BITS_IN_BLOCK; j++){
+					if(i * BITS_IN_BLOCK + j >= size) return -1;
+					if((v & 0x8000000000000000L) != 1){
+						count--;
+						if(count == 0){
+							return i * BITS_IN_BLOCK + j;
+						}
+					}
+					v <<= 1;
+				}
+				return -1;
+			}
+			count -= c;
 		}
-		int c = count - 1;
-		int ci = bvD.rank1(c) - 1;
-		int u = ci + arS[bvR.rank1(ci) - 1];
-		if(u != 0){
-			int ui = u * 8;
-			int r = rank0(ui - 1);
-			int bi = u % 8;
-			return ui + BITPOS0[
-			          (int)((longs[u / 8] >>> ((7 - bi) * 8)) & 0xff)
-			          ][c - r];
-		} else{
-			return BITPOS0[(int)((longs[0] >>> 56) & 0xff)][c];
-		}
+		return -1;
 	}
 
 	@Override
@@ -370,38 +235,18 @@ implements Serializable, SuccinctBitVector{
 
 	public int next0(int pos){
 		if(pos >= size) return -1;
-		if(pos <= node3pos){
-			if(pos <= node1pos) return node1pos;
-			else if(pos <= node2pos) return node2pos;
-			else return node3pos;
-		}
 		int longsi = pos / BITS_IN_BLOCK;
 		int s = pos % BITS_IN_BLOCK;
-		int n = longs.length - 1;
-		if(longsi < n){
-			long v = longs[longsi] << s;
+		for(; longsi < longs.length; longsi++){
+			long v = longs[longsi];
 			for(int i = s; i < BITS_IN_BLOCK; i++){
-				if(v >= 0) return longsi * BITS_IN_BLOCK + i;
-				v <<= 1;
-			}
-			longsi++;
-			s = 0;
-			for(; longsi < n; longsi++){
-				v = longs[longsi];
-				if(Long.bitCount(v) == BITS_IN_BLOCK) continue;
-				for(int i = 0; i < BITS_IN_BLOCK; i++){
-					if(v >= 0) return longsi * BITS_IN_BLOCK + i;
-					v <<= 1;
+				int p = longsi * BITS_IN_BLOCK + i;
+				if(p >= size) return -1;
+				if((v & (0x8000000000000000L >>> i)) == 0){
+					return p;
 				}
 			}
-		}
-		long v = longs[longsi] << s;
-		if(Long.bitCount(v) != (BITS_IN_BLOCK - s)){
-			int in = size % BITS_IN_BLOCK;
-			for(int i = s; i < in; i++){
-				if(v >= 0) return longsi * BITS_IN_BLOCK + i;
-				v <<= 1;
-			}
+			s = 0;
 		}
 		return -1;
 	}
@@ -409,17 +254,8 @@ implements Serializable, SuccinctBitVector{
 	private void extendLongsAndCountCache0(){
 		int longsSize = (int)(longs.length * 1.2) + 1;
 		longs = Arrays.copyOf(longs, longsSize);
-		countCache0 = Arrays.copyOf(countCache0, countCache0Size(longsSize * BITS_IN_BLOCK));
-	}
-
-	private void addArS(){
-		if(arSSize == arS.length){
-			arS = Arrays.copyOf(arS, (int)(arSSize * 1.2) + 1);
-		}
-		if(arSSize > 0){
-			arS[arSSize] = arS[arSSize - 1];
-		}
-		arSSize++;
+		int cacheSize = longsSize * BITS_IN_BLOCK / BITS_IN_COUNTCACHE0 + 1;
+		countCache0 = Arrays.copyOf(countCache0, cacheSize);
 	}
 
 	private static int longsSize(int bitSize){
@@ -435,17 +271,7 @@ implements Serializable, SuccinctBitVector{
 	private long[] longs;
 	private int size;
 	private int size0;
-	private int node1pos = -1;
-	private int node2pos = -1;
-	private int node3pos = -1;
 	private int[] countCache0;
-	private SuccinctBitVector bvD;
-	private boolean first0bitInBlock = true;
-	private boolean prevBsC;
-	private boolean currentBsC;
-	private SuccinctBitVector bvR;
-	private int[] arS;
-	private int arSSize;
 
 	private static final byte[][] BITPOS0 = {
 		{0, 1, 2, 3, 4, 5, 6, 7, }, // 0(0)

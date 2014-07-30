@@ -138,22 +138,26 @@ implements Externalizable, SuccinctBitVector{
 
 	@Override
 	public int rank0(int pos) {
-		throw new UnsupportedOperationException();
+		int cn = pos / CACHE_WIDTH;
+		if((pos + 1) % CACHE_WIDTH == 0) return (cn + 1) * CACHE_WIDTH - countCache1[cn];
+		int ret = (cn > 0) ? ret = cn * CACHE_WIDTH - countCache1[cn - 1] : 0;
+		int n = pos / 8;
+		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
+			ret += 8 - BITCOUNTS1[vector[i] & 0xff];
+		}
+		return ret + 8 - BITCOUNTS1[vector[n] & MASKS[pos % 8]];
 	}
 
 	@Override
 	public int rank1(int pos){
-		int ret = 0;
 		int cn = pos / CACHE_WIDTH;
-		if(cn > 0){
-			ret = countCache1[cn - 1];
-		}
+		if((pos + 1) % CACHE_WIDTH == 0) return countCache1[cn];
+		int ret = (cn > 0) ? ret = countCache1[cn - 1] : 0;
 		int n = pos / 8;
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
 			ret += BITCOUNTS1[vector[i] & 0xff];
 		}
-		ret += BITCOUNTS1[vector[n] & MASKS[pos % 8]];
-		return ret;
+		return ret + BITCOUNTS1[vector[n] & MASKS[pos % 8]];
 	}
 
 	public void save(OutputStream os) throws IOException{

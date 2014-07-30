@@ -17,24 +17,20 @@ package org.trie4j.louds;
 
 import org.trie4j.AbstractWikipediaSerializeTest;
 import org.trie4j.Trie;
-import org.trie4j.bv.BitVector01Divider;
 import org.trie4j.bv.BytesConstantTimeSelect0SuccinctBitVector;
 import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
-import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.tail.SuffixTrieDenseTailArrayBuilder;
 
-public class ConstantTimeSelect0TailLOUDSPPTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest
+public class BytesConstantTimeSelect0TailLOUDSPPTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest
 extends AbstractWikipediaSerializeTest{
 	@Override
 	protected Trie secondTrie(Trie firstTrie) {
-		SuccinctBitVector r0 = new BytesRank0OnlySuccinctBitVector();
-		SuccinctBitVector r1 = new BytesConstantTimeSelect0SuccinctBitVector();
 		Trie t = new TailLOUDSTrie(
 				firstTrie,
 				new LOUDSPPBvTree(
-						new BitVector01Divider(r0, r1),
-						r0, r1),
+						new BytesRank0OnlySuccinctBitVector(),
+						new BytesConstantTimeSelect0SuccinctBitVector()),
 				new SuffixTrieDenseTailArrayBuilder());
 		t.trimToSize();
 		return t;

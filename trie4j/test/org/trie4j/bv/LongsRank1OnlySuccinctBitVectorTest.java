@@ -19,7 +19,19 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.util.FastBitSet;
 
-public class LongsRank1OnlySuccinctBitVectorTest {
+public class LongsRank1OnlySuccinctBitVectorTest extends AbstractSuccinctBitVectorTest{
+	protected SuccinctBitVector create(){
+		return new LongsRank0OnlySuccinctBitVector();
+	}
+
+	protected SuccinctBitVector create(int initialCapacity){
+		return new LongsRank0OnlySuccinctBitVector(initialCapacity);
+	}
+
+	protected SuccinctBitVector create(byte[] bytes, int bitsSize){
+		return new LongsRank0OnlySuccinctBitVector(bytes, bitsSize);
+	}
+	
 	@Test
 	public void test_1() throws Exception{
 		FastBitSet bs = new FastBitSet();
@@ -28,7 +40,7 @@ public class LongsRank1OnlySuccinctBitVectorTest {
 		bs.set(28);
 		bs.set(34);
 		bs.set(67);
-		LongsRank1OnlySuccinctBitVector bv = new LongsRank1OnlySuccinctBitVector(
+		LongsRank0OnlySuccinctBitVector bv = new LongsRank0OnlySuccinctBitVector(
 				bs.getBytes(), bs.size());
 		Assert.assertEquals(1, bv.rank1(11));
 		Assert.assertEquals(2, bv.rank1(22));
@@ -39,7 +51,7 @@ public class LongsRank1OnlySuccinctBitVectorTest {
 
 	@Test
 	public void test_2() throws Exception{
-		LongsRank1OnlySuccinctBitVector bv = new LongsRank1OnlySuccinctBitVector(
+		LongsRank0OnlySuccinctBitVector bv = new LongsRank0OnlySuccinctBitVector(
 				new byte[]{127, -12, -102, -1, -6, 95, -1, -33, -128},
 				65
 				);
@@ -48,7 +60,7 @@ public class LongsRank1OnlySuccinctBitVectorTest {
 
 	@Test
 	public void test_3() throws Exception{
-		LongsRank1OnlySuccinctBitVector bv = new LongsRank1OnlySuccinctBitVector();
+		LongsRank0OnlySuccinctBitVector bv = new LongsRank0OnlySuccinctBitVector();
 		for(int i = 0; i < 9; i++){
 			bv.append1();
 		}
@@ -57,7 +69,7 @@ public class LongsRank1OnlySuccinctBitVectorTest {
 
 	@Test
 	public void test_from_bytes_rank_1() throws Exception{
-		SuccinctBitVector sbv = new LongsRank1OnlySuccinctBitVector(
+		SuccinctBitVector sbv = new LongsRank0OnlySuccinctBitVector(
 				new byte[]{0x01, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte)0x80},
 				68
 				);

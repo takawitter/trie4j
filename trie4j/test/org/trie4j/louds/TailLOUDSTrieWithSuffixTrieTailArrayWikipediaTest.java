@@ -74,7 +74,5 @@ public class TailLOUDSTrieWithSuffixTrieTailArrayWikipediaTest extends AbstractW
 		for(Map.Entry<Integer, List<Integer>> entry : childrenCounts.entrySet()){
 			System.out.println(entry.getKey() + ": " + entry.getValue());
 		}
-
-		Thread.sleep(10000);
 	}
 }

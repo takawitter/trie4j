@@ -30,8 +30,8 @@ implements Externalizable, SuccinctBitVector{
 	public BytesConstantTimeSelect0SuccinctBitVector(int initialCapacity){
 		this.bytes = new byte[bytesSize(initialCapacity)];
 		this.countCache0 = new int[countCache0Size(initialCapacity)];
-		this.bvD = new LongsRank1OnlySuccinctBitVector();
-		this.bvR = new LongsRank1OnlySuccinctBitVector();
+		this.bvD = new BytesRank1OnlySuccinctBitVector();
+		this.bvR = new BytesRank1OnlySuccinctBitVector();
 		this.arS = new int[]{0};
 		this.arSSize = 1;
 	}
@@ -40,8 +40,8 @@ implements Externalizable, SuccinctBitVector{
 		this.size = bitsSize;
 		this.bytes = Arrays.copyOf(bytes, bytesSize(bitsSize));
 		this.countCache0 = new int[countCache0Size(bitsSize)];
-		this.bvD = new LongsRank1OnlySuccinctBitVector();
-		this.bvR = new LongsRank1OnlySuccinctBitVector();
+		this.bvD = new BytesRank1OnlySuccinctBitVector();
+		this.bvR = new BytesRank1OnlySuccinctBitVector();
 		this.arS = new int[]{0};
 		this.arSSize = 1;
 		// cache, indexCache(0のCACHE_WIDTH個毎に位置を記憶), node1/2/3pos(0)
@@ -295,25 +295,20 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	public int rank1(int pos){
-		int ret = 0;
 		int cn = pos / CACHE_WIDTH;
-		if(cn > 0){
-			ret = cn * CACHE_WIDTH - countCache0[cn - 1];
-		}
+		if((pos + 1) % CACHE_WIDTH == 0) return (cn + 1) * CACHE_WIDTH - countCache0[cn];
+		int ret = (cn > 0) ? ret = cn * CACHE_WIDTH - countCache0[cn - 1] : 0;
 		int n = pos / 8;
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
 			ret += BITCOUNTS1[bytes[i] & 0xff];
 		}
-		ret += BITCOUNTS1[bytes[n] & MASKS[pos % 8]];
-		return ret;
+		return ret + BITCOUNTS1[bytes[n] & MASKS[pos % 8]];
 	}
 
 	public int rank0(int pos){
-		int ret = 0;
 		int cn = pos / CACHE_WIDTH;
-		if(cn > 0){
-			ret = countCache0[cn - 1];
-		}
+		if((pos + 1) % CACHE_WIDTH == 0) return countCache0[cn];
+		int ret = (cn > 0) ? ret = countCache0[cn - 1] : 0;
 		int n = pos / 8;
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
 			ret += BITCOUNTS0[bytes[i] & 0xff];

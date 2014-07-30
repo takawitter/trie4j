@@ -15,12 +15,11 @@
  */
 package org.trie4j.louds;
 
-import java.util.Map;
-
 import org.trie4j.AbstractWikipediaTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.bv.BytesConstantTimeSelect0SuccinctBitVector;
+import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.louds.TailLOUDSTrie.NodeListener;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.tail.SuffixTrieTailArray;
@@ -65,15 +64,17 @@ public class TailLOUDSTrieWithSuffixTrieTailArrayWikipediaMonitoredSBVTest exten
 					sbv.getBvR().size(),
 					sbv.getArS().length));
 		}
-		System.out.println("select0Times:");
+//		System.out.println("select0Times:");
 /*		int c = 0;
 		for(long l : bv.getSelect0Times()){
 			System.out.print(l + " ");
 			if(++c % 100 == 0) System.out.println();
 */
+/*
 		for(Map.Entry<Long, Integer> entry : bv.getSelect0TimesMap().entrySet()){
 			System.out.println(entry.getKey() + ":" + entry.getValue());
 		}
+*/
 /*
 		TailLOUDSTrie t = (TailLOUDSTrie)trie;
 		final Map<Integer, List<Integer>> childrenCounts = new TreeMap<Integer, List<Integer>>(
@@ -107,8 +108,8 @@ public class TailLOUDSTrieWithSuffixTrieTailArrayWikipediaMonitoredSBVTest exten
 
 	private MonitoredSuccinctBitVector bv = new MonitoredSuccinctBitVector(
 //			new BytesSuccinctBitVector(65536)
-			new BytesConstantTimeSelect0SuccinctBitVector(65536)
-//			new LongsSuccinctBitVector(65536)
+//			new BytesConstantTimeSelect0SuccinctBitVector(65536)
+			new LongsSuccinctBitVector(65536)
 //			new LongsConstantTimeSelect0SuccinctBitVector(65536)
 			);
 }
