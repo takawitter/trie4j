@@ -542,6 +542,20 @@ implements Externalizable, SuccinctBitVector{
 			System.out.println("}, // " + String.format("%d(%1$x)", i));
 		}
 		System.out.println("\t};");
+		System.out.println("\tprivate static final byte[][] BITPOS1 = {");
+		for(int i = 0; i < 256; i++){
+			int count = 0;
+			System.out.print("\t\t{");
+			for(int b = 0x80; b > 0; b >>= 1){
+				if((i & b) != 0){
+					System.out.print(count);
+					System.out.print(", ");
+				}
+				count++;
+			}
+			System.out.println("}, // " + String.format("%d(%1$x)", i));
+		}
+		System.out.println("\t};");
 	}
 	private static final byte[][] BITPOS0 = {
 		{0, 1, 2, 3, 4, 5, 6, 7, }, // 0(0)

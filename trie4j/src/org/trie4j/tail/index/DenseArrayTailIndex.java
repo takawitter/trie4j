@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
+import org.trie4j.bv.LongsRank1OnlySuccinctBitVector;
 import org.trie4j.bv.SuccinctBitVector;
 
 public class DenseArrayTailIndex
@@ -29,7 +29,7 @@ implements Externalizable, TailIndex{
 	}
 
 	public DenseArrayTailIndex(int[] tail, byte[] bits, int bitsSize) {
-		this.sbv = new BytesRank1OnlySuccinctBitVector(bits, bitsSize);
+		this.sbv = new LongsRank1OnlySuccinctBitVector(bits, bitsSize);
 		this.tail = tail;
 	}
 
@@ -78,6 +78,6 @@ implements Externalizable, TailIndex{
 		out.writeObject(tail);
 	}
 
-	private SuccinctBitVector sbv = new BytesRank1OnlySuccinctBitVector();
+	private SuccinctBitVector sbv = new LongsRank1OnlySuccinctBitVector();
 	private int[] tail = {};
 }
