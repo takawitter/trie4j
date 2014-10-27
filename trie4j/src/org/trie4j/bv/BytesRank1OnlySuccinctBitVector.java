@@ -32,16 +32,16 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	public BytesRank1OnlySuccinctBitVector(int initialCapacity){
-		vector = new byte[containerCount(initialCapacity, 8)];
-		countCache1 = new int[containerCount(vector.length, CACHE_WIDTH / 8)];
+		bytes = new byte[containerCount(initialCapacity, 8)];
+		countCache1 = new int[containerCount(bytes.length, CACHE_WIDTH / 8)];
 	}
 
 	public BytesRank1OnlySuccinctBitVector(byte[] bytes, int bits){
 		this.size = bits;
-		this.vector = Arrays.copyOf(bytes, containerCount(bits, 8));
-		this.countCache1 = new int[containerCount(vector.length, 8)];
+		this.bytes = Arrays.copyOf(bytes, containerCount(bits, 8));
+		this.countCache1 = new int[containerCount(bytes.length, 8)];
 		int sum = BITCOUNTS1[bytes[0] & 0xff];
-		int n = vector.length;
+		int n = bytes.length;
 		for(int i = 1; i < n; i++){
 			if(i % 8 == 0) countCache1[(i / 8) - 1] = sum;
 			sum += BITCOUNTS1[bytes[i] & 0xff];
@@ -51,14 +51,14 @@ implements Externalizable, SuccinctBitVector{
 		}
 	}
 
-	public BytesRank1OnlySuccinctBitVector(byte[] vector, int size, int[] countCache1) {
-		this.vector = vector;
+	public BytesRank1OnlySuccinctBitVector(byte[] bytes, int size, int[] countCache1) {
+		this.bytes = bytes;
 		this.size = size;
 		this.countCache1 = countCache1;
 	}
 
-	public byte[] getVector() {
-		return vector;
+	public byte[] getBytes() {
+		return bytes;
 	}
 
 	public int[] getCountCache1() {
@@ -70,7 +70,7 @@ implements Externalizable, SuccinctBitVector{
 		StringBuilder b = new StringBuilder();
 		int n = Math.min(size, 32);
 		for(int i = 0; i < n; i++){
-			b.append((vector[(i / 8)] & (0x80 >> (i % 8))) != 0 ? "1" : "0");
+			b.append((bytes[(i / 8)] & (0x80 >> (i % 8))) != 0 ? "1" : "0");
 		}
 		return b.toString();
 	}
@@ -82,12 +82,12 @@ implements Externalizable, SuccinctBitVector{
 
 	@Override
 	public boolean isZero(int pos){
-		return (vector[pos / 8] & BITS[pos % 8]) == 0;
+		return (bytes[pos / 8] & BITS[pos % 8]) == 0;
 	}
 
 	@Override
 	public boolean isOne(int pos) {
-		return (vector[pos / 8] & BITS[pos % 8]) != 0;
+		return (bytes[pos / 8] & BITS[pos % 8]) != 0;
 	}
 
 	@Override
@@ -97,7 +97,7 @@ implements Externalizable, SuccinctBitVector{
 
 	public void trimToSize(){
 		int vectorSize = size / 8 + 1;
-		vector = Arrays.copyOf(vector, Math.min(vector.length, vectorSize));
+		bytes = Arrays.copyOf(bytes, Math.min(bytes.length, vectorSize));
 		int blockSize = CACHE_WIDTH / 8;
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 		int countCacheSize0 = size;
@@ -110,7 +110,7 @@ implements Externalizable, SuccinctBitVector{
 		prepareAppend(i, ci);
 		countCache1[ci]++;
 		int r = size % 8;
-		vector[i] |= BITS[r];
+		bytes[i] |= BITS[r];
 		size++;
 	}
 
@@ -143,29 +143,60 @@ implements Externalizable, SuccinctBitVector{
 		int ret = (cn > 0) ? ret = cn * CACHE_WIDTH - countCache1[cn - 1] : 0;
 		int n = pos / 8;
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
-			ret += 8 - BITCOUNTS1[vector[i] & 0xff];
+			ret += 8 - BITCOUNTS1[bytes[i] & 0xff];
 		}
-		return ret + 8 - BITCOUNTS1[vector[n] & MASKS[pos % 8]];
+		return ret + 8 - BITCOUNTS1[bytes[n] & MASKS[pos % 8]];
 	}
 
 	@Override
 	public int rank1(int pos){
 		int cn = pos / CACHE_WIDTH;
 		if((pos + 1) % CACHE_WIDTH == 0) return countCache1[cn];
-		int ret = (cn > 0) ? ret = countCache1[cn - 1] : 0;
+		if(cn > 0){
+			int ret = countCache1[cn - 1];
+			int n = pos / 8;
+			for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
+				ret += BITCOUNTS1[bytes[i] & 0xff];
+			}
+			return ret + BITCOUNTS1[bytes[n] & MASKS[pos % 8]];
+		} else{
+			int ret = 0;
+			int n = pos / 8;
+			for(int i = 0; i < n; i++){
+				ret += BITCOUNTS1[bytes[i] & 0xff];
+			}
+			return ret + BITCOUNTS1[bytes[n] & MASKS[pos % 8]];
+		}
+
+/*		int ret = 0;
+/*
+		if(cn > 0){
+			ret = countCache1[cn - 1];
+		}
 		int n = pos / 8;
 		for(int i = (cn * (CACHE_WIDTH / 8)); i < n; i++){
 			ret += BITCOUNTS1[vector[i] & 0xff];
 		}
-		return ret + BITCOUNTS1[vector[n] & MASKS[pos % 8]];
+/*
+		int i = 0;
+		if(cn > 0){
+			ret = countCache1[cn - 1];
+			i = cn * CACHE_WIDTH / 8;
+		}
+		int n = pos / 8;
+		for(; i < n; i++){
+			ret += BITCOUNTS1[vector[i] & 0xff];
+		}
+//*/
+//		return ret + BITCOUNTS1[vector[n] & MASKS[pos % 8]];
 	}
 
 	public void save(OutputStream os) throws IOException{
 		DataOutputStream dos = new DataOutputStream(os);
 		dos.writeInt(size);
 		trimToSize();
-		dos.writeInt(vector.length);
-		dos.write(vector);
+		dos.writeInt(bytes.length);
+		dos.write(bytes);
 		dos.writeInt(countCache1.length);
 		for(int e : countCache1){
 			dos.writeInt(e);
@@ -177,8 +208,8 @@ implements Externalizable, SuccinctBitVector{
 		DataInputStream dis = new DataInputStream(is);
 		size = dis.readInt();
 		int vectorSize = dis.readInt();
-		vector = new byte[vectorSize];
-		dis.read(vector, 0, vectorSize);
+		bytes = new byte[vectorSize];
+		dis.read(bytes, 0, vectorSize);
 		int size = dis.readInt();
 		countCache1 = new int[size];
 		for(int i = 0; i < size; i++){
@@ -191,7 +222,7 @@ implements Externalizable, SuccinctBitVector{
 	}
 
 	private int prepareAppend(int i, int ci){
-		if(i >= vector.length){
+		if(i >= bytes.length){
 			extend();
 		}
 		if(size % CACHE_WIDTH == 0 && ci > 0){
@@ -203,28 +234,28 @@ implements Externalizable, SuccinctBitVector{
 	@Override
 	public void readExternal(ObjectInput in)
 	throws IOException, ClassNotFoundException {
-		vector = (byte[])in.readObject();
+		bytes = (byte[])in.readObject();
 		size = in.readInt();
 		countCache1 = (int[])in.readObject();
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(vector);
+		out.writeObject(bytes);
 		out.writeInt(size);
 		out.writeObject(countCache1);
 	}
 
 	private void extend(){
-		int vectorSize = (int)(vector.length * 1.2) + 1;
-		vector = Arrays.copyOf(vector, vectorSize);
+		int vectorSize = (int)(bytes.length * 1.2) + 1;
+		bytes = Arrays.copyOf(bytes, vectorSize);
 		int blockSize = CACHE_WIDTH / 8;
 		int size = vectorSize / blockSize + (((vectorSize % blockSize) != 0) ? 1 : 0);
 		countCache1 = Arrays.copyOf(countCache1, size);
 	}
 
 	private static final int CACHE_WIDTH = 64;
-	private byte[] vector;
+	private byte[] bytes;
 	private int size;
 	private int[] countCache1;
 

@@ -18,12 +18,12 @@ package org.trie4j.louds;
 import org.trie4j.AbstractWikipediaTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.bv.BytesConstantTimeSelect0SuccinctBitVector;
-import org.trie4j.bv.LongsSuccinctBitVector;
+import org.trie4j.bv.LongsConstantTimeSelect0SuccinctBitVector;
 import org.trie4j.louds.TailLOUDSTrie.NodeListener;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.tail.SuffixTrieTailArray;
 import org.trie4j.test.MonitoredSuccinctBitVector;
+import org.trie4j.test.TrieMemoryUsage;
 
 public class TailLOUDSTrieWithSuffixTrieTailArrayWikipediaMonitoredSBVTest extends AbstractWikipediaTest{
 	@Override
@@ -56,14 +56,7 @@ public class TailLOUDSTrieWithSuffixTrieTailArrayWikipediaMonitoredSBVTest exten
 		System.out.println(String.format(
 				"rank1 time(ms): %.3f, count: %d", bv.getRank1Time() / 1000000.0, bv.getRank1Count()
 				));
-		if(bv.getOriginal() instanceof BytesConstantTimeSelect0SuccinctBitVector){
-			BytesConstantTimeSelect0SuccinctBitVector sbv = (BytesConstantTimeSelect0SuccinctBitVector)bv.getOriginal();
-			System.out.println(String.format(
-					"bvD.size: %d, bvR.size: %d, arS.length: %d",
-					sbv.getBvD().size(),
-					sbv.getBvR().size(),
-					sbv.getArS().length));
-		}
+		new TrieMemoryUsage().print(trie);
 //		System.out.println("select0Times:");
 /*		int c = 0;
 		for(long l : bv.getSelect0Times()){
@@ -109,7 +102,7 @@ public class TailLOUDSTrieWithSuffixTrieTailArrayWikipediaMonitoredSBVTest exten
 	private MonitoredSuccinctBitVector bv = new MonitoredSuccinctBitVector(
 //			new BytesSuccinctBitVector(65536)
 //			new BytesConstantTimeSelect0SuccinctBitVector(65536)
-			new LongsSuccinctBitVector(65536)
-//			new LongsConstantTimeSelect0SuccinctBitVector(65536)
+//			new LongsSuccinctBitVector(65536)
+			new LongsConstantTimeSelect0SuccinctBitVector(65536)
 			);
 }

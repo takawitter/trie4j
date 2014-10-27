@@ -173,7 +173,7 @@ public class TrieWriter implements Constants{
 	public void writeRank1OnlySuccinctBitVector(BytesRank1OnlySuccinctBitVector sbv)
 	throws IOException{
 		sbv.trimToSize();
-		writeBytes(sbv.getVector());
+		writeBytes(sbv.getBytes());
 		dos.writeInt(sbv.size());
 		writeInts(sbv.getCountCache1());
 	}

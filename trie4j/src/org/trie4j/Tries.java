@@ -15,6 +15,8 @@
  */
 package org.trie4j;
 
+import org.trie4j.bv.LongsRank0OnlySuccinctBitVector;
+import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.louds.bvtree.LOUDSPPBvTree;
@@ -37,7 +39,10 @@ public class Tries {
 	public static Trie smallImmutableTrie(Trie orig){
 		return new TailLOUDSTrie(
 				orig,
-				new LOUDSPPBvTree(orig.size()),
+				new LOUDSPPBvTree(
+						new LongsRank0OnlySuccinctBitVector(orig.size() * 2),
+						new LongsSuccinctBitVector(orig.size() * 2)
+						),
 				new SuffixTrieDenseTailArrayBuilder()
 				);
 	}
@@ -45,7 +50,10 @@ public class Tries {
 	public static TermIdTrie smallImmutableTermIdTrie(Trie orig){
 		return new TailLOUDSTrie(
 				orig,
-				new LOUDSPPBvTree(orig.size()),
+				new LOUDSPPBvTree(
+						new LongsRank0OnlySuccinctBitVector(orig.size() * 2),
+						new LongsSuccinctBitVector(orig.size() * 2)
+						),
 				new SuffixTrieDenseTailArrayBuilder()
 				);
 	}
