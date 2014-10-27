@@ -19,7 +19,6 @@ import java.util.Arrays;
 
 import org.trie4j.patricia.TailPatriciaTrieNodeAdapter;
 import org.trie4j.patricia.TailPatriciaTrie;
-import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
 
 public class Test {
 	public static void main(String[] args) throws Exception{
@@ -87,40 +86,5 @@ public class Test {
 //		for(String w : trie.commonPrefixSearch("applejuicebar")){
 //			System.out.println(w);
 //		}
-
-		if(trie instanceof MultilayerPatriciaTrie){
-			System.out.println("--pack--");
-			((MultilayerPatriciaTrie)trie).pack();
-			System.out.println("--dump--");
-			Algorithms.traverseByDepth(trie.getRoot(), new NodeVisitor() {
-				@Override
-				public boolean visit(Node node, int nest) {
-					for(int i = 0; i < nest; i++){
-						System.out.print(" ");
-					}
-					char[] letters = node.getLetters();
-					if(letters == null || letters.length == 0){
-						System.out.print("<empty>");
-					} else{
-						System.out.print(letters);
-					}
-					if(node.isTerminate()){
-						System.out.println("*");
-					} else{
-						System.out.println("");
-					}
-					return true;
-				}
-			});
-			System.out.println("--test contains--");
-			for(String w : words){
-				System.out.print(w + ": ");
-				System.out.println(trie.contains(w));
-			}
-			System.out.println("--test not contains--");
-			for(String w : new String[]{"banana", "app", "applebeer", "applejuice2"}){
-				System.out.println(w + ": " + trie.contains(w));
-			}
-		}
 	}
 }

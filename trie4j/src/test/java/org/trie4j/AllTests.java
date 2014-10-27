@@ -28,11 +28,8 @@ import org.trie4j.doublearray.DoubleArrayTest;
 import org.trie4j.doublearray.MapDoubleArrayTest;
 import org.trie4j.doublearray.MapTailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.MapTailDoubleArrayWithSuffixTrieTailBuilderTest;
-import org.trie4j.doublearray.OptimizedTailDoubleArrayWithConcatTailBuilderTest;
-import org.trie4j.doublearray.OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithSuffixTrieTailBuilderTest;
-import org.trie4j.louds.LOUDSTrieTest;
 import org.trie4j.louds.MapTailLOUDSPPTrieWithConcatTailArrayTest;
 import org.trie4j.louds.MapTailLOUDSPPTrieWithSBVConcatTailArrayTest;
 import org.trie4j.louds.MapTailLOUDSPPTrieWithSuffixTrieTailArrayTest;
@@ -82,9 +79,6 @@ import org.trie4j.util.FastBitSetTest;
 	DoubleArrayTest.class,
 	TailDoubleArrayWithConcatTailBuilderTest.class,
 	TailDoubleArrayWithSuffixTrieTailBuilderTest.class,
-	OptimizedTailDoubleArrayWithConcatTailBuilderTest.class,
-	OptimizedTailDoubleArrayWithSuffixTrieTailBuilderTest.class,
-	LOUDSTrieTest.class,
 	TailLOUDSTrieWithConcatTailArrayTest.class,
 	TailLOUDSTrieWithSBVConcatTailArrayTest.class,
 	TailLOUDSTrieWithSuffixTrieTailArrayTest.class,
