@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
+import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.util.CharsetUtil;
 
 public class TestWikipediaCPS {
@@ -27,8 +28,7 @@ public class TestWikipediaCPS {
 
 	public static void main(String[] args) throws Exception{
 		System.out.println("--- recursive patricia trie ---");
-//		Trie trie = new org.trie4j.patricia.simple.PatriciaTrie();
-		Trie trie = new org.trie4j.patricia.multilayer.MultilayerPatriciaTrie();
+		Trie trie = new PatriciaTrie();
 		int c = 0;
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				new GZIPInputStream(new FileInputStream("jawiki-20120220-all-titles-in-ns0.gz"))
@@ -59,14 +59,6 @@ public class TestWikipediaCPS {
 		System.out.println(Runtime.getRuntime().freeMemory() + " bytes free.");
 
 		doSearches(trie);
-
-		if(trie instanceof org.trie4j.patricia.multilayer.MultilayerPatriciaTrie){
-			long start = System.currentTimeMillis();
-			System.out.println("---- packing... ----");
-			((org.trie4j.patricia.multilayer.MultilayerPatriciaTrie)trie).pack();
-			System.out.println("---- packing done in millis: " + (System.currentTimeMillis() - start));
-			doSearches(trie);
-		}
 	}
 
 	private static void doSearches(Trie trie){

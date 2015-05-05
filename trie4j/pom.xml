@@ -1,8 +1,37 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.trie4j</groupId>
+  <groupId>com.github.takawitter</groupId>
   <artifactId>trie4j</artifactId>
-  <version>0.5.0-SNAPSHOT</version>
+  <version>0.9.0</version>
+  <name>Trie4J</name>
+  <packaging>jar</packaging>
+  <description>Various TRIE implementation including DoubleArray and LOUDS by Java.</description>
+  <url>https://github.com/takawitter/trie4j/</url>
+  <licenses>
+    <license>
+      <name>the Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>Takao Nakaguchi</name>
+      <email>takao.nakaguchi@gmail.com</email>
+      <timezone>+9</timezone>
+    </developer>
+  </developers>
+  <distributionManagement>
+    <repository>
+      <id>sonatype-nexus-staging</id>
+      <name>Maven Central Repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+  <scm>
+    <url>https://github.com/takawitter/trie4j</url>
+  	<connection>scm:git:https://github.com/takawitter/trie4j.git</connection>
+  	<developerConnection>scm:git:https://github.com/takawitter/trie4j.git</developerConnection>
+  </scm>
   <build>
     <plugins>
       <plugin>
@@ -14,53 +43,39 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.7</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.1</version>
         <configuration>
-          <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+          <additionalparam>-Xdoclint:none</additionalparam>
         </configuration>
       </plugin>
       <plugin>
-        <groupId>com.github.github</groupId>
-        <artifactId>site-maven-plugin</artifactId>
-        <version>0.8</version>
-        <configuration>
-          <message>Maven artifacts for ${project.version}</message>
-          <noJekyll>true</noJekyll>
-          <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
-          <branch>refs/heads/master</branch>
-          <includes><include>**/*</include></includes>
-          <merge>true</merge>
-          <repositoryName>repo</repositoryName>
-          <repositoryOwner>takawitter</repositoryOwner>
-        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.6</version>
         <executions>
           <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
             <goals>
-              <goal>site</goal>
+              <goal>sign</goal>
             </goals>
-            <phase>deploy</phase>
           </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
-  <dependencies>
-  </dependencies>
-  <distributionManagement>
-    <repository>
-      <id>github</id>
-      <name>GitHub ${project.artifactId} Repository</name>
-      <url>https://raw.github.com/takawitter/repo</url>
-    </repository>
-  </distributionManagement>
   <properties>
-    <github.global.server>github</github.global.server>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-  <scm>
-  	<url>https://github.com/takawitter/trie4j</url>
-  	<connection>scm:git:https://github.com/takawitter/trie4j.git</connection>
-  	<developerConnection>scm:git:https://github.com/takawitter/trie4j.git</developerConnection>
-  </scm>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>
 

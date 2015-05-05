@@ -57,7 +57,7 @@ import org.trie4j.setAndMap.TreeSetWikipediaSerializeTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-//*
+/*
 	HashSetWikipediaSerializeTest.class,
 	TreeSetWikipediaSerializeTest.class,
 	PatriciaTrieWikipediaSerializeTest.class,
@@ -77,12 +77,12 @@ import org.trie4j.setAndMap.TreeSetWikipediaSerializeTest;
 	TailLOUDSPPTrieWithConcatTailArrayWikipediaSerializeTest.class,
 	TailLOUDSPPTrieWithSBVConcatTailArrayWikipediaSerializeTest.class,
 	TailLOUDSPPTrieWithSuffixTrieTailArrayWikipediaSerializeTest.class,
-	TailLOUDSPPTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest.class,
+*/	TailLOUDSPPTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest.class,
 	BytesConstantTimeSelect0TailLOUDSPPTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest.class,
 	LongsTailLOUDSPPTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest.class,
 	LongsConstantTimeSelect0TailLOUDSPPTrieWithSuffixTrieDenseTailArrayWikipediaSerializeTest.class,
 //*/
-//*
+/*
 	MapPatriciaTrieWikipediaSerializeTest.class,
 	MapTailPatriciaTrieWithConcatTailBuilderWikipediaSerializeTest.class,
 	MapTailPatriciaTrieWithSuffixTrieTailBuilderWikipediaSerializeTest.class,

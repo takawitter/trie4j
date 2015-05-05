@@ -19,8 +19,6 @@ import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.trie4j.patricia.TailPatriciaTrie;
-import org.trie4j.patricia.multilayer.MultilayerPatriciaTrie;
-import org.trie4j.patricia.multilayer.node.LabelTrieNode;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 import org.trie4j.test.LapTimer;
 import org.trie4j.test.WikipediaTitles;
@@ -147,24 +145,9 @@ public class TestWikipedia {
 					} else{
 						n.incrementAndGet();
 					}
-					if(!(node instanceof LabelTrieNode)){
-						chars.addAndGet(node.getLetters().length);
-					}
 					return true;
 				}
 			});
-		if(trie instanceof MultilayerPatriciaTrie){
-			MultilayerPatriciaTrie mt = (MultilayerPatriciaTrie)trie;
-			if(mt.getLabelTrie() != null){
-				mt.getLabelTrie().visit(new NodeVisitor() {
-					public boolean visit(Node node, int nest) {
-						ln.incrementAndGet();
-						chars.addAndGet(node.getLetters().length);
-						return true;
-					}
-				});
-			}
-		}
 		System.out.println("node: " + n.intValue());
 		System.out.println("leaf: " + l.intValue());
 		System.out.println("label node: " + ln.intValue());
