@@ -15,6 +15,12 @@
  */
 package org.trie4j;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.patricia.MapPatriciaTrie;
@@ -53,6 +59,19 @@ public abstract class AbstractMapTrieTest extends AbstractTrieTest {
 		for(int i = 0; i < words.length; i++){
 			Assert.assertEquals(values[i], trie.get(words[i]));
 		}
+	}
+
+	@Test
+	public void test_MapTrie_predictiveSearchEntries_1() throws Throwable{
+		String[] keys = {"A", "AB", "ABC"};
+		Integer[] vals = {1, 2, 3};
+		MapTrie<Integer> trie = newMapTrie(keys, vals);
+		Iterator<Map.Entry<String, Integer>> it = trie.predictiveSearchEntries("A").iterator();
+		Set<Integer> values = new HashSet<>(Arrays.asList(vals));
+		Assert.assertTrue(values.remove(it.next().getValue()));
+		Assert.assertTrue(values.remove(it.next().getValue()));
+		Assert.assertTrue(values.remove(it.next().getValue()));
+		Assert.assertEquals(0, values.size());
 	}
 
 	protected MapTrie<Integer> newMapTrie(String[] words, Integer[] values){
