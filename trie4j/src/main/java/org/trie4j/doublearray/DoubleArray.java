@@ -358,6 +358,8 @@ implements Externalizable, TermIdTrie{
 		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
 		char[] chars = prefix.toCharArray();
 		int charsLen = chars.length;
+		if(charsLen == 0) return ret;
+		if(this.nodeSize == 0) return ret;
 		int checkLen = check.length;
 		int nodeIndex = 0;
 		for(int i = 0; i < charsLen; i++){
@@ -368,7 +370,7 @@ implements Externalizable, TermIdTrie{
 			nodeIndex = next;
 		}
 		if(term.get(nodeIndex)){
-			ret.add(Pair.create(prefix, nodeIndex));
+			ret.add(Pair.create(prefix, term.rank1(nodeIndex) - 1));
 		}
 		Deque<Pair<Integer, String>> q = new LinkedList<Pair<Integer, String>>();
 		q.add(Pair.create(nodeIndex, prefix));
