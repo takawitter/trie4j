@@ -24,10 +24,26 @@ public abstract class AbstractTrie implements Trie{
 	public int findWord(CharSequence chars, int start, int end, StringBuilder word){
 		for(int i = start; i < end; i++){
 			Iterator<String> it = commonPrefixSearch(chars.subSequence(i, end).toString()).iterator();
+//*
 			if(it.hasNext()){
 				if(word != null) word.append(it.next());
 				return i;
 			}
+/*/
+			int len = Integer.MIN_VALUE;
+			String ret = null;
+			while(it.hasNext()){
+				String w = it.next();
+				if(w.length() > len){
+					ret = w;
+					len = w.length();
+				}
+			}
+			if(ret != null){
+				word.append(ret);
+				return i;
+			}
+//*/
 		}
 		return -1;
 	}
