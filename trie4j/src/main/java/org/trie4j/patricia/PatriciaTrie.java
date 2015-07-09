@@ -314,7 +314,7 @@ implements Serializable, Trie{
 	private static void enumLettersWithNode(PatriciaTrieNode node, String prefix, List<Pair<String, PatriciaTrieNode>> letters){
 		for(PatriciaTrieNode child : node.getChildren()){
 			String text = prefix + new String(child.getLetters());
-			if(child.isTerminate()) letters.add(Pair.create(text, node));
+			if(child.isTerminate()) letters.add(Pair.create(text, child));
 			enumLettersWithNode(child, text, letters);
 		}
 	}

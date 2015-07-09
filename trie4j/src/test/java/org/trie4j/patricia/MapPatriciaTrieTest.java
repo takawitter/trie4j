@@ -17,7 +17,6 @@ package org.trie4j.patricia;
 
 import org.trie4j.AbstractMapTrieTest;
 import org.trie4j.MapTrie;
-import org.trie4j.patricia.MapPatriciaTrie;
 
 public class MapPatriciaTrieTest extends AbstractMapTrieTest{
 	@Override

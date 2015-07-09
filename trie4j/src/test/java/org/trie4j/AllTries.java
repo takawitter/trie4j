@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.junit.Test;
 import org.trie4j.bv.BytesConstantTimeSelect0SuccinctBitVector;
 import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
 import org.trie4j.bv.BytesSuccinctBitVector;
@@ -589,6 +590,11 @@ public class AllTries {
 			new MapTrieProcess().second(MapTailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieDenseTailArrayBuilder.class),
 //*/
 			};
+
+	@Test
+	public void test() throws Throwable{
+		main(new String[]{});
+	}
 
 	public static void main(String[] args) throws Throwable{
 		MemoryMXBean mb = ManagementFactory.getMemoryMXBean();
