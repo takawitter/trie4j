@@ -19,6 +19,8 @@ Available through Maven Central Repository!!
 </dependency>
 ```
 
+Coming Release: [0.9.1](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.1)
+
 ---
 ### Performance comparison:
 with 1.27 million words and 10.04 million chars contained in jawiki-20120220-all-titles-in-ns0.gz .
