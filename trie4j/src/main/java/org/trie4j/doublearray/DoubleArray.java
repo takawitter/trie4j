@@ -80,6 +80,8 @@ implements Externalizable, TermIdTrie{
 		FastBitSet bs = new FastBitSet(arraySize);
 		build(trie.getRoot(), 0, bs, listener);
 		term = new BytesRank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
+		base = Arrays.copyOf(base, last + 1);
+		check = Arrays.copyOf(check, last + 1);
 	}
 
 	@Override
