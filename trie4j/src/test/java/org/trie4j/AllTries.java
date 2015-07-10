@@ -6,9 +6,11 @@ import java.lang.management.MemoryMXBean;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.junit.Test;
 import org.trie4j.bv.BytesConstantTimeSelect0SuccinctBitVector;
@@ -20,6 +22,7 @@ import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.MapDoubleArray;
 import org.trie4j.doublearray.MapTailDoubleArray;
+import org.trie4j.doublearray.TailDoubleArray;
 import org.trie4j.louds.MapTailLOUDSTrie;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
@@ -27,6 +30,7 @@ import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.patricia.MapPatriciaTrie;
 import org.trie4j.patricia.MapTailPatriciaTrie;
 import org.trie4j.patricia.PatriciaTrie;
+import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.tail.SBVConcatTailArrayBuilder;
 import org.trie4j.tail.SuffixTrieDenseIndexNonstrictincTailArrayBuilder;
@@ -517,7 +521,7 @@ public class AllTries {
 	}
 
 	private static AbstractProcess[] procs = {
-/*
+//*
 		new SetProcess(HashSet.class),
 		new SetProcess(TreeSet.class),
 		new TrieProcess(PatriciaTrie.class),
@@ -540,7 +544,7 @@ public class AllTries {
 				}
 			},
 //*/
-/*
+//*
 			new TrieProcess().second(DoubleArray.class),
 			new TrieProcess().second(TailDoubleArray.class, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailDoubleArray.class, SuffixTrieTailArray.class),
@@ -552,24 +556,24 @@ public class AllTries {
 					return new LOUDSTrie(trie, 65536);
 				}
 			},
-//*/
-
+*/
+//*
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, LongsSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSTrie.class, SBVConcatTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieTailArray.class),
-			new TrieProcess().second(TailLOUDSTrie.class, SuffixTrieDenseTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesConstantTimeSelect0SuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, LongsSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, ConcatTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, LongsRank0OnlySuccinctBitVector.class, BytesSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SBVConcatTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSTrie.class, LOUDSPPBvTree.class, SuffixTrieTailArray.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, LongsConstantTimeSelect0SuccinctBitVector.class}, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesSuccinctBitVector.class}, SBVConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesSuccinctBitVector.class}, SuffixTrieTailArray.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesSuccinctBitVector.class}, SuffixTrieDenseTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, BytesRank0OnlySuccinctBitVector.class, BytesSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, BytesRank0OnlySuccinctBitVector.class, BytesConstantTimeSelect0SuccinctBitVector.class}, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, LongsRank0OnlySuccinctBitVector.class, LongsSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, LongsRank0OnlySuccinctBitVector.class, LongsConstantTimeSelect0SuccinctBitVector.class}, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, BytesRank0OnlySuccinctBitVector.class, BytesSuccinctBitVector.class}, SBVConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, BytesRank0OnlySuccinctBitVector.class, BytesSuccinctBitVector.class}, SuffixTrieTailArray.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, BytesRank0OnlySuccinctBitVector.class, BytesSuccinctBitVector.class}, SuffixTrieDenseTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, BytesRank0OnlySuccinctBitVector.class, BytesConstantTimeSelect0SuccinctBitVector.class}, SuffixTrieDenseTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, LongsRank0OnlySuccinctBitVector.class, LongsSuccinctBitVector.class}, SuffixTrieDenseTailArrayBuilder.class),
-			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSPPBvTree.class, LongsRank0OnlySuccinctBitVector.class, LongsConstantTimeSelect0SuccinctBitVector.class}, SuffixTrieDenseTailArrayBuilder.class),
 //*/
+//*
 			new MapProcess(HashMap.class),
 			new MapProcess(TreeMap.class),
 			new MapTrieProcess(MapPatriciaTrie.class),
@@ -599,6 +603,13 @@ public class AllTries {
 	public static void main(String[] args) throws Throwable{
 		MemoryMXBean mb = ManagementFactory.getMemoryMXBean();
 		int n = 3;
+		int entries = 0;
+		int chars = 0;
+		for(String s : newWords()){
+			entries++;
+			chars += s.length();
+		}
+		System.out.println("with " + entries + " words and " + chars + " chars in wikipedia titles.");
 		System.out.println("run each process " + n + " times.");
 		System.out.println("warming up... running all trie once");
 		for(AbstractProcess p : procs){
