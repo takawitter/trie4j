@@ -336,7 +336,7 @@ implements Externalizable, SuccinctBitVector{
 		long endOffset = end * Unsafe.ARRAY_INT_INDEX_SCALE + Unsafe.ARRAY_INT_BASE_OFFSET;
 		if(startOffset != endOffset){
 			do{
-				m = ((startOffset + endOffset) / 2) & 0xffff_ffff_ffff_fffcL;
+				m = ((startOffset + endOffset) / 2) & 0xfffffffffffffffcL;
 				d = count - unsafe.getInt(countCache0, m);
 				if(d < 0){
 					endOffset = m;
