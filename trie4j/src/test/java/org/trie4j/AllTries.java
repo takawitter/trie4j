@@ -19,10 +19,12 @@ import org.trie4j.bv.BytesSuccinctBitVector;
 import org.trie4j.bv.LongsConstantTimeSelect0SuccinctBitVector;
 import org.trie4j.bv.LongsRank0OnlySuccinctBitVector;
 import org.trie4j.bv.LongsSuccinctBitVector;
+import org.trie4j.bv.UnsafeBytesSuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.doublearray.MapDoubleArray;
 import org.trie4j.doublearray.MapTailDoubleArray;
 import org.trie4j.doublearray.TailDoubleArray;
+import org.trie4j.doublearray.UnsafeDoubleArray;
 import org.trie4j.louds.MapTailLOUDSTrie;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
@@ -522,12 +524,14 @@ public class AllTries {
 
 	private static AbstractProcess[] procs = {
 //*
-		new SetProcess(HashSet.class),
-		new SetProcess(TreeSet.class),
-		new TrieProcess(PatriciaTrie.class),
-		new TrieProcess(TailPatriciaTrie.class, ConcatTailBuilder.class),
-		new TrieProcess(TailPatriciaTrie.class, SuffixTrieTailBuilder.class),
-		new TrieProcess(TailPatriciaTrie.class, SuffixTrieTailBuilder.class).afterBuild(new TrieFreezer()),
+			new SetProcess(HashSet.class),
+			new SetProcess(TreeSet.class),
+//*/
+//*
+			new TrieProcess(PatriciaTrie.class),
+			new TrieProcess(TailPatriciaTrie.class, ConcatTailBuilder.class),
+			new TrieProcess(TailPatriciaTrie.class, SuffixTrieTailBuilder.class),
+			new TrieProcess(TailPatriciaTrie.class, SuffixTrieTailBuilder.class).afterBuild(new TrieFreezer()),
 //*/
 /*
 			new TrieProcess("MultilayerPatriciaTrie(no pack)"){
@@ -546,6 +550,7 @@ public class AllTries {
 //*/
 //*
 			new TrieProcess().second(DoubleArray.class),
+			new TrieProcess().second(UnsafeDoubleArray.class),
 			new TrieProcess().second(TailDoubleArray.class, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailDoubleArray.class, SuffixTrieTailArray.class),
 			new TrieProcess().second(TailDoubleArray.class, SuffixTrieDenseIndexNonstrictincTailArrayBuilder.class),
@@ -559,6 +564,7 @@ public class AllTries {
 */
 //*
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, UnsafeBytesSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesConstantTimeSelect0SuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, LongsSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, LongsConstantTimeSelect0SuccinctBitVector.class}, ConcatTailArrayBuilder.class),
@@ -602,7 +608,8 @@ public class AllTries {
 
 	public static void main(String[] args) throws Throwable{
 		MemoryMXBean mb = ManagementFactory.getMemoryMXBean();
-		int n = 3;
+		int numWarmups = 10;
+		int numExecutions = 10;
 		int entries = 0;
 		int chars = 0;
 		for(String s : newWords()){
@@ -610,22 +617,26 @@ public class AllTries {
 			chars += s.length();
 		}
 		System.out.println("with " + entries + " words and " + chars + " chars in wikipedia titles.");
-		System.out.println("run each process " + n + " times.");
-		System.out.println("warming up... running all trie once");
+		System.out.println("warming up... running all tries " + numWarmups + " times.");
 		for(AbstractProcess p : procs){
 			System.out.println(p.getName());
-			p.run();
-			System.gc();
 		}
-		System.out.println("warming up... done");
+		for(int i = 0; i < numWarmups; i++){
+			System.out.print((i + 1) + " ");
+			for(AbstractProcess p : procs){
+				p.run();
+				System.gc();
+			}
+		}
+		System.out.println("... done.");
+		System.out.println("executiong each process " + numExecutions + " times.");
 		for(AbstractProcess p : procs){
 			System.out.print(p.getName());
-			p.run();
 			mb.gc();
 			mb.gc();
 			long b = 0, c = 0;
 			Object trie = null;
-			for(int i = 0; i < n; i++){
+			for(int i = 0; i < numExecutions; i++){
 				Trio<Object, Long, Long> r = p.run();
 				b += r.getSecond();
 				c += r.getThird();
@@ -635,7 +646,7 @@ public class AllTries {
 			}
 			System.out.println(String.format(
 					", %d, %d, %d",
-					b / n, c / n, mb.getHeapMemoryUsage().getUsed()));
+					b / numExecutions, c / numExecutions, mb.getHeapMemoryUsage().getUsed()));
 //			System.out.println("sleeping...");
 //			Thread.sleep(10000);
 			trie.hashCode();

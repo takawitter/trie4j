@@ -24,12 +24,14 @@ import org.trie4j.bv.BytesRank1OnlySuccinctBitVectorTest;
 import org.trie4j.bv.BytesSuccinctBitVectorTest;
 import org.trie4j.bv.LongsRank1OnlySuccinctBitVectorTest;
 import org.trie4j.bv.LongsSuccinctBitVectorTest;
+import org.trie4j.bv.UnsafeBytesSuccinctBitVectorTest;
 import org.trie4j.doublearray.DoubleArrayTest;
 import org.trie4j.doublearray.MapDoubleArrayTest;
 import org.trie4j.doublearray.MapTailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.MapTailDoubleArrayWithSuffixTrieTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithConcatTailBuilderTest;
 import org.trie4j.doublearray.TailDoubleArrayWithSuffixTrieTailBuilderTest;
+import org.trie4j.doublearray.UnsafeDoubleArrayTest;
 import org.trie4j.louds.MapTailLOUDSPPTrieWithConcatTailArrayTest;
 import org.trie4j.louds.MapTailLOUDSPPTrieWithSBVConcatTailArrayTest;
 import org.trie4j.louds.MapTailLOUDSPPTrieWithSuffixTrieTailArrayTest;
@@ -64,6 +66,7 @@ import org.trie4j.util.FastBitSetTest;
 	CharsCharSequenceTest.class,
 	FastBitSetTest.class,
 	BytesSuccinctBitVectorTest.class,
+	UnsafeBytesSuccinctBitVectorTest.class,
 	BytesConstantTimeSelect0SuccinctBitVectorTest.class,
 	BytesRank0OnlySuccinctBitVectorTest.class,
 	BytesRank1OnlySuccinctBitVectorTest.class,
@@ -77,6 +80,7 @@ import org.trie4j.util.FastBitSetTest;
 	TailPatriciaTrieWithConcatTailBuilderTest.class,
 	TailPatriciaTrieWithSuffixTrieTailBuilderTest.class,
 	DoubleArrayTest.class,
+	UnsafeDoubleArrayTest.class,
 	TailDoubleArrayWithConcatTailBuilderTest.class,
 	TailDoubleArrayWithSuffixTrieTailBuilderTest.class,
 	TailLOUDSTrieWithConcatTailArrayTest.class,
