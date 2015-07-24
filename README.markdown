@@ -6,7 +6,7 @@
 </head>
 # Trie4J - various trie implementation for Java.
 
-Trie4J is the sort of collection of varios trie implementation.
+Trie4J is the sort of collection of various trie implementation.
 
 [![Build Status](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/badge/icon)](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/)
 
