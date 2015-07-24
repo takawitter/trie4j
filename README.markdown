@@ -15,11 +15,12 @@ Available through Maven Central Repository!!
 <dependency>
     <groupId>com.github.takawitter</groupId>
     <artifactId>trie4j</artifactId>
-    <version>0.9.0</version>
+    <version>0.9.1</version>
 </dependency>
 ```
 
-Coming Release: [0.9.1](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.1)
+* 2015/7/20: [0.9.1](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.1) released.
+* Coming Release: None
 
 ---
 ### Performance comparison:
