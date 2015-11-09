@@ -20,7 +20,7 @@ Available through Maven Central Repository!!
 ```
 
 * 2015/7/20: [0.9.1](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.1) released.
-* Coming Release: None
+* Coming Release: [0.9.2](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.2)
 
 ---
 ### Performance comparison:
