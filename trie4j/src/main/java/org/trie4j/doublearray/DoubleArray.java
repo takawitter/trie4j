@@ -240,6 +240,7 @@ implements Externalizable, TermIdTrie{
 	@Override
 	public int getTermId(String text) {
 		int nid = getNodeId(text);
+		if(nid == -1) return -1;
 		return term.get(nid) ? term.rank1(nid) - 1 : -1;
 	}
 

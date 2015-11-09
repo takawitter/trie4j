@@ -62,6 +62,14 @@ public abstract class AbstractMapTrieTest extends AbstractTrieTest {
 	}
 
 	@Test
+	public void test_MapTrie_get_3_get_from_empty_trie() throws Exception{
+		String[] words = {};
+		Integer[] values = {};
+		MapTrie<Integer> trie = newMapTrie(words, values);
+		trie.get("hello");
+	}
+
+	@Test
 	public void test_MapTrie_predictiveSearchEntries_1() throws Throwable{
 		String[] keys = {"A", "AB", "ABC"};
 		Integer[] vals = {1, 2, 3};
