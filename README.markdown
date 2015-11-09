@@ -6,7 +6,7 @@
 </head>
 # Trie4J - various trie implementation for Java.
 
-Trie4J is the sort of collection of varios trie implementation.
+Trie4J is the sort of collection of various trie implementation.
 
 [![Build Status](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/badge/icon)](https://buildhive.cloudbees.com/job/takawitter/job/trie4j/)
 
@@ -15,11 +15,12 @@ Available through Maven Central Repository!!
 <dependency>
     <groupId>com.github.takawitter</groupId>
     <artifactId>trie4j</artifactId>
-    <version>0.9.0</version>
+    <version>0.9.1</version>
 </dependency>
 ```
 
-Coming Release: [0.9.1](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.1)
+* 2015/7/20: [0.9.1](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.1) released.
+* Coming Release: None
 
 ---
 ### Performance comparison:
