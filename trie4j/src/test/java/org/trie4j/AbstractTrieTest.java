@@ -150,6 +150,26 @@ public abstract class AbstractTrieTest {
 	}
 
 	@Test
+	public void test_findShortestWord_1() throws Exception{
+		Trie t = trieWithWords("hello", "helloworld", "hi", "howsgoing", "hell", "helloworld2", "world");
+		String text = "The helloworld.";
+		StringBuilder b = new StringBuilder();
+		int i = t.findShortestWord(text, 0, text.length(), b);
+		Assert.assertEquals(4, i);
+		Assert.assertEquals("hell", b.toString());
+	}
+
+	@Test
+	public void test_findLongestWord_1() throws Exception{
+		Trie t = trieWithWords("hello", "helloworld", "hi", "howsgoing", "hell", "helloworld2", "world");
+		String text = "The helloworld.";
+		StringBuilder b = new StringBuilder();
+		int i = t.findLongestWord(text, 0, text.length(), b);
+		Assert.assertEquals(4, i);
+		Assert.assertEquals("helloworld", b.toString());
+	}
+
+	@Test
 	public void test_predictiveSearch_1() throws Exception{
 		Trie t = trieWithWords();
 		Assert.assertFalse(t.predictiveSearch("hello").iterator().hasNext());
