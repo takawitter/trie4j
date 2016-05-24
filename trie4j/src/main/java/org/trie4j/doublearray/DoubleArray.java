@@ -166,7 +166,7 @@ implements Externalizable, TermIdTrie{
 		public DoubleArrayNode getChild(char c) {
 			int code = charToCode[c];
 			if(code == -1) return null;
-			int nid = base[nodeId] + c;
+			int nid = base[nodeId] + code;
 			if(nid >= 0 && nid < check.length && check[nid] == nodeId) return new DoubleArrayNode(nid, c);
 			return null;
 		}
