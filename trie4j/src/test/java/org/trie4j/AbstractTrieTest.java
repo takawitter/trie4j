@@ -185,6 +185,14 @@ public abstract class AbstractTrieTest {
 		Assert.assertFalse(it.hasNext());
 	}
 
+	@Test
+	public void test_getNode() throws Exception{
+		Trie t = trieWithWords("hello", "helloworld", "hi", "howsgoing", "hell", "helloworld2", "world");
+		Node n = t.getRoot().getChild('h');
+		Assert.assertEquals(1, n.getLetters().length);
+		Assert.assertEquals('h', n.getLetters()[0]);
+	}
+
 	private void doTestContains(String... words) throws Exception{
 		Trie trie = trieWithWords(words);
 		for(String w : words){
