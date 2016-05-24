@@ -28,10 +28,10 @@ public abstract class AbstractTermIdTrieTest extends AbstractTrieTest{
 	@Test
 	public void test_termId() throws Exception{
 		String[] words = {"hello", "world", "apple", "banana", "strawbelly"};
-		TermIdTrie t = buildSecondTrie(trieWithWords(words));
+		TermIdTrie t = (TermIdTrie)buildSecondTrie(trieWithWords(words));
 		Set<Integer> ids = new HashSet<Integer>();
-		for(int i = 0; i < words.length; i++){
-			ids.add(i);
+		for(String w : words){
+			ids.add(t.getTermId(w));
 		}
 		Assert.assertEquals(words.length, ids.size());
 		for(String w : words){
