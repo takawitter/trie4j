@@ -16,7 +16,7 @@ Available through Maven Central Repository!!
     <version>0.9.2</version>
 </dependency>
 ```
-
+* Working for [0.9.3](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.3).
 * 2016/4/3: [0.9.2](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.2) released.
 * 2015/7/20: [0.9.1](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.1) released.
 
