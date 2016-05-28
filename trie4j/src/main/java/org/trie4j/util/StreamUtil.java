@@ -26,8 +26,9 @@ public class StreamUtil {
 		InputStreamReader reader = new InputStreamReader(is, encoding);
 		char[] buff = new char[65536];
 		StringBuilder ret = new StringBuilder();
-		while(reader.read(buff) != -1){
-			ret.append(buff);
+		int len;
+		while((len = reader.read(buff)) != -1){
+			ret.append(buff, 0, len);
 		}
 		return ret.toString();
 	}
