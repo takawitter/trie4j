@@ -608,8 +608,8 @@ public class AllTries {
 
 	public static void main(String[] args) throws Throwable{
 		MemoryMXBean mb = ManagementFactory.getMemoryMXBean();
-		int numWarmups = 10;
-		int numExecutions = 10;
+		int numWarmups = 1;
+		int numExecutions = 3;
 		int entries = 0;
 		int chars = 0;
 		for(String s : newWords()){

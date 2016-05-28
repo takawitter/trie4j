@@ -22,6 +22,11 @@ import java.util.Iterator;
 public abstract class AbstractTrie implements Trie{
 	@Override
 	public int findWord(CharSequence chars, int start, int end, StringBuilder word){
+		return findShortestWord(chars, start, end, word);
+	}
+
+	@Override
+	public int findShortestWord(CharSequence chars, int start, int end, StringBuilder word) {
 		for(int i = start; i < end; i++){
 			Iterator<String> it = commonPrefixSearch(chars.subSequence(i, end).toString()).iterator();
 //*
@@ -44,6 +49,22 @@ public abstract class AbstractTrie implements Trie{
 				return i;
 			}
 //*/
+		}
+		return -1;
+	}
+
+	@Override
+	public int findLongestWord(CharSequence chars, int start, int end, StringBuilder word) {
+		for(int i = start; i < end; i++){
+			Iterator<String> it = commonPrefixSearch(chars.subSequence(i, end).toString()).iterator();
+			String last = null;
+			while(it.hasNext()){
+				last = it.next();
+			}
+			if(last != null){
+				if(word != null) word.append(last);
+				return i;
+			}
 		}
 		return -1;
 	}
