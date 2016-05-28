@@ -220,8 +220,8 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 			int ti = tailArray.getIteratorOffset(ni);
 			if(ti != -1){
 				it.setIndex(ti);
-				char c;
-				while((c = it.next()) != '\0'){
+				while(it.hasNext()){
+					char c = it.next();
 					ci++;
 					if(ci >= charsLen) return ret;
 					if(c != query.charAt(ci)) return ret;
