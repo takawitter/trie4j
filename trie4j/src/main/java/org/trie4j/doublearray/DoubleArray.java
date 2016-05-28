@@ -123,21 +123,7 @@ implements Externalizable, TermIdTrie{
 
 		@Override
 		public boolean isTerminate() {
-			int nid = nodeId;
-			while(true){
-				CharSequence children = listupChildChars(nid);
-				int n = children.length();
-				if(n == 0) return term.get(nid);
-				int b = base[nid];
-				char firstChar = children.charAt(0);
-				int firstNid = b + charToCode[firstChar];
-				if(n > 1){
-					return term.get(nid);
-				} else{
-					if(term.get(firstNid)) return true;
-					nid = firstNid; 
-				}
-			}
+			return term.get(nodeId);
 		}
 
 		@Override
@@ -149,17 +135,9 @@ implements Externalizable, TermIdTrie{
 
 		@Override
 		public DoubleArrayNode[] getChildren() {
-			int nid = nodeId;
-			while(true){
-				CharSequence children = listupChildChars(nid);
-				int n = children.length();
-				if(n == 0) return emptyNodes;
-				int b = base[nid];
-				if(n > 1 || term.get(nid)){
-					return listupChildNodes(b, children);
-				}
-				nid = b + charToCode[children.charAt(0)];
-			}
+			CharSequence children = listupChildChars(nodeId);
+			if(children.length() == 0) return emptyNodes;
+			return listupChildNodes(base[nodeId], children);
 		}
 
 		@Override

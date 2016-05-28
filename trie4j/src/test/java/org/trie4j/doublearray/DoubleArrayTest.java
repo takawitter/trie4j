@@ -15,13 +15,43 @@
  */
 package org.trie4j.doublearray;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import org.junit.Assert;
+import org.junit.Test;
 import org.trie4j.AbstractTermIdTrieTest;
+import org.trie4j.Node;
 import org.trie4j.Trie;
+import org.trie4j.util.StreamUtil;
+import org.trie4j.util.StringUtil;
 
 public class DoubleArrayTest
 extends AbstractTermIdTrieTest<DoubleArray>{
 	@Override
 	protected DoubleArray buildSecond(Trie firstTrie) {
 		return new DoubleArray(firstTrie);
+	}
+
+	private void print(Node n, int nest, PrintWriter w){
+		w.println(
+				StringUtil.repeted(" ", nest) +
+				new String(n.getLetters()) +
+				(n.isTerminate() ? "*" : ""));
+		nest++;
+		for(Node c : n.getChildren()){
+			print(c, nest, w);
+		}
+	}
+
+	@Test
+	public void test_getNode_traverse() throws Exception{
+		Trie t = trieWithWords("hello", "helloworld", "hi", "howsgoing", "hell", "helloworld2", "world");
+		StringWriter sw = new StringWriter();
+		PrintWriter w = new PrintWriter(sw);
+		print(t.getRoot(), 0, w);
+		String expected = StreamUtil.readAsString(getClass().getResourceAsStream("DoubleArrayTest_dump_expected.txt"), "UTF-8");
+		String actual = sw.toString();
+		Assert.assertEquals(expected, actual);
 	}
 }
