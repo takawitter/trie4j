@@ -16,17 +16,17 @@
 package org.trie4j.patricia.multilayer;
 
 import org.trie4j.AbstractTrieTest;
-import org.trie4j.Trie;
 
-public class MultilayerPatriciaTriePackedTest extends AbstractTrieTest{
+public class MultilayerPatriciaTriePackedTest
+extends AbstractTrieTest<MultilayerPatriciaTrie, MultilayerPatriciaTrie>{
 	@Override
-	protected Trie createFirstTrie() {
+	protected MultilayerPatriciaTrie createFirstTrie() {
 		return new MultilayerPatriciaTrie();
 	}
 
 	@Override
-	protected Trie buildSecondTrie(Trie firstTrie) {
-		((MultilayerPatriciaTrie)firstTrie).pack();
+	protected MultilayerPatriciaTrie buildSecondTrie(MultilayerPatriciaTrie firstTrie) {
+		firstTrie.pack();
 		return firstTrie;
 	}
 }

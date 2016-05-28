@@ -18,9 +18,10 @@ package org.trie4j.doublearray;
 import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Trie;
 
-public class UnsafeDoubleArrayTest extends AbstractTermIdTrieTest{
+public class UnsafeDoubleArrayTest
+extends AbstractTermIdTrieTest<UnsafeDoubleArray>{
 	@Override
-	protected UnsafeDoubleArray buildSecondTrie(Trie firstTrie) {
+	protected UnsafeDoubleArray buildSecond(Trie firstTrie) {
 		return new UnsafeDoubleArray(firstTrie);
 	}
 }

@@ -42,6 +42,18 @@ public class MapDoubleArrayTest extends AbstractMapTrieTest{
 		verifyMapTrie(words, values);
 	}
 
+	@Test
+	public void test2() throws Throwable{
+		MapPatriciaTrie<Object> mpt = new MapPatriciaTrie<>();
+		mpt.insert("FOO");
+		mpt.get("F");
+		mpt.get("f");
+
+		MapDoubleArray<Object> mda = new MapDoubleArray<>(mpt);
+		mda.get("F");
+		mda.get("f"); // exception here
+	}
+
 	public void investigate1() throws Exception{
 		String wikipediaFilename = "data/jawiki-20140416-all-titles-in-ns0.gz";
 		int start = 7;
@@ -79,7 +91,7 @@ public class MapDoubleArrayTest extends AbstractMapTrieTest{
 		};
 		Integer[] values = {1, 3, 2, 6, 100};
 
-		MapDoubleArray<Integer> trie = (MapDoubleArray<Integer>)newMapTrie(words, values);
+		MapDoubleArray<Integer> trie = (MapDoubleArray<Integer>)trieWithWordsAndValues(words, values);
 		DoubleArray da = (DoubleArray)trie.getTrie();
 		int n = words.length;
 		BytesRank1OnlySuccinctBitVector bv = (BytesRank1OnlySuccinctBitVector)da.getTerm();
@@ -94,7 +106,7 @@ public class MapDoubleArrayTest extends AbstractMapTrieTest{
 	}
 
 	protected <T> void verifyMapTrie(String[] words, Integer[] values){
-		MapTrie<Integer> trie = newMapTrie(words, values);
+		MapTrie<Integer> trie = trieWithWordsAndValues(words, values);
 		int n = words.length;
 		for(int i = 0; i < n; i++){
 			Assert.assertEquals(values[i], trie.get(words[i]));

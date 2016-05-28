@@ -15,13 +15,14 @@
  */
 package org.trie4j.doublearray;
 
-import org.trie4j.AbstractTrieTest;
+import org.trie4j.AbstractImmutableTrieTest;
 import org.trie4j.Trie;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 
-public class OptimizedTailDoubleArrayWithConcatTailBuilderTest extends AbstractTrieTest{
+public class OptimizedTailDoubleArrayWithConcatTailBuilderTest
+extends AbstractImmutableTrieTest<OptimizedTailDoubleArray>{
 	@Override
-	protected Trie buildSecondTrie(Trie firstTrie) {
+	protected OptimizedTailDoubleArray buildSecond(Trie firstTrie) {
 		return new OptimizedTailDoubleArray(firstTrie, 65536, new ConcatTailBuilder());
 	}
 }

@@ -21,14 +21,12 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-public abstract class AbstractTermIdTrieTest extends AbstractTrieTest{
-	@Override
-	protected abstract TermIdTrie buildSecondTrie(Trie firstTrie);
-
+public abstract class AbstractTermIdTrieTest<T extends TermIdTrie>
+extends AbstractImmutableTrieTest<T>{
 	@Test
 	public void test_termId() throws Exception{
 		String[] words = {"hello", "world", "apple", "banana", "strawbelly"};
-		TermIdTrie t = (TermIdTrie)buildSecondTrie(trieWithWords(words));
+		TermIdTrie t = trieWithWords(words);
 		Set<Integer> ids = new HashSet<Integer>();
 		for(String w : words){
 			ids.add(t.getTermId(w));

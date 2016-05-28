@@ -16,18 +16,17 @@
 package org.trie4j.patricia;
 
 import org.trie4j.AbstractTrieTest;
-import org.trie4j.Trie;
-import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 
-public class TailPatriciaTrieWithConcatTailBuilderRebuildTrieTest extends AbstractTrieTest {
+public class TailPatriciaTrieWithConcatTailBuilderRebuildTrieTest
+extends AbstractTrieTest<TailPatriciaTrie, TailPatriciaTrie> {
 	@Override
-	protected Trie createFirstTrie() {
+	protected TailPatriciaTrie createFirstTrie() {
 		return new TailPatriciaTrie(new ConcatTailBuilder());
 	}
 
 	@Override
-	protected Trie buildSecondTrie(Trie firstTrie) {
+	protected TailPatriciaTrie buildSecondTrie(TailPatriciaTrie firstTrie) {
 		return new TailPatriciaTrie(firstTrie, new ConcatTailBuilder());
 	}
 }

@@ -15,12 +15,12 @@
  */
 package org.trie4j.patricia.multilayer;
 
-import org.trie4j.AbstractTrieTest;
-import org.trie4j.Trie;
+import org.trie4j.AbstractMutableTrieTest;
 
-public class MultilayerPatriciaTrieTest extends AbstractTrieTest{
+public class MultilayerPatriciaTrieTest
+extends AbstractMutableTrieTest<MultilayerPatriciaTrie>{
 	@Override
-	protected Trie createFirstTrie() {
+	protected MultilayerPatriciaTrie createFirstTrie() {
 		return new MultilayerPatriciaTrie();
 	}
 }

@@ -69,7 +69,7 @@ public class MapTailLOUDSTrieWithSBVConcatTailArrayTest extends AbstractMapTrieT
 		};
 		Integer[] values = {1, 3, 2, 6, 100};
 
-		MapTailLOUDSTrie<Integer> trie = (MapTailLOUDSTrie<Integer>)newMapTrie(words, values);
+		MapTailLOUDSTrie<Integer> trie = (MapTailLOUDSTrie<Integer>)trieWithWordsAndValues(words, values);
 		DoubleArray da = (DoubleArray)trie.getTrie();
 		int n = words.length;
 		BytesRank1OnlySuccinctBitVector bv = (BytesRank1OnlySuccinctBitVector)da.getTerm();

@@ -29,9 +29,10 @@ import org.trie4j.louds.bvtree.LOUDSPPBvTree;
 import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArrayBuilder;
 
-public class TailLOUDSPPTrieWithConcatTailArrayTest extends AbstractTermIdTrieTest{
+public class TailLOUDSPPTrieWithConcatTailArrayTest
+extends AbstractTermIdTrieTest<TailLOUDSTrie>{
 	@Override
-	protected TailLOUDSTrie buildSecondTrie(Trie firstTrie) {
+	protected TailLOUDSTrie buildSecond(Trie firstTrie) {
 		return new TailLOUDSTrie(
 				firstTrie,
 				new LOUDSPPBvTree(firstTrie.nodeSize()),
@@ -41,11 +42,8 @@ public class TailLOUDSPPTrieWithConcatTailArrayTest extends AbstractTermIdTrieTe
 	@Test
 	public void test() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
-		
 //		final SBVTailIndex ti = new SBVTailIndex();
-		TailLOUDSTrie lt = buildSecondTrie(trie);
+		TailLOUDSTrie lt = trieWithWords(words);
 //		System.out.println(lt.getBvTree());
 //		System.out.println(ti.getSBV());
 //		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));

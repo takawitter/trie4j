@@ -15,24 +15,14 @@
  */
 package org.trie4j.doublearray;
 
-import org.trie4j.AbstractTrieTest;
+import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Trie;
-import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.SuffixTrieTailArray;
 
-public class TailDoubleArrayWithSuffixTrieTailBuilderTest extends AbstractTrieTest{
+public class TailDoubleArrayWithSuffixTrieTailBuilderTest
+extends AbstractTermIdTrieTest<TailDoubleArray>{
 	@Override
-	protected Trie buildSecondTrie(Trie firstTrie) {
+	protected TailDoubleArray buildSecond(Trie firstTrie) {
 		return new TailDoubleArray(firstTrie, new SuffixTrieTailArray());
-	}
-
-	public static void main(String[] args) throws Exception{
-		Trie t = new PatriciaTrie();
-		t.insert("hello");
-//		t.insert("hi");
-		DoubleArray da = new DoubleArray(t);
-		System.out.println("hello: " + da.contains("hello"));
-		System.out.println("hi: " + da.contains("hi"));
-		System.out.println("world: " + da.contains("world"));
 	}
 }

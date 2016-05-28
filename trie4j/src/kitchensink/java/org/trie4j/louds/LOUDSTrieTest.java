@@ -22,22 +22,21 @@ import java.io.ObjectOutputStream;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.trie4j.AbstractImmutableTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
-import org.trie4j.AbstractTrieTest;
-import org.trie4j.patricia.PatriciaTrie;
 
-public class LOUDSTrieTest extends AbstractTrieTest{
+public class LOUDSTrieTest
+extends AbstractImmutableTrieTest<LOUDSTrie>{
 	@Override
-	protected Trie buildSecondTrie(Trie firstTrie) {
+	protected LOUDSTrie buildSecond(Trie firstTrie) {
 		return new LOUDSTrie(firstTrie, 65536);
 	}
 
 	@Test
 	public void test() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie trie = new PatriciaTrie(words);
-		Trie lt = buildSecondTrie(trie);
+		Trie lt = trieWithWords(words);
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));
 		}
@@ -55,8 +54,7 @@ public class LOUDSTrieTest extends AbstractTrieTest{
 	@Test
 	public void test_save_load() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie trie = new PatriciaTrie(words);
-		Trie lt = buildSecondTrie(trie);
+		Trie lt = trieWithWords(words);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(baos);
 		try{

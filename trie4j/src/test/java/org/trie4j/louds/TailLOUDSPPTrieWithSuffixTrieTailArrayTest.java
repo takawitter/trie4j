@@ -11,12 +11,12 @@ import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.louds.bvtree.LOUDSPPBvTree;
-import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.SuffixTrieTailArray;
 
-public class TailLOUDSPPTrieWithSuffixTrieTailArrayTest extends AbstractTermIdTrieTest{
+public class TailLOUDSPPTrieWithSuffixTrieTailArrayTest
+extends AbstractTermIdTrieTest<TailLOUDSTrie>{
 	@Override
-	protected TailLOUDSTrie buildSecondTrie(Trie firstTrie) {
+	protected TailLOUDSTrie buildSecond(Trie firstTrie) {
 		return new TailLOUDSTrie(
 				firstTrie,
 				new LOUDSPPBvTree(firstTrie.nodeSize()),
@@ -26,8 +26,7 @@ public class TailLOUDSPPTrieWithSuffixTrieTailArrayTest extends AbstractTermIdTr
 	@Test
 	public void test() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie trie = new PatriciaTrie(words);
-		TailLOUDSTrie lt = buildSecondTrie(trie);
+		TailLOUDSTrie lt = trieWithWords(words);
 //		System.out.println(lt.getBvTree());
 //		Algorithms.dump(lt.getRoot(), new OutputStreamWriter(System.out));
 		for(String w : words){
@@ -47,8 +46,7 @@ public class TailLOUDSPPTrieWithSuffixTrieTailArrayTest extends AbstractTermIdTr
 	@Test
 	public void test_save_load() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie trie = new PatriciaTrie(words);
-		TailLOUDSTrie lt = buildSecondTrie(trie);
+		TailLOUDSTrie lt = trieWithWords(words);
 		try(
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(baos)){

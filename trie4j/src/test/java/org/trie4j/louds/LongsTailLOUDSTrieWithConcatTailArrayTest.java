@@ -12,12 +12,12 @@ import org.trie4j.Node;
 import org.trie4j.Trie;
 import org.trie4j.bv.LongsSuccinctBitVector;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
-import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArrayBuilder;
 
-public class LongsTailLOUDSTrieWithConcatTailArrayTest extends AbstractTermIdTrieTest{
+public class LongsTailLOUDSTrieWithConcatTailArrayTest
+extends AbstractTermIdTrieTest<TailLOUDSTrie>{
 	@Override
-	protected TailLOUDSTrie buildSecondTrie(Trie firstTrie) {
+	protected TailLOUDSTrie buildSecond(Trie firstTrie) {
 		return new TailLOUDSTrie(
 				firstTrie,
 				new LOUDSBvTree(new LongsSuccinctBitVector(firstTrie.nodeSize() * 2)),
@@ -27,7 +27,7 @@ public class LongsTailLOUDSTrieWithConcatTailArrayTest extends AbstractTermIdTri
 	@Test
 	public void test() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie lt = buildSecondTrie(new PatriciaTrie(words));
+		Trie lt = trieWithWords(words);
 		for(String w : words){
 			Assert.assertTrue(w, lt.contains(w));
 		}
@@ -45,9 +45,7 @@ public class LongsTailLOUDSTrieWithConcatTailArrayTest extends AbstractTermIdTri
 	@Test
 	public void test_save_load() throws Exception{
 		String[] words = {"こんにちは", "さようなら", "おはよう", "おおきなかぶ", "おおやまざき"};
-		Trie trie = new PatriciaTrie();
-		for(String w : words) trie.insert(w);
-		TailLOUDSTrie lt = new TailLOUDSTrie(trie);
+		TailLOUDSTrie lt = trieWithWords(words);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(baos);
 		lt.writeExternal(oos);

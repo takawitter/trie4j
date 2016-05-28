@@ -18,9 +18,10 @@ package org.trie4j.doublearray;
 import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Trie;
 
-public class DoubleArrayTest extends AbstractTermIdTrieTest{
+public class DoubleArrayTest
+extends AbstractTermIdTrieTest<DoubleArray>{
 	@Override
-	protected DoubleArray buildSecondTrie(Trie firstTrie) {
+	protected DoubleArray buildSecond(Trie firstTrie) {
 		return new DoubleArray(firstTrie);
 	}
 }

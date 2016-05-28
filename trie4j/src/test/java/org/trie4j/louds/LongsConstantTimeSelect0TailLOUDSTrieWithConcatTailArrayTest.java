@@ -15,9 +15,10 @@ import org.trie4j.louds.bvtree.LOUDSBvTree;
 import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.tail.ConcatTailArrayBuilder;
 
-public class LongsConstantTimeSelect0TailLOUDSTrieWithConcatTailArrayTest extends AbstractTermIdTrieTest{
+public class LongsConstantTimeSelect0TailLOUDSTrieWithConcatTailArrayTest
+extends AbstractTermIdTrieTest<TailLOUDSTrie>{
 	@Override
-	protected TailLOUDSTrie buildSecondTrie(Trie firstTrie) {
+	protected TailLOUDSTrie buildSecond(Trie firstTrie) {
 		return new TailLOUDSTrie(
 				firstTrie,
 				new LOUDSBvTree(new LongsConstantTimeSelect0SuccinctBitVector()),

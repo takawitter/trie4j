@@ -25,27 +25,28 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.patricia.MapPatriciaTrie;
 
-public abstract class AbstractMapTrieTest extends AbstractTrieTest {
+public abstract class AbstractMapTrieTest
+extends AbstractMutableTrieTest<MapTrie<Integer>> {
 	@Override
 	protected MapTrie<Integer> createFirstTrie(){
 		return new MapPatriciaTrie<Integer>();
 	}
 
-	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie){
-		return firstTrie;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	protected final MapTrie<Integer> buildSecondTrie(Trie firstTrie){
-		return buildSecondTrie((MapTrie<Integer>)firstTrie);
+	protected MapTrie<Integer> trieWithWordsAndValues(String[] words, Integer[] values){
+		Assert.assertEquals(words.length, values.length);
+		int n = words.length;
+		MapTrie<Integer> trie = (MapTrie<Integer>)createFirstTrie();
+		for(int i = 0; i < n; i++){
+			trie.insert(words[i], values[i]);
+		}
+		return buildSecondTrie(trie);
 	}
 
 	@Test
 	public void test_MapTrie_get_1() throws Exception{
 		String[] words = {"hello", "hi", "world", "happy", "haru"};
 		Integer[] values = {0, 1, 2, 3, 4};
-		MapTrie<Integer> trie = newMapTrie(words, values);
+		MapTrie<Integer> trie = trieWithWordsAndValues(words, values);
 		for(int i = 0; i < words.length; i++){
 			Assert.assertEquals(values[i], trie.get(words[i]));
 		}
@@ -55,7 +56,7 @@ public abstract class AbstractMapTrieTest extends AbstractTrieTest {
 	public void test_MapTrie_get_2() throws Exception{
 		String[] words = {"ab", "ac", "ba", "bc", "ca",};
 		Integer[] values = {0, 1, 2, 3, 4};
-		MapTrie<Integer> trie = newMapTrie(words, values);
+		MapTrie<Integer> trie = trieWithWordsAndValues(words, values);
 		for(int i = 0; i < words.length; i++){
 			Assert.assertEquals(values[i], trie.get(words[i]));
 		}
@@ -65,7 +66,7 @@ public abstract class AbstractMapTrieTest extends AbstractTrieTest {
 	public void test_MapTrie_get_3_get_from_empty_trie() throws Exception{
 		String[] words = {};
 		Integer[] values = {};
-		MapTrie<Integer> trie = newMapTrie(words, values);
+		MapTrie<Integer> trie = trieWithWordsAndValues(words, values);
 		trie.get("hello");
 	}
 
@@ -73,22 +74,12 @@ public abstract class AbstractMapTrieTest extends AbstractTrieTest {
 	public void test_MapTrie_predictiveSearchEntries_1() throws Throwable{
 		String[] keys = {"A", "AB", "ABC"};
 		Integer[] vals = {1, 2, 3};
-		MapTrie<Integer> trie = newMapTrie(keys, vals);
+		MapTrie<Integer> trie = trieWithWordsAndValues(keys, vals);
 		Iterator<Map.Entry<String, Integer>> it = trie.predictiveSearchEntries("A").iterator();
 		Set<Integer> values = new HashSet<>(Arrays.asList(vals));
 		Assert.assertTrue(values.remove(it.next().getValue()));
 		Assert.assertTrue(values.remove(it.next().getValue()));
 		Assert.assertTrue(values.remove(it.next().getValue()));
 		Assert.assertEquals(0, values.size());
-	}
-
-	protected MapTrie<Integer> newMapTrie(String[] words, Integer[] values){
-		Assert.assertEquals(words.length, values.length);
-		int n = words.length;
-		MapTrie<Integer> trie = (MapTrie<Integer>)createFirstTrie();
-		for(int i = 0; i < n; i++){
-			trie.insert(words[i], values[i]);
-		}
-		return buildSecondTrie(trie);
 	}
 }

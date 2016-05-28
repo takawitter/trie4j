@@ -19,22 +19,20 @@ import java.util.Iterator;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.patricia.TailPatriciaTrie;
-import org.trie4j.tail.builder.ConcatTailBuilder;
 
-public abstract class AbstractTrieTest {
-	protected Trie createFirstTrie(){
-		return new TailPatriciaTrie(new ConcatTailBuilder());
-	}
+public abstract class AbstractTrieTest<F extends Trie, S extends Trie> {
+	protected abstract F createFirstTrie();
+	protected abstract S buildSecondTrie(F firstTrie);
 
-	protected Trie buildSecondTrie(Trie firstTrie){
-		return firstTrie;
+	protected S trieWithWords(String... words){
+		F trie = createFirstTrie();
+		for(String w : words) trie.insert(w);
+		return buildSecondTrie(trie);
 	}
 
 	@Test
 	public void test_empty() throws Exception{
-		Trie trie = createFirstTrie();
-		trie = buildSecondTrie(trie);
+		Trie trie = trieWithWords();
 		Assert.assertEquals(0, trie.size());
 		Assert.assertFalse(trie.contains("hello"));
 		Assert.assertFalse(trie.commonPrefixSearch("hello").iterator().hasNext());
@@ -209,11 +207,5 @@ public abstract class AbstractTrieTest {
 		for(String w : notContains){
 			Assert.assertFalse("must not contain \"" + w  + "\"", trie.contains(w));
 		}
-	}
-
-	protected Trie trieWithWords(String... words){
-		Trie ret = createFirstTrie();
-		for(String w : words) ret.insert(w);
-		return ret;
 	}
 }

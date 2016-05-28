@@ -16,15 +16,15 @@
 package org.trie4j.patricia;
 
 import org.junit.Assert;
-import org.trie4j.AbstractTrieTest;
+import org.trie4j.AbstractMutableTrieTest;
 import org.trie4j.Trie;
-import org.trie4j.patricia.TailPatriciaTrie;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.test.WikipediaTitles;
 
-public class TailPatriciaTrieWithSuffixTrieTailBuilderTest extends AbstractTrieTest {
+public class TailPatriciaTrieWithSuffixTrieTailBuilderTest
+extends AbstractMutableTrieTest<TailPatriciaTrie> {
 	@Override
-	protected Trie createFirstTrie() {
+	protected TailPatriciaTrie createFirstTrie() {
 		return new TailPatriciaTrie(new SuffixTrieTailBuilder());
 	}
 
