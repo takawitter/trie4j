@@ -16,7 +16,13 @@
 package org.trie4j;
 
 /**
- * Represents the Node of Trie.
+ * Represents the Node of TRIE.
+ * The Node is the abstraction of internal data expression in each Trie implementation.
+ * One implementation might have manage data using a subclass of this Node and
+ * other might temporally create a instance of this Node when its needed.
+ * In addition, the order of children and how the Node represents Trie are depends
+ * on each implementation. For the latter, in detail, storing "hello" with 1 nodes
+ * and with 5 nodes are both correct.
  * @author Takao Nakaguchi
  */
 public interface Node {
@@ -38,5 +44,11 @@ public interface Node {
 	 * @return child node or null if no child node that has c exist.
 	 */
 	Node getChild(char c);
+
+	/**
+	 * Returns the children of this node.
+	 * The order of children is not defined.
+	 * @return children
+	 */
 	Node[] getChildren();
 }
