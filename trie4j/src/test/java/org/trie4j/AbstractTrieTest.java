@@ -15,7 +15,10 @@
  */
 package org.trie4j;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -119,22 +122,26 @@ public abstract class AbstractTrieTest<F extends Trie, S extends Trie> {
 
 	@Test
 	public void test_commonPrefixSearch_2() throws Exception{
-		Trie t = trieWithWords("hello", "helloworld", "hell", "helloworld2");
+		String[] words = {"hello", "helloworld", "hell", "helloworld2"};
+		Set<String> expects = new HashSet<>(Arrays.asList(words));
+		Trie t = trieWithWords(words);
 		Iterator<String> it = t.commonPrefixSearch("helloworld").iterator();
-		Assert.assertEquals("hell", it.next());
-		Assert.assertEquals("hello", it.next());
-		Assert.assertEquals("helloworld", it.next());
-		Assert.assertFalse(it.hasNext());
+		while(it.hasNext()){
+			Assert.assertTrue(expects.remove(it.next()));
+		}
+		Assert.assertEquals(1, expects.size());
 	}
 
 	@Test
 	public void test_commonPrefixSearch_3() throws Exception{
-		Trie t = trieWithWords("hello", "helloworld", "hi", "howsgoing", "hell", "helloworld2", "world");
+		String[] words = {"hello", "helloworld", "hi", "howsgoing", "hell", "helloworld2", "world"};
+		Set<String> expects = new HashSet<>(Arrays.asList(words));
+		Trie t = trieWithWords(words);
 		Iterator<String> it = t.commonPrefixSearch("helloworld").iterator();
-		Assert.assertEquals("hell", it.next());
-		Assert.assertEquals("hello", it.next());
-		Assert.assertEquals("helloworld", it.next());
-		Assert.assertFalse(it.hasNext());
+		while(it.hasNext()){
+			Assert.assertTrue(expects.remove(it.next()));
+		}
+		Assert.assertEquals(4, expects.size());
 	}
 
 	@Test
