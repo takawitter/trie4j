@@ -8,15 +8,18 @@
 
 Trie4J is the sort of collection of various trie implementation.
 
-Available through Maven Central Repository!!
+You can get the binary using Maven:
 ```xml
 <dependency>
     <groupId>com.github.takawitter</groupId>
     <artifactId>trie4j</artifactId>
-    <version>0.9.2</version>
+    <version>0.9.3</version>
 </dependency>
 ```
-* Working for [0.9.3](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.3).
+
+or from [Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.github.takawitter%22%20AND%20a%3A%22trie4j%22)
+
+* 2016/5/28: [0.9.3](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.3) released.
 * 2016/4/3: [0.9.2](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.2) released.
 * 2015/7/20: [0.9.1](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.1) released.
 
