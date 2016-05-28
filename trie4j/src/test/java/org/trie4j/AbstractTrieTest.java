@@ -40,7 +40,7 @@ public abstract class AbstractTrieTest<F extends Trie, S extends Trie> {
 		Assert.assertFalse(trie.contains("hello"));
 		Assert.assertFalse(trie.commonPrefixSearch("hello").iterator().hasNext());
 		Assert.assertFalse(trie.predictiveSearch("hello").iterator().hasNext());
-		Assert.assertEquals(-1, trie.findWord("hello", 0, 5, new StringBuilder()));
+		Assert.assertEquals(-1, trie.findShortestWord("hello", 0, 5, new StringBuilder()));
 	}
 
 	@Test
@@ -149,7 +149,7 @@ public abstract class AbstractTrieTest<F extends Trie, S extends Trie> {
 		Trie t = trieWithWords("hello", "helloworld", "hi", "howsgoing", "hell", "helloworld2", "world");
 		String text = "This is the best sweets.";
 		StringBuilder b = new StringBuilder();
-		int i = t.findWord(text, 0, text.length(), b);
+		int i = t.findShortestWord(text, 0, text.length(), b);
 		Assert.assertEquals(1, i);
 		Assert.assertEquals("hi", b.toString());
 	}
