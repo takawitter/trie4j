@@ -19,7 +19,7 @@ You can get the binary using Maven:
 
 or from [Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.github.takawitter%22%20AND%20a%3A%22trie4j%22)
 
-* 2016/5/28: [0.9.3](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.3) released.
+* 2016/5/28: [0.9.3](https://github.com/takawitter/trie4j/releases/tag/0.9.3) released.
 * 2016/4/3: [0.9.2](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.2) released.
 * 2015/7/20: [0.9.1](https://github.com/takawitter/trie4j/issues?q=milestone%3A0.9.1) released.
 
