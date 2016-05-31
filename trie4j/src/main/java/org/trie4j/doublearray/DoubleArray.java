@@ -72,12 +72,12 @@ implements Externalizable, TermIdTrie{
 	public DoubleArray(Trie trie, int arraySize, TermNodeListener listener){
 		if(arraySize <= 1) arraySize = 2;
 		size = trie.size();
-		nodeSize = trie.nodeSize();
 		base = new int[arraySize];
 		Arrays.fill(base, BASE_EMPTY);
 		check = new int[arraySize];
 		Arrays.fill(check, -1);
 		FastBitSet bs = new FastBitSet(arraySize);
+		nodeSize = 1; // for root node because it has no letter;
 		build(trie.getRoot(), 0, bs, listener);
 		term = new BytesRank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 		base = Arrays.copyOf(base, last + 1);
@@ -505,12 +505,14 @@ implements Externalizable, TermIdTrie{
 		// letters
 		char[] letters = node.getLetters();
 		int lettersLen = letters.length;
+		if(lettersLen > 0) nodeSize++; // for first letter
 		for(int i = 1; i < lettersLen; i++){
 			bs.unsetIfLE(nodeIndex);
 			int cid = getCharId(letters[i]);
 			int empty = findFirstEmptyCheck();
 			setCheck(empty, nodeIndex);
 			base[nodeIndex] = empty - cid;
+			nodeSize++;
 			nodeIndex = empty;
 		}
 		if(node.isTerminate()){
