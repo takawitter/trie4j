@@ -16,7 +16,7 @@
 package org.trie4j.louds;
 
 import org.junit.Assert;
-import org.trie4j.AbstractMapTrieTest;
+import org.trie4j.AbstractImmutableMapTrieTest;
 import org.trie4j.MapTrie;
 import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
@@ -24,9 +24,10 @@ import org.trie4j.patricia.MapPatriciaTrie;
 import org.trie4j.tail.ConcatTailArrayBuilder;
 import org.trie4j.test.WikipediaTitles;
 
-public class MapTailLOUDSTrieWithConcatTailArrayTest extends AbstractMapTrieTest{
+public class MapTailLOUDSTrieWithConcatTailArrayTest
+extends AbstractImmutableMapTrieTest<MapTailLOUDSTrie<Integer>>{
 	@Override
-	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
+	protected MapTailLOUDSTrie<Integer> buildSecond(MapTrie<Integer> firstTrie) {
 		return new MapTailLOUDSTrie<Integer>(firstTrie, new ConcatTailArrayBuilder());
 	}
 
@@ -69,7 +70,7 @@ public class MapTailLOUDSTrieWithConcatTailArrayTest extends AbstractMapTrieTest
 		};
 		Integer[] values = {1, 3, 2, 6, 100};
 
-		MapTailLOUDSTrie<Integer> trie = (MapTailLOUDSTrie<Integer>)trieWithWordsAndValues(words, values);
+		MapTailLOUDSTrie<Integer> trie = trieWithWordsAndValues(words, values);
 		DoubleArray da = (DoubleArray)trie.getTrie();
 		int n = words.length;
 		BytesRank1OnlySuccinctBitVector bv = (BytesRank1OnlySuccinctBitVector)da.getTerm();

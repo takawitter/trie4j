@@ -15,13 +15,14 @@
  */
 package org.trie4j.doublearray;
 
-import org.trie4j.AbstractMapTrieTest;
+import org.trie4j.AbstractImmutableMapTrieTest;
 import org.trie4j.MapTrie;
 import org.trie4j.tail.ConcatTailArrayBuilder;
 
-public class MapTailDoubleArrayWithConcatTailBuilderTest extends AbstractMapTrieTest{
+public class MapTailDoubleArrayWithConcatTailBuilderTest
+extends AbstractImmutableMapTrieTest<MapTailDoubleArray<Integer>>{
 	@Override
-	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
+	protected MapTailDoubleArray<Integer> buildSecond(MapTrie<Integer> firstTrie) {
 		return new MapTailDoubleArray<Integer>(firstTrie, new ConcatTailArrayBuilder());
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Takao Nakaguchi
+ * Copyright 2012 Takao Nakaguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trie4j.doublearray;
+package org.trie4j;
 
-import org.trie4j.AbstractImmutableMapTrieTest;
-import org.trie4j.MapTrie;
-import org.trie4j.tail.SuffixTrieTailArray;
+import org.trie4j.patricia.MapTailPatriciaTrie;
 
-public class MapTailDoubleArrayWithSuffixTrieTailBuilderTest
-extends AbstractImmutableMapTrieTest<MapTailDoubleArray<Integer>>{
+public abstract class AbstractImmutableMapTrieTest<T extends MapTrie<Integer>>
+extends AbstractMapTrieTest<MapTailPatriciaTrie<Integer>, T> {
+	protected abstract T buildSecond(MapTrie<Integer> firstTrie);
+
 	@Override
-	protected MapTailDoubleArray<Integer> buildSecond(MapTrie<Integer> firstTrie) {
-		return new MapTailDoubleArray<Integer>(firstTrie, new SuffixTrieTailArray());
+	protected MapTailPatriciaTrie<Integer> createFirstTrie() {
+		return new MapTailPatriciaTrie<>();
+	}
+	
+	@Override
+	protected T buildSecondTrie(MapTailPatriciaTrie<Integer> firstTrie) {
+		return buildSecond(firstTrie);
 	}
 }

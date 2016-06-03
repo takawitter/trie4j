@@ -23,19 +23,13 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.patricia.MapPatriciaTrie;
 
-public abstract class AbstractMapTrieTest
-extends AbstractMutableTrieTest<MapTrie<Integer>> {
-	@Override
-	protected MapTrie<Integer> createFirstTrie(){
-		return new MapPatriciaTrie<Integer>();
-	}
-
-	protected MapTrie<Integer> trieWithWordsAndValues(String[] words, Integer[] values){
+public abstract class AbstractMapTrieTest<F extends MapTrie<Integer>, S extends MapTrie<Integer>>
+extends AbstractTrieTest<F, S> {
+	protected S trieWithWordsAndValues(String[] words, Integer[] values){
 		Assert.assertEquals(words.length, values.length);
 		int n = words.length;
-		MapTrie<Integer> trie = (MapTrie<Integer>)createFirstTrie();
+		F trie = createFirstTrie();
 		for(int i = 0; i < n; i++){
 			trie.insert(words[i], values[i]);
 		}

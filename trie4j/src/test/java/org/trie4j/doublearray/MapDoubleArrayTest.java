@@ -17,15 +17,16 @@ package org.trie4j.doublearray;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.trie4j.AbstractMapTrieTest;
+import org.trie4j.AbstractImmutableMapTrieTest;
 import org.trie4j.MapTrie;
 import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.patricia.MapPatriciaTrie;
 import org.trie4j.test.WikipediaTitles;
 
-public class MapDoubleArrayTest extends AbstractMapTrieTest{
+public class MapDoubleArrayTest
+extends AbstractImmutableMapTrieTest<MapDoubleArray<Integer>>{
 	@Override
-	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
+	protected MapDoubleArray<Integer> buildSecond(MapTrie<Integer> firstTrie) {
 		return new MapDoubleArray<Integer>(firstTrie);
 	}
 

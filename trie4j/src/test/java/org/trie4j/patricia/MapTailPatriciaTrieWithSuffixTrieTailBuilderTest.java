@@ -15,14 +15,13 @@
  */
 package org.trie4j.patricia;
 
-import org.trie4j.AbstractMapTrieTest;
-import org.trie4j.MapTrie;
-import org.trie4j.patricia.MapTailPatriciaTrie;
+import org.trie4j.AbstractMutableMapTrieTest;
 import org.trie4j.tail.builder.ConcatTailBuilder;
 
-public class MapTailPatriciaTrieWithSuffixTrieTailBuilderTest extends AbstractMapTrieTest{
+public class MapTailPatriciaTrieWithSuffixTrieTailBuilderTest
+extends AbstractMutableMapTrieTest<MapTailPatriciaTrie<Integer>>{
 	@Override
-	protected MapTrie<Integer> createFirstTrie() {
+	protected MapTailPatriciaTrie<Integer> createFirstTrie() {
 		return new MapTailPatriciaTrie<Integer>(new ConcatTailBuilder());
 	}
 }

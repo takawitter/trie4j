@@ -16,7 +16,7 @@
 package org.trie4j.louds;
 
 import org.junit.Assert;
-import org.trie4j.AbstractMapTrieTest;
+import org.trie4j.AbstractImmutableMapTrieTest;
 import org.trie4j.MapTrie;
 import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.doublearray.DoubleArray;
@@ -24,9 +24,10 @@ import org.trie4j.patricia.MapPatriciaTrie;
 import org.trie4j.tail.SBVConcatTailArrayBuilder;
 import org.trie4j.test.WikipediaTitles;
 
-public class MapTailLOUDSTrieWithSBVConcatTailArrayTest extends AbstractMapTrieTest{
+public class MapTailLOUDSTrieWithSBVConcatTailArrayTest
+extends AbstractImmutableMapTrieTest<MapTailLOUDSTrie<Integer>>{
 	@Override
-	protected MapTrie<Integer> buildSecondTrie(MapTrie<Integer> firstTrie) {
+	protected MapTailLOUDSTrie<Integer> buildSecond(MapTrie<Integer> firstTrie) {
 		return new MapTailLOUDSTrie<Integer>(firstTrie, new SBVConcatTailArrayBuilder());
 	}
 
