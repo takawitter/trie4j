@@ -26,6 +26,7 @@ import org.trie4j.util.IntArray;
 
 import sun.misc.Unsafe;
 
+@Deprecated
 @SuppressWarnings("restriction")
 public class UnsafeBytesSuccinctBitVector
 implements Externalizable, SuccinctBitVector{

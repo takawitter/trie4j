@@ -50,6 +50,7 @@ import org.trie4j.util.Pair;
 
 import sun.misc.Unsafe;
 
+@Deprecated
 @SuppressWarnings("restriction")
 public class UnsafeDoubleArray
 extends AbstractTermIdTrie
