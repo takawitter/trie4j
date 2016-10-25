@@ -129,10 +129,10 @@ public class Sample {
 ### additional notes.
 
 These classes are experimental and not contained in trie4j-SNAPSHOT.jar.
-* Multilayer Patricia Trie ([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src.kitchensink/org/trie4j/patricia/multilayer/MultilayerPatriciaTrie.java))
+* MultilayerPatriciaTrie: PatriciaTrie which has the pointer to another trie which store reversed tail string. ([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src.kitchensink/org/trie4j/patricia/multilayer/MultilayerPatriciaTrie.java))
  * optimizes size using Multilayer Trie but no significant improvement.
-* DoubleArray Array with Tail Array and some optimization ([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src.kitchensink/org/trie4j/doublearray/OptimizedTailDoubleArray.java))
- * feature completed but can't support large data (over several 10 thoudsants).
+* OptimizedTailDoubleArray: DoubleArray with Tail Array and some optimization ([src](https://github.com/takawitter/trie4j/blob/master/trie4j/src.kitchensink/org/trie4j/doublearray/OptimizedTailDoubleArray.java))
+ * feature completed but can't support large data (over several 10 thousants).
 
 ---
 
