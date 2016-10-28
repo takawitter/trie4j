@@ -80,8 +80,8 @@ implements Externalizable, TermIdTrie{
 		nodeSize = 1; // for root node because it has no letter;
 		build(trie.getRoot(), 0, bs, listener);
 		term = new BytesRank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
-		base = Arrays.copyOf(base, last + 1);
-		check = Arrays.copyOf(check, last + 1);
+		base = Arrays.copyOf(base, last + chars.size());
+		check = Arrays.copyOf(check, last + chars.size());
 	}
 
 	@Override
