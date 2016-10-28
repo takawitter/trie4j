@@ -92,8 +92,8 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 		build(orig.getRoot(), 0, tab, bs, listener);
 		term = new BytesRank1OnlySuccinctBitVector(bs.getBytes(), bs.size());
 		tailArray = tab.build();
-		base = Arrays.copyOf(base, last + 1);
-		check = Arrays.copyOf(check, last + 1);
+		base = Arrays.copyOf(base, last + chars.size());
+		check = Arrays.copyOf(check, last + chars.size());
 	}
 
 	@Override
