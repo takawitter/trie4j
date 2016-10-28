@@ -367,6 +367,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 	public void dump(Writer w){
 		PrintWriter writer = new PrintWriter(w);
 		try{
+			int n = Math.min(16, base.length);
 			writer.println("--- dump " + getClass().getSimpleName() + " ---");
 			writer.println("array size: " + base.length);
 			writer.println("last index of valid element: " + last);
@@ -376,12 +377,12 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 			}
 			writer.println("valid elements: " + vc);
 			writer.print("      |");
-			for(int i = 0; i < 16; i++){
+			for(int i = 0; i < n; i++){
 				writer.print(String.format("%3d|", i));
 			}
 			writer.println();
 			writer.print("|base |");
-			for(int i = 0; i < 16; i++){
+			for(int i = 0; i < n; i++){
 				if(base[i] == BASE_EMPTY){
 					writer.print("N/A|");
 				} else{
@@ -390,7 +391,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 			}
 			writer.println();
 			writer.print("|check|");
-			for(int i = 0; i < 16; i++){
+			for(int i = 0; i < n; i++){
 				if(check[i] < 0){
 					writer.print("N/A|");
 				} else{
@@ -408,7 +409,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 			}
 			writer.println();
 */			writer.print("|term |");
-			for(int i = 0; i < 16; i++){
+			for(int i = 0; i < n; i++){
 				writer.print(String.format("%3d|", term.get(i) ? 1 : 0));
 			}
 			writer.println();
