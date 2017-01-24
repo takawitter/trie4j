@@ -91,9 +91,9 @@ with <a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/tr
   <td align="right"><font color="red">163</font><sup>*2</sup></td><td align="right">741</td><td align="right">15.6</td>
 </tr>
 </table>
-*1 - build from string array.
-<br/>*2 - build from other trie(org.trie4j.patricia.simple.PatriciaTrie).
-<br/>*3 - shrinked index array using succinct bit vector.
+ *1 - build from string array.
+<br/> *2 - build from other trie(org.trie4j.patricia.simple.PatriciaTrie).
+<br/> *3 - shrinked index array using succinct bit vector.
 
 ---
 
