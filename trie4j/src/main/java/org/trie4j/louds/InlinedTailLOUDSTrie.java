@@ -22,24 +22,29 @@ import java.io.ObjectOutput;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.trie4j.AbstractTrie;
 import org.trie4j.Node;
+import org.trie4j.TermIdNode;
+import org.trie4j.TermIdTrie;
 import org.trie4j.Trie;
+import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
 import org.trie4j.bv.BytesSuccinctBitVector;
+import org.trie4j.bv.SuccinctBitVector;
 import org.trie4j.tail.TailCharIterator;
 import org.trie4j.tail.TailUtil;
 import org.trie4j.tail.builder.SuffixTrieTailBuilder;
 import org.trie4j.tail.builder.TailBuilder;
+import org.trie4j.util.FastBitSet;
 import org.trie4j.util.Pair;
+import org.trie4j.util.Range;
 
 public class InlinedTailLOUDSTrie
 extends AbstractTrie
-implements Externalizable, Trie {
+implements Externalizable, TermIdTrie {
 	public InlinedTailLOUDSTrie(){
 		bv = new BytesSuccinctBitVector(0);
 	}
@@ -57,7 +62,7 @@ implements Externalizable, Trie {
 		size = orig.size();
 		labels = new char[size];
 		tail = new int[size];
-		term = new BitSet(size);
+		FastBitSet termBs = new FastBitSet(size);
 		LinkedList<Node> queue = new LinkedList<Node>();
 		int count = 0;
 		if(orig.getRoot() != null) queue.add(orig.getRoot());
@@ -67,7 +72,11 @@ implements Externalizable, Trie {
 			if(index >= labels.length){
 				extend();
 			}
-			if(node.isTerminate()) term.set(index);
+			if(node.isTerminate()){
+				termBs.set(index);
+			} else if(termBs.size() <= index){
+				termBs.ensureCapacity(index);
+			}
 			for(Node c : node.getChildren()){
 				bv.append1();
 				queue.offerLast(c);
@@ -88,6 +97,7 @@ implements Externalizable, Trie {
 		}
 		nodeSize = count;
 		tails = tb.getTails();
+		this.term = new BytesRank1OnlySuccinctBitVector(termBs.getBytes(), termBs.size());
 	}
 
 	public BytesSuccinctBitVector getBv() {
@@ -100,7 +110,7 @@ implements Externalizable, Trie {
 	}
 
 	@Override
-	public Node getRoot(){
+	public TermIdNode getRoot(){
 		return new LOUDSNode(0);
 	}
 
@@ -136,6 +146,31 @@ implements Externalizable, Trie {
 		return term.get(nodeId);
 	}
 
+	public int getNodeId(String text){
+		int nodeId = 0; // root
+		Range r = new Range();
+		TailCharIterator it = new TailCharIterator(tails, -1);
+		int n = text.length();
+		for(int i = 0; i < n; i++){
+			nodeId = getChildNode(nodeId, text.charAt(i), r);
+			if(nodeId == -1) return -1;
+			it.setOffset(tail[nodeId]);
+			while(it.hasNext()){
+				i++;
+				if(i == n) return -1;
+				if(text.charAt(i) != it.next()) return -1;
+			}
+		}
+		return nodeId;
+	}
+
+	@Override
+	public int getTermId(String text){
+		int nodeId = getNodeId(text);
+		if(nodeId == -1) return -1;
+		return term.get(nodeId) ? term.rank1(nodeId) - 1 : -1;
+	}
+
 	@Override
 	public int size() {
 		return size;
@@ -159,6 +194,32 @@ implements Externalizable, Trie {
 			}
 			if(term.get(child)){
 				ret.add(new String(chars, 0, charsIndex + 1));
+			}
+			nodeId = child;
+		}
+		return ret;
+	}
+
+	@Override
+	public Iterable<Pair<String, Integer>> commonPrefixSearchWithTermId(String query) {
+		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
+		char[] chars = query.toCharArray();
+		int charsLen = chars.length;
+		int nodeId = 0; // root
+		TailCharIterator tci = new TailCharIterator(tails, -1);
+		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
+			int child = getChildNode(nodeId, chars[charsIndex]);
+			if(child == -1) return ret;
+			tci.setOffset(tail[child]);
+			while(tci.hasNext()){
+				charsIndex++;
+				if(charsLen <= charsIndex) return ret;
+				if(chars[charsIndex] != tci.next()) return ret;
+			}
+			if(term.get(child)){
+				ret.add(Pair.create(
+						new String(chars, 0, charsIndex + 1),
+						term.rank1(child) - 1));
 			}
 			nodeId = child;
 		}
@@ -211,15 +272,68 @@ implements Externalizable, Trie {
 	}
 
 	@Override
+	public Iterable<Pair<String, Integer>> predictiveSearchWithTermId(String query) {
+		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
+		char[] chars = query.toCharArray();
+		int charsLen = chars.length;
+		int nodeId = 0; // root
+		Range r = new Range();
+		TailCharIterator tci = new TailCharIterator(tails, -1);
+		String pfx = null;
+		int charsIndexBack = 0;
+		for(int charsIndex = 0; charsIndex < charsLen; charsIndex++){
+			charsIndexBack = charsIndex;
+			int child = getChildNode(nodeId, chars[charsIndex], r);
+			if(child == -1) return ret;
+			tci.setOffset(tail[child]);
+			while(tci.hasNext()){
+				charsIndex++;
+				if(charsIndex >= charsLen) break;
+				if(chars[charsIndex] != tci.next()) return ret;
+			}
+			nodeId = child;
+		}
+		pfx = new String(chars, 0, charsIndexBack);
+
+		Deque<Pair<Integer, String>> queue = new LinkedList<Pair<Integer,String>>();
+		queue.offerLast(Pair.create(nodeId, pfx));
+		while(queue.size() > 0){
+			Pair<Integer, String> element = queue.pollFirst();
+			int nid = element.getFirst();
+
+			StringBuilder b = new StringBuilder(element.getSecond());
+			if(nid > 0){
+				b.append(labels[nid]);
+			}
+			tci.setIndex(tail[nid]);
+			while(tci.hasNext()) b.append(tci.next());
+			String letter = b.toString();
+			if(term.get(nid)){
+				ret.add(Pair.create(letter, term.rank1(nid) - 1));
+			}
+			int s = bv.select0(nid) + 1;
+			int e = bv.next0(s);
+			int lastNodeId = bv.rank1(s) + e - s - 1;
+			for(int i = (e - 1); i >= s; i--){
+				queue.offerFirst(Pair.create(lastNodeId--, letter));
+			}
+			for(int i = (e - 1); i >= s; i--){
+				queue.offerFirst(Pair.create(i, letter));
+			}
+		}
+		return ret;
+	}
+
+	@Override
 	public void insert(String word) {
 		throw new UnsupportedOperationException();
 	}
 
-	public class LOUDSNode implements Node{
+	public class LOUDSNode implements TermIdNode{
 		public LOUDSNode(int nodeId) {
 			this.nodeId = nodeId;
 		}
-		public int getId(){
+		public int getTermId(){
 			return nodeId;
 		}
 		@Override
@@ -240,13 +354,13 @@ implements Externalizable, Trie {
 			return term.get(nodeId);
 		}
 		@Override
-		public Node getChild(char c) {
+		public TermIdNode getChild(char c) {
 			int nid = getChildNode(nodeId, c);
 			if(nid == -1) return null;
 			else return new LOUDSNode(nid);
 		}
 		@Override
-		public Node[] getChildren() {
+		public TermIdNode[] getChildren() {
 			int start = 0;
 			if(nodeId > 0){
 				start = bv.select0(nodeId) + 1;
@@ -254,7 +368,7 @@ implements Externalizable, Trie {
 			int end = bv.next0(start);
 			int ci = bv.rank1(start);
 			int n = end - start;
-			Node[] children = new Node[n];
+			TermIdNode[] children = new TermIdNode[n];
 			for(int i = 0; i < n; i++){
 				children[i] = new LOUDSNode(ci + i);
 			}
@@ -291,7 +405,7 @@ implements Externalizable, Trie {
 			b.append(in.readChar());
 		}
 		tails = b;
-		term = (BitSet)in.readObject();
+		term = (BytesRank1OnlySuccinctBitVector)in.readObject();
 		bv.readExternal(in);
 	}
 
@@ -346,6 +460,33 @@ implements Externalizable, Trie {
 		}
 	}
 
+	private int getChildNode(int nodeId, char c, Range r){
+		int start = bv.select0(nodeId) + 1;
+		int end = bv.next0(start);
+		if(end == -1) return -1;
+		if((end - start) <= 16){
+			for(int i = start; i < end; i++){
+				if(c == labels[i]) return i;
+			}
+			return -1;
+		} else{
+			do{
+				int i = (start + end) / 2;
+				int d = c - labels[i];
+				if(d < 0){
+					end = i;
+				} else if(d > 0){
+					if(start == i) return -1;
+					else start = i;
+				} else{
+					return i;
+				}
+			} while(start != end);
+			return -1;
+		}
+	}
+
+
 	private void extend(){
 		int nsz = (int)(labels.length * 1.2);
 		if(nsz <= labels.length) nsz = labels.length * 2 + 1;
@@ -358,6 +499,6 @@ implements Externalizable, Trie {
 	private char[] labels;
 	private int[] tail;
 	private CharSequence tails;
-	private BitSet term;
+	private SuccinctBitVector term;
 	private int nodeSize;
 }
