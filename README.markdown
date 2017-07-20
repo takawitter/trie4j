@@ -19,7 +19,7 @@ You can get the binary using Maven:
 
 or from [Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.github.takawitter%22%20AND%20a%3A%22trie4j%22)
 
-* Coming release: nothing planned.
+* Coming release: 0.9.6 (performance improvement of find????Word methods).
 * 2016/10/28: [0.9.5](https://github.com/takawitter/trie4j/releases/tag/0.9.5) released.
 * 2016/10/22: [0.9.4](https://github.com/takawitter/trie4j/releases/tag/0.9.4) released.
 * 2016/5/28: [0.9.3](https://github.com/takawitter/trie4j/releases/tag/0.9.3) released.
