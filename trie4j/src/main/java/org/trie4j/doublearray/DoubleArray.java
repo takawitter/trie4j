@@ -223,6 +223,60 @@ implements Externalizable, TermIdTrie{
 	}
 
 	@Override
+	public int findShortestWord(CharSequence chars, int start, int end, StringBuilder word) {
+		for(int i = start; i < end; i++){
+			int nodeIndex = 0;
+			try{
+				for(int j = i; j < end; j++){
+					int cid = findCharId(chars.charAt(j));
+					if(cid == -1) break;
+					int b = base[nodeIndex];
+					if(b == BASE_EMPTY) break;
+					int next = b + cid;
+					if(nodeIndex != check[next]) break;
+					nodeIndex = next;
+					if(term.get(nodeIndex)){
+						if(word != null) word.append(chars, i, j + 1);
+						return i;
+					}
+				}
+			} catch(ArrayIndexOutOfBoundsException e){
+				break;
+			}
+		}
+		return -1;
+	}
+
+	@Override
+	public int findLongestWord(CharSequence chars, int start, int end, StringBuilder word) {
+		for(int i = start; i < end; i++){
+			int nodeIndex = 0;
+			try{
+				int lastJ = -1;
+				for(int j = i; j < end; j++){
+					int cid = findCharId(chars.charAt(j));
+					if(cid == -1) break;
+					int b = base[nodeIndex];
+					if(b == BASE_EMPTY) break;
+					int next = b + cid;
+					if(nodeIndex != check[next]) break;
+					nodeIndex = next;
+					if(term.get(nodeIndex)){
+						lastJ = j;
+					}
+				}
+				if(lastJ != -1){
+					if(word != null) word.append(chars, i, lastJ + 1);
+					return i;
+				}
+			} catch(ArrayIndexOutOfBoundsException e){
+				break;
+			}
+		}
+		return -1;
+	}
+
+	@Override
 	public Iterable<String> commonPrefixSearch(String query) {
 		List<String> ret = new ArrayList<String>();
 		char[] chars = query.toCharArray();
@@ -266,31 +320,6 @@ implements Externalizable, TermIdTrie{
 			}
 		}
 		return ret;
-	}
-
-	@Override
-	public int findWord(CharSequence chars, int start, int end, StringBuilder word) {
-		for(int i = start; i < end; i++){
-			int nodeIndex = 0;
-			try{
-				for(int j = i; j < end; j++){
-					int cid = findCharId(chars.charAt(j));
-					if(cid == -1) break;
-					int b = base[nodeIndex];
-					if(b == BASE_EMPTY) break;
-					int next = b + cid;
-					if(nodeIndex != check[next]) break;
-					nodeIndex = next;
-					if(term.get(nodeIndex)){
-						if(word != null) word.append(chars, i, j + 1);
-						return i;
-					}
-				}
-			} catch(ArrayIndexOutOfBoundsException e){
-				break;
-			}
-		}
-		return -1;
 	}
 
 	@Override

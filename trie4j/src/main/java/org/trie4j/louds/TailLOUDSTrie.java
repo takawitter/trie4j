@@ -244,6 +244,68 @@ implements Externalizable, TermIdTrie{
 	}
 
 	@Override
+	public int findShortestWord(CharSequence chars, int start, int end, StringBuilder word) {
+		Range r = new Range();
+		TailCharIterator tci = tailArray.newIterator();
+		for(int i = start; i < end; i++){
+			int nodeId = 0; // root
+			for(int j = i; j < end; j++){
+				int child = getChildNode(nodeId, chars.charAt(j), r);
+				if(child == -1) break;
+				tci.setIndex(tailArray.getIteratorOffset(child));
+				boolean found = true;
+				while(tci.hasNext()){
+					j++;
+					found = false;
+					if(j >= end) break;
+					if(chars.charAt(j) != tci.next()) break;
+					found = true;
+				}
+				if(!found) break;
+				if(term.get(child)){
+					word.append(chars, i, j + 1);
+					return i;
+				}
+				nodeId = child;
+			}
+		}
+		return -1;
+	}
+
+	@Override
+	public int findLongestWord(CharSequence chars, int start, int end, StringBuilder word) {
+		Range r = new Range();
+		TailCharIterator tci = tailArray.newIterator();
+		for(int i = start; i < end; i++){
+			int nodeId = 0; // root
+			int lastJ = -1;
+			for(int j = i; j < end; j++){
+				int child = getChildNode(nodeId, chars.charAt(j), r);
+				if(child == -1) break;
+				tci.setIndex(tailArray.getIteratorOffset(child));
+				boolean found = true;
+				while(tci.hasNext()){
+					j++;
+					found = false;
+					if(j >= end) break;
+					if(chars.charAt(j) != tci.next()) break;
+					found = true;
+				}
+				if(!found) break;
+				if(term.get(child)){
+					lastJ = j;
+				}
+				nodeId = child;
+			}
+			if(lastJ != -1){
+				word.append(chars, i, lastJ + 1);
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	@Override
 	public Iterable<Pair<String, Integer>> commonPrefixSearchWithTermId(String query) {
 		List<Pair<String, Integer>> ret = new ArrayList<Pair<String, Integer>>();
 		char[] chars = query.toCharArray();

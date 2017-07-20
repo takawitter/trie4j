@@ -127,7 +127,7 @@ implements Serializable, Trie{
 	}
 
 	@Override
-	public int findWord(CharSequence chars, int start, int end, StringBuilder word){
+	public int findShortestWord(CharSequence chars, int start, int end, StringBuilder word){
 		TailCharIterator it = new TailCharIterator(tails, -1);
 		for(int i = start; i < end; i++){
 			TailPatriciaTrieNode node = root;
@@ -155,7 +155,41 @@ implements Serializable, Trie{
 		}
 		return -1;
 	}
-	
+
+	@Override
+	public int findLongestWord(CharSequence chars, int start, int end, StringBuilder word){
+		TailCharIterator it = new TailCharIterator(tails, -1);
+		for(int i = start; i < end; i++){
+			TailPatriciaTrieNode node = root;
+			int lastJ = -1;
+			for(int j = i; j < end; j++){
+				node = node.getChild(chars.charAt(j));
+				if(node == null) break;
+				boolean matched = true;
+				it.setIndex(node.getTailIndex());
+				while(it.hasNext()){
+					j++;
+					if(j == end || chars.charAt(j) != it.next()){
+						matched = false;
+						break;
+					}
+				}
+				if(matched){
+					if(node.isTerminate()){
+						lastJ = j;
+					}
+				} else{
+					break;
+				}
+			}
+			if(lastJ != -1){
+				if(word != null) word.append(chars, i, lastJ + 1);
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	@Override
 	public Iterable<String> commonPrefixSearch(final String query) {
 		if(query.length() == 0) return new ArrayList<String>(0);

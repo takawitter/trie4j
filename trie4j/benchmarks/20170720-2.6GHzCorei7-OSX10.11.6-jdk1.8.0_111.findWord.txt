@@ -1,0 +1,18 @@
+-- findShortestWord --
+1892.181 ms in 100000call: org.trie4j.patricia.TailPatriciaTrie
+ 138.379 ms in 100000call: org.trie4j.patricia.OptTailPatriciaTrie
+2309.173 ms in 100000call: org.trie4j.doublearray.DoubleArray
+ 130.442 ms in 100000call: org.trie4j.doublearray.OptDoubleArray
+3084.871 ms in 100000call: org.trie4j.louds.TailLOUDSTrie
+ 523.670 ms in 100000call: org.trie4j.louds.OptTailLOUDSTrie
+2560.991 ms in 100000call: org.trie4j.louds.InlinedTailLOUDSTrie
+ 533.103 ms in 100000call: org.trie4j.louds.OptInlinedTailLOUDSTrie
+-- findLongestWord --
+1613.162 ms in 100000call: org.trie4j.patricia.TailPatriciaTrie
+ 208.330 ms in 100000call: org.trie4j.patricia.OptTailPatriciaTrie
+2031.218 ms in 100000call: org.trie4j.doublearray.DoubleArray
+ 150.888 ms in 100000call: org.trie4j.doublearray.OptDoubleArray
+2679.538 ms in 100000call: org.trie4j.louds.TailLOUDSTrie
+ 586.631 ms in 100000call: org.trie4j.louds.OptTailLOUDSTrie
+2322.417 ms in 100000call: org.trie4j.louds.InlinedTailLOUDSTrie
+ 533.238 ms in 100000call: org.trie4j.louds.OptInlinedTailLOUDSTrie
