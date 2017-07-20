@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.takawitter</groupId>
   <artifactId>trie4j</artifactId>
-  <version>0.9.5</version>
+  <version>0.9.6</version>
   <name>Trie4J</name>
   <packaging>jar</packaging>
   <description>Various TRIE implementation including DoubleArray and LOUDS by Java.</description>
@@ -67,7 +67,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
