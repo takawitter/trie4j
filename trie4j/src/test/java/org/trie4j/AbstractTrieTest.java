@@ -15,9 +15,13 @@
  */
 package org.trie4j;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -164,6 +168,33 @@ public abstract class AbstractTrieTest<F extends Trie, S extends Trie> {
 		Assert.assertEquals("hell", b.toString());
 	}
 
+	//Docker（ドッカー[2]）はソフトウェアコンテナ内のアプリケーションのデプロイメントを自動化するオープンソースソフトウェアである。
+	//Linuxカーネルにおける「libcontainer」と呼ばれるLinuxコンテナ技術[3]とaufsのような特殊なファイルシステムを利用してコンテナ型の仮想化を行う[4]。VMware製品などの完全仮想化を行うハイパーバイザー型製品と比べて、ディスク使用量は少なく、インスタンス作成やインスタンス起動は速く、性能劣化がほとんどないという利点を持つ。Dockerfileと呼ばれる設定ファイルからコンテナイメージファイルを作成可能という特性を持つ。一方で、コンテナOSとしてはホストOSと同じLinuxカーネルしか動作しない。
+	@Test
+	public void test_findShortestWord_2() throws Exception{
+		String[] expected = {
+			"ソフトウェア", "オープンソース", "ソフトウェア", "Linux", "Linux",
+			"ファイル", "ファイル", "ファイル", "Linux"
+		};
+		Trie t = trieWithWords("ソフトウェア", "ソフトウェアコンテナ",
+				"オープンソース", "オープンソースソフトウェア",
+				"Linux", "Linuxカーネル",
+				"Linuxコンテナ", "Linuxコンテナ技術",
+				"ファイル", "ファイルシステム");
+		List<String> actual = new ArrayList<>();
+		for(String s : longSentences){
+			int begin = 0;
+			int found = -1;
+			StringBuilder b = new StringBuilder();
+			while((found = t.findShortestWord(s, begin, s.length(), b)) != -1){
+				actual.add(b.toString());
+				begin = found + b.length();
+				b = new StringBuilder();
+			}
+		}
+		Assert.assertArrayEquals(expected, actual.toArray(new String[]{}));
+	}
+
 	@Test
 	public void test_findLongestWord_1() throws Exception{
 		Trie t = trieWithWords("hello", "helloworld", "hi", "howsgoing", "hell", "helloworld2", "world");
@@ -172,6 +203,37 @@ public abstract class AbstractTrieTest<F extends Trie, S extends Trie> {
 		int i = t.findLongestWord(text, 0, text.length(), b);
 		Assert.assertEquals(4, i);
 		Assert.assertEquals("helloworld", b.toString());
+	}
+
+	//Docker（ドッカー[2]）はソフトウェアコンテナ内のアプリケーションのデプロイメントを自動化するオープンソースソフトウェアである。
+	//Linuxカーネルにおける「libcontainer」と呼ばれるLinuxコンテナ技術[3]とaufsのような特殊なファイルシステムを利用してコンテナ型の仮想化を行う[4]。
+	//VMware製品などの完全仮想化を行うハイパーバイザー型製品と比べて、ディスク使用量は少なく、インスタンス作成やインスタンス起動は速く、
+	//性能劣化がほとんどないという利点を持つ。Dockerfileと呼ばれる設定ファイルからコンテナイメージファイルを作成可能という特性を持つ。
+	//一方で、コンテナOSとしてはホストOSと同じLinuxカーネルしか動作しない。
+	@Test
+	public void test_findLongestWord_2() throws Exception{
+		String[] expected = {
+			"ソフトウェアコンテナ", "オープンソースソフトウェア",
+			"Linuxカーネル", "Linuxコンテナ技術", "ファイルシステム",
+			"ファイル", "ファイル", "Linuxカーネル"
+		};
+		Trie t = trieWithWords("ソフトウェア", "ソフトウェアコンテナ",
+				"オープンソース", "オープンソースソフトウェア",
+				"Linux", "Linuxカーネル",
+				"Linuxコンテナ", "Linuxコンテナ技術",
+				"ファイル", "ファイルシステム");
+		List<String> actual = new ArrayList<>();
+		for(String s : longSentences){
+			int begin = 0;
+			int found = -1;
+			StringBuilder b = new StringBuilder();
+			while((found = t.findLongestWord(s, begin, s.length(), b)) != -1){
+				actual.add(b.toString());
+				begin = found + b.length();
+				b = new StringBuilder();
+			}
+		}
+		Assert.assertArrayEquals(expected, actual.toArray(new String[]{}));
 	}
 
 	@Test
@@ -233,6 +295,24 @@ public abstract class AbstractTrieTest<F extends Trie, S extends Trie> {
 		}
 		for(String w : notContains){
 			Assert.assertFalse("must not contain \"" + w  + "\"", trie.contains(w));
+		}
+	}
+
+	private static String[] longSentences;
+	static{
+		try(BufferedReader r = new BufferedReader(new InputStreamReader(
+				AbstractTrieTest.class.getResourceAsStream("AbstractTrieTest_longsentences.txt"),
+				"UTF-8"))){
+			List<String> ret = new ArrayList<>();
+			String line = null;
+			while((line = r.readLine()) != null){
+				line = line.trim();
+				if(line.length() == 0) continue;
+				ret.add(line);
+			}
+			longSentences = ret.toArray(new String[]{});
+		} catch(Exception e){
+			throw new RuntimeException(e);
 		}
 	}
 }
