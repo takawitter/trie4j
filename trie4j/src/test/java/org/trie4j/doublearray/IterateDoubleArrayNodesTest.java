@@ -40,7 +40,7 @@ public class IterateDoubleArrayNodesTest {
 		Assert.assertEquals(15, c.getCount());
 	}
 
-	@Test
+//	@Test
 	public void test_withWikipediaTitles() throws Exception{
 		DoubleArray da = new DoubleArray(new WikipediaTitles().insertTo(new PatriciaTrie()));
 		System.out.println(da.nodeSize());
