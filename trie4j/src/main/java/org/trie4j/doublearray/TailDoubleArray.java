@@ -171,7 +171,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 			int code = charToCode[c];
 			if(code == -1) return null;
 			int nid = base[nodeId] + code;
-			if(nid >= 0 && nid < check.length && check[nid] == nodeId) return new TailDoubleArrayNode(nid, c);
+			if(0 <= nid && nid < check.length && check[nid] == nodeId) return new TailDoubleArrayNode(nid, c);
 			return null;
 		}
 
@@ -183,12 +183,13 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 	public int getTermId(String text) {
 		int nodeIndex = 0; // root
 		TailCharIterator it = tailArray.newIterator();
+		int checkLen = check.length;
 		int n = text.length();
 		for(int i = 0; i < n; i++){
 			char cid = charToCode[text.charAt(i)];
 			if(cid == 0) return -1;
 			int next = base[nodeIndex] + cid;
-			if(next < 0 || check[next] != nodeIndex) return -1;
+			if(next < 0 || checkLen <= next || check[next] != nodeIndex) return -1;
 			nodeIndex = next;
 			int ti = tailArray.getIteratorOffset(nodeIndex);
 			if(ti == -1) continue;
@@ -215,7 +216,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 			int b = base[ni];
 			if(b == BASE_EMPTY) return ret;
 			int next = b + cid;
-			if(check.length <= next || check[next] != ni) return ret;
+			if(next < 0 || check.length <= next || check[next] != ni) return ret;
 			ni = next;
 			int ti = tailArray.getIteratorOffset(ni);
 			if(ti != -1){
@@ -288,12 +289,10 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 			if(b == BASE_EMPTY) continue;
 			for(char v : this.chars){
 				int next = b + charToCode[v];
-				if(next >= checkLen) continue;
-				if(check[next] == ni){
-					StringBuilder bu = new StringBuilder(buff);
-					bu.append(v);
-					q.push(Pair.create(next, bu.toString().toCharArray()));
-				}
+				if(next < 0 || checkLen <= next || check[next] != ni) continue;
+				StringBuilder bu = new StringBuilder(buff);
+				bu.append(v);
+				q.push(Pair.create(next, bu.toString().toCharArray()));
 			}
 		}
 		return ret;

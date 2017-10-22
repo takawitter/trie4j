@@ -54,4 +54,12 @@ extends AbstractTermIdTrieTest<DoubleArray>{
 		String actual = sw.toString();
 		Assert.assertEquals(expected, actual);
 	}
+	
+	@Test
+	public void test_issue_035() throws Exception{
+		Trie t = trieWithWords(
+				"php.a", "php.e", "php.o", "e", "php.elu", "php.s", "php.x");
+		DoubleArray da = new DoubleArray(t);
+		da.commonPrefixSearchWithTermId("php.ele");
+	}
 }

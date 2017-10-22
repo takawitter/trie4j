@@ -224,6 +224,7 @@ implements Externalizable, TermIdTrie{
 
 	@Override
 	public int findShortestWord(CharSequence chars, int start, int end, StringBuilder word) {
+		int checkLen = check.length;
 		for(int i = start; i < end; i++){
 			int nodeIndex = 0;
 			try{
@@ -233,7 +234,7 @@ implements Externalizable, TermIdTrie{
 					int b = base[nodeIndex];
 					if(b == BASE_EMPTY) break;
 					int next = b + cid;
-					if(nodeIndex != check[next]) break;
+					if(next < 0 || checkLen <= next || check[next] != nodeIndex) break;
 					nodeIndex = next;
 					if(term.get(nodeIndex)){
 						if(word != null) word.append(chars, i, j + 1);
@@ -249,6 +250,7 @@ implements Externalizable, TermIdTrie{
 
 	@Override
 	public int findLongestWord(CharSequence chars, int start, int end, StringBuilder word) {
+		int checkLen = check.length;
 		for(int i = start; i < end; i++){
 			int nodeIndex = 0;
 			try{
@@ -259,7 +261,7 @@ implements Externalizable, TermIdTrie{
 					int b = base[nodeIndex];
 					if(b == BASE_EMPTY) break;
 					int next = b + cid;
-					if(nodeIndex != check[next]) break;
+					if(next < 0 || checkLen <= next || check[next] != nodeIndex) break;
 					nodeIndex = next;
 					if(term.get(nodeIndex)){
 						lastJ = j;
@@ -289,7 +291,7 @@ implements Externalizable, TermIdTrie{
 			int b = base[nodeIndex];
 			if(b == BASE_EMPTY) return ret;
 			int next = b + cid;
-			if(next >= checkLen || check[next] != nodeIndex) return ret;
+			if(next < 0 || checkLen <= next || check[next] != nodeIndex) return ret;
 			nodeIndex = next;
 			if(term.get(nodeIndex)) ret.add(new String(chars, 0, i + 1));
 		}
@@ -310,7 +312,7 @@ implements Externalizable, TermIdTrie{
 			int b = base[nodeIndex];
 			if(b == BASE_EMPTY) return ret;
 			int next = b + cid;
-			if(next >= checkLen || check[next] != nodeIndex) return ret;
+			if(next < 0 || checkLen <= next || check[next] != nodeIndex) return ret;
 			nodeIndex = next;
 			if(term.get(nodeIndex)){
 				ret.add(Pair.create(
@@ -333,7 +335,7 @@ implements Externalizable, TermIdTrie{
 			int cid = findCharId(chars[i]);
 			if(cid == -1) return ret;
 			int next = base[nodeIndex] + cid;
-			if(next < 0 || next >= checkLen || check[next] != nodeIndex) return ret;
+			if(next < 0 || checkLen <= next || check[next] != nodeIndex) return ret;
 			nodeIndex = next;
 		}
 		if(term.get(nodeIndex)){
@@ -349,14 +351,12 @@ implements Externalizable, TermIdTrie{
 			String c = p.getSecond();
 			for(char v : this.chars){
 				int next = b + charToCode[v];
-				if(next < 0 || next >= checkLen) continue;
-				if(check[next] == ni){
-					String n = new StringBuilder(c).append(v).toString();
-					if(term.get(next)){
-						ret.add(n);
-					}
-					q.push(Pair.create(next, n));
+				if(next < 0 || checkLen <= next || check[next] != ni) continue;
+				String n = new StringBuilder(c).append(v).toString();
+				if(term.get(next)){
+					ret.add(n);
 				}
+				q.push(Pair.create(next, n));
 			}
 		}
 		return ret;
@@ -376,7 +376,7 @@ implements Externalizable, TermIdTrie{
 			int cid = findCharId(chars[i]);
 			if(cid == -1) return ret;
 			int next = base[nodeIndex] + cid;
-			if(next < 0 || next >= checkLen || check[next] != nodeIndex) return ret;
+			if(next < 0 || checkLen <= next || check[next] != nodeIndex) return ret;
 			nodeIndex = next;
 		}
 		if(term.get(nodeIndex)){
@@ -392,17 +392,15 @@ implements Externalizable, TermIdTrie{
 			String c = p.getSecond();
 			for(char v : this.chars){
 				int next = b + charToCode[v];
-				if(next < 0 || next >= checkLen) continue;
-				if(check[next] == ni){
-					String n = new StringBuilder(c).append(v).toString();
-					if(term.get(next)){
-						ret.add(Pair.create(
-								n,
-								term.rank1(next) - 1
-								));
-					}
-					q.push(Pair.create(next, n));
+				if(next < 0 || checkLen <= next || check[next] != ni) continue;
+				String n = new StringBuilder(c).append(v).toString();
+				if(term.get(next)){
+					ret.add(Pair.create(
+							n,
+							term.rank1(next) - 1
+							));
 				}
+				q.push(Pair.create(next, n));
 			}
 		}
 		return ret;
