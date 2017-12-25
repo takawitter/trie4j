@@ -104,7 +104,7 @@ with <a href="https://github.com/takawitter/trie4j/blob/master/trie4j/src/org/tr
 ```java
 import org.trie4j.doublearray.DoubleArray;
 import org.trie4j.louds.TailLOUDSTrie;
-import org.trie4j.patricia.simple.PatriciaTrie;
+import org.trie4j.patricia.PatriciaTrie;
 
 public class Sample {
 	public static void main(String[] args) throws Exception{
