@@ -657,7 +657,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 	private SuccinctBitVector term;
 	private TailArray tailArray;
 	private Set<Character> chars = new TreeSet<Character>();
-	private char[] charToCode = new char[Character.MAX_VALUE];
+	private char[] charToCode = new char[Character.MAX_VALUE+1];
 	private static final TermIdNode[] emptyNodes = {};
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 

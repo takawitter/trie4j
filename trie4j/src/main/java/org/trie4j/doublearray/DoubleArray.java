@@ -710,7 +710,7 @@ implements Externalizable, TermIdTrie{
 	private int last;
 	private SuccinctBitVector term;
 	private Set<Character> chars = new TreeSet<Character>();
-	private char[] charToCode = new char[Character.MAX_VALUE];
+	private char[] charToCode = new char[Character.MAX_VALUE+1];
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 	private static final DoubleArrayNode[] emptyNodes = {};
 }

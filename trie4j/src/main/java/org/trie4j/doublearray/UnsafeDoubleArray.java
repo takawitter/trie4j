@@ -745,7 +745,7 @@ implements Externalizable, TermIdTrie{
 	private long last = Unsafe.ARRAY_INT_BASE_OFFSET;
 	private SuccinctBitVector term;
 	private Set<Character> chars = new TreeSet<Character>();
-	private int[] charToScaledCode = new int[Character.MAX_VALUE];
+	private int[] charToScaledCode = new int[Character.MAX_VALUE+1];
 	private static final int BASE_EMPTY = Integer.MAX_VALUE;
 	private static final DoubleArrayNode[] emptyNodes = {};
 }
