@@ -154,7 +154,7 @@ public class TrieWriter implements Constants{
 		} else if(sbv instanceof BytesRank1OnlySuccinctBitVector){
 			dos.writeShort(TYPE_SBV_RANK1ONLY);
 			writeRank1OnlySuccinctBitVector((BytesRank1OnlySuccinctBitVector)sbv);
-		} else if(sbv instanceof BytesRank1OnlySuccinctBitVector){
+		} else if(sbv instanceof LongsSuccinctBitVector){
 			dos.writeShort(TYPE_SBV_LONGS);
 			writeLongsSuccinctBitVector((LongsSuccinctBitVector)sbv);
 		} else {
