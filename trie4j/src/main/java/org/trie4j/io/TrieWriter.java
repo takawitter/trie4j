@@ -20,12 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.trie4j.Trie;
-import org.trie4j.bv.BitVector01Divider;
-import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
-import org.trie4j.bv.BytesRank1OnlySuccinctBitVector;
-import org.trie4j.bv.BytesSuccinctBitVector;
-import org.trie4j.bv.LongsSuccinctBitVector;
-import org.trie4j.bv.SuccinctBitVector;
+import org.trie4j.bv.*;
 import org.trie4j.louds.TailLOUDSTrie;
 import org.trie4j.louds.bvtree.BvTree;
 import org.trie4j.louds.bvtree.LOUDSBvTree;
@@ -157,9 +152,31 @@ public class TrieWriter implements Constants{
 		} else if(sbv instanceof BytesRank1OnlySuccinctBitVector){
 			dos.writeShort(TYPE_SBV_LONGS);
 			writeLongsSuccinctBitVector((LongsSuccinctBitVector)sbv);
+		} else if (sbv instanceof LongsRank0OnlySuccinctBitVector) {
+			dos.writeShort(TYPE_SBV_LONGSRANK0ONLY);
+			writeLongsRank0OnlySuccinctBitVector((LongsRank0OnlySuccinctBitVector) sbv);
+		} else if (sbv instanceof LongsRank1OnlySuccinctBitVector) {
+			dos.writeShort(TYPE_SBV_LONGSRANK1ONLY);
+			writeLongsRank1OnlySuccinctBitVector((LongsRank1OnlySuccinctBitVector) sbv);
 		} else {
 			throw new IOException("unknown sbv: " + sbv.getClass().getName());
 		}
+	}
+
+	private void writeLongsRank0OnlySuccinctBitVector(LongsRank0OnlySuccinctBitVector sbv) throws IOException {
+		sbv.trimToSize();
+		writeLongs(sbv.getLongs());
+		dos.writeInt(sbv.size());
+		dos.writeInt(sbv.getSize0());
+		writeInts(sbv.getCountCache0());
+	}
+
+	public void writeLongsRank1OnlySuccinctBitVector(LongsRank1OnlySuccinctBitVector sbv) throws IOException {
+		sbv.trimToSize();
+		writeLongs(sbv.getLongs());
+		dos.writeInt(sbv.size());
+		dos.writeInt(sbv.getSize1());
+		writeInts(sbv.getCountCache1());
 	}
 
 	public void writeRank0OnlySuccinctBitVector(BytesRank0OnlySuccinctBitVector sbv)
