@@ -19,17 +19,18 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.util.FastBitSet;
 
-public class LongsRank1OnlySuccinctBitVectorTest {//extends AbstractSuccinctBitVectorTest{
+public class LongsRank1OnlySuccinctBitVectorTest 
+extends AbstractSuccinctBitVectorTest {
 	protected SuccinctBitVector create(){
-		return new LongsRank0OnlySuccinctBitVector();
+		return new LongsRank1OnlySuccinctBitVector();
 	}
 
 	protected SuccinctBitVector create(int initialCapacity){
-		return new LongsRank0OnlySuccinctBitVector(initialCapacity);
+		return new LongsRank1OnlySuccinctBitVector(initialCapacity);
 	}
 
 	protected SuccinctBitVector create(byte[] bytes, int bitsSize){
-		return new LongsRank0OnlySuccinctBitVector(bytes, bitsSize);
+		return new LongsRank1OnlySuccinctBitVector(bytes, bitsSize);
 	}
 	
 	@Test
@@ -40,7 +41,7 @@ public class LongsRank1OnlySuccinctBitVectorTest {//extends AbstractSuccinctBitV
 		bs.set(28);
 		bs.set(34);
 		bs.set(67);
-		LongsRank0OnlySuccinctBitVector bv = new LongsRank0OnlySuccinctBitVector(
+		SuccinctBitVector bv = new LongsRank1OnlySuccinctBitVector(
 				bs.getBytes(), bs.size());
 		Assert.assertEquals(1, bv.rank1(11));
 		Assert.assertEquals(2, bv.rank1(22));
@@ -51,7 +52,7 @@ public class LongsRank1OnlySuccinctBitVectorTest {//extends AbstractSuccinctBitV
 
 	@Test
 	public void test_2() throws Exception{
-		LongsRank0OnlySuccinctBitVector bv = new LongsRank0OnlySuccinctBitVector(
+		SuccinctBitVector bv = new LongsRank1OnlySuccinctBitVector(
 				new byte[]{127, -12, -102, -1, -6, 95, -1, -33, -128},
 				65
 				);
@@ -60,7 +61,7 @@ public class LongsRank1OnlySuccinctBitVectorTest {//extends AbstractSuccinctBitV
 
 	@Test
 	public void test_3() throws Exception{
-		LongsRank0OnlySuccinctBitVector bv = new LongsRank0OnlySuccinctBitVector();
+		SuccinctBitVector bv = new LongsRank0OnlySuccinctBitVector();
 		for(int i = 0; i < 9; i++){
 			bv.append1();
 		}

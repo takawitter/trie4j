@@ -189,7 +189,7 @@ implements Serializable, SuccinctBitVector{
 			if(count <= c){
 				for(int j = 0; j < BITS_IN_BLOCK; j++){
 					if(i * BITS_IN_BLOCK + j >= size) return -1;
-					if((v & 0x8000000000000000L) != 1){
+					if((v & 0x8000000000000000L) == 0){
 						count--;
 						if(count == 0){
 							return i * BITS_IN_BLOCK + j;
