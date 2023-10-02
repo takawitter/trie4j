@@ -37,4 +37,17 @@ extends AbstractImmutableTrieTest<T>{
 		}
 		Assert.assertEquals(0, ids.size());
 	}
+
+	@Test
+	public void test_childNode() throws Throwable{
+		TermIdTrie tit = trieWithWords("ab", "ac");
+		TermIdNode root = tit.getRoot();
+		Assert.assertNull(root.getChild('b'));
+		TermIdNode a = root.getChild('a');
+		Assert.assertNotNull(a);
+		Assert.assertNotNull(a.getChild('b'));
+		Assert.assertNull(a.getChild('b').getChild('c'));
+		Assert.assertNotNull(a.getChild('c'));
+		Assert.assertNull(a.getChild('d'));
+	}
 }

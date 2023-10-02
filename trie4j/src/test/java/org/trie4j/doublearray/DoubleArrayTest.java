@@ -22,7 +22,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.trie4j.AbstractTermIdTrieTest;
 import org.trie4j.Node;
+import org.trie4j.TermIdNode;
 import org.trie4j.Trie;
+import org.trie4j.patricia.PatriciaTrie;
 import org.trie4j.util.StreamUtil;
 import org.trie4j.util.StringUtil;
 
@@ -54,12 +56,27 @@ extends AbstractTermIdTrieTest<DoubleArray>{
 		String actual = sw.toString();
 		Assert.assertEquals(expected, actual);
 	}
-	
+
 	@Test
 	public void test_issue_035() throws Exception{
 		Trie t = trieWithWords(
 				"php.a", "php.e", "php.o", "e", "php.elu", "php.s", "php.x");
 		DoubleArray da = new DoubleArray(t);
 		da.commonPrefixSearchWithTermId("php.ele");
+	}
+
+	@Test
+	public void test_childNode() throws Throwable{
+		PatriciaTrie pt = new PatriciaTrie();
+		pt.insert("ab");
+		pt.insert("ac");
+		TermIdNode root = new DoubleArray(pt).getRoot();
+		Assert.assertNull(root.getChild('b'));
+		TermIdNode a = root.getChild('a');
+		Assert.assertNotNull(a);
+		Assert.assertNotNull(a.getChild('b'));
+		Assert.assertNull(a.getChild('b').getChild('c'));
+		Assert.assertNotNull(a.getChild('c'));
+		Assert.assertNull(a.getChild('d'));
 	}
 }

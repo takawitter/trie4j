@@ -168,9 +168,7 @@ public class TailDoubleArray extends AbstractTermIdTrie implements TermIdTrie, E
 
 		@Override
 		public TailDoubleArrayNode getChild(char c) {
-			int code = charToCode[c];
-			if(code == -1) return null;
-			int nid = base[nodeId] + code;
+			int nid = base[nodeId] + charToCode[c];
 			if(0 <= nid && nid < check.length && check[nid] == nodeId) return new TailDoubleArrayNode(nid, c);
 			return null;
 		}
