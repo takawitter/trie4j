@@ -21,6 +21,7 @@ You can get the binary using Maven:
 or from [Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.github.takawitter%22%20AND%20a%3A%22trie4j%22)
 
 * Coming release: nothing planned.
+* 2023/10/2: [0.9.9](https://github.com/takawitter/trie4j/releases/tag/0.9.9) released.
 * 2018/1/24: [0.9.8](https://github.com/takawitter/trie4j/releases/tag/0.9.8) released.
 * 2017/10/22: [0.9.7](https://github.com/takawitter/trie4j/releases/tag/0.9.7) released.
 * 2017/7/20: [0.9.6](https://github.com/takawitter/trie4j/releases/tag/0.9.6) released.
