@@ -14,13 +14,14 @@ You can get the binary using Maven:
 <dependency>
     <groupId>com.github.takawitter</groupId>
     <artifactId>trie4j</artifactId>
-    <version>0.9.9</version>
+    <version>0.9.10</version>
 </dependency>
 ```
 
 or from [Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.github.takawitter%22%20AND%20a%3A%22trie4j%22)
 
 * Coming release: nothing planned.
+* 2023/10/9: [0.9.10](https://github.com/takawitter/trie4j/releases/tag/0.9.10) released.
 * 2023/10/2: [0.9.9](https://github.com/takawitter/trie4j/releases/tag/0.9.9) released.
 * 2018/1/24: [0.9.8](https://github.com/takawitter/trie4j/releases/tag/0.9.8) released.
 * 2017/10/22: [0.9.7](https://github.com/takawitter/trie4j/releases/tag/0.9.7) released.
