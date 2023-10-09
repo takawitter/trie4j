@@ -18,7 +18,7 @@ You can get the binary using Maven:
 </dependency>
 ```
 
-or from [Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.github.takawitter%22%20AND%20a%3A%22trie4j%22)
+or from [Central Repository](https://central.sonatype.com/artifact/com.github.takawitter/trie4j)
 
 * Coming release: nothing planned.
 * 2023/10/9: [0.9.10](https://github.com/takawitter/trie4j/releases/tag/0.9.10) released.
