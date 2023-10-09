@@ -55,7 +55,7 @@ public class TrieReader implements Constants{
 		return new TailLOUDSTrie(
 				dis.readInt(), dis.readInt(),
 				readBvTree(), readChars(),
-				readTailArray(), readSuccinctBitVector()) {};
+				readTailArray(), readSuccinctBitVector());
 	}
 
 	public BvTree readBvTree() throws IOException{
