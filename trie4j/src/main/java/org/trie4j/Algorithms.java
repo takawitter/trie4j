@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.trie4j.Node;
 import org.trie4j.util.Pair;
 
 public class Algorithms {
