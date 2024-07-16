@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.junit.Test;
+import org.trie4j.bv.ByteBufferSuccinctBitVector;
 import org.trie4j.bv.BytesConstantTimeSelect0SuccinctBitVector;
 import org.trie4j.bv.BytesRank0OnlySuccinctBitVector;
 import org.trie4j.bv.BytesSuccinctBitVector;
@@ -565,6 +566,7 @@ public class AllTries {
 //*
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, UnsafeBytesSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
+			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, ByteBufferSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, BytesConstantTimeSelect0SuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, LongsSuccinctBitVector.class}, ConcatTailArrayBuilder.class),
 			new TrieProcess().second(TailLOUDSTrie.class, new Class[]{LOUDSBvTree.class, LongsConstantTimeSelect0SuccinctBitVector.class}, ConcatTailArrayBuilder.class),
