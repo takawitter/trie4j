@@ -23,7 +23,7 @@ public class WikipediaTitles implements Iterable<String>{
 	}
 
 	public WikipediaTitles() throws IOException{
-		String gzFilePath = "data/" + IOUtil.readLine("data/wiki");
+		String gzFilePath = "data/" + IOUtil.readValidLine("data/wiki");
 		if(!new File(gzFilePath).exists()) throw new FileNotFoundException(gzFilePath);
 		this.path = gzFilePath;
 	}
