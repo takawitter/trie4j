@@ -43,12 +43,14 @@ public class TrieMap<T> extends AbstractMap<String, T>{
 		return trie.size();
 	}
 
+	interface ComparableEntry<T, U> extends Map.Entry<T, U>, Comparable<ComparableEntry<T, U>>{}
+
 	@Override
 	public Set<Map.Entry<String, T>> entrySet() {
 		Set<Map.Entry<String, T>> ret = new TreeSet<Map.Entry<String,T>>();
 		for(final String s : trie.predictiveSearch("")){
 			final T v = trie.get(s);
-			ret.add(new Map.Entry<String, T>() {
+			ret.add(new ComparableEntry<String, T>() {
 				@Override
 				public String getKey() {
 					return s;
@@ -62,6 +64,11 @@ public class TrieMap<T> extends AbstractMap<String, T>{
 				@Override
 				public T setValue(T value) {
 					throw new UnsupportedOperationException();
+				}
+				
+				@Override
+				public int compareTo(ComparableEntry<String, T> o) {
+					return s.compareTo(o.getKey());
 				}
 			});
 		}
