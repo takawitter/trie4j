@@ -15,22 +15,20 @@
  */
 package org.trie4j.test;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class IOUtil {
-	public static String readLine(String path)
+	public static String readValidLine(String path)
 	throws FileNotFoundException, IOException{
-		InputStream is = new FileInputStream(path);
-		try{
-			byte line[] = new byte[1026];
-			int n = is.read(line);
-			if(n == -1) throw new IOException("failed to read " + path);
-			return new String(line, 0, n, "UTF-8");
-		} finally{
-			is.close();
+		for(var line : Files.readAllLines(Path.of(path))) {
+			line = line.trim();
+			if(line.isEmpty()) continue;
+			if(line.charAt(0) == '#') continue;
+			return line;
 		}
+		throw new IOException("no valid line found.");
 	}
 }
